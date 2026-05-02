@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Payroll Dashboard</title>
+  <style>
+    :root {
+      --bg: #eef0eb;
+      --panel: #fafaf6;
+      --ink: #1e2b27;
+      --muted: #63706d;
+      --line: rgba(30, 43, 39, 0.12);
+      --accent: #245a52;
+      --accent-soft: #dbe9e6;
+      --folder: #f2e4be;
+      --folder-deep: #d8b869;
+      --shadow: 0 18px 48px rgba(53, 62, 57, 0.1);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #f7f8f3 0%, #edf1eb 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto 48px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      color: var(--accent);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 0.95;
+    }
+
+    .hero p,
+    .panel-copy {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .filter-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .filter-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .filter-select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 11px 12px;
+      background: white;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    .filter-select:focus {
+      outline: 2px solid rgba(36, 90, 82, 0.18);
+      border-color: rgba(36, 90, 82, 0.35);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--accent);
+      max-width: 100%;
+    }
+
+    #totalSubmittedPay {
+      font-size: clamp(1rem, 4vw, 1.45rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .file-item {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1.35fr) minmax(120px, 0.8fr) minmax(120px, 0.8fr) minmax(140px, 0.9fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .file-item:hover {
+      transform: translateY(-1px);
+      border-color: rgba(36, 90, 82, 0.28);
+      box-shadow: 0 10px 24px rgba(36, 90, 82, 0.08);
+    }
+
+    .folder-icon {
+      width: 58px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, var(--folder) 0%, #ebd69e 100%);
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(113, 85, 12, 0.12);
+    }
+
+    .folder-icon::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: 8px;
+      width: 24px;
+      height: 12px;
+      border-radius: 8px 8px 0 0;
+      background: var(--folder-deep);
+    }
+
+    .file-name {
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .file-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .file-meta {
+      font-size: 0.92rem;
+    }
+
+    .file-pay {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .delete-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: #bd5d38;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, opacity 140ms ease;
+    }
+
+    .delete-button:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      background: white;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 16px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    @media (max-width: 820px) {
+      .page {
+        width: min(100% - 18px, 1180px);
+        margin-top: 10px;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+      }
+
+      .toolbar {
+        display: grid;
+        align-items: start;
+        grid-template-columns: 1fr;
+      }
+
+      .button {
+        width: 100%;
+        justify-content: center;
+        display: flex;
+      }
+
+      .filters,
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .stat {
+        padding: 12px;
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+        letter-spacing: 0.06em;
+      }
+
+      .stat-value {
+        font-size: 1.1rem;
+      }
+
+      #totalSubmittedPay {
+        font-size: clamp(0.95rem, 4.5vw, 1.1rem);
+      }
+
+      .file-item {
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .file-item > :nth-child(3),
+      .file-item > :nth-child(4),
+      .file-item > :nth-child(5),
+      .file-item > :nth-child(6) {
+        grid-column: 2;
+      }
+
+      .file-item > :nth-child(3),
+      .file-item > :nth-child(4) {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .file-item > :nth-child(5) {
+        margin-top: 2px;
+      }
+
+      .file-item > :nth-child(6) {
+        margin-top: 4px;
+      }
+
+      .delete-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <p class="eyebrow">Manager View</p>
+      <h1>Payroll Submissions</h1>
+      <p>Submitted monthly payroll snapshots from employees appear here in a file-manager-style list.</p>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <div>
+          <h2 style="margin:0 0 6px;">Submitted Entries</h2>
+          <p class="panel-copy">Open any entry to inspect the employee's full monthly payroll view.</p>
+        </div>
+        <a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat">
+          <span class="stat-label">Submissions</span>
+          <span class="stat-value" id="submissionCount">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Employees</span>
+          <span class="stat-value" id="employeeCount">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Total Submitted Pay</span>
+          <span class="stat-value" id="totalSubmittedPay">$0.00</span>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-card">
+          <div class="filter-title">Visible Years</div>
+          <select class="filter-select" id="yearFilters"></select>
+        </div>
+        <div class="filter-card">
+          <div class="filter-title">Visible Months</div>
+          <select class="filter-select" id="monthFilters"></select>
+        </div>
+      </div>
+
+      <div id="fileList" class="file-list"></div>
+    </section>
+  </div>
+
+  <script>
+    const submissionStorageKey = "chessGrandeSubmittedPayrolls";
+    const filterStorageKey = "chessGrandeManagerDashboardFilters";
+    const fileList = document.getElementById("fileList");
+    const submissionCount = document.getElementById("submissionCount");
+    const employeeCount = document.getElementById("employeeCount");
+    const totalSubmittedPay = document.getElementById("totalSubmittedPay");
+    const yearFilters = document.getElementById("yearFilters");
+    const monthFilters = document.getElementById("monthFilters");
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    render();
+
+    function loadSubmissions() {
+      try {
+        return JSON.parse(localStorage.getItem(submissionStorageKey)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function render() {
+      const submissions = loadSubmissions()
+        .map((submission) => ({
+          ...submission,
+          year: getSubmissionYear(submission),
+          monthNumber: getSubmissionMonthNumber(submission),
+        }))
+        .sort((a, b) => {
+          const yearCompare = (b.year || 0) - (a.year || 0);
+          if (yearCompare !== 0) return yearCompare;
+          const monthCompare = (b.monthNumber || 0) - (a.monthNumber || 0);
+          if (monthCompare !== 0) return monthCompare;
+          const timeCompare = (b.submittedAt || "").localeCompare(a.submittedAt || "");
+          if (timeCompare !== 0) return timeCompare;
+          return (a.employeeName || "").localeCompare(b.employeeName || "");
+        });
+
+      const filters = loadFilters();
+      renderFilterControls(submissions, filters);
+
+      const visibleSubmissions = submissions.filter((submission) => {
+        const yearVisible = !filters.selectedYear || String(submission.year) === filters.selectedYear;
+        const monthVisible = !filters.selectedMonth || String(submission.monthNumber) === filters.selectedMonth;
+        return yearVisible && monthVisible;
+      });
+
+      submissionCount.textContent = visibleSubmissions.length;
+      employeeCount.textContent = new Set(visibleSubmissions.map((item) => item.employeeName)).size;
+      totalSubmittedPay.textContent = formatCurrency(
+        visibleSubmissions.reduce((sum, item) => sum + Number(item.totalPay || 0), 0)
+      );
+
+      fileList.innerHTML = "";
+
+      if (!visibleSubmissions.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = submissions.length
+          ? "No submissions match the current year or month filters."
+          : "No employee submissions yet.";
+        fileList.appendChild(empty);
+        return;
+      }
+
+      visibleSubmissions.forEach((submission) => {
+        const link = document.createElement("a");
+        link.className = "file-item";
+        link.href = `./manager-entry.html?id=${encodeURIComponent(submission.id)}`;
+        link.innerHTML = `
+          <div class="folder-icon" aria-hidden="true"></div>
+          <div>
+            <div class="file-name">${escapeHtml(submission.employeeName || "Unnamed Employee")}</div>
+            <div class="file-sub">${escapeHtml(submission.monthLabel || submission.month || "")}</div>
+          </div>
+          <div class="file-meta">${trimHours(submission.totalHours || 0)} hrs</div>
+          <div class="file-meta">${formatCurrency(submission.hourlyRate || 0)}/hr</div>
+          <div class="file-pay">${formatCurrency(submission.totalPay || 0)}</div>
+          <div><button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}">Delete</button></div>
+        `;
+        fileList.appendChild(link);
+      });
+
+      fileList.querySelectorAll(".delete-button").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const submission = submissions.find((item) => item.id === button.dataset.id);
+          const label = submission?.employeeName
+            ? `${submission.employeeName} - ${submission.monthLabel || submission.month || "submission"}`
+            : "this submission";
+
+          const confirmed = confirm(`Delete ${label}?`);
+          if (!confirmed) return;
+
+          const nextSubmissions = loadSubmissions().filter((item) => item.id !== button.dataset.id);
+          localStorage.setItem(submissionStorageKey, JSON.stringify(nextSubmissions));
+          render();
+        });
+      });
+    }
+
+    function renderFilterControls(submissions, filters) {
+      const years = [...new Set(submissions.map((item) => String(item.year)).filter(Boolean))]
+        .sort((a, b) => Number(b) - Number(a));
+      const months = [...new Set(submissions.map((item) => Number(item.monthNumber)).filter(Boolean))]
+        .sort((a, b) => a - b);
+
+      renderFilterSelect({
+        container: yearFilters,
+        values: years,
+        selectedValue: filters.selectedYear,
+        placeholder: "All Years",
+        labelForValue: (value) => value,
+        key: "selectedYear",
+      });
+
+      renderFilterSelect({
+        container: monthFilters,
+        values: months,
+        selectedValue: filters.selectedMonth,
+        placeholder: "All Months",
+        labelForValue: (value) => monthNames[Number(value) - 1] || String(value),
+        key: "selectedMonth",
+      });
+    }
+
+    function renderFilterSelect({ container, values, selectedValue, placeholder, labelForValue, key }) {
+      container.innerHTML = "";
+      const placeholderOption = document.createElement("option");
+      placeholderOption.value = "";
+      placeholderOption.textContent = placeholder;
+      container.appendChild(placeholderOption);
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = String(value);
+        option.textContent = labelForValue(value);
+        container.appendChild(option);
+      });
+
+      container.value = selectedValue || "";
+      container.onchange = () => {
+        const filters = loadFilters();
+        filters[key] = container.value;
+        saveFilters(filters);
+        render();
+      };
+    }
+
+    function loadFilters() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(filterStorageKey)) || {};
+        return {
+          selectedYear: typeof parsed.selectedYear === "string" ? parsed.selectedYear : "",
+          selectedMonth: typeof parsed.selectedMonth === "string" ? parsed.selectedMonth : "",
+        };
+      } catch {
+        return { selectedYear: "", selectedMonth: "" };
+      }
+    }
+
+    function saveFilters(filters) {
+      localStorage.setItem(filterStorageKey, JSON.stringify(filters));
+    }
+
+    function getSubmissionYear(submission) {
+      const [year] = String(submission.month || "").split("-");
+      return Number(year) || 0;
+    }
+
+    function getSubmissionMonthNumber(submission) {
+      const [, month] = String(submission.month || "").split("-");
+      return Number(month) || 0;
+    }
+
+    function trimHours(value) {
+      return Number(value).toFixed(2).replace(/\\.00$/, "").replace(/(\\.\\d)0$/, "$1");
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "SGD",
+      }).format(Number(value || 0));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+  </script>
+</body>
+</html>

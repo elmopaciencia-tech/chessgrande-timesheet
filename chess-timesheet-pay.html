@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Grande Monthly Pay</title>
+  <style>
+    :root {
+      --bg: #f4efe5;
+      --panel: rgba(255, 250, 242, 0.94);
+      --panel-strong: #fffaf2;
+      --ink: #1d2a2a;
+      --muted: #5d6a67;
+      --line: rgba(29, 42, 42, 0.12);
+      --brand: #bd5d38;
+      --accent: #245a52;
+      --accent-soft: #dcebe7;
+      --calendar: #fbf6ee;
+      --shadow: 0 20px 60px rgba(77, 52, 35, 0.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(189, 93, 56, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(36, 90, 82, 0.16), transparent 24%),
+        linear-gradient(180deg, #f7f2e9 0%, #f0eadf 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto 48px;
+    }
+
+    .hero, .panel {
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      display: grid;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      color: var(--brand);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.9rem, 5vw, 3.2rem);
+      line-height: 0.95;
+    }
+
+    .hero p,
+    .panel-copy,
+    .label-note {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .month-box,
+    .stat,
+    .pay-card,
+    .school-card {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    .month-box {
+      padding: 16px;
+      min-width: 240px;
+      overflow: hidden;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input,
+    button {
+      font: inherit;
+    }
+
+    input[type="month"],
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      background: white;
+      color: var(--ink);
+    }
+
+    #monthPicker {
+      display: block;
+      max-width: 100%;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(189, 93, 56, 0.22);
+      border-color: rgba(189, 93, 56, 0.5);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 0.96fr 1.04fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel h2 {
+      margin: 0 0 6px;
+      font-size: 1.15rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    button,
+    .nav-link {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: transform 140ms ease, background 140ms ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover,
+    .nav-link:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: var(--brand);
+      color: white;
+      font-weight: 700;
+    }
+
+    .secondary {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      padding: 16px;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 5px;
+      margin-top: 14px;
+    }
+
+    .weekday,
+    .day {
+      border-radius: 16px;
+    }
+
+    .weekday {
+      padding: 4px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .day {
+      min-height: 70px;
+      background: var(--calendar);
+      border: 1px solid var(--line);
+      padding: 6px 6px 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+    }
+
+    .day.outside {
+      opacity: 0.45;
+    }
+
+    .day.today {
+      border-color: rgba(36, 90, 82, 0.42);
+      box-shadow: inset 0 0 0 1px rgba(36, 90, 82, 0.18);
+    }
+
+    .day-number {
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .day-items {
+      display: grid;
+      gap: 3px;
+      align-content: start;
+    }
+
+    .chip {
+      font-size: 0.62rem;
+      line-height: 1.1;
+      background: white;
+      border: 1px solid rgba(36, 90, 82, 0.12);
+      color: var(--accent);
+      padding: 3px 5px;
+      border-radius: 8px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .chip strong {
+      display: inline;
+      color: var(--ink);
+      margin-right: 4px;
+    }
+
+    .pay-card {
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      min-height: 1.2em;
+      color: var(--accent);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .actions + .label-note {
+      margin-top: 12px;
+      display: block;
+    }
+
+    .pay-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .pay-line:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .pay-line strong {
+      font-size: 1.22rem;
+      color: var(--brand);
+    }
+
+    .groups {
+      margin-top: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .school-card {
+      padding: 16px;
+    }
+
+    .school-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .school-head h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .school-meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    .entry-image {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .entry-image-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: zoom-in;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    .entry-image-placeholder {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 1200;
+      padding: 24px;
+    }
+
+    .lightbox[hidden] {
+      display: none;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: min(96vw, 1200px);
+      max-height: 90vh;
+      outline: none;
+    }
+
+    .lightbox-image {
+      display: block;
+      max-width: 100%;
+      max-height: 90vh;
+      width: auto;
+      height: auto;
+      border-radius: 14px;
+      object-fit: contain;
+      background: #111;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 0;
+      background: #fff;
+      color: #1d2a2a;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 9px 8px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    .entry-actions {
+      width: 140px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .row-remove-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: #bd5d38;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, opacity 140ms ease;
+    }
+
+    .row-remove-button:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--calendar);
+      color: var(--muted);
+      border: 1px dashed rgba(29, 42, 42, 0.16);
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 18px, 1180px);
+        margin-top: 10px;
+      }
+
+      .hero-top {
+        display: grid;
+        align-items: start;
+      }
+
+      .month-box {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+      }
+
+      .form-grid,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .actions > * {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .calendar-grid {
+        gap: 4px;
+      }
+
+      .day {
+        min-height: 62px;
+        padding: 5px;
+      }
+
+      .pay-line {
+        display: grid;
+        gap: 4px;
+      }
+
+      table,
+      thead,
+      tbody,
+      th,
+      td,
+      tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      td {
+        padding: 8px 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+      }
+
+      .entry-actions {
+        width: 100%;
+        text-align: left;
+      }
+
+      .row-remove-button {
+        width: 100%;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <p class="eyebrow">Monthly Payroll View</p>
+          <h1>Chess Grande Pay Summary</h1>
+        </div>
+        <div class="month-box">
+          <label for="monthPicker">Viewing Month</label>
+          <input id="monthPicker" type="month">
+        </div>
+      </div>
+      <p>
+        This page pulls the same timesheet entries from the main tracker, shows them on a compact calendar,
+        and calculates your monthly pay using your saved hourly rate.
+      </p>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <h2>Your Details</h2>
+        <p class="panel-copy">Save your payment details here for quick monthly payroll reference.</p>
+        <form id="payForm">
+          <div class="form-grid">
+            <div class="full">
+              <label for="fullName">Your Name</label>
+              <input id="fullName" type="text" placeholder="e.g. Elmo" required>
+            </div>
+            <div class="full">
+              <label for="bankAccount">Bank Account Number</label>
+              <input id="bankAccount" type="text" placeholder="e.g. 111-222-333-444" required>
+            </div>
+            <div>
+              <label for="hourlyRate">Pay Per Hour</label>
+              <input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 55" required>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" type="submit" id="submitToServer">Submit</button>
+            <a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a>
+          </div>
+          <p class="label-note">Your details are saved automatically in browser local storage on this device.</p>
+          <div class="status-message" id="submitStatus"></div>
+        </form>
+
+        <div class="summary">
+          <div class="stat">
+            <span class="stat-label">Calculated Pay</span>
+            <span class="stat-value" id="summaryPay">SGD 0.00</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Hours</span>
+            <span class="stat-value" id="hoursCount">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Rate</span>
+            <span class="stat-value" id="rateCount">$0</span>
+          </div>
+        </div>
+
+        <div class="pay-card">
+          <div class="pay-line"><span>Name</span><span id="payName">-</span></div>
+          <div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div>
+          <div class="pay-line"><span>Month</span><span id="payMonth">-</span></div>
+          <div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div>
+          <div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">$0.00</strong></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 id="calendarTitle">Month View</h2>
+        <p class="panel-copy">This mirrors the calendar entries from the main timesheet page for the selected month.</p>
+        <div id="calendar" class="calendar-grid"></div>
+      </section>
+    </div>
+
+    <section class="panel" style="margin-top: 20px;">
+      <h2>Entries By School</h2>
+      <p class="panel-copy">The same entries are grouped alphabetically so you can cross-check the pay total.</p>
+      <div id="schoolGroups" class="groups"></div>
+    </section>
+  </div>
+
+  <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
+    <div class="lightbox-content" id="imageLightboxContent" tabindex="-1">
+      <button class="lightbox-close" id="imageLightboxClose" type="button" aria-label="Close image viewer">×</button>
+      <img class="lightbox-image" id="imageLightboxImg" src="" alt="">
+    </div>
+  </div>
+
+  <template id="schoolTemplate">
+    <article class="school-card">
+      <div class="school-head">
+        <h3></h3>
+        <div class="school-meta"></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Hours</th>
+            <th>Time</th>
+            <th class="entry-actions"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </article>
+  </template>
+
+  <script>
+    const entryStorageKey = "chessGrandeTimesheetEntries";
+    const payStorageKey = "chessGrandePayrollProfile";
+    const submissionStorageKey = "chessGrandeSubmittedPayrolls";
+    const monthPicker = document.getElementById("monthPicker");
+    const payForm = document.getElementById("payForm");
+    const calendar = document.getElementById("calendar");
+    const calendarTitle = document.getElementById("calendarTitle");
+    const schoolGroups = document.getElementById("schoolGroups");
+    const schoolTemplate = document.getElementById("schoolTemplate");
+    const fullNameInput = document.getElementById("fullName");
+    const bankAccountInput = document.getElementById("bankAccount");
+    const hourlyRateInput = document.getElementById("hourlyRate");
+    const submitToServerButton = document.getElementById("submitToServer");
+    const submitStatus = document.getElementById("submitStatus");
+    const summaryPay = document.getElementById("summaryPay");
+    const hoursCount = document.getElementById("hoursCount");
+    const rateCount = document.getElementById("rateCount");
+    const payName = document.getElementById("payName");
+    const payBank = document.getElementById("payBank");
+    const payMonth = document.getElementById("payMonth");
+    const payHours = document.getElementById("payHours");
+    const payTotal = document.getElementById("payTotal");
+    const imageLightbox = document.getElementById("imageLightbox");
+    const imageLightboxContent = document.getElementById("imageLightboxContent");
+    const imageLightboxImg = document.getElementById("imageLightboxImg");
+    const imageLightboxClose = document.getElementById("imageLightboxClose");
+    const storageBackends = getStorageBackends();
+
+    let entries = loadEntries();
+    let lightboxLastFocus = null;
+    let lightboxPreviousOverflow = "";
+
+    initializeMonth();
+    loadProfileIntoForm();
+    initImageViewer();
+    render();
+
+    monthPicker.addEventListener("change", render);
+
+    [fullNameInput, bankAccountInput, hourlyRateInput].forEach((input) => {
+      input.addEventListener("input", () => {
+        saveProfile();
+        render();
+      });
+      input.addEventListener("change", () => {
+        saveProfile();
+        render();
+      });
+    });
+
+    payForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveProfile();
+      render();
+
+      const profile = loadProfile();
+      const activeEntries = getEntriesForMonth(monthPicker.value);
+      const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+      const hourlyRate = Number(profile.hourlyRate || 0);
+      const totalPay = activeEntries.reduce(
+        (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
+        0
+      );
+
+      if (!profile.fullName || !profile.bankAccount || !hourlyRate) {
+        submitStatus.textContent = "Save your name, bank account number, and hourly rate before submitting.";
+        return;
+      }
+
+      if (!activeEntries.length) {
+        submitStatus.textContent = "Add at least one entry for this month before submitting.";
+        return;
+      }
+
+      const submissions = loadSubmissions();
+      const submission = {
+        id: generateId(),
+        submittedAt: new Date().toISOString(),
+        month: monthPicker.value,
+        monthLabel: formatMonthLabel(monthPicker.value),
+        employeeName: profile.fullName,
+        bankAccount: profile.bankAccount,
+        hourlyRate,
+        totalHours,
+        totalPay,
+        entries: activeEntries.map((entry) => ({ ...entry })),
+      };
+
+      submissions.push(submission);
+      writeJsonToStorage(submissionStorageKey, submissions);
+      submitStatus.textContent = `Submitted ${submission.monthLabel} for ${submission.employeeName}.`;
+      alert("Submitted!");
+      window.location.href = "./chess-timesheet.html";
+    });
+
+    function generateId() {
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+      }
+      return Date.now().toString(36) + Math.random().toString(36).substring(2);
+    }
+
+    function initializeMonth() {
+      const params = new URLSearchParams(window.location.search);
+      const monthFromQuery = params.get("month");
+      monthPicker.value = monthFromQuery || formatMonthValue(new Date());
+    }
+
+    function loadEntries() {
+      return readArrayFromStorage(entryStorageKey);
+    }
+
+    function loadProfile() {
+      return readObjectFromStorage(payStorageKey);
+    }
+
+    function loadSubmissions() {
+      return readArrayFromStorage(submissionStorageKey);
+    }
+
+    function saveProfile() {
+      const profile = {
+        fullName: fullNameInput.value.trim(),
+        bankAccount: bankAccountInput.value.trim(),
+        hourlyRate: Number(hourlyRateInput.value || 0),
+      };
+      writeJsonToStorage(payStorageKey, profile);
+    }
+
+    function loadProfileIntoForm() {
+      const profile = loadProfile();
+      fullNameInput.value = profile.fullName || "";
+      bankAccountInput.value = profile.bankAccount || "";
+      hourlyRateInput.value = profile.hourlyRate || "";
+    }
+
+    function render() {
+      entries = loadEntries();
+      const profile = loadProfile();
+      const activeEntries = getEntriesForMonth(monthPicker.value);
+      const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+      const hourlyRate = Number(profile.hourlyRate || 0);
+      const totalPay = activeEntries.reduce(
+        (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
+        0
+      );
+
+      summaryPay.textContent = formatCurrency(totalPay);
+      hoursCount.textContent = trimHours(totalHours);
+      rateCount.textContent = formatCurrency(hourlyRate);
+      payName.textContent = profile.fullName || "-";
+      payBank.textContent = profile.bankAccount || "-";
+      payMonth.textContent = formatMonthLabel(monthPicker.value);
+      payHours.textContent = trimHours(totalHours);
+      payTotal.textContent = formatCurrency(totalPay);
+
+      renderCalendar(activeEntries, monthPicker.value);
+      renderGroups(activeEntries);
+    }
+
+    function getEntriesForMonth(monthValue) {
+      return entries
+        .filter((entry) => entry.date.startsWith(monthValue))
+        .sort((a, b) => {
+          const dateCompare = a.date.localeCompare(b.date);
+          if (dateCompare !== 0) return dateCompare;
+          return a.startTime.localeCompare(b.startTime);
+        });
+    }
+
+    function renderCalendar(activeEntries, monthValue) {
+      calendar.innerHTML = "";
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      weekdays.forEach((day) => {
+        const cell = document.createElement("div");
+        cell.className = "weekday";
+        cell.textContent = day;
+        calendar.appendChild(cell);
+      });
+
+      const [year, month] = monthValue.split("-").map(Number);
+      const firstDay = new Date(year, month - 1, 1);
+      const lastDay = new Date(year, month, 0);
+      const startGrid = new Date(firstDay);
+      startGrid.setDate(startGrid.getDate() - firstDay.getDay());
+      const endGrid = new Date(lastDay);
+      endGrid.setDate(endGrid.getDate() + (6 - lastDay.getDay()));
+
+      calendarTitle.textContent = formatMonthLabel(monthValue);
+
+      const groupedByDate = groupBy(activeEntries, (entry) => entry.date);
+      const today = formatDateInput(new Date());
+
+      for (let day = new Date(startGrid); day <= endGrid; day.setDate(day.getDate() + 1)) {
+        const key = formatDateInput(day);
+        const cell = document.createElement("div");
+        cell.className = "day";
+        if (day.getMonth() !== month - 1) cell.classList.add("outside");
+        if (key === today) cell.classList.add("today");
+
+        const number = document.createElement("div");
+        number.className = "day-number";
+        number.textContent = String(day.getDate());
+        cell.appendChild(number);
+
+        const items = document.createElement("div");
+        items.className = "day-items";
+        (groupedByDate[key] || []).forEach((entry) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
+          items.appendChild(chip);
+        });
+
+        cell.appendChild(items);
+        calendar.appendChild(cell);
+      }
+    }
+
+    function renderGroups(activeEntries) {
+      schoolGroups.innerHTML = "";
+      if (!activeEntries.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No entries found for this month.";
+        schoolGroups.appendChild(empty);
+        return;
+      }
+
+      const grouped = groupBy(activeEntries, (entry) => normalizeSchool(entry.schoolName));
+      const sortedSchools = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+
+      sortedSchools.forEach((schoolKey) => {
+        const schoolEntries = grouped[schoolKey];
+        const fragment = schoolTemplate.content.cloneNode(true);
+        fragment.querySelector("h3").textContent = schoolEntries[0].schoolName;
+        const isClaimGroup = schoolEntries.every((entry) => entry.type === "Claim");
+        const headRow = fragment.querySelector("thead tr");
+        headRow.innerHTML = isClaimGroup
+          ? `<th>Image</th><th>Date</th><th>Type</th><th class="entry-actions"></th>`
+          : `<th>Date</th><th>Type</th><th>Hours</th><th>Time</th><th class="entry-actions"></th>`;
+
+        const totalHours = schoolEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+        fragment.querySelector(".school-meta").textContent =
+          `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
+
+        const body = fragment.querySelector("tbody");
+        schoolEntries.forEach((entry) => {
+          const row = document.createElement("tr");
+          if (entry.type === "Claim") {
+            row.innerHTML = `
+              <td data-label="Image">${formatImageCell(entry)}</td>
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td class="entry-actions" data-label="Action"><button type="button" class="row-remove-button" data-remove-id="${escapeHtml(entry.id)}">Remove</button></td>
+            `;
+          } else {
+            row.innerHTML = `
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td data-label="Hours">${trimHours(entry.hours)}</td>
+              <td data-label="Time">${formatTimeRange(entry)}</td>
+              <td class="entry-actions" data-label="Action"><button type="button" class="row-remove-button" data-remove-id="${escapeHtml(entry.id)}">Remove</button></td>
+            `;
+          }
+          body.appendChild(row);
+        });
+
+        schoolGroups.appendChild(fragment);
+      });
+    }
+
+    function groupBy(list, getKey) {
+      return list.reduce((acc, item) => {
+        const key = getKey(item);
+        acc[key] ||= [];
+        acc[key].push(item);
+        return acc;
+      }, {});
+    }
+
+    function normalizeSchool(value) {
+      return value.trim().toLocaleLowerCase();
+    }
+
+    function formatMonthValue(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function formatDateInput(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatLongDate(value) {
+      const date = new Date(value + "T00:00:00");
+      return date.toLocaleDateString(undefined, {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      });
+    }
+
+    function formatMonthLabel(value) {
+      const [year, month] = value.split("-").map(Number);
+      return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+        month: "long",
+        year: "numeric",
+      });
+    }
+
+    function formatTime(value) {
+      if (!value) return "";
+      const [hours, minutes] = value.split(":").map(Number);
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+
+    function trimHours(value) {
+      return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "SGD",
+      }).format(Number(value || 0));
+    }
+
+    function formatEntryType(entry) {
+      if (entry.type === "Replacement" && entry.replacementName) {
+        return `${escapeHtml(entry.type)} for ${escapeHtml(entry.replacementName)}`;
+      }
+      if ((entry.type === "Private" || entry.type === "Event") && Number(entry.customRate) > 0) {
+        return `${escapeHtml(entry.type)} @ ${formatCurrency(entry.customRate)}/hr`;
+      }
+      return escapeHtml(entry.type);
+    }
+
+    function formatTimeRange(entry) {
+      if (entry.type === "Claim") {
+        return entry.claimProofName ? `Proof: ${escapeHtml(entry.claimProofName)}` : "Claim";
+      }
+      const start = formatTime(entry.startTime);
+      const end = formatTime(entry.endTime);
+      if (!start || !end) return "-";
+      return `${start}-${end}`;
+    }
+
+    function formatImageCell(entry) {
+      if (entry.type !== "Claim") {
+        return "";
+      }
+      if (entry.claimProofDataUrl) {
+        const altText = entry.claimProofName ? escapeHtml(entry.claimProofName) : "Proof";
+        return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
+      }
+      return `<div class="entry-image-placeholder"></div>`;
+    }
+
+    function initImageViewer() {
+      schoolGroups.addEventListener("click", (event) => {
+        const removeButton = event.target.closest("[data-remove-id]");
+        if (removeButton) {
+          event.preventDefault();
+          removeEntry(removeButton.dataset.removeId);
+          return;
+        }
+        const trigger = event.target.closest("[data-lightbox-src]");
+        if (!trigger) return;
+        event.preventDefault();
+        openLightbox(trigger.dataset.lightboxSrc, trigger.dataset.lightboxAlt || "Proof image", trigger);
+      });
+
+      imageLightboxClose.addEventListener("click", closeLightbox);
+      imageLightbox.addEventListener("click", (event) => {
+        if (event.target === imageLightbox) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !imageLightbox.hidden) {
+          event.preventDefault();
+          closeLightbox();
+        }
+      });
+    }
+
+    function openLightbox(src, alt, trigger) {
+      if (!src) return;
+      lightboxLastFocus = trigger || document.activeElement;
+      lightboxPreviousOverflow = document.body.style.overflow;
+      imageLightboxImg.src = src;
+      imageLightboxImg.alt = alt || "Proof image";
+      imageLightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+      imageLightboxClose.focus();
+      imageLightboxContent.scrollTop = 0;
+    }
+
+    function closeLightbox() {
+      if (imageLightbox.hidden) return;
+      imageLightbox.hidden = true;
+      imageLightboxImg.src = "";
+      imageLightboxImg.alt = "";
+      document.body.style.overflow = lightboxPreviousOverflow;
+      if (lightboxLastFocus && typeof lightboxLastFocus.focus === "function") {
+        lightboxLastFocus.focus();
+      }
+    }
+
+    function calculateEntryPay(entry, defaultRate) {
+      const customRate = Number(entry.customRate || 0);
+      const appliedRate = customRate > 0 ? customRate : Number(defaultRate || 0);
+      return Number(entry.hours || 0) * appliedRate;
+    }
+
+    function removeEntry(entryId) {
+      if (!entryId) return;
+      const nextEntries = loadEntries().filter((entry) => entry.id !== entryId);
+      writeJsonToStorage(entryStorageKey, nextEntries);
+      entries = nextEntries;
+      render();
+    }
+
+    function getStorageBackends() {
+      const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+      const preferred = isMobile ? [window.sessionStorage, window.localStorage] : [window.localStorage, window.sessionStorage];
+      return preferred.filter((storage) => canUseStorage(storage));
+    }
+
+    function canUseStorage(storage) {
+      try {
+        const probeKey = "__cg_probe__";
+        storage.setItem(probeKey, "1");
+        storage.removeItem(probeKey);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function readArrayFromStorage(key) {
+      for (const storage of storageBackends) {
+        try {
+          const raw = storage.getItem(key);
+          if (!raw) continue;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {
+          // Try next backend.
+        }
+      }
+      return [];
+    }
+
+    function readObjectFromStorage(key) {
+      for (const storage of storageBackends) {
+        try {
+          const raw = storage.getItem(key);
+          if (!raw) continue;
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+        } catch {
+          // Try next backend.
+        }
+      }
+      return {};
+    }
+
+    function writeJsonToStorage(key, value) {
+      const payload = JSON.stringify(value);
+      storageBackends.forEach((storage) => {
+        try {
+          storage.setItem(key, payload);
+        } catch {
+          // Ignore unavailable storage backend.
+        }
+      });
+    }
+
+    function escapeHtml(value) {
+      if (typeof value !== "string") return value;
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>

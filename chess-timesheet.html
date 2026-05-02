@@ -1,0 +1,1410 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Grande Timesheet</title>
+  <style>
+    :root {
+      --bg: #f4efe5;
+      --panel: rgba(255, 250, 242, 0.92);
+      --panel-strong: #fffaf2;
+      --ink: #1d2a2a;
+      --muted: #5d6a67;
+      --line: rgba(29, 42, 42, 0.12);
+      --brand: #bd5d38;
+      --brand-deep: #8f3f1e;
+      --accent: #245a52;
+      --accent-soft: #dcebe7;
+      --calendar: #fbf6ee;
+      --shadow: 0 20px 60px rgba(77, 52, 35, 0.12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(189, 93, 56, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(36, 90, 82, 0.16), transparent 24%),
+        linear-gradient(180deg, #f7f2e9 0%, #f0eadf 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto 48px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      display: grid;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      color: var(--brand-deep);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 0.95;
+      max-width: 19ch;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 60ch;
+      line-height: 1.5;
+    }
+
+    .month-box {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      min-width: 240px;
+    }
+
+    .month-box label,
+    form label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .month-box input,
+    form input,
+    form select,
+    form button {
+      font: inherit;
+    }
+
+    input[type="month"],
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="number"],
+    select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      background: white;
+      color: var(--ink);
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid rgba(189, 93, 56, 0.22);
+      border-color: rgba(189, 93, 56, 0.5);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.06fr 0.94fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel h2 {
+      margin: 0 0 6px;
+      font-size: 1.15rem;
+    }
+
+    .panel-copy {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .form-grid.compact {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--calendar);
+      border: 1px solid var(--line);
+    }
+
+    .checkbox-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--brand);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: transform 140ms ease, opacity 140ms ease, background 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: var(--brand);
+      color: white;
+      font-weight: 700;
+    }
+
+    .secondary {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      padding: 16px;
+      background: var(--calendar);
+      border-radius: 18px;
+      border: 1px solid var(--line);
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .calendar-actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .nav-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 16px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 140ms ease, background 140ms ease;
+    }
+
+    .nav-button:hover {
+      transform: translateY(-1px);
+      background: #1e4d47;
+    }
+
+    .weekday,
+    .day {
+      border-radius: 16px;
+    }
+
+    .weekday {
+      padding: 4px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .day {
+      min-height: 70px;
+      background: var(--calendar);
+      border: 1px solid var(--line);
+      padding: 6px 6px 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+    }
+
+    .day.outside {
+      opacity: 0.45;
+    }
+
+    .day.today {
+      border-color: rgba(36, 90, 82, 0.42);
+      box-shadow: inset 0 0 0 1px rgba(36, 90, 82, 0.18);
+    }
+
+    .day-number {
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .day-items {
+      display: grid;
+      gap: 3px;
+      align-content: start;
+    }
+
+    .chip {
+      font-size: 0.62rem;
+      line-height: 1.1;
+      background: white;
+      border: 1px solid rgba(36, 90, 82, 0.12);
+      color: var(--accent);
+      padding: 3px 5px;
+      border-radius: 8px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .chip strong {
+      display: inline;
+      color: var(--ink);
+      margin-right: 4px;
+    }
+
+    .groups {
+      margin-top: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .school-card {
+      border-radius: 20px;
+      padding: 18px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+    }
+
+    .school-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .school-head h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .school-meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    .entry-image {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .entry-image-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: zoom-in;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    .entry-image-placeholder {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 1200;
+      padding: 24px;
+    }
+
+    .lightbox[hidden] {
+      display: none;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: min(96vw, 1200px);
+      max-height: 90vh;
+      outline: none;
+    }
+
+    .lightbox-image {
+      display: block;
+      max-width: 100%;
+      max-height: 90vh;
+      width: auto;
+      height: auto;
+      border-radius: 14px;
+      object-fit: contain;
+      background: #111;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 0;
+      background: #fff;
+      color: #1d2a2a;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--calendar);
+      color: var(--muted);
+      border: 1px dashed rgba(29, 42, 42, 0.16);
+      text-align: center;
+    }
+
+    .entry-actions {
+      width: 160px;
+      min-width: 160px;
+    }
+
+    .entry-actions button {
+      width: 100%;
+      display: inline-flex;
+      justify-content: center;
+      padding: 7px 12px;
+      font-size: 0.84rem;
+    }
+
+    .entry-actions .ghost {
+      border: 0;
+      border-radius: 999px;
+      background: #bd5d38;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, opacity 140ms ease;
+    }
+
+    .entry-actions .ghost:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 18px, 1180px);
+        margin-top: 10px;
+      }
+
+      .hero-top {
+        display: grid;
+        align-items: start;
+      }
+
+      .month-box {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+      }
+
+      .form-grid,
+      .form-grid.compact,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .calendar-grid {
+        gap: 4px;
+      }
+
+      .actions,
+      .calendar-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .actions > *,
+      .calendar-actions > * {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .day {
+        min-height: 62px;
+        padding: 5px;
+      }
+
+      table,
+      thead,
+      tbody,
+      th,
+      td,
+      tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      td {
+        padding: 8px 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <p class="eyebrow">Streamlined Monthly Tracker</p>
+          <h1>Chess Grande Timesheet</h1>
+        </div>
+        <div class="month-box">
+          <label for="monthPicker">Viewing Month</label>
+          <input id="monthPicker" type="month">
+        </div>
+      </div>
+      <p>
+        Add one teaching block at a time, or let weekly recurring entries fill the rest of the month for you.
+        The calendar gives a visual snapshot, while the list below keeps everything grouped by school name.
+      </p>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <h2>Add Entry</h2>
+        <p class="panel-copy">
+          Use this form for school sessions. Weekly recurring entries repeat on the same weekday from the chosen date
+          until the end of the displayed month.
+        </p>
+        <form id="entryForm">
+          <div class="form-grid">
+            <div class="full">
+              <label for="schoolName">School Name</label>
+              <input id="schoolName" name="schoolName" type="text" placeholder="e.g. Anchor Green" required>
+            </div>
+            <div>
+              <label for="entryDate">Date</label>
+              <input id="entryDate" name="entryDate" type="date" required>
+            </div>
+            <div>
+              <label for="entryType">Entry Type</label>
+              <select id="entryType" name="entryType">
+                <option value="School Coaching">School Coaching</option>
+                <option value="Replacement">Replacement</option>
+                <option value="Camp">Camp</option>
+                <option value="Private">Private</option>
+                <option value="Event">Event</option>
+                <option value="Claim">Claim</option>
+              </select>
+            </div>
+            <div class="full" id="replacementField" hidden>
+              <label for="replacementName">Replaced Person</label>
+              <input id="replacementName" name="replacementName" type="text" placeholder="e.g. Ericka">
+            </div>
+            <div class="full" id="customRateField" hidden>
+              <label for="customRate">Custom Pay Per Hour (for Private/Event)</label>
+              <input id="customRate" name="customRate" type="number" min="0" step="0.01" placeholder="e.g. 75">
+            </div>
+          </div>
+
+          <div id="timeFieldsMount"></div>
+
+          <div class="checkbox-row" id="recurringRow">
+            <input id="isRecurring" name="isRecurring" type="checkbox">
+            <label for="isRecurring" style="margin: 0;">Repeat weekly for this school until the end of the selected month</label>
+          </div>
+
+          <div id="claimFieldsMount"></div>
+
+          <div class="actions">
+            <button class="primary" type="submit" id="addEntry">Add Entry</button>
+            <button class="secondary" type="button" id="seedDemo">Load Demo Data</button>
+            <button class="ghost" type="button" id="clearMonth">Clear This Month</button>
+          </div>
+          <div class="hint">
+            End time is calculated automatically from the start time and hours worked.
+          </div>
+        </form>
+
+        <div class="summary">
+          <div class="stat">
+            <span class="stat-label">Schools</span>
+            <span class="stat-value" id="schoolCount">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Entries</span>
+            <span class="stat-value" id="entryCount">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Hours</span>
+            <span class="stat-value" id="hoursCount">0</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="calendar-head">
+          <div>
+            <h2 id="calendarTitle">Month View</h2>
+            <p class="panel-copy" style="margin-bottom: 0;">Visual reference for all entries in the active month.</p>
+          </div>
+        </div>
+        <div id="calendar" class="calendar-grid"></div>
+        <div class="calendar-actions">
+          <a class="nav-button" id="payrollLink" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Open Monthly Pay View</a>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel" style="margin-top: 20px;">
+      <h2>Entries By School</h2>
+      <p class="panel-copy">
+        Schools are sorted alphabetically. Inside each school, entries are sorted by date, then by start time.
+      </p>
+      <div id="schoolGroups" class="groups"></div>
+      <p class="footer-note">
+        Data is saved in your browser using local storage on this device.
+      </p>
+    </section>
+  </div>
+
+  <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
+    <div class="lightbox-content" id="imageLightboxContent" tabindex="-1">
+      <button class="lightbox-close" id="imageLightboxClose" type="button" aria-label="Close image viewer">×</button>
+      <img class="lightbox-image" id="imageLightboxImg" src="" alt="">
+    </div>
+  </div>
+
+  <template id="claimFieldsTemplate">
+    <div class="form-grid" id="claimFields">
+      <div class="full">
+        <label for="claimNotes">Claim Notes</label>
+        <input id="claimNotes" name="claimNotes" type="text" placeholder="e.g. Transport reimbursement">
+      </div>
+      <div class="full">
+        <label for="claimProof">Proof Image</label>
+        <input id="claimProof" name="claimProof" type="file" accept="image/*">
+      </div>
+    </div>
+  </template>
+
+  <template id="timeFieldsTemplate">
+    <div class="form-grid compact" id="timeFields">
+      <div>
+        <label for="startTime">Start Time</label>
+        <input id="startTime" name="startTime" type="time" required>
+      </div>
+      <div>
+        <label for="hoursWorked">Hours Worked</label>
+        <input id="hoursWorked" name="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
+      </div>
+    </div>
+  </template>
+
+  <template id="schoolTemplate">
+    <article class="school-card">
+      <div class="school-head">
+        <h3></h3>
+        <div class="school-meta"></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Hours</th>
+            <th>Time</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </article>
+  </template>
+
+  <script>
+    const storageKey = "chessGrandeTimesheetEntries";
+    const monthPicker = document.getElementById("monthPicker");
+    const form = document.getElementById("entryForm");
+    const schoolGroups = document.getElementById("schoolGroups");
+    const calendar = document.getElementById("calendar");
+    const calendarTitle = document.getElementById("calendarTitle");
+    const schoolTemplate = document.getElementById("schoolTemplate");
+    const schoolCount = document.getElementById("schoolCount");
+    const entryCount = document.getElementById("entryCount");
+    const hoursCount = document.getElementById("hoursCount");
+    const addEntryButton = document.getElementById("addEntry");
+    const seedDemoButton = document.getElementById("seedDemo");
+    const clearMonthButton = document.getElementById("clearMonth");
+    const payrollLink = document.getElementById("payrollLink");
+    const entryTypeSelect = document.getElementById("entryType");
+    const replacementField = document.getElementById("replacementField");
+    const replacementNameInput = document.getElementById("replacementName");
+    const customRateField = document.getElementById("customRateField");
+    const customRateInput = document.getElementById("customRate");
+    const timeFieldsMount = document.getElementById("timeFieldsMount");
+    const timeFieldsTemplate = document.getElementById("timeFieldsTemplate");
+    const recurringRow = document.getElementById("recurringRow");
+    const claimFieldsMount = document.getElementById("claimFieldsMount");
+    const claimFieldsTemplate = document.getElementById("claimFieldsTemplate");
+    const imageLightbox = document.getElementById("imageLightbox");
+    const imageLightboxContent = document.getElementById("imageLightboxContent");
+    const imageLightboxImg = document.getElementById("imageLightboxImg");
+    const imageLightboxClose = document.getElementById("imageLightboxClose");
+
+    let entries = loadEntries();
+    let lightboxLastFocus = null;
+    let lightboxPreviousOverflow = "";
+
+    initializeMonth();
+    syncPayrollLink();
+    ensureTimeFieldsRendered();
+    initImageViewer();
+    render();
+
+    monthPicker.addEventListener("change", () => {
+      syncDateFieldToMonth();
+      syncPayrollLink();
+      render();
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      addEntriesFromForm();
+    });
+
+    bindAction(seedDemoButton, seedDemoData);
+    bindAction(clearMonthButton, clearCurrentMonth);
+    entryTypeSelect.addEventListener("change", syncReplacementField);
+    entryTypeSelect.addEventListener("input", syncReplacementField);
+
+    function bindAction(element, handler) {
+      if (!element) return;
+      let touchHandled = false;
+
+      element.addEventListener("touchend", (event) => {
+        touchHandled = true;
+        event.preventDefault();
+        handler();
+        window.setTimeout(() => {
+          touchHandled = false;
+        }, 250);
+      }, { passive: false });
+
+      element.addEventListener("click", (event) => {
+        if (touchHandled) {
+          event.preventDefault();
+          return;
+        }
+        handler();
+      });
+    }
+
+
+    function syncPayrollLink() {
+      const payrollUrl = new URL("./chess-timesheet-pay.html", window.location.href);
+      payrollUrl.searchParams.set("month", monthPicker.value);
+      payrollLink.href = payrollUrl.toString();
+    }
+
+    function syncReplacementField() {
+      const isReplacement = entryTypeSelect.value === "Replacement";
+      const isClaim = entryTypeSelect.value === "Claim";
+      replacementField.hidden = !isReplacement;
+      replacementNameInput.required = isReplacement;
+      if (!isReplacement) {
+        replacementNameInput.value = "";
+      }
+
+      const supportsCustomRate = entryTypeSelect.value === "Private" || entryTypeSelect.value === "Event";
+      customRateField.hidden = !supportsCustomRate;
+      if (!supportsCustomRate) {
+        customRateInput.value = "";
+      }
+
+      recurringRow.hidden = isClaim;
+      recurringRow.style.display = isClaim ? "none" : "flex";
+      recurringRow.setAttribute("aria-hidden", isClaim ? "true" : "false");
+      document.getElementById("schoolName").required = !isClaim;
+      if (isClaim) {
+        unmountTimeFields();
+        ensureClaimFieldsRendered();
+        const claimNotesInput = document.getElementById("claimNotes");
+        const claimProofInput = document.getElementById("claimProof");
+        claimNotesInput.required = true;
+        claimProofInput.required = true;
+        replacementNameInput.value = "";
+        customRateInput.value = "";
+      } else {
+        ensureTimeFieldsRendered();
+        unmountClaimFields();
+      }
+    }
+
+    function initializeMonth() {
+      const today = new Date();
+      monthPicker.value = formatMonthValue(today);
+      syncDateFieldToMonth();
+      syncReplacementField();
+    }
+
+    function syncDateFieldToMonth() {
+      const dateField = document.getElementById("entryDate");
+      const currentValue = dateField.value;
+      const [year, month] = monthPicker.value.split("-").map(Number);
+      if (!year || !month) return;
+
+      if (!currentValue || !currentValue.startsWith(monthPicker.value)) {
+        dateField.value = formatDateInput(new Date(year, month - 1, 1));
+      }
+    }
+
+    function loadEntries() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveEntries() {
+      localStorage.setItem(storageKey, JSON.stringify(entries));
+    }
+
+    async function addEntriesFromForm() {
+      const schoolName = document.getElementById("schoolName").value.trim();
+      const entryDate = document.getElementById("entryDate").value;
+      const entryType = document.getElementById("entryType").value;
+      const startTimeInput = document.getElementById("startTime");
+      const hoursWorkedInput = document.getElementById("hoursWorked");
+      const startTime = startTimeInput ? startTimeInput.value : "";
+      const hoursWorked = hoursWorkedInput ? Number(hoursWorkedInput.value) : 0;
+      const replacementName = replacementNameInput.value.trim();
+      const customRateValue = Number(customRateInput.value);
+      const hasCustomRate = (entryType === "Private" || entryType === "Event") && customRateInput.value !== "";
+      const isClaim = entryType === "Claim";
+      const claimNotesInput = document.getElementById("claimNotes");
+      const claimProofInput = document.getElementById("claimProof");
+      const claimNotes = claimNotesInput ? claimNotesInput.value.trim() : "";
+      const isRecurring = document.getElementById("isRecurring").checked;
+      const claimProofFile = claimProofInput && claimProofInput.files && claimProofInput.files[0];
+
+      if (!entryDate) return;
+      if (!isClaim && (!schoolName || !startTime || !hoursWorked)) return;
+      if (isClaim && (!claimNotes || !claimProofFile)) return;
+      if (entryType === "Replacement" && !replacementName) return;
+
+      if (!isClaim && hoursWorked <= 0) {
+        alert("Hours worked needs to be greater than zero.");
+        return;
+      }
+      const endTime = isClaim ? "" : calculateEndTime(startTime, hoursWorked);
+      let claimProofDataUrl = null;
+      if (isClaim) {
+        try {
+          claimProofDataUrl = await fileToDataUrl(claimProofFile);
+        } catch {
+          alert("Could not read the proof image. Please try again.");
+          return;
+        }
+      }
+
+      const baseEntry = {
+        schoolName: isClaim ? "Claims" : schoolName,
+        date: entryDate,
+        type: entryType,
+        startTime: isClaim ? "" : startTime,
+        endTime,
+        hours: isClaim ? 0 : hoursWorked,
+        replacementName: entryType === "Replacement" ? replacementName : "",
+        customRate: hasCustomRate && customRateValue > 0 ? customRateValue : null,
+        claimNotes: isClaim ? claimNotes : "",
+        claimProofName: isClaim ? claimProofFile.name : "",
+        claimProofDataUrl,
+      };
+
+      const newEntries = isRecurring
+        ? buildWeeklyEntries(baseEntry, monthPicker.value)
+        : [baseEntry];
+
+      entries.push(...newEntries.map((entry) => ({ ...entry, id: generateId() })));
+      saveEntries();
+      form.reset();
+      syncDateFieldToMonth();
+      syncReplacementField();
+      render();
+    }
+
+    function generateId() {
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+      }
+      return Date.now().toString(36) + Math.random().toString(36).substring(2);
+    }
+
+    function buildWeeklyEntries(baseEntry, monthValue) {
+      const [year, month] = monthValue.split("-").map(Number);
+      const firstDate = new Date(baseEntry.date + "T00:00:00");
+      const lastDay = new Date(year, month, 0);
+      const built = [];
+      let current = new Date(firstDate);
+
+      while (
+        current.getFullYear() === year &&
+        current.getMonth() === month - 1 &&
+        current <= lastDay
+      ) {
+        built.push({
+          ...baseEntry,
+          date: formatDateInput(current),
+        });
+        current.setDate(current.getDate() + 7);
+      }
+
+      return built;
+    }
+
+    function calculateEndTime(startTime, hoursWorked) {
+      const totalMinutes = toMinutes(startTime) + Math.round(Number(hoursWorked) * 60);
+      const minutesInDay = 24 * 60;
+      const normalized = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
+      const hours = String(Math.floor(normalized / 60)).padStart(2, "0");
+      const minutes = String(normalized % 60).padStart(2, "0");
+      return `${hours}:${minutes}`;
+    }
+
+    function toMinutes(value) {
+      const [hours, minutes] = value.split(":").map(Number);
+      return hours * 60 + minutes;
+    }
+
+    function render() {
+      const activeEntries = getEntriesForMonth(monthPicker.value);
+      updateSummary(activeEntries);
+      renderCalendar(activeEntries, monthPicker.value);
+      renderGroups(activeEntries);
+    }
+
+    function getEntriesForMonth(monthValue) {
+      return entries
+        .filter((entry) => entry.date.startsWith(monthValue))
+        .sort((a, b) => {
+          const dateCompare = a.date.localeCompare(b.date);
+          if (dateCompare !== 0) return dateCompare;
+          return a.startTime.localeCompare(b.startTime);
+        });
+    }
+
+    function updateSummary(activeEntries) {
+      const schools = new Set(activeEntries.map((entry) => normalizeSchool(entry.schoolName)));
+      const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+      schoolCount.textContent = schools.size;
+      entryCount.textContent = activeEntries.length;
+      hoursCount.textContent = trimHours(totalHours);
+    }
+
+    function renderCalendar(activeEntries, monthValue) {
+      calendar.innerHTML = "";
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      weekdays.forEach((day) => {
+        const cell = document.createElement("div");
+        cell.className = "weekday";
+        cell.textContent = day;
+        calendar.appendChild(cell);
+      });
+
+      const [year, month] = monthValue.split("-").map(Number);
+      const firstDay = new Date(year, month - 1, 1);
+      const lastDay = new Date(year, month, 0);
+      const startGrid = new Date(firstDay);
+      startGrid.setDate(startGrid.getDate() - firstDay.getDay());
+
+      const endGrid = new Date(lastDay);
+      endGrid.setDate(endGrid.getDate() + (6 - lastDay.getDay()));
+
+      calendarTitle.textContent = firstDay.toLocaleDateString(undefined, {
+        month: "long",
+        year: "numeric",
+      });
+
+      const groupedByDate = groupBy(activeEntries, (entry) => entry.date);
+      const today = formatDateInput(new Date());
+
+      for (let day = new Date(startGrid); day <= endGrid; day.setDate(day.getDate() + 1)) {
+        const key = formatDateInput(day);
+        const cell = document.createElement("div");
+        cell.className = "day";
+        if (day.getMonth() !== month - 1) cell.classList.add("outside");
+        if (key === today) cell.classList.add("today");
+
+        const number = document.createElement("div");
+        number.className = "day-number";
+        number.textContent = String(day.getDate());
+        cell.appendChild(number);
+
+        const items = document.createElement("div");
+        items.className = "day-items";
+
+        (groupedByDate[key] || []).forEach((entry) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
+          items.appendChild(chip);
+        });
+
+        cell.appendChild(items);
+        calendar.appendChild(cell);
+      }
+    }
+
+    function renderGroups(activeEntries) {
+      schoolGroups.innerHTML = "";
+      if (!activeEntries.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No entries yet for this month. Add one above to start building the timesheet.";
+        schoolGroups.appendChild(empty);
+        return;
+      }
+
+      const grouped = groupBy(activeEntries, (entry) => normalizeSchool(entry.schoolName));
+      const sortedSchools = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+
+      sortedSchools.forEach((schoolKey) => {
+        const schoolEntries = grouped[schoolKey];
+        const fragment = schoolTemplate.content.cloneNode(true);
+        fragment.querySelector("h3").textContent = schoolEntries[0].schoolName;
+        const isClaimGroup = schoolEntries.every((entry) => entry.type === "Claim");
+        const headRow = fragment.querySelector("thead tr");
+        headRow.innerHTML = isClaimGroup
+          ? `<th>Image</th><th>Date</th><th>Type</th><th></th>`
+          : `<th>Date</th><th>Type</th><th>Hours</th><th>Time</th><th></th>`;
+
+        const totalHours = schoolEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+        fragment.querySelector(".school-meta").textContent =
+          `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
+
+        const body = fragment.querySelector("tbody");
+        schoolEntries.forEach((entry) => {
+          const row = document.createElement("tr");
+          if (entry.type === "Claim") {
+            row.innerHTML = `
+              <td data-label="Image">${formatImageCell(entry)}</td>
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td data-label="Action" class="entry-actions"><button class="ghost" type="button" data-id="${entry.id}">Remove</button></td>
+            `;
+          } else {
+            row.innerHTML = `
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td data-label="Hours">${trimHours(entry.hours)}</td>
+              <td data-label="Time">${formatTimeRange(entry)}</td>
+              <td data-label="Action" class="entry-actions"><button class="ghost" type="button" data-id="${entry.id}">Remove</button></td>
+            `;
+          }
+          body.appendChild(row);
+        });
+
+        schoolGroups.appendChild(fragment);
+      });
+
+      schoolGroups.querySelectorAll("[data-id]").forEach((button) => {
+        button.addEventListener("click", () => removeEntry(button.dataset.id));
+      });
+    }
+
+    function removeEntry(id) {
+      entries = entries.filter((entry) => entry.id !== id);
+      saveEntries();
+      render();
+    }
+
+    function clearCurrentMonth() {
+      const monthValue = monthPicker.value;
+      const monthEntries = getEntriesForMonth(monthValue);
+      if (!monthEntries.length) return;
+
+      const confirmed = confirm(`Remove all ${monthEntries.length} entries from ${calendarTitle.textContent}?`);
+      if (!confirmed) return;
+
+      entries = entries.filter((entry) => !entry.date.startsWith(monthValue));
+      saveEntries();
+      render();
+    }
+
+    function seedDemoData() {
+      const monthValue = monthPicker.value;
+      const [year, month] = monthValue.split("-").map(Number);
+      const samples = [
+        { schoolName: "Anchor Green", date: formatDateInput(new Date(year, month - 1, 7)), type: "School Coaching", startTime: "14:00", endTime: "16:00", hours: 2 },
+        { schoolName: "ACS", date: formatDateInput(new Date(year, month - 1, 9)), type: "School Coaching", startTime: "14:15", endTime: "16:15", hours: 2 },
+        { schoolName: "SCF Beginner Saturday", date: formatDateInput(new Date(year, month - 1, 12)), type: "Replacement", startTime: "15:30", endTime: "17:00", hours: 1.5 },
+      ];
+
+      entries.push(...samples.map((entry) => ({ ...entry, id: generateId() })));
+      saveEntries();
+      render();
+    }
+
+    function normalizeSchool(value) {
+      return value.trim().toLocaleLowerCase();
+    }
+
+    function groupBy(list, getKey) {
+      return list.reduce((acc, item) => {
+        const key = getKey(item);
+        acc[key] ||= [];
+        acc[key].push(item);
+        return acc;
+      }, {});
+    }
+
+    function formatMonthValue(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function formatDateInput(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatLongDate(value) {
+      const date = new Date(value + "T00:00:00");
+      return date.toLocaleDateString(undefined, {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      });
+    }
+
+    function formatTime(value) {
+      if (!value) return "";
+      const [hours, minutes] = value.split(":").map(Number);
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+
+    function formatTimeRange(entry) {
+      if (entry.type === "Claim") {
+        return entry.claimProofName ? `Proof: ${escapeHtml(entry.claimProofName)}` : "Claim";
+      }
+      const start = formatTime(entry.startTime);
+      const end = formatTime(entry.endTime);
+      if (!start || !end) return "-";
+      return `${start}-${end}`;
+    }
+
+    function formatImageCell(entry) {
+      if (entry.type !== "Claim") {
+        return "";
+      }
+      if (entry.claimProofDataUrl) {
+        const altText = entry.claimProofName ? escapeHtml(entry.claimProofName) : "Proof";
+        return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
+      }
+      return `<div class="entry-image-placeholder"></div>`;
+    }
+
+    function trimHours(value) {
+      return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+    }
+
+    function formatEntryType(entry) {
+      if (entry.type === "Replacement" && entry.replacementName) {
+        return `${escapeHtml(entry.type)} for ${escapeHtml(entry.replacementName)}`;
+      }
+      if ((entry.type === "Private" || entry.type === "Event") && Number(entry.customRate) > 0) {
+        return `${escapeHtml(entry.type)} @ ${formatCurrency(entry.customRate)}/hr`;
+      }
+      if (entry.type === "Claim") {
+        return `Claim: ${escapeHtml(entry.claimNotes || "")}`;
+      }
+      return escapeHtml(entry.type);
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "SGD",
+      }).format(Number(value || 0));
+    }
+
+    function escapeHtml(value) {
+      if (typeof value !== "string") return value;
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function ensureClaimFieldsRendered() {
+      if (document.getElementById("claimFields")) return;
+      claimFieldsMount.innerHTML = "";
+      claimFieldsMount.appendChild(claimFieldsTemplate.content.cloneNode(true));
+    }
+
+    function unmountClaimFields() {
+      claimFieldsMount.innerHTML = "";
+    }
+
+    function ensureTimeFieldsRendered() {
+      if (document.getElementById("timeFields")) return;
+      timeFieldsMount.innerHTML = "";
+      timeFieldsMount.appendChild(timeFieldsTemplate.content.cloneNode(true));
+    }
+
+    function unmountTimeFields() {
+      timeFieldsMount.innerHTML = "";
+    }
+
+    function initImageViewer() {
+      schoolGroups.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-lightbox-src]");
+        if (!trigger) return;
+        event.preventDefault();
+        openLightbox(trigger.dataset.lightboxSrc, trigger.dataset.lightboxAlt || "Proof image", trigger);
+      });
+
+      imageLightboxClose.addEventListener("click", closeLightbox);
+      imageLightbox.addEventListener("click", (event) => {
+        if (event.target === imageLightbox) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !imageLightbox.hidden) {
+          event.preventDefault();
+          closeLightbox();
+        }
+      });
+    }
+
+    function openLightbox(src, alt, trigger) {
+      if (!src) return;
+      lightboxLastFocus = trigger || document.activeElement;
+      lightboxPreviousOverflow = document.body.style.overflow;
+      imageLightboxImg.src = src;
+      imageLightboxImg.alt = alt || "Proof image";
+      imageLightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+      imageLightboxClose.focus();
+      imageLightboxContent.scrollTop = 0;
+    }
+
+    function closeLightbox() {
+      if (imageLightbox.hidden) return;
+      imageLightbox.hidden = true;
+      imageLightboxImg.src = "";
+      imageLightboxImg.alt = "";
+      document.body.style.overflow = lightboxPreviousOverflow;
+      if (lightboxLastFocus && typeof lightboxLastFocus.focus === "function") {
+        lightboxLastFocus.focus();
+      }
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Unable to read image file."));
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>
