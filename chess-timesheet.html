@@ -739,6 +739,7 @@
         <div id="calendar" class="calendar-grid"></div>
         <div class="calendar-actions">
           <a class="nav-button" id="payrollLink" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Open Monthly Pay View</a>
+          <button class="nav-button" id="logoutButton" type="button">Log Out</button>
         </div>
       </section>
     </div>
@@ -810,6 +811,9 @@
     </article>
   </template>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./auth.js"></script>
   <script>
     const storageKey = "chessGrandeTimesheetEntries";
     const monthPicker = document.getElementById("monthPicker");
@@ -825,6 +829,7 @@
     const seedDemoButton = document.getElementById("seedDemo");
     const clearMonthButton = document.getElementById("clearMonth");
     const payrollLink = document.getElementById("payrollLink");
+    const logoutButton = document.getElementById("logoutButton");
     const entryTypeSelect = document.getElementById("entryType");
     const replacementField = document.getElementById("replacementField");
     const replacementNameInput = document.getElementById("replacementName");
@@ -839,16 +844,25 @@
     const imageLightboxContent = document.getElementById("imageLightboxContent");
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
+    const claimProofBucket = "claim-proofs";
 
-    let entries = loadEntries();
+    let entries = [];
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
 
-    initializeMonth();
-    syncPayrollLink();
-    ensureTimeFieldsRendered();
-    initImageViewer();
-    render();
+    initApp();
+
+    async function initApp() {
+      const user = await requireLogin();
+      if (!user) return;
+      entries = loadEntries();
+      initializeMonth();
+      syncPayrollLink();
+      ensureTimeFieldsRendered();
+      initImageViewer();
+      logoutButton.addEventListener("click", logout);
+      render();
+    }
 
     monthPicker.addEventListener("change", () => {
       syncDateFieldToMonth();
@@ -988,11 +1002,14 @@
       }
       const endTime = isClaim ? "" : calculateEndTime(startTime, hoursWorked);
       let claimProofDataUrl = null;
+      let claimImagePath = "";
       if (isClaim) {
         try {
-          claimProofDataUrl = await fileToDataUrl(claimProofFile);
-        } catch {
-          alert("Could not read the proof image. Please try again.");
+          const uploadResult = await uploadClaimProofToStorage(claimProofFile, monthPicker.value);
+          claimImagePath = uploadResult.path;
+          claimProofDataUrl = uploadResult.previewUrl || "";
+        } catch (error) {
+          alert(error && error.message ? error.message : "Could not upload the proof image. Please try again.");
           return;
         }
       }
@@ -1008,6 +1025,7 @@
         customRate: hasCustomRate && customRateValue > 0 ? customRateValue : null,
         claimNotes: isClaim ? claimNotes : "",
         claimProofName: isClaim ? claimProofFile.name : "",
+        claimImagePath,
         claimProofDataUrl,
       };
 
@@ -1397,13 +1415,47 @@
       }
     }
 
-    function fileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error("Unable to read image file."));
-        reader.readAsDataURL(file);
-      });
+    async function uploadClaimProofToStorage(file, monthValue) {
+      const user = await getCurrentUser();
+      if (!user) {
+        throw new Error("Please log in before uploading a claim proof image.");
+      }
+
+      const safeFileName = sanitizeFileName(file.name || "proof-image");
+      const path = `${user.id}/${monthValue}/${Date.now()}-${generateId()}-${safeFileName}`;
+
+      const { error: uploadError } = await window.supabaseClient.storage
+        .from(claimProofBucket)
+        .upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type || "application/octet-stream",
+        });
+
+      if (uploadError) {
+        throw new Error(`Could not upload claim proof: ${uploadError.message || "unknown error"}`);
+      }
+
+      const { data: signed, error: signError } = await window.supabaseClient.storage
+        .from(claimProofBucket)
+        .createSignedUrl(path, 60 * 60 * 24 * 7);
+      if (signError) {
+        console.warn("Could not create signed preview URL for claim proof:", signError.message);
+      }
+
+      return {
+        path,
+        previewUrl: signed?.signedUrl || "",
+      };
+    }
+
+    function sanitizeFileName(name) {
+      return String(name)
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9._-]/g, "")
+        .replace(/^-+/, "")
+        .slice(0, 120) || "proof-image";
     }
   </script>
 </body>

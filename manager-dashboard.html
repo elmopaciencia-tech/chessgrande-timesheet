@@ -360,7 +360,10 @@
           <h2 style="margin:0 0 6px;">Submitted Entries</h2>
           <p class="panel-copy">Open any entry to inspect the employee's full monthly payroll view.</p>
         </div>
-        <a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a>
+          <button class="button" type="button" id="logoutButton">Log Out</button>
+        </div>
       </div>
 
       <div class="stat-row">
@@ -393,8 +396,10 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./auth.js"></script>
   <script>
-    const submissionStorageKey = "chessGrandeSubmittedPayrolls";
     const filterStorageKey = "chessGrandeManagerDashboardFilters";
     const fileList = document.getElementById("fileList");
     const submissionCount = document.getElementById("submissionCount");
@@ -402,36 +407,68 @@
     const totalSubmittedPay = document.getElementById("totalSubmittedPay");
     const yearFilters = document.getElementById("yearFilters");
     const monthFilters = document.getElementById("monthFilters");
+    const logoutButton = document.getElementById("logoutButton");
 
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
 
-    render();
+    initApp();
 
-    function loadSubmissions() {
-      try {
-        return JSON.parse(localStorage.getItem(submissionStorageKey)) || [];
-      } catch {
-        return [];
-      }
+    async function initApp() {
+      const user = await requireManager();
+      if (!user) return;
+      logoutButton.addEventListener("click", logout);
+      await render();
     }
 
-    function render() {
-      const submissions = loadSubmissions()
+    async function loadSubmissions() {
+      const { data, error } = await window.supabaseClient
+        .from("payroll_submissions")
+        .select("*")
+        .order("submitted_at", { ascending: false });
+      return { data: data || [], error };
+    }
+
+    async function render() {
+      const { data, error } = await loadSubmissions();
+
+      if (error) {
+        console.error("Failed to load payroll submissions:", error);
+        submissionCount.textContent = "0";
+        employeeCount.textContent = "0";
+        totalSubmittedPay.textContent = formatCurrency(0);
+        fileList.innerHTML = "";
+        const message = document.createElement("div");
+        message.className = "empty";
+        message.textContent = `Could not load submissions: ${error.message || "unknown error"}`;
+        fileList.appendChild(message);
+        return;
+      }
+
+      const submissions = data
         .map((submission) => ({
-          ...submission,
+          id: submission.id,
+          employeeId: submission.employee_id,
+          submittedAt: submission.submitted_at,
+          month: submission.month,
+          monthLabel: submission.month_label,
+          employeeName: submission.employee_name,
+          bankAccount: submission.bank_account,
+          hourlyRate: submission.hourly_rate,
+          totalHours: submission.total_hours,
+          totalPay: submission.total_pay,
           year: getSubmissionYear(submission),
           monthNumber: getSubmissionMonthNumber(submission),
         }))
         .sort((a, b) => {
+          const timeCompare = (b.submittedAt || "").localeCompare(a.submittedAt || "");
+          if (timeCompare !== 0) return timeCompare;
           const yearCompare = (b.year || 0) - (a.year || 0);
           if (yearCompare !== 0) return yearCompare;
           const monthCompare = (b.monthNumber || 0) - (a.monthNumber || 0);
           if (monthCompare !== 0) return monthCompare;
-          const timeCompare = (b.submittedAt || "").localeCompare(a.submittedAt || "");
-          if (timeCompare !== 0) return timeCompare;
           return (a.employeeName || "").localeCompare(b.employeeName || "");
         });
 
@@ -445,7 +482,9 @@
       });
 
       submissionCount.textContent = visibleSubmissions.length;
-      employeeCount.textContent = new Set(visibleSubmissions.map((item) => item.employeeName)).size;
+      employeeCount.textContent = new Set(
+        visibleSubmissions.map((item) => item.employeeId || item.employeeName || "")
+      ).size;
       totalSubmittedPay.textContent = formatCurrency(
         visibleSubmissions.reduce((sum, item) => sum + Number(item.totalPay || 0), 0)
       );
@@ -481,7 +520,7 @@
       });
 
       fileList.querySelectorAll(".delete-button").forEach((button) => {
-        button.addEventListener("click", (event) => {
+        button.addEventListener("click", async (event) => {
           event.preventDefault();
           event.stopPropagation();
 
@@ -493,9 +532,18 @@
           const confirmed = confirm(`Delete ${label}?`);
           if (!confirmed) return;
 
-          const nextSubmissions = loadSubmissions().filter((item) => item.id !== button.dataset.id);
-          localStorage.setItem(submissionStorageKey, JSON.stringify(nextSubmissions));
-          render();
+          const { error: deleteError } = await window.supabaseClient
+            .from("payroll_submissions")
+            .delete()
+            .eq("id", button.dataset.id);
+
+          if (deleteError) {
+            console.error("Failed to delete submission:", deleteError);
+            alert(`Could not delete submission: ${deleteError.message || "unknown error"}`);
+            return;
+          }
+
+          await render();
         });
       });
     }
@@ -539,11 +587,11 @@
       });
 
       container.value = selectedValue || "";
-      container.onchange = () => {
+      container.onchange = async () => {
         const filters = loadFilters();
         filters[key] = container.value;
         saveFilters(filters);
-        render();
+        await render();
       };
     }
 

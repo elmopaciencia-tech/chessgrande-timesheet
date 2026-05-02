@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Chess Grande Payroll</title>
+  <style>
+    :root {
+      --bg: #f3f8f8;
+      --panel: #ffffff;
+      --text: #1d2a2a;
+      --muted: #5f7572;
+      --line: rgba(36, 90, 82, 0.18);
+      --accent: #245a52;
+      --accent-2: #bd5d38;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #edf6f5 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      padding: 18px;
+    }
+    .card {
+      width: min(520px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+    }
+    h1 { margin: 0 0 8px; font-size: 1.6rem; }
+    p { margin: 0 0 18px; color: var(--muted); }
+    label { display: block; margin-bottom: 6px; font-weight: 600; }
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      margin-bottom: 14px;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary { background: var(--accent); color: #fff; }
+    .secondary { background: rgba(189, 93, 56, 0.16); color: #7a3d25; }
+    .status {
+      margin-top: 12px;
+      min-height: 22px;
+      color: #7a3d25;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Chess Grande Payroll Login</h1>
+    <p>Sign in to continue.</p>
+
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+
+      <div class="actions">
+        <button class="primary" type="submit" id="loginButton">Log In</button>
+        <button class="secondary" type="button" id="signupButton">Sign Up</button>
+      </div>
+      <div class="status" id="statusMessage"></div>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const signupButton = document.getElementById("signupButton");
+    const statusMessage = document.getElementById("statusMessage");
+    const nextParam = new URLSearchParams(window.location.search).get("next");
+    const nextUrl = nextParam && !nextParam.includes("login.html") ? nextParam : "./chess-timesheet.html";
+
+    init();
+
+    async function init() {
+      const { data } = await window.supabaseClient.auth.getUser();
+      if (data.user) {
+        window.location.href = nextUrl;
+      }
+    }
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusMessage.textContent = "Logging in...";
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const { error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        statusMessage.textContent = error.message || "Login failed.";
+        return;
+      }
+      statusMessage.textContent = "Logged in. Redirecting...";
+      window.location.href = nextUrl;
+    });
+
+    signupButton.addEventListener("click", async () => {
+      statusMessage.textContent = "Creating account...";
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if (!email || !password) {
+        statusMessage.textContent = "Enter email and password first.";
+        return;
+      }
+
+      const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        statusMessage.textContent = error.message || "Sign up failed.";
+        return;
+      }
+
+      const userId = data.user && data.user.id;
+      if (userId) {
+        await window.supabaseClient
+          .from("profiles")
+          .upsert({ id: userId, full_name: "", role: "employee" }, { onConflict: "id" });
+      }
+
+      statusMessage.textContent = "Account created. Check your email if confirmation is required, then log in.";
+    });
+  </script>
+</body>
+</html>

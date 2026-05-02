@@ -591,6 +591,7 @@
         </div>
         <div style="margin-top: 16px;">
           <a class="button button-secondary" href="./manager-dashboard.html">Back To Dashboard</a>
+          <button class="button button-secondary" id="logoutButton" type="button">Log Out</button>
         </div>
       </section>
 
@@ -637,8 +638,10 @@
     </article>
   </template>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./auth.js"></script>
   <script>
-    const submissionStorageKey = "chessGrandeSubmittedPayrolls";
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
     const schoolGroups = document.getElementById("schoolGroups");
@@ -653,28 +656,89 @@
     const payMonth = document.getElementById("payMonth");
     const payHours = document.getElementById("payHours");
     const payTotal = document.getElementById("payTotal");
+    const logoutButton = document.getElementById("logoutButton");
     const imageLightbox = document.getElementById("imageLightbox");
     const imageLightboxContent = document.getElementById("imageLightboxContent");
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
+    const claimProofBucket = "claim-proofs";
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
 
-    initImageViewer();
-    render();
+    initApp();
 
-    function loadSubmissions() {
-      try {
-        return JSON.parse(localStorage.getItem(submissionStorageKey)) || [];
-      } catch {
-        return [];
-      }
+    async function initApp() {
+      const user = await requireManager();
+      if (!user) return;
+      logoutButton.addEventListener("click", logout);
+      initImageViewer();
+      await render();
     }
 
-    function render() {
+    async function render() {
       const params = new URLSearchParams(window.location.search);
       const id = params.get("id");
-      const submission = loadSubmissions().find((item) => item.id === id);
+
+      if (!id) {
+        document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">Submission not found.</div>`;
+        return;
+      }
+
+      const { data: submissionRow, error: submissionError } = await window.supabaseClient
+        .from("payroll_submissions")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (submissionError) {
+        const notFound = submissionError.code === "PGRST116";
+        const message = notFound
+          ? "Submission not found."
+          : `Could not load submission: ${submissionError.message || "unknown error"}`;
+        document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">${escapeHtml(message)}</div>`;
+        return;
+      }
+
+      const { data: entryRows, error: entriesError } = await window.supabaseClient
+        .from("payroll_entries")
+        .select("*")
+        .eq("submission_id", id);
+
+      if (entriesError) {
+        document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">${escapeHtml(`Could not load payroll entries: ${entriesError.message || "unknown error"}`)}</div>`;
+        return;
+      }
+
+      const resolvedEntries = await Promise.all((entryRows || []).map(async (row) => {
+        const resolvedClaimUrl = await resolveClaimImageUrl(row.claim_image_url || "");
+        return {
+          id: row.id,
+          schoolName: row.school_name,
+          date: row.date,
+          type: row.type,
+          startTime: row.start_time || "",
+          endTime: row.end_time || "",
+          hours: row.hours,
+          replacementName: row.replacement_name || "",
+          customRate: row.custom_rate,
+          claimNotes: row.claim_notes || "",
+          claimProofDataUrl: resolvedClaimUrl,
+          claimProofName: getClaimProofName(row.claim_image_url || ""),
+        };
+      }));
+
+      const submission = {
+        id: submissionRow.id,
+        submittedAt: submissionRow.submitted_at,
+        month: submissionRow.month,
+        monthLabel: submissionRow.month_label,
+        employeeName: submissionRow.employee_name,
+        bankAccount: submissionRow.bank_account,
+        hourlyRate: submissionRow.hourly_rate,
+        totalHours: submissionRow.total_hours,
+        totalPay: submissionRow.total_pay,
+        entries: resolvedEntries,
+      };
 
       if (!submission) {
         document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">Submission not found.</div>`;
@@ -803,28 +867,62 @@
       });
 
       schoolGroups.querySelectorAll("[data-entry-id]").forEach((button) => {
-        button.addEventListener("click", () => {
-          removeEntryFromSubmission(submission.id, button.dataset.entryId);
+        button.addEventListener("click", async () => {
+          await removeEntryFromSubmission(submission.id, button.dataset.entryId);
         });
       });
     }
 
-    function removeEntryFromSubmission(submissionId, entryId) {
-      const submissions = loadSubmissions();
-      const submission = submissions.find((item) => item.id === submissionId);
-      if (!submission) return;
+    async function removeEntryFromSubmission(submissionId, entryId) {
+      const { data: entry, error: entryError } = await window.supabaseClient
+        .from("payroll_entries")
+        .select("*")
+        .eq("id", entryId)
+        .maybeSingle();
+      if (entryError) {
+        alert(`Could not load entry: ${entryError.message || "unknown error"}`);
+        return;
+      }
+      if (!entry) return;
 
-      const entry = (submission.entries || []).find((item) => item.id === entryId);
-      const label = entry?.schoolName || "this entry";
-      const confirmed = confirm(`Remove ${label} on ${entry ? formatLongDate(entry.date) : "this date"}?`);
+      const label = entry?.school_name || "this entry";
+      const entryDate = entry.date || "";
+      const confirmed = confirm(`Remove ${label} on ${entryDate ? formatLongDate(entryDate) : "this date"}?`);
       if (!confirmed) return;
 
-      submission.entries = (submission.entries || []).filter((item) => item.id !== entryId);
-      submission.totalHours = (submission.entries || []).reduce((sum, item) => sum + Number(item.hours || 0), 0);
-      submission.totalPay = Number(submission.hourlyRate || 0) * Number(submission.totalHours || 0);
+      const { error: deleteError } = await window.supabaseClient
+        .from("payroll_entries")
+        .delete()
+        .eq("id", entryId);
+      if (deleteError) {
+        alert(`Could not remove entry: ${deleteError.message || "unknown error"}`);
+        return;
+      }
 
-      localStorage.setItem(submissionStorageKey, JSON.stringify(submissions));
-      render();
+      const { data: remainingEntries, error: remainingError } = await window.supabaseClient
+        .from("payroll_entries")
+        .select("hours, custom_rate")
+        .eq("submission_id", submissionId);
+      if (!remainingError) {
+        const { data: submissionRow } = await window.supabaseClient
+          .from("payroll_submissions")
+          .select("hourly_rate")
+          .eq("id", submissionId)
+          .maybeSingle();
+        const fallbackRate = Number(submissionRow?.hourly_rate || 0);
+        const totalHours = (remainingEntries || []).reduce((sum, item) => sum + Number(item.hours || 0), 0);
+        const totalPay = (remainingEntries || []).reduce((sum, item) => {
+          const rowRate = Number(item.custom_rate || 0);
+          const appliedRate = rowRate > 0 ? rowRate : fallbackRate;
+          return sum + Number(item.hours || 0) * appliedRate;
+        }, 0);
+        await window.supabaseClient
+          .from("payroll_submissions")
+          .update({ total_hours: totalHours, total_pay: totalPay })
+          .eq("id", submissionId);
+      }
+
+      await render();
     }
 
     function groupBy(list, getKey) {
@@ -907,6 +1005,29 @@
         return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
       }
       return `<div class="entry-image-placeholder"></div>`;
+    }
+
+    async function resolveClaimImageUrl(storedValue) {
+      if (!storedValue) return "";
+      if (/^https?:\/\//i.test(storedValue) || /^data:/i.test(storedValue)) {
+        return storedValue;
+      }
+
+      const { data, error } = await window.supabaseClient.storage
+        .from(claimProofBucket)
+        .createSignedUrl(storedValue, 60 * 60);
+      if (error) {
+        console.warn("Could not create signed claim image URL:", error.message);
+        return "";
+      }
+      return data?.signedUrl || "";
+    }
+
+    function getClaimProofName(storedValue) {
+      if (!storedValue) return "";
+      const raw = String(storedValue).split("?")[0];
+      const parts = raw.split("/");
+      return parts[parts.length - 1] || "Claim image";
     }
 
     function formatTimeRange(entry) {

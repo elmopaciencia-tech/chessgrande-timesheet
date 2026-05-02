@@ -639,6 +639,7 @@
           <div class="actions">
             <button class="primary" type="submit" id="submitToServer">Submit</button>
             <a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a>
+            <button class="secondary" type="button" id="logoutButton">Log Out</button>
           </div>
           <p class="label-note">Your details are saved automatically in browser local storage on this device.</p>
           <div class="status-message" id="submitStatus"></div>
@@ -711,10 +712,12 @@
     </article>
   </template>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./auth.js"></script>
   <script>
     const entryStorageKey = "chessGrandeTimesheetEntries";
     const payStorageKey = "chessGrandePayrollProfile";
-    const submissionStorageKey = "chessGrandeSubmittedPayrolls";
     const monthPicker = document.getElementById("monthPicker");
     const payForm = document.getElementById("payForm");
     const calendar = document.getElementById("calendar");
@@ -725,6 +728,7 @@
     const bankAccountInput = document.getElementById("bankAccount");
     const hourlyRateInput = document.getElementById("hourlyRate");
     const submitToServerButton = document.getElementById("submitToServer");
+    const logoutButton = document.getElementById("logoutButton");
     const submitStatus = document.getElementById("submitStatus");
     const summaryPay = document.getElementById("summaryPay");
     const hoursCount = document.getElementById("hoursCount");
@@ -740,14 +744,23 @@
     const imageLightboxClose = document.getElementById("imageLightboxClose");
     const storageBackends = getStorageBackends();
 
-    let entries = loadEntries();
+    let entries = [];
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
+    let isSubmitting = false;
 
-    initializeMonth();
-    loadProfileIntoForm();
-    initImageViewer();
-    render();
+    initApp();
+
+    async function initApp() {
+      const user = await requireLogin();
+      if (!user) return;
+      entries = loadEntries();
+      initializeMonth();
+      loadProfileIntoForm();
+      initImageViewer();
+      logoutButton.addEventListener("click", logout);
+      render();
+    }
 
     monthPicker.addEventListener("change", render);
 
@@ -762,49 +775,10 @@
       });
     });
 
-    payForm.addEventListener("submit", (event) => {
+    payForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      saveProfile();
-      render();
-
-      const profile = loadProfile();
-      const activeEntries = getEntriesForMonth(monthPicker.value);
-      const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
-      const hourlyRate = Number(profile.hourlyRate || 0);
-      const totalPay = activeEntries.reduce(
-        (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
-        0
-      );
-
-      if (!profile.fullName || !profile.bankAccount || !hourlyRate) {
-        submitStatus.textContent = "Save your name, bank account number, and hourly rate before submitting.";
-        return;
-      }
-
-      if (!activeEntries.length) {
-        submitStatus.textContent = "Add at least one entry for this month before submitting.";
-        return;
-      }
-
-      const submissions = loadSubmissions();
-      const submission = {
-        id: generateId(),
-        submittedAt: new Date().toISOString(),
-        month: monthPicker.value,
-        monthLabel: formatMonthLabel(monthPicker.value),
-        employeeName: profile.fullName,
-        bankAccount: profile.bankAccount,
-        hourlyRate,
-        totalHours,
-        totalPay,
-        entries: activeEntries.map((entry) => ({ ...entry })),
-      };
-
-      submissions.push(submission);
-      writeJsonToStorage(submissionStorageKey, submissions);
-      submitStatus.textContent = `Submitted ${submission.monthLabel} for ${submission.employeeName}.`;
-      alert("Submitted!");
-      window.location.href = "./chess-timesheet.html";
+      if (isSubmitting) return;
+      await submitPayrollToSupabase();
     });
 
     function generateId() {
@@ -828,10 +802,6 @@
       return readObjectFromStorage(payStorageKey);
     }
 
-    function loadSubmissions() {
-      return readArrayFromStorage(submissionStorageKey);
-    }
-
     function saveProfile() {
       const profile = {
         fullName: fullNameInput.value.trim(),
@@ -846,6 +816,107 @@
       fullNameInput.value = profile.fullName || "";
       bankAccountInput.value = profile.bankAccount || "";
       hourlyRateInput.value = profile.hourlyRate || "";
+    }
+
+    async function submitPayrollToSupabase() {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      submitToServerButton.disabled = true;
+
+      try {
+      saveProfile();
+      render();
+      submitStatus.textContent = "Submitting payroll...";
+
+      const user = await getCurrentUser();
+      if (!user) {
+        submitStatus.textContent = "Please log in again before submitting payroll.";
+        const nextUrl = window.location.pathname.split("/").pop() + window.location.search;
+        window.location.href = `./login.html?next=${encodeURIComponent(nextUrl)}`;
+        return;
+      }
+
+      const profile = loadProfile();
+      const selectedMonth = monthPicker.value;
+      const monthLabel = formatMonthLabel(selectedMonth);
+      const activeEntries = getEntriesForMonth(selectedMonth);
+      const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+      const hourlyRate = Number(profile.hourlyRate || 0);
+      const totalPay = activeEntries.reduce(
+        (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
+        0
+      );
+
+      if (!profile.fullName || !profile.bankAccount || !hourlyRate) {
+        submitStatus.textContent = "Save your name, bank account number, and hourly rate before submitting.";
+        return;
+      }
+
+      if (!activeEntries.length) {
+        submitStatus.textContent = "Add at least one entry for this month before submitting.";
+        return;
+      }
+
+      const { data: submission, error: submissionError } = await window.supabaseClient
+        .from("payroll_submissions")
+        .insert({
+          employee_id: user.id,
+          employee_name: profile.fullName,
+          bank_account: profile.bankAccount,
+          month: selectedMonth,
+          month_label: monthLabel,
+          hourly_rate: hourlyRate,
+          total_hours: totalHours,
+          total_pay: totalPay,
+        })
+        .select("id, month_label, employee_name")
+        .single();
+
+      if (submissionError || !submission) {
+        console.error("Failed to insert payroll submission:", submissionError);
+        submitStatus.textContent = `Could not save payroll submission: ${submissionError?.message || "unknown error"}`;
+        return;
+      }
+
+      const entryRows = activeEntries.map((entry) => ({
+        submission_id: submission.id,
+        school_name: entry.schoolName || "",
+        date: entry.date || null,
+        type: entry.type || "",
+        start_time: entry.startTime || null,
+        end_time: entry.endTime || null,
+        hours: Number(entry.hours || 0),
+        replacement_name: entry.replacementName || null,
+        custom_rate: entry.customRate != null ? Number(entry.customRate) : null,
+        claim_notes: entry.claimNotes || null,
+        claim_image_url: entry.claimImagePath || entry.claimProofDataUrl || null,
+      }));
+
+      const { error: entriesError } = await window.supabaseClient
+        .from("payroll_entries")
+        .insert(entryRows);
+
+      if (entriesError) {
+        console.error("Failed to insert payroll entries:", entriesError);
+        const { error: rollbackError } = await window.supabaseClient
+          .from("payroll_submissions")
+          .delete()
+          .eq("id", submission.id);
+        if (rollbackError) {
+          console.error("Rollback failed after payroll_entries insert error:", rollbackError);
+        }
+        submitStatus.textContent = `Submission failed while saving entries: ${entriesError.message}`;
+        return;
+      }
+
+      submitStatus.textContent = `Submitted ${submission.month_label} for ${submission.employee_name}.`;
+      } catch (error) {
+        console.error("Unexpected submit error:", error);
+        submitStatus.textContent = `Unexpected error during submission: ${error?.message || "unknown error"}`;
+      } finally {
+        isSubmitting = false;
+        submitToServerButton.disabled = false;
+      }
     }
 
     function render() {
