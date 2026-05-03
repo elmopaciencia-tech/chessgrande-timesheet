@@ -982,8 +982,9 @@
       const profileReady = await requireProfileSetup();
       if (!profileReady) return;
       const profile = await getCurrentProfile();
-      managerDashboardLink.hidden = !(profile && (profile.role === "manager" || profile.role === "webadmin"));
-      webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
+      const role = String(profile?.role || "").trim().toLowerCase();
+      managerDashboardLink.hidden = !(role === "manager" || role === "webadmin");
+      webAdminDashboardLink.hidden = role !== "webadmin";
       entries = loadEntries();
       setupMonthPickerUi();
       initializeMonth();
