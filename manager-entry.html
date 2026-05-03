@@ -780,12 +780,17 @@
 
     function setupUserMenu() {
       logoutButton.addEventListener("click", logout);
-      attachProfileMenu({
-        profileButton,
-        menuPanel: userMenuPanel,
-        menuButton: userMenuButton,
-        displayNameEl: menuProfileName,
-      });
+      if (typeof window.attachProfileMenu === "function") {
+        window.attachProfileMenu({
+          profileButton,
+          menuPanel: userMenuPanel,
+          menuButton: userMenuButton,
+          displayNameEl: menuProfileName,
+        });
+      } else {
+        console.warn("profile-ui.js is unavailable; Profile menu action is disabled on this load.");
+        profileButton.disabled = true;
+      }
 
       const syncMenuButtonLabel = () => {
         const name = (menuProfileName.textContent || "").trim();
