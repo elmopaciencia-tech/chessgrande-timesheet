@@ -1053,16 +1053,16 @@
     let lightboxPreviousOverflow = "";
 
     initApp();
+    window.addEventListener("profile-updated", async () => {
+      await applyRoleMenuVisibility();
+    });
 
     async function initApp() {
       const user = await requireLogin();
       if (!user) return;
       const profileReady = await requireProfileSetup();
       if (!profileReady) return;
-      const profile = await getCurrentProfile();
-      const role = String(profile?.role || "").trim().toLowerCase();
-      managerDashboardLink.hidden = !(role === "manager" || role === "webadmin");
-      webAdminDashboardLink.hidden = role !== "webadmin";
+      await applyRoleMenuVisibility();
       entries = loadEntries();
       setupMonthPickerUi();
       initializeMonth();
@@ -1096,6 +1096,7 @@
       nameObserver.observe(menuProfileName, { childList: true, characterData: true, subtree: true });
 
       userMenuButton.addEventListener("click", () => {
+        applyRoleMenuVisibility();
         const nextState = !userMenuPanel.hidden;
         userMenuPanel.hidden = nextState;
         userMenuButton.setAttribute("aria-expanded", String(!nextState));
@@ -1112,6 +1113,20 @@
           userMenuButton.setAttribute("aria-expanded", "false");
         }
       });
+    }
+
+    async function applyRoleMenuVisibility() {
+      const profile = await getCurrentProfile();
+      const role = String(profile?.role || "").trim().toLowerCase();
+      const canViewManager = role === "manager" || role === "webadmin";
+      const canViewWebAdmin = role === "webadmin";
+
+      managerDashboardLink.hidden = !canViewManager;
+      webAdminDashboardLink.hidden = !canViewWebAdmin;
+      managerDashboardLink.setAttribute("aria-hidden", String(!canViewManager));
+      webAdminDashboardLink.setAttribute("aria-hidden", String(!canViewWebAdmin));
+      managerDashboardLink.style.display = canViewManager ? "" : "none";
+      webAdminDashboardLink.style.display = canViewWebAdmin ? "" : "none";
     }
 
     monthPicker.addEventListener("change", () => {
