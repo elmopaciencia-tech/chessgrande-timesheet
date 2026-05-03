@@ -1624,9 +1624,26 @@
     }
 
     function calculateEntryPay(entry, defaultRate) {
+      if (entry.type === "Claim") {
+        return getClaimCostValue(entry);
+      }
       const customRate = Number(entry.customRate || 0);
       const appliedRate = customRate > 0 ? customRate : Number(defaultRate || 0);
       return Number(entry.hours || 0) * appliedRate;
+    }
+
+    function getClaimCostValue(entry) {
+      const direct = Number(entry.claimCost || 0);
+      if (Number.isFinite(direct) && direct > 0) {
+        return direct;
+      }
+      const noteText = String(entry.claimNotes || "");
+      const match = noteText.match(/^\[ClaimCost:(\d+(?:\.\d{1,2})?)\]\s*/i);
+      if (!match) {
+        return 0;
+      }
+      const parsed = Number(match[1]);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
     }
 
     function removeEntry(entryId) {
