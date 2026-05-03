@@ -318,7 +318,7 @@
     const bankName = bankNameInput.value.trim();
     const accountType = accountTypeInput.value.trim();
 
-    let { data, error } = await window.supabaseClient
+    const { data, error } = await window.supabaseClient
       .from("profiles")
       .upsert(
         {
@@ -334,23 +334,12 @@
       .select("*")
       .single();
 
-    // Backward-compatible fallback if phone_number column is not added yet.
-    if (error && /(phone_number|bank_account_number|bank_name|account_type)/i.test(error.message || "")) {
-      ({ data, error } = await window.supabaseClient
-        .from("profiles")
-        .upsert(
-          {
-            id: user.id,
-            full_name: fullName,
-          },
-          { onConflict: "id" }
-        )
-        .select("*")
-        .single());
-    }
-
     if (error) {
-      statusEl.textContent = `Could not save profile: ${error.message || "unknown error"}`;
+      if (/(phone_number|bank_account_number|bank_name|account_type)/i.test(error.message || "")) {
+        statusEl.textContent = "Could not save profile: run the latest SQL migration to add new profile columns.";
+      } else {
+        statusEl.textContent = `Could not save profile: ${error.message || "unknown error"}`;
+      }
       isSaving = false;
       saveButton.disabled = false;
       cancelButton.disabled = false;
