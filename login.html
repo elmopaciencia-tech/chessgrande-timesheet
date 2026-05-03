@@ -46,7 +46,7 @@
     }
     .actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 10px;
       margin-top: 4px;
     }
@@ -100,10 +100,10 @@
 
       <div class="actions">
         <button class="primary" type="submit" id="loginButton">Log In</button>
-        <button class="secondary" type="button" id="signupButton">Sign Up</button>
       </div>
       <div class="status" id="statusMessage"></div>
     </form>
+    <p class="footnote"><a href="./signup.html">Create a new employee account</a></p>
     <p class="footnote">By signing in, you agree to payroll data handling described in <a href="./privacy.html">Privacy & Security Notice</a>.</p>
   </main>
 
@@ -113,7 +113,6 @@
     const loginForm = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
-    const signupButton = document.getElementById("signupButton");
     const statusMessage = document.getElementById("statusMessage");
     const nextParam = new URLSearchParams(window.location.search).get("next");
     const nextUrl = nextParam && !nextParam.includes("login.html") ? nextParam : "./chess-timesheet.html";
@@ -141,30 +140,6 @@
       window.location.href = nextUrl;
     });
 
-    signupButton.addEventListener("click", async () => {
-      statusMessage.textContent = "Creating account...";
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-      if (!email || !password) {
-        statusMessage.textContent = "Enter email and password first.";
-        return;
-      }
-
-      const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
-      if (error) {
-        statusMessage.textContent = error.message || "Sign up failed.";
-        return;
-      }
-
-      const userId = data.user && data.user.id;
-      if (userId) {
-        await window.supabaseClient
-          .from("profiles")
-          .upsert({ id: userId, full_name: "", role: "employee" }, { onConflict: "id" });
-      }
-
-      statusMessage.textContent = "Account created. Check your email if confirmation is required, then log in.";
-    });
   </script>
 </body>
 </html>

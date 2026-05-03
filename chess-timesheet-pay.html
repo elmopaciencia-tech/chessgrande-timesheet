@@ -979,6 +979,8 @@
     async function initApp() {
       const user = await requireLogin();
       if (!user) return;
+      const profileReady = await requireProfileSetup();
+      if (!profileReady) return;
       const profile = await getCurrentProfile();
       managerDashboardLink.hidden = !(profile && (profile.role === "manager" || profile.role === "webadmin"));
       webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");

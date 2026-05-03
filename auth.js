@@ -12,6 +12,11 @@
     return `./login.html?next=${encodeURIComponent(current)}`;
   }
 
+  function getProfileSetupUrl() {
+    const current = window.location.pathname.split("/").pop() + window.location.search;
+    return `./profile-setup.html?next=${encodeURIComponent(current)}`;
+  }
+
   async function getCurrentUser() {
     const supabase = getSupabaseClient();
     const { data, error } = await supabase.auth.getUser();
@@ -35,7 +40,7 @@
     const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, full_name, role")
+      .select("*")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -44,6 +49,18 @@
       return null;
     }
     return data || null;
+  }
+
+  function isProfileSetupComplete(profile) {
+    if (!profile) return false;
+    const requiredFields = [
+      "full_name",
+      "phone_number",
+      "bank_account_number",
+      "bank_name",
+      "account_type",
+    ];
+    return requiredFields.every((key) => String(profile[key] || "").trim().length > 0);
   }
 
   function renderAccessDenied(roleLabel = "manager") {
@@ -78,6 +95,30 @@
     return null;
   }
 
+  async function requireProfileSetup(options = {}) {
+    const {
+      enforceForRoles = ["employee"],
+      redirectToSetup = true,
+    } = options;
+
+    if (window.location.pathname.endsWith("/profile-setup.html") || window.location.pathname.endsWith("profile-setup.html")) {
+      return true;
+    }
+
+    const user = await requireLogin();
+    if (!user) return false;
+    const profile = await getCurrentProfile();
+    const role = profile?.role || "employee";
+    const shouldEnforce = enforceForRoles.includes(role);
+    if (!shouldEnforce) return true;
+    if (isProfileSetupComplete(profile)) return true;
+
+    if (redirectToSetup) {
+      window.location.href = getProfileSetupUrl();
+    }
+    return false;
+  }
+
   async function logout() {
     const supabase = getSupabaseClient();
     await supabase.auth.signOut();
@@ -89,5 +130,7 @@
   window.requireLogin = requireLogin;
   window.requireManager = requireManager;
   window.requireWebAdmin = requireWebAdmin;
+  window.isProfileSetupComplete = isProfileSetupComplete;
+  window.requireProfileSetup = requireProfileSetup;
   window.logout = logout;
 })();
