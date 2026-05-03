@@ -32,6 +32,81 @@
       min-height: 100vh;
     }
 
+    .app-header {
+      background: linear-gradient(90deg, #1f4f48 0%, var(--accent) 100%);
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .app-header-inner {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .app-header-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .menu-wrap {
+      position: relative;
+    }
+
+    .menu-button {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      min-width: 190px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
+      padding: 8px;
+      z-index: 40;
+    }
+
+    .menu-panel[hidden] {
+      display: none;
+    }
+
+    .menu-item {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      background: transparent;
+      color: var(--ink);
+      display: block;
+      text-decoration: none;
+    }
+
+    .menu-item:hover {
+      background: var(--accent-soft);
+    }
+
     .page {
       width: min(1180px, calc(100% - 32px));
       margin: 28px auto 48px;
@@ -262,6 +337,11 @@
     .pay-line strong {
       font-size: 1.22rem;
       color: var(--brand);
+    }
+
+    .missing-profile {
+      color: #b3261e;
+      font-weight: 700;
     }
 
     .groups {
@@ -547,6 +627,20 @@
   </style>
 </head>
 <body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-header-title">Manager Entry View</div>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
+          <a class="menu-item" href="./manager-dashboard.html">Back To Dashboard</a>
+          <button class="menu-item" id="profileButton" type="button">Profile</button>
+          <button class="menu-item" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
   <div class="page">
     <section class="hero">
       <div class="hero-top">
@@ -584,6 +678,8 @@
 
         <div class="pay-card">
           <div class="pay-line"><span>Name</span><span id="payName">-</span></div>
+          <div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div>
+          <div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div>
           <div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div>
           <div class="pay-line"><span>Month</span><span id="payMonth">-</span></div>
           <div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div>
@@ -591,7 +687,6 @@
         </div>
         <div style="margin-top: 16px;">
           <a class="button button-secondary" href="./manager-dashboard.html">Back To Dashboard</a>
-          <button class="button button-secondary" id="logoutButton" type="button">Log Out</button>
         </div>
       </section>
 
@@ -641,6 +736,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./auth.js"></script>
+  <script src="./profile-ui.js"></script>
   <script>
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
@@ -652,11 +748,18 @@
     const hoursCount = document.getElementById("hoursCount");
     const rateCount = document.getElementById("rateCount");
     const payName = document.getElementById("payName");
+    const payBankName = document.getElementById("payBankName");
+    const payAccountType = document.getElementById("payAccountType");
     const payBank = document.getElementById("payBank");
     const payMonth = document.getElementById("payMonth");
     const payHours = document.getElementById("payHours");
     const payTotal = document.getElementById("payTotal");
     const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
+    const menuProfileName = document.getElementById("menuProfileName");
+    const userMenuButton = document.getElementById("userMenuButton");
+    const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
+    const userMenuPanel = document.getElementById("userMenuPanel");
     const imageLightbox = document.getElementById("imageLightbox");
     const imageLightboxContent = document.getElementById("imageLightboxContent");
     const imageLightboxImg = document.getElementById("imageLightboxImg");
@@ -670,9 +773,45 @@
     async function initApp() {
       const user = await requireManager();
       if (!user) return;
-      logoutButton.addEventListener("click", logout);
+      setupUserMenu();
       initImageViewer();
       await render();
+    }
+
+    function setupUserMenu() {
+      logoutButton.addEventListener("click", logout);
+      attachProfileMenu({
+        profileButton,
+        menuPanel: userMenuPanel,
+        menuButton: userMenuButton,
+        displayNameEl: menuProfileName,
+      });
+
+      const syncMenuButtonLabel = () => {
+        const name = (menuProfileName.textContent || "").trim();
+        userMenuButtonLabel.textContent = name || "Profile";
+      };
+      syncMenuButtonLabel();
+      const nameObserver = new MutationObserver(syncMenuButtonLabel);
+      nameObserver.observe(menuProfileName, { childList: true, characterData: true, subtree: true });
+
+      userMenuButton.addEventListener("click", () => {
+        const nextState = !userMenuPanel.hidden;
+        userMenuPanel.hidden = nextState;
+        userMenuButton.setAttribute("aria-expanded", String(!nextState));
+      });
+      document.addEventListener("click", (event) => {
+        if (!userMenuPanel.hidden && !event.target.closest(".menu-wrap")) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !userMenuPanel.hidden) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
     }
 
     async function render() {
@@ -733,6 +872,8 @@
         month: submissionRow.month,
         monthLabel: submissionRow.month_label,
         employeeName: submissionRow.employee_name,
+        bankName: submissionRow.bank_name,
+        accountType: submissionRow.account_type,
         bankAccount: submissionRow.bank_account,
         hourlyRate: submissionRow.hourly_rate,
         totalHours: submissionRow.total_hours,
@@ -757,7 +898,11 @@
       hoursCount.textContent = trimHours(submission.totalHours || 0);
       rateCount.textContent = formatCurrency(submission.hourlyRate || 0);
       payName.textContent = submission.employeeName || "-";
+      payBankName.textContent = submission.bankName || "Please Setup in Profile";
+      payAccountType.textContent = submission.accountType || "Please Setup in Profile";
       payBank.textContent = submission.bankAccount || "-";
+      payBankName.classList.toggle("missing-profile", !submission.bankName);
+      payAccountType.classList.toggle("missing-profile", !submission.accountType);
       payMonth.textContent = submission.monthLabel || formatMonthLabel(submission.month || "");
       payHours.textContent = trimHours(submission.totalHours || 0);
       payTotal.textContent = formatCurrency(submission.totalPay || 0);

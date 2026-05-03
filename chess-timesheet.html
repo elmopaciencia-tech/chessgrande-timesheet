@@ -37,6 +37,81 @@
       min-height: 100vh;
     }
 
+    .app-header {
+      background: linear-gradient(90deg, var(--brand) 0%, var(--accent) 100%);
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .app-header-inner {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .app-header-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .menu-wrap {
+      position: relative;
+    }
+
+    .menu-button {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      min-width: 190px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
+      padding: 8px;
+      z-index: 40;
+    }
+
+    .menu-panel[hidden] {
+      display: none;
+    }
+
+    .menu-item {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      background: transparent;
+      color: var(--ink);
+      display: block;
+      text-decoration: none;
+    }
+
+    .menu-item:hover {
+      background: var(--accent-soft);
+    }
+
     .page {
       width: min(1180px, calc(100% - 32px));
       margin: 28px auto 48px;
@@ -638,6 +713,20 @@
   </style>
 </head>
 <body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-header-title">Employee Timesheet</div>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
+          <a class="menu-item" href="./chess-timesheet-pay.html">Monthly Pay View</a>
+          <button class="menu-item" id="profileButton" type="button">Profile</button>
+          <button class="menu-item" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
   <div class="page">
     <section class="hero">
       <div class="hero-top">
@@ -739,7 +828,6 @@
         <div id="calendar" class="calendar-grid"></div>
         <div class="calendar-actions">
           <a class="nav-button" id="payrollLink" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Open Monthly Pay View</a>
-          <button class="nav-button" id="logoutButton" type="button">Log Out</button>
         </div>
       </section>
     </div>
@@ -814,6 +902,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./auth.js"></script>
+  <script src="./profile-ui.js"></script>
   <script>
     const storageKey = "chessGrandeTimesheetEntries";
     const monthPicker = document.getElementById("monthPicker");
@@ -830,6 +919,11 @@
     const clearMonthButton = document.getElementById("clearMonth");
     const payrollLink = document.getElementById("payrollLink");
     const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
+    const menuProfileName = document.getElementById("menuProfileName");
+    const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
+    const userMenuButton = document.getElementById("userMenuButton");
+    const userMenuPanel = document.getElementById("userMenuPanel");
     const entryTypeSelect = document.getElementById("entryType");
     const replacementField = document.getElementById("replacementField");
     const replacementNameInput = document.getElementById("replacementName");
@@ -860,8 +954,44 @@
       syncPayrollLink();
       ensureTimeFieldsRendered();
       initImageViewer();
-      logoutButton.addEventListener("click", logout);
+      setupUserMenu();
       render();
+    }
+
+    function setupUserMenu() {
+      logoutButton.addEventListener("click", logout);
+      attachProfileMenu({
+        profileButton,
+        menuPanel: userMenuPanel,
+        menuButton: userMenuButton,
+        displayNameEl: menuProfileName,
+      });
+
+      const syncMenuButtonLabel = () => {
+        const name = (menuProfileName.textContent || "").trim();
+        userMenuButtonLabel.textContent = name || "Profile";
+      };
+      syncMenuButtonLabel();
+      const nameObserver = new MutationObserver(syncMenuButtonLabel);
+      nameObserver.observe(menuProfileName, { childList: true, characterData: true, subtree: true });
+
+      userMenuButton.addEventListener("click", () => {
+        const nextState = !userMenuPanel.hidden;
+        userMenuPanel.hidden = nextState;
+        userMenuButton.setAttribute("aria-expanded", String(!nextState));
+      });
+      document.addEventListener("click", (event) => {
+        if (!userMenuPanel.hidden && !event.target.closest(".menu-wrap")) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !userMenuPanel.hidden) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
     }
 
     monthPicker.addEventListener("change", () => {

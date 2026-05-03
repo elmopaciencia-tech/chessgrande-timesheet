@@ -33,6 +33,81 @@
       min-height: 100vh;
     }
 
+    .app-header {
+      background: linear-gradient(90deg, var(--brand) 0%, var(--accent) 100%);
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .app-header-inner {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .app-header-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .menu-wrap {
+      position: relative;
+    }
+
+    .menu-button {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      min-width: 190px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
+      padding: 8px;
+      z-index: 40;
+    }
+
+    .menu-panel[hidden] {
+      display: none;
+    }
+
+    .menu-item {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      background: transparent;
+      color: var(--ink);
+      display: block;
+      text-decoration: none;
+    }
+
+    .menu-item:hover {
+      background: var(--accent-soft);
+    }
+
     .page {
       width: min(1180px, calc(100% - 32px));
       margin: 28px auto 48px;
@@ -124,6 +199,35 @@
       padding: 12px 14px;
       background: white;
       color: var(--ink);
+    }
+
+    #fullName[readonly],
+    #bankAccount[readonly],
+    #bankName[readonly],
+    #accountType[readonly] {
+      border: 0;
+      background: transparent;
+      padding: 4px 0 6px;
+      border-radius: 0;
+      color: var(--ink);
+      pointer-events: none;
+      caret-color: transparent;
+    }
+
+    #fullName[readonly]::placeholder,
+    #bankAccount[readonly]::placeholder,
+    #bankName[readonly]::placeholder,
+    #accountType[readonly]::placeholder {
+      color: var(--muted);
+      opacity: 1;
+    }
+
+    #bankAccount[readonly].missing-profile::placeholder,
+    #bankName[readonly].missing-profile::placeholder,
+    #accountType[readonly].missing-profile::placeholder {
+      color: #b3261e;
+      font-weight: 700;
+      opacity: 1;
     }
 
     #monthPicker {
@@ -599,6 +703,20 @@
   </style>
 </head>
 <body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-header-title">Employee Payroll</div>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
+          <a class="menu-item" href="./chess-timesheet.html">Timesheet</a>
+          <button class="menu-item" id="profileButton" type="button">Profile</button>
+          <button class="menu-item" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
   <div class="page">
     <section class="hero">
       <div class="hero-top">
@@ -625,11 +743,19 @@
           <div class="form-grid">
             <div class="full">
               <label for="fullName">Your Name</label>
-              <input id="fullName" type="text" placeholder="e.g. Elmo" required>
+              <input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true">
             </div>
             <div class="full">
               <label for="bankAccount">Bank Account Number</label>
-              <input id="bankAccount" type="text" placeholder="e.g. 111-222-333-444" required>
+              <input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true">
+            </div>
+            <div class="full">
+              <label for="bankName">Bank</label>
+              <input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true">
+            </div>
+            <div class="full">
+              <label for="accountType">Account Type</label>
+              <input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true">
             </div>
             <div>
               <label for="hourlyRate">Pay Per Hour</label>
@@ -639,7 +765,6 @@
           <div class="actions">
             <button class="primary" type="submit" id="submitToServer">Submit</button>
             <a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a>
-            <button class="secondary" type="button" id="logoutButton">Log Out</button>
           </div>
           <p class="label-note">Your details are saved automatically in browser local storage on this device.</p>
           <div class="status-message" id="submitStatus"></div>
@@ -715,6 +840,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./auth.js"></script>
+  <script src="./profile-ui.js"></script>
   <script>
     const entryStorageKey = "chessGrandeTimesheetEntries";
     const payStorageKey = "chessGrandePayrollProfile";
@@ -726,9 +852,16 @@
     const schoolTemplate = document.getElementById("schoolTemplate");
     const fullNameInput = document.getElementById("fullName");
     const bankAccountInput = document.getElementById("bankAccount");
+    const bankNameInput = document.getElementById("bankName");
+    const accountTypeInput = document.getElementById("accountType");
     const hourlyRateInput = document.getElementById("hourlyRate");
     const submitToServerButton = document.getElementById("submitToServer");
     const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
+    const menuProfileName = document.getElementById("menuProfileName");
+    const userMenuButton = document.getElementById("userMenuButton");
+    const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
+    const userMenuPanel = document.getElementById("userMenuPanel");
     const submitStatus = document.getElementById("submitStatus");
     const summaryPay = document.getElementById("summaryPay");
     const hoursCount = document.getElementById("hoursCount");
@@ -745,26 +878,67 @@
     const storageBackends = getStorageBackends();
 
     let entries = [];
+    let currentProfile = null;
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
     let isSubmitting = false;
 
     initApp();
+    window.addEventListener("profile-updated", async () => {
+      await loadProfileIntoForm();
+      render();
+    });
 
     async function initApp() {
       const user = await requireLogin();
       if (!user) return;
       entries = loadEntries();
       initializeMonth();
-      loadProfileIntoForm();
+      await loadProfileIntoForm();
       initImageViewer();
-      logoutButton.addEventListener("click", logout);
+      setupUserMenu();
       render();
+    }
+
+    function setupUserMenu() {
+      logoutButton.addEventListener("click", logout);
+      attachProfileMenu({
+        profileButton,
+        menuPanel: userMenuPanel,
+        menuButton: userMenuButton,
+        displayNameEl: menuProfileName,
+      });
+
+      const syncMenuButtonLabel = () => {
+        const name = (menuProfileName.textContent || "").trim();
+        userMenuButtonLabel.textContent = name || "Profile";
+      };
+      syncMenuButtonLabel();
+      const nameObserver = new MutationObserver(syncMenuButtonLabel);
+      nameObserver.observe(menuProfileName, { childList: true, characterData: true, subtree: true });
+
+      userMenuButton.addEventListener("click", () => {
+        const nextState = !userMenuPanel.hidden;
+        userMenuPanel.hidden = nextState;
+        userMenuButton.setAttribute("aria-expanded", String(!nextState));
+      });
+      document.addEventListener("click", (event) => {
+        if (!userMenuPanel.hidden && !event.target.closest(".menu-wrap")) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !userMenuPanel.hidden) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
     }
 
     monthPicker.addEventListener("change", render);
 
-    [fullNameInput, bankAccountInput, hourlyRateInput].forEach((input) => {
+    [hourlyRateInput].forEach((input) => {
       input.addEventListener("input", () => {
         saveProfile();
         render();
@@ -804,18 +978,48 @@
 
     function saveProfile() {
       const profile = {
-        fullName: fullNameInput.value.trim(),
-        bankAccount: bankAccountInput.value.trim(),
+        fullName: currentProfile?.full_name || "",
+        bankAccount: currentProfile?.bank_account_number || "",
+        bankName: currentProfile?.bank_name || "",
+        accountType: currentProfile?.account_type || "",
         hourlyRate: Number(hourlyRateInput.value || 0),
       };
       writeJsonToStorage(payStorageKey, profile);
     }
 
-    function loadProfileIntoForm() {
-      const profile = loadProfile();
-      fullNameInput.value = profile.fullName || "";
-      bankAccountInput.value = profile.bankAccount || "";
-      hourlyRateInput.value = profile.hourlyRate || "";
+    async function loadProfileIntoForm() {
+      const localProfile = loadProfile();
+      hourlyRateInput.value = localProfile.hourlyRate || "";
+
+      const user = await getCurrentUser();
+      if (!user) return;
+      const { data, error } = await window.supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        submitStatus.textContent = `Could not load profile details: ${error.message || "unknown error"}`;
+        fullNameInput.value = "";
+        bankAccountInput.value = "";
+        bankNameInput.value = "";
+        accountTypeInput.value = "";
+        bankAccountInput.classList.add("missing-profile");
+        bankNameInput.classList.add("missing-profile");
+        accountTypeInput.classList.add("missing-profile");
+        return;
+      }
+
+      currentProfile = data || null;
+      fullNameInput.value = currentProfile?.full_name || "";
+      bankAccountInput.value = currentProfile?.bank_account_number || "";
+      bankNameInput.value = currentProfile?.bank_name || "";
+      accountTypeInput.value = currentProfile?.account_type || "";
+      bankAccountInput.classList.toggle("missing-profile", !bankAccountInput.value.trim());
+      bankNameInput.classList.toggle("missing-profile", !bankNameInput.value.trim());
+      accountTypeInput.classList.toggle("missing-profile", !accountTypeInput.value.trim());
+      saveProfile();
     }
 
     async function submitPayrollToSupabase() {
@@ -847,8 +1051,8 @@
         0
       );
 
-      if (!profile.fullName || !profile.bankAccount || !hourlyRate) {
-        submitStatus.textContent = "Save your name, bank account number, and hourly rate before submitting.";
+      if (!currentProfile?.full_name || !currentProfile?.bank_account_number || !hourlyRate) {
+        submitStatus.textContent = "Update your profile (name and bank account details) and hourly rate before submitting.";
         return;
       }
 
@@ -861,8 +1065,10 @@
         .from("payroll_submissions")
         .insert({
           employee_id: user.id,
-          employee_name: profile.fullName,
-          bank_account: profile.bankAccount,
+          employee_name: currentProfile.full_name,
+          bank_account: currentProfile.bank_account_number,
+          bank_name: currentProfile.bank_name || null,
+          account_type: currentProfile.account_type || null,
           month: selectedMonth,
           month_label: monthLabel,
           hourly_rate: hourlyRate,
@@ -933,8 +1139,8 @@
       summaryPay.textContent = formatCurrency(totalPay);
       hoursCount.textContent = trimHours(totalHours);
       rateCount.textContent = formatCurrency(hourlyRate);
-      payName.textContent = profile.fullName || "-";
-      payBank.textContent = profile.bankAccount || "-";
+      payName.textContent = currentProfile?.full_name || "-";
+      payBank.textContent = currentProfile?.bank_account_number || "-";
       payMonth.textContent = formatMonthLabel(monthPicker.value);
       payHours.textContent = trimHours(totalHours);
       payTotal.textContent = formatCurrency(totalPay);

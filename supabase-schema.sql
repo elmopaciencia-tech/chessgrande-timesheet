@@ -22,12 +22,29 @@ create extension if not exists pgcrypto;
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null default '',
+  username text,
+  phone_number text,
+  bank_account_number text,
+  bank_name text,
+  account_type text,
   role text not null default 'employee' check (role in ('employee', 'manager')),
   created_at timestamptz not null default now()
 );
 
 comment on table public.profiles is 'Application profile and role for each authenticated user.';
 comment on column public.profiles.role is 'Allowed values: employee, manager.';
+comment on column public.profiles.username is 'Optional profile username.';
+comment on column public.profiles.phone_number is 'Optional profile phone number.';
+comment on column public.profiles.bank_account_number is 'Optional bank account number used for payroll.';
+comment on column public.profiles.bank_name is 'Optional bank name for payroll.';
+comment on column public.profiles.account_type is 'Optional account type (e.g. savings/current).';
+
+-- For existing projects, safely add profile customization columns if missing.
+alter table public.profiles add column if not exists username text;
+alter table public.profiles add column if not exists phone_number text;
+alter table public.profiles add column if not exists bank_account_number text;
+alter table public.profiles add column if not exists bank_name text;
+alter table public.profiles add column if not exists account_type text;
 
 -- -------------------------------------------------------------------
 -- 2) Payroll submissions table
@@ -37,6 +54,8 @@ create table if not exists public.payroll_submissions (
   id uuid primary key default gen_random_uuid(),
   employee_id uuid not null references public.profiles(id) on delete cascade,
   employee_name text not null,
+  bank_name text,
+  account_type text,
   bank_account text not null,
   month text not null,           -- format: YYYY-MM
   month_label text not null,     -- e.g. "May 2026"
@@ -54,6 +73,10 @@ create index if not exists payroll_submissions_month_idx
   on public.payroll_submissions (month);
 create index if not exists payroll_submissions_submitted_at_idx
   on public.payroll_submissions (submitted_at desc);
+
+-- For existing projects, safely add newly-added submission fields if missing.
+alter table public.payroll_submissions add column if not exists bank_name text;
+alter table public.payroll_submissions add column if not exists account_type text;
 
 -- -------------------------------------------------------------------
 -- 3) Payroll entries table
@@ -134,6 +157,17 @@ using (id = auth.uid())
 with check (
   id = auth.uid()
   and role = 'employee'
+);
+
+-- Managers can also update only their own profile row while remaining manager.
+create policy "profiles_update_own_manager_only"
+on public.profiles
+for update
+to authenticated
+using (id = auth.uid())
+with check (
+  id = auth.uid()
+  and role = 'manager'
 );
 
 -- -------------------------------------------------------------------

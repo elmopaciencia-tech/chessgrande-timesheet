@@ -26,6 +26,18 @@ This creates:
 - `payroll_entries`
 - Row Level Security (RLS) policies
 
+If your database was already created before profile customization was added, run:
+
+```sql
+alter table public.profiles add column if not exists username text;
+alter table public.profiles add column if not exists phone_number text;
+alter table public.profiles add column if not exists bank_account_number text;
+alter table public.profiles add column if not exists bank_name text;
+alter table public.profiles add column if not exists account_type text;
+alter table public.payroll_submissions add column if not exists bank_name text;
+alter table public.payroll_submissions add column if not exists account_type text;
+```
+
 ## Storage Bucket for Claim Images
 
 Create a Supabase Storage bucket named:

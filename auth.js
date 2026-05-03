@@ -74,6 +74,7 @@
   }
 
   window.getCurrentUser = getCurrentUser;
+  window.getCurrentProfile = getCurrentProfile;
   window.requireLogin = requireLogin;
   window.requireManager = requireManager;
   window.logout = logout;
