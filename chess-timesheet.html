@@ -221,6 +221,10 @@
       display: block;
     }
 
+    html[data-browser-engine="webkit"] #monthPicker {
+      display: none !important;
+    }
+
     #monthPickerFallback {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
@@ -1501,6 +1505,9 @@
     }
 
     function setupMonthPickerUi() {
+      const webkit = isWebKitBrowser();
+      document.documentElement.setAttribute("data-browser-engine", webkit ? "webkit" : "other");
+
       const currentYear = new Date().getFullYear();
       for (let year = currentYear - 5; year <= currentYear + 5; year += 1) {
         const option = document.createElement("option");
@@ -1509,7 +1516,7 @@
         monthYearSelect.appendChild(option);
       }
 
-      if (isWebKitBrowser()) {
+      if (webkit) {
         monthPicker.hidden = true;
         monthPickerFallback.hidden = false;
       } else {

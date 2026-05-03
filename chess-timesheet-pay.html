@@ -200,6 +200,15 @@
       padding: 12px 14px;
       background: white;
       color: var(--ink);
+      min-height: 52px;
+      line-height: 1.2;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    input[type="month"] {
+      -webkit-appearance: none;
+      appearance: none;
     }
 
     #fullName[readonly],
@@ -234,6 +243,38 @@
     #monthPicker {
       display: block;
       max-width: 100%;
+      width: 100%;
+      min-width: 0;
+    }
+
+    html[data-browser-engine="webkit"] #monthPicker {
+      display: none !important;
+    }
+
+    #monthPickerFallback {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
+      gap: 10px;
+      margin-top: 0;
+    }
+
+    #monthPickerFallback[hidden] {
+      display: none;
+    }
+
+    #monthNameSelect,
+    #monthYearSelect {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+        linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
     }
 
     input:focus {
@@ -641,6 +682,10 @@
         width: 100%;
       }
 
+      #monthPickerFallback {
+        grid-template-columns: 1fr;
+      }
+
       .hero,
       .panel {
         padding: 18px;
@@ -740,6 +785,23 @@
         <div class="month-box">
           <label for="monthPicker">Viewing Month</label>
           <input id="monthPicker" type="month">
+          <div id="monthPickerFallback" hidden>
+            <select id="monthNameSelect" aria-label="Viewing month name">
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <select id="monthYearSelect" aria-label="Viewing month year"></select>
+          </div>
         </div>
       </div>
       <p>
@@ -858,6 +920,9 @@
     const entryStorageKey = "chessGrandeTimesheetEntries";
     const payStorageKey = "chessGrandePayrollProfile";
     const monthPicker = document.getElementById("monthPicker");
+    const monthPickerFallback = document.getElementById("monthPickerFallback");
+    const monthNameSelect = document.getElementById("monthNameSelect");
+    const monthYearSelect = document.getElementById("monthYearSelect");
     const payForm = document.getElementById("payForm");
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
@@ -890,6 +955,10 @@
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
     const storageBackends = getStorageBackends();
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
+    ];
 
     let entries = [];
     let currentProfile = null;
@@ -909,6 +978,7 @@
       const profile = await getCurrentProfile();
       managerDashboardLink.hidden = !(profile && profile.role === "manager");
       entries = loadEntries();
+      setupMonthPickerUi();
       initializeMonth();
       await loadProfileIntoForm();
       initImageViewer();
@@ -957,7 +1027,10 @@
       });
     }
 
-    monthPicker.addEventListener("change", render);
+    monthPicker.addEventListener("change", () => {
+      syncFallbackFromMonthValue(monthPicker.value);
+      render();
+    });
 
     [hourlyRateInput].forEach((input) => {
       input.addEventListener("input", () => {
@@ -986,7 +1059,7 @@
     function initializeMonth() {
       const params = new URLSearchParams(window.location.search);
       const monthFromQuery = params.get("month");
-      monthPicker.value = monthFromQuery || formatMonthValue(new Date());
+      setMonthValue(monthFromQuery || formatMonthValue(new Date()));
     }
 
     function loadEntries() {
@@ -1297,6 +1370,56 @@
 
     function formatMonthValue(date) {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function isWebKitBrowser() {
+      return /AppleWebKit/i.test(navigator.userAgent) && !/Chrome|Chromium|CriOS|Edg|OPR|Android/i.test(navigator.userAgent);
+    }
+
+    function setupMonthPickerUi() {
+      const webkit = isWebKitBrowser();
+      document.documentElement.setAttribute("data-browser-engine", webkit ? "webkit" : "other");
+
+      const currentYear = new Date().getFullYear();
+      for (let year = currentYear - 5; year <= currentYear + 5; year += 1) {
+        const option = document.createElement("option");
+        option.value = String(year);
+        option.textContent = String(year);
+        monthYearSelect.appendChild(option);
+      }
+
+      if (webkit) {
+        monthPicker.hidden = true;
+        monthPickerFallback.hidden = false;
+      } else {
+        monthPicker.hidden = false;
+        monthPickerFallback.hidden = true;
+      }
+
+      monthNameSelect.addEventListener("change", onFallbackMonthChange);
+      monthYearSelect.addEventListener("change", onFallbackMonthChange);
+    }
+
+    function onFallbackMonthChange() {
+      const year = monthYearSelect.value;
+      const month = monthNameSelect.value;
+      if (!year || !month) return;
+      setMonthValue(`${year}-${month}`);
+      render();
+    }
+
+    function setMonthValue(monthValue) {
+      if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
+      monthPicker.value = monthValue;
+      syncFallbackFromMonthValue(monthValue);
+    }
+
+    function syncFallbackFromMonthValue(monthValue) {
+      if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
+      const [year, month] = monthValue.split("-");
+      monthYearSelect.value = year;
+      monthNameSelect.value = month;
+      monthPicker.setAttribute("aria-label", `${monthNames[Number(month) - 1]} ${year}`);
     }
 
     function formatDateInput(date) {
