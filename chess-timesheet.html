@@ -721,6 +721,7 @@
         <div class="menu-panel" id="userMenuPanel" hidden>
           <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
           <a class="menu-item" href="./chess-timesheet-pay.html">Monthly Pay View</a>
+          <a class="menu-item" id="managerDashboardLink" href="./manager-dashboard.html" hidden>Go to Managers' Dashboard</a>
           <button class="menu-item" id="profileButton" type="button">Profile</button>
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
@@ -921,6 +922,7 @@
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
+    const managerDashboardLink = document.getElementById("managerDashboardLink");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuPanel = document.getElementById("userMenuPanel");
@@ -949,6 +951,8 @@
     async function initApp() {
       const user = await requireLogin();
       if (!user) return;
+      const profile = await getCurrentProfile();
+      managerDashboardLink.hidden = !(profile && profile.role === "manager");
       entries = loadEntries();
       initializeMonth();
       syncPayrollLink();
