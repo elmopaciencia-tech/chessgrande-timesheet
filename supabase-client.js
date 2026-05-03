@@ -1,8 +1,8 @@
 // Shared Supabase browser client for the static payroll app.
 // Keep this file client-safe: use the anon key only (never service role).
 (function initSupabaseClient() {
-  const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";
-  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+  const SUPABASE_URL = "https://whfkmgolmgtyaqrxwoyf.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_i9WBLMFal0H_6sLwsalDxg_ciVRu9dN";
 
   if (!window.supabase || typeof window.supabase.createClient !== "function") {
     console.error("Supabase CDN library not found. Make sure the CDN script loads before supabase-client.js.");
