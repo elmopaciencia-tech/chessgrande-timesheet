@@ -197,17 +197,73 @@
     input[type="number"],
     select {
       width: 100%;
+      min-width: 0;
       border-radius: 14px;
       border: 1px solid var(--line);
       padding: 12px 14px;
       background: white;
       color: var(--ink);
+      min-height: 52px;
+      line-height: 1.2;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    input[type="month"] {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    #monthPicker {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      display: block;
+    }
+
+    #monthPickerFallback {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
+      gap: 10px;
+    }
+
+    #monthPickerFallback[hidden] {
+      display: none;
+    }
+
+    #monthNameSelect,
+    #monthYearSelect {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+        linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
     }
 
     input:focus,
     select:focus {
       outline: 2px solid rgba(189, 93, 56, 0.22);
       border-color: rgba(189, 93, 56, 0.5);
+    }
+
+    #entryType {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+        linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+      background-size: 7px 7px, 7px 7px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
     }
 
     .layout {
@@ -652,6 +708,10 @@
         width: 100%;
       }
 
+      #monthPickerFallback {
+        grid-template-columns: 1fr;
+      }
+
       .hero,
       .panel {
         padding: 18px;
@@ -739,6 +799,23 @@
         <div class="month-box">
           <label for="monthPicker">Viewing Month</label>
           <input id="monthPicker" type="month">
+          <div id="monthPickerFallback" hidden>
+            <select id="monthNameSelect" aria-label="Viewing month name">
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <select id="monthYearSelect" aria-label="Viewing month year"></select>
+          </div>
         </div>
       </div>
       <p>
@@ -908,6 +985,9 @@
   <script>
     const storageKey = "chessGrandeTimesheetEntries";
     const monthPicker = document.getElementById("monthPicker");
+    const monthPickerFallback = document.getElementById("monthPickerFallback");
+    const monthNameSelect = document.getElementById("monthNameSelect");
+    const monthYearSelect = document.getElementById("monthYearSelect");
     const form = document.getElementById("entryForm");
     const schoolGroups = document.getElementById("schoolGroups");
     const calendar = document.getElementById("calendar");
@@ -942,6 +1022,10 @@
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
     const claimProofBucket = "claim-proofs";
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
+    ];
 
     let entries = [];
     let lightboxLastFocus = null;
@@ -955,6 +1039,7 @@
       const profile = await getCurrentProfile();
       managerDashboardLink.hidden = !(profile && profile.role === "manager");
       entries = loadEntries();
+      setupMonthPickerUi();
       initializeMonth();
       syncPayrollLink();
       ensureTimeFieldsRendered();
@@ -1005,6 +1090,7 @@
     }
 
     monthPicker.addEventListener("change", () => {
+      syncFallbackFromMonthValue(monthPicker.value);
       syncDateFieldToMonth();
       syncPayrollLink();
       render();
@@ -1085,7 +1171,7 @@
 
     function initializeMonth() {
       const today = new Date();
-      monthPicker.value = formatMonthValue(today);
+      setMonthValue(formatMonthValue(today));
       syncDateFieldToMonth();
       syncReplacementField();
     }
@@ -1408,6 +1494,55 @@
 
     function formatMonthValue(date) {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function isWebKitBrowser() {
+      return /AppleWebKit/i.test(navigator.userAgent) && !/Chrome|Chromium|CriOS|Edg|OPR|Android/i.test(navigator.userAgent);
+    }
+
+    function setupMonthPickerUi() {
+      const currentYear = new Date().getFullYear();
+      for (let year = currentYear - 5; year <= currentYear + 5; year += 1) {
+        const option = document.createElement("option");
+        option.value = String(year);
+        option.textContent = String(year);
+        monthYearSelect.appendChild(option);
+      }
+
+      if (isWebKitBrowser()) {
+        monthPicker.hidden = true;
+        monthPickerFallback.hidden = false;
+      } else {
+        monthPicker.hidden = false;
+        monthPickerFallback.hidden = true;
+      }
+
+      monthNameSelect.addEventListener("change", onFallbackMonthChange);
+      monthYearSelect.addEventListener("change", onFallbackMonthChange);
+    }
+
+    function onFallbackMonthChange() {
+      const year = monthYearSelect.value;
+      const month = monthNameSelect.value;
+      if (!year || !month) return;
+      setMonthValue(`${year}-${month}`);
+      syncDateFieldToMonth();
+      syncPayrollLink();
+      render();
+    }
+
+    function setMonthValue(monthValue) {
+      if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
+      monthPicker.value = monthValue;
+      syncFallbackFromMonthValue(monthValue);
+    }
+
+    function syncFallbackFromMonthValue(monthValue) {
+      if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
+      const [year, month] = monthValue.split("-");
+      monthYearSelect.value = year;
+      monthNameSelect.value = month;
+      monthPicker.setAttribute("aria-label", `${monthNames[Number(month) - 1]} ${year}`);
     }
 
     function formatDateInput(date) {
