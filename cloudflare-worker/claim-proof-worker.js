@@ -19,6 +19,7 @@ const CORS_HEADERS = {
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8 MB
 const MIN_READ_TTL = 60;
 const MAX_READ_TTL = 60 * 60;
+const WORKER_URL_PLACEHOLDER = "your-subdomain.workers.dev";
 
 export default {
   async fetch(request, env) {
@@ -103,7 +104,7 @@ async function handleUploadToken(request, env) {
     exp: expiresAt,
   };
   const token = await signToken(tokenPayload, env.WORKER_UPLOAD_TOKEN_SECRET);
-  const baseUrl = String(env.PUBLIC_WORKER_BASE_URL || new URL(request.url).origin).replace(/\/+$/, "");
+  const baseUrl = resolvePublicWorkerBaseUrl(request, env);
   return jsonResponse(200, {
     objectKey,
     uploadUrl: `${baseUrl}/api/claim-proofs/upload?token=${encodeURIComponent(token)}`,
@@ -174,7 +175,7 @@ async function handleSignRead(request, env) {
     exp: expiresAt,
   };
   const token = await signToken(tokenPayload, env.WORKER_UPLOAD_TOKEN_SECRET);
-  const baseUrl = String(env.PUBLIC_WORKER_BASE_URL || new URL(request.url).origin).replace(/\/+$/, "");
+  const baseUrl = resolvePublicWorkerBaseUrl(request, env);
   return jsonResponse(200, {
     objectKey,
     signedUrl: `${baseUrl}/api/claim-proofs/read?token=${encodeURIComponent(token)}`,
@@ -239,6 +240,18 @@ async function requireAuthUser(request, env) {
 
 function isRoleAllowed(role) {
   return ["employee", "manager", "webadmin"].includes(String(role || "").toLowerCase());
+}
+
+function resolvePublicWorkerBaseUrl(request, env) {
+  const configured = String(env.PUBLIC_WORKER_BASE_URL || "").trim();
+  if (
+    configured &&
+    /^https?:\/\//i.test(configured) &&
+    !configured.includes(WORKER_URL_PLACEHOLDER)
+  ) {
+    return configured.replace(/\/+$/, "");
+  }
+  return new URL(request.url).origin.replace(/\/+$/, "");
 }
 
 async function getProfileForUser(userId, env) {

@@ -1,7 +1,6 @@
 // Shared claim proof storage helpers (Cloudflare Worker + R2 private bucket).
 (function initClaimProofStorage() {
   const CLAIM_PROOF_WORKER_URL = "https://claim-proof-worker.elmopaciencia.workers.dev";
-  const CLAIM_PROOF_WORKER_URL_PLACEHOLDER = "PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE";
   const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8 MB
   const ALLOWED_MIME_TYPES = new Set([
     "image/jpeg",
