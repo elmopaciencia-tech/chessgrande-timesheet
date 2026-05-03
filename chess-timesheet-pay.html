@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
   <title>Chess Grande Monthly Pay</title>
   <style>
     :root {
@@ -417,6 +418,17 @@
       font-weight: 600;
     }
 
+    .testing-note {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(189, 93, 56, 0.28);
+      background: rgba(189, 93, 56, 0.08);
+      color: #7a3d25;
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
     .actions + .label-note {
       margin-top: 12px;
       display: block;
@@ -740,6 +752,7 @@
       <section class="panel">
         <h2>Your Details</h2>
         <p class="panel-copy">Save your payment details here for quick monthly payroll reference.</p>
+        <p class="testing-note"><strong>Testing notice:</strong> if this is a test environment, do not enter real full bank account details. Use safe sample data and set actual bank details only in production.</p>
         <form id="payForm">
           <div class="form-grid">
             <div class="full">

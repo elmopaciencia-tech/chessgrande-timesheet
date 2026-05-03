@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
   <title>Login | Chess Grande Payroll</title>
   <style>
     :root {
@@ -65,12 +66,30 @@
       color: #7a3d25;
       font-weight: 600;
     }
+    .notice {
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f7fbfa;
+      color: #345552;
+      font-size: 0.95rem;
+    }
+    .footnote {
+      margin: 14px 0 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .footnote a {
+      color: var(--accent);
+    }
   </style>
 </head>
 <body>
   <main class="card">
-    <h1>Chess Grande Payroll Login</h1>
-    <p>Sign in to continue.</p>
+    <h1>Chess Grande Payroll Portal</h1>
+    <p>Secure sign-in for authorized Chess Grande employees and managers.</p>
+    <p class="notice">Private payroll system: do not enter credentials anywhere else. This page uses Supabase Auth for sign-in.</p>
 
     <form id="loginForm">
       <label for="email">Email</label>
@@ -85,6 +104,7 @@
       </div>
       <div class="status" id="statusMessage"></div>
     </form>
+    <p class="footnote">By signing in, you agree to payroll data handling described in <a href="./privacy.html">Privacy & Security Notice</a>.</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

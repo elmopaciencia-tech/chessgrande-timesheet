@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Privacy & Security | Chess Grande Payroll Portal</title>
+  <style>
+    :root {
+      --bg: #f3f8f8;
+      --panel: #ffffff;
+      --text: #1d2a2a;
+      --muted: #5f7572;
+      --line: rgba(36, 90, 82, 0.18);
+      --accent: #245a52;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #edf6f5 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      padding: 18px;
+    }
+    main {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      padding: 24px;
+    }
+    h1 { margin: 0 0 10px; }
+    h2 { margin: 18px 0 8px; font-size: 1.1rem; }
+    p, li { color: var(--muted); line-height: 1.5; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Chess Grande Payroll Portal Privacy & Security Notice</h1>
+    <p>This portal is for authorized Chess Grande employees and managers only.</p>
+
+    <h2>Authentication</h2>
+    <ul>
+      <li>Sign-in is handled by Supabase Auth.</li>
+      <li>This app does not store raw passwords in local storage or custom password tables.</li>
+    </ul>
+
+    <h2>Payroll Data</h2>
+    <ul>
+      <li>Payroll submissions are stored in Supabase with Row Level Security policies.</li>
+      <li>Only managers can access all submissions; employees can access their own records.</li>
+    </ul>
+
+    <h2>Banking Details</h2>
+    <ul>
+      <li>Only enter production bank details in trusted production environments.</li>
+      <li>For testing environments, use non-sensitive test data only.</li>
+    </ul>
+
+    <p><a href="./login.html">Back to Login</a></p>
+  </main>
+</body>
+</html>
