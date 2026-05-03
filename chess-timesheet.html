@@ -802,6 +802,7 @@
           <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
           <a class="menu-item" href="./chess-timesheet-pay.html">Monthly Pay View</a>
           <a class="menu-item" id="managerDashboardLink" href="./manager-dashboard.html" hidden>Go to Managers' Dashboard</a>
+          <a class="menu-item" id="webAdminDashboardLink" href="./webadmin-dashboard.html" hidden>Webadmin Dashboard</a>
           <button class="menu-item" id="profileButton" type="button">Profile</button>
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
@@ -1023,6 +1024,7 @@
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
     const managerDashboardLink = document.getElementById("managerDashboardLink");
+    const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuPanel = document.getElementById("userMenuPanel");
@@ -1056,7 +1058,8 @@
       const user = await requireLogin();
       if (!user) return;
       const profile = await getCurrentProfile();
-      managerDashboardLink.hidden = !(profile && profile.role === "manager");
+      managerDashboardLink.hidden = !(profile && (profile.role === "manager" || profile.role === "webadmin"));
+      webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
       entries = loadEntries();
       setupMonthPickerUi();
       initializeMonth();

@@ -36,6 +36,11 @@ alter table public.profiles add column if not exists bank_name text;
 alter table public.profiles add column if not exists account_type text;
 alter table public.payroll_submissions add column if not exists bank_name text;
 alter table public.payroll_submissions add column if not exists account_type text;
+
+alter table public.profiles drop constraint if exists profiles_role_check;
+alter table public.profiles
+add constraint profiles_role_check
+check (role in ('employee', 'manager', 'webadmin'));
 ```
 
 ## Storage Bucket for Claim Images
@@ -79,3 +84,4 @@ How to get `USER_UUID_HERE`:
 - `./chess-timesheet-pay.html`
 - `./manager-dashboard.html`
 - `./manager-entry.html?id=<submission_id>`
+- `./webadmin-dashboard.html`

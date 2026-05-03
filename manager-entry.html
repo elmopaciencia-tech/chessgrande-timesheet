@@ -636,6 +636,7 @@
         <div class="menu-panel" id="userMenuPanel" hidden>
           <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
           <a class="menu-item" href="./manager-dashboard.html">Back To Dashboard</a>
+          <a class="menu-item" id="webAdminDashboardLink" href="./webadmin-dashboard.html" hidden>Webadmin Dashboard</a>
           <button class="menu-item" id="profileButton" type="button">Profile</button>
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
@@ -758,6 +759,7 @@
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
+    const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
@@ -774,6 +776,8 @@
     async function initApp() {
       const user = await requireManager();
       if (!user) return;
+      const profile = await getCurrentProfile();
+      webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
       setupUserMenu();
       initImageViewer();
       await render();

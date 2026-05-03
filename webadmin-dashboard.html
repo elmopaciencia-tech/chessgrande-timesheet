@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Webadmin Dashboard</title>
+  <style>
+    :root {
+      --bg: #eef0eb;
+      --panel: #fafaf6;
+      --ink: #1e2b27;
+      --muted: #63706d;
+      --line: rgba(30, 43, 39, 0.12);
+      --accent: #245a52;
+      --accent-soft: #dbe9e6;
+      --folder: #f2e4be;
+      --folder-deep: #d8b869;
+      --danger: #bd5d38;
+      --shadow: 0 18px 48px rgba(53, 62, 57, 0.1);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f7f8f3 0%, #edf1eb 100%);
+      min-height: 100vh;
+    }
+
+    .app-header {
+      background: linear-gradient(90deg, #1f4f48 0%, var(--accent) 100%);
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .app-header-inner {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .app-header-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .menu-wrap { position: relative; }
+
+    .menu-button {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      min-width: 220px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
+      padding: 8px;
+      z-index: 40;
+    }
+
+    .menu-panel[hidden] { display: none; }
+
+    .menu-item {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      background: transparent;
+      color: var(--ink);
+      display: block;
+      text-decoration: none;
+    }
+
+    .menu-item:hover { background: var(--accent-soft); }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto 48px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero { padding: 28px; margin-bottom: 20px; }
+
+    .eyebrow {
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      color: var(--accent);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 0.95;
+    }
+
+    .hero p, .panel-copy { margin: 0; color: var(--muted); line-height: 1.45; }
+    .panel { padding: 22px; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .search-wrap input,
+    .role-filter select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 11px 12px;
+      background: white;
+      color: var(--ink);
+      font: inherit;
+      min-height: 52px;
+      line-height: 1.2;
+      font-size: 1rem;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .role-filter select {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+        linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+      background-size: 7px 7px, 7px 7px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
+    }
+
+    .search-wrap input:focus,
+    .role-filter select:focus {
+      outline: 2px solid rgba(36, 90, 82, 0.18);
+      border-color: rgba(36, 90, 82, 0.35);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .status {
+      margin: 4px 0 14px;
+      min-height: 1.2rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .file-list { display: grid; gap: 12px; }
+
+    .file-item {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1.25fr) minmax(190px, 1fr) minmax(120px, 0.7fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: inherit;
+    }
+
+    .folder-icon {
+      width: 58px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, var(--folder) 0%, #ebd69e 100%);
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(113, 85, 12, 0.12);
+    }
+
+    .folder-icon::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: 8px;
+      width: 24px;
+      height: 12px;
+      border-radius: 8px 8px 0 0;
+      background: var(--folder-deep);
+    }
+
+    .file-name { font-weight: 700; margin-bottom: 2px; }
+    .file-sub { color: var(--muted); font-size: 0.9rem; }
+    .file-meta { color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+    .file-role { font-weight: 700; text-transform: capitalize; color: var(--accent); }
+
+    .edit-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      background: white;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 21, 18, 0.55);
+      display: grid;
+      place-items: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-overlay[hidden] { display: none; }
+
+    .modal {
+      width: min(640px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .modal-head h2 { margin: 0; font-size: 1.35rem; }
+
+    .icon-close {
+      border: 0;
+      background: transparent;
+      font-size: 1.8rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--ink);
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-grid .full { grid-column: 1 / -1; }
+
+    .field label {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      min-height: 46px;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .field select {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+        linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+      background-size: 7px 7px, 7px 7px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
+    }
+
+    .modal-status {
+      margin-top: 12px;
+      min-height: 1.25rem;
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .button.secondary { background: #eef1ef; color: var(--ink); }
+    .button.primary { background: var(--accent); color: #fff; }
+
+    @media (max-width: 820px) {
+      .page { width: min(100% - 18px, 1180px); margin-top: 10px; }
+      .hero, .panel { padding: 18px; }
+      .toolbar { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .file-item {
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        padding: 14px;
+      }
+      .file-item > :nth-child(3),
+      .file-item > :nth-child(4),
+      .file-item > :nth-child(5) { grid-column: 2; }
+      .file-item > :nth-child(5) { margin-top: 4px; }
+      .edit-button { width: 100%; }
+      .modal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-header-title">Webadmin Dashboard</div>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
+          <a class="menu-item" href="./chess-timesheet.html">Employee Timesheet</a>
+          <a class="menu-item" href="./manager-dashboard.html">Manager Dashboard</a>
+          <button class="menu-item" id="profileButton" type="button">Profile</button>
+          <button class="menu-item" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+    <section class="hero">
+      <p class="eyebrow">Webadmin View</p>
+      <h1>User Profiles</h1>
+      <p>Manage employee, manager, and webadmin profile fields from one file-manager-style list.</p>
+    </section>
+
+    <section class="panel">
+      <div class="stat-row">
+        <div class="stat">
+          <span class="stat-label">Total Users</span>
+          <span class="stat-value" id="totalUsers">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Managers</span>
+          <span class="stat-value" id="managerCount">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Webadmins</span>
+          <span class="stat-value" id="webadminCount">0</span>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <label for="searchInput" style="display:block;font-size:0.8rem;color:var(--muted);font-weight:700;margin-bottom:8px;">Search Users</label>
+          <input id="searchInput" type="text" placeholder="Search by name, username, role, id, phone, bank...">
+        </div>
+        <div class="role-filter">
+          <label for="roleFilter" style="display:block;font-size:0.8rem;color:var(--muted);font-weight:700;margin-bottom:8px;">Filter Role</label>
+          <select id="roleFilter">
+            <option value="">All Roles</option>
+            <option value="employee">Employee</option>
+            <option value="manager">Manager</option>
+            <option value="webadmin">Webadmin</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="status" id="statusMessage"></div>
+      <div id="fileList" class="file-list"></div>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="editModalOverlay" hidden>
+    <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+      <div class="modal-head">
+        <h2 id="editModalTitle">Edit User Profile</h2>
+        <button class="icon-close" type="button" id="closeModalButton" aria-label="Close">×</button>
+      </div>
+
+      <form id="editForm">
+        <div class="modal-grid">
+          <div class="field full">
+            <label for="editUserId">User ID</label>
+            <input id="editUserId" type="text" readonly>
+          </div>
+          <div class="field full">
+            <label for="editFullName">Display name</label>
+            <input id="editFullName" type="text">
+          </div>
+          <div class="field">
+            <label for="editRole">Role</label>
+            <select id="editRole">
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+              <option value="webadmin">Webadmin</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="editUsername">Username</label>
+            <input id="editUsername" type="text">
+          </div>
+          <div class="field full">
+            <label for="editPhone">Phone number</label>
+            <input id="editPhone" type="text">
+          </div>
+          <div class="field full">
+            <label for="editBankAccountNumber">Bank account number</label>
+            <input id="editBankAccountNumber" type="text">
+          </div>
+          <div class="field">
+            <label for="editBankName">Bank</label>
+            <input id="editBankName" type="text">
+          </div>
+          <div class="field">
+            <label for="editAccountType">Account type</label>
+            <input id="editAccountType" type="text">
+          </div>
+        </div>
+        <div class="modal-status" id="modalStatus"></div>
+        <div class="modal-actions">
+          <button class="button secondary" type="button" id="cancelModalButton">Cancel</button>
+          <button class="button primary" type="submit" id="saveModalButton">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./auth.js"></script>
+  <script src="./profile-ui.js"></script>
+  <script>
+    const fileList = document.getElementById("fileList");
+    const totalUsers = document.getElementById("totalUsers");
+    const managerCount = document.getElementById("managerCount");
+    const webadminCount = document.getElementById("webadminCount");
+    const searchInput = document.getElementById("searchInput");
+    const roleFilter = document.getElementById("roleFilter");
+    const statusMessage = document.getElementById("statusMessage");
+    const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
+    const menuProfileName = document.getElementById("menuProfileName");
+    const userMenuButton = document.getElementById("userMenuButton");
+    const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
+    const userMenuPanel = document.getElementById("userMenuPanel");
+    const editModalOverlay = document.getElementById("editModalOverlay");
+    const editModal = document.getElementById("editModal");
+    const closeModalButton = document.getElementById("closeModalButton");
+    const cancelModalButton = document.getElementById("cancelModalButton");
+    const editForm = document.getElementById("editForm");
+    const saveModalButton = document.getElementById("saveModalButton");
+    const modalStatus = document.getElementById("modalStatus");
+    const editUserId = document.getElementById("editUserId");
+    const editFullName = document.getElementById("editFullName");
+    const editRole = document.getElementById("editRole");
+    const editUsername = document.getElementById("editUsername");
+    const editPhone = document.getElementById("editPhone");
+    const editBankAccountNumber = document.getElementById("editBankAccountNumber");
+    const editBankName = document.getElementById("editBankName");
+    const editAccountType = document.getElementById("editAccountType");
+
+    let profiles = [];
+    let activeProfile = null;
+    let lastFocusedElement = null;
+    let isSaving = false;
+
+    initApp();
+
+    async function initApp() {
+      const user = await requireWebAdmin();
+      if (!user) return;
+      setupUserMenu();
+      bindEvents();
+      await render();
+    }
+
+    function setupUserMenu() {
+      logoutButton.addEventListener("click", logout);
+      if (typeof window.attachProfileMenu === "function") {
+        window.attachProfileMenu({
+          profileButton,
+          menuPanel: userMenuPanel,
+          menuButton: userMenuButton,
+          displayNameEl: menuProfileName,
+        });
+      } else {
+        profileButton.disabled = true;
+      }
+
+      const syncMenuButtonLabel = () => {
+        const name = (menuProfileName.textContent || "").trim();
+        userMenuButtonLabel.textContent = name || "Profile";
+      };
+      syncMenuButtonLabel();
+      const nameObserver = new MutationObserver(syncMenuButtonLabel);
+      nameObserver.observe(menuProfileName, { childList: true, characterData: true, subtree: true });
+
+      userMenuButton.addEventListener("click", () => {
+        const nextState = !userMenuPanel.hidden;
+        userMenuPanel.hidden = nextState;
+        userMenuButton.setAttribute("aria-expanded", String(!nextState));
+      });
+      document.addEventListener("click", (event) => {
+        if (!userMenuPanel.hidden && !event.target.closest(".menu-wrap")) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !userMenuPanel.hidden) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+
+    function bindEvents() {
+      searchInput.addEventListener("input", renderList);
+      roleFilter.addEventListener("change", renderList);
+      closeModalButton.addEventListener("click", closeModal);
+      cancelModalButton.addEventListener("click", closeModal);
+      editForm.addEventListener("submit", onSaveProfile);
+      editModalOverlay.addEventListener("mousedown", (event) => {
+        if (event.target === editModalOverlay && !isSaving) {
+          closeModal();
+        }
+      });
+      document.addEventListener("keydown", onModalKeydown);
+    }
+
+    async function loadProfiles() {
+      const { data, error } = await window.supabaseClient
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+      return { data: data || [], error };
+    }
+
+    async function render() {
+      statusMessage.textContent = "Loading profiles...";
+      const { data, error } = await loadProfiles();
+      if (error) {
+        console.error("Failed to load profiles:", error);
+        statusMessage.textContent = `Could not load users: ${error.message || "unknown error"}`;
+        fileList.innerHTML = "";
+        totalUsers.textContent = "0";
+        managerCount.textContent = "0";
+        webadminCount.textContent = "0";
+        return;
+      }
+
+      profiles = data;
+      totalUsers.textContent = String(profiles.length);
+      managerCount.textContent = String(profiles.filter((p) => p.role === "manager").length);
+      webadminCount.textContent = String(profiles.filter((p) => p.role === "webadmin").length);
+      statusMessage.textContent = "";
+      renderList();
+    }
+
+    function renderList() {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      const roleValue = roleFilter.value;
+      const visibleProfiles = profiles.filter((profile) => {
+        if (roleValue && profile.role !== roleValue) return false;
+        if (!searchTerm) return true;
+        const haystack = [
+          profile.id,
+          profile.full_name,
+          profile.username,
+          profile.role,
+          profile.phone_number,
+          profile.bank_account_number,
+          profile.bank_name,
+          profile.account_type,
+        ].map((value) => String(value || "").toLowerCase()).join(" ");
+        return haystack.includes(searchTerm);
+      });
+
+      fileList.innerHTML = "";
+
+      if (!visibleProfiles.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No users match the current search or role filter.";
+        fileList.appendChild(empty);
+        return;
+      }
+
+      visibleProfiles.forEach((profile) => {
+        const item = document.createElement("article");
+        item.className = "file-item";
+        item.innerHTML = `
+          <div class="folder-icon" aria-hidden="true"></div>
+          <div>
+            <div class="file-name">${escapeHtml(profile.full_name || "(No display name)")}</div>
+            <div class="file-sub">${escapeHtml(profile.username || profile.id || "")}</div>
+          </div>
+          <div class="file-meta">
+            Phone: ${escapeHtml(profile.phone_number || "-")}<br>
+            Bank: ${escapeHtml(profile.bank_name || "-")} • ${escapeHtml(profile.account_type || "-")}<br>
+            Account: ${escapeHtml(profile.bank_account_number || "-")}<br>
+            Created: ${escapeHtml(formatDateTime(profile.created_at))}
+          </div>
+          <div class="file-role">${escapeHtml(profile.role || "employee")}</div>
+          <div><button class="edit-button" type="button" data-id="${escapeHtml(profile.id)}">Edit</button></div>
+        `;
+        fileList.appendChild(item);
+      });
+
+      fileList.querySelectorAll(".edit-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const profile = profiles.find((item) => item.id === button.dataset.id);
+          if (profile) openModal(profile, button);
+        });
+      });
+    }
+
+    function openModal(profile, sourceButton) {
+      activeProfile = profile;
+      lastFocusedElement = sourceButton || document.activeElement;
+      editUserId.value = profile.id || "";
+      editFullName.value = profile.full_name || "";
+      editRole.value = profile.role || "employee";
+      editUsername.value = profile.username || "";
+      editPhone.value = profile.phone_number || "";
+      editBankAccountNumber.value = profile.bank_account_number || "";
+      editBankName.value = profile.bank_name || "";
+      editAccountType.value = profile.account_type || "";
+      modalStatus.textContent = "";
+      editModalOverlay.hidden = false;
+      document.body.style.overflow = "hidden";
+      editFullName.focus();
+    }
+
+    function closeModal() {
+      if (isSaving) return;
+      editModalOverlay.hidden = true;
+      document.body.style.overflow = "";
+      activeProfile = null;
+      if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+        lastFocusedElement.focus();
+      }
+    }
+
+    function onModalKeydown(event) {
+      if (editModalOverlay.hidden) return;
+      if (event.key === "Escape" && !isSaving) {
+        event.preventDefault();
+        closeModal();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = editModal.querySelectorAll("button, input, select, textarea, [href], [tabindex]:not([tabindex='-1'])");
+      const visible = Array.from(focusable).filter((el) => !el.disabled && el.offsetParent !== null);
+      if (!visible.length) return;
+      const first = visible[0];
+      const last = visible[visible.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    async function onSaveProfile(event) {
+      event.preventDefault();
+      if (!activeProfile || isSaving) return;
+
+      isSaving = true;
+      saveModalButton.disabled = true;
+      modalStatus.style.color = "var(--muted)";
+      modalStatus.textContent = "Saving changes...";
+
+      const payload = {
+        full_name: editFullName.value.trim(),
+        role: editRole.value,
+        username: editUsername.value.trim() || null,
+        phone_number: editPhone.value.trim() || null,
+        bank_account_number: editBankAccountNumber.value.trim() || null,
+        bank_name: editBankName.value.trim() || null,
+        account_type: editAccountType.value.trim() || null,
+      };
+
+      const { error } = await window.supabaseClient
+        .from("profiles")
+        .update(payload)
+        .eq("id", activeProfile.id);
+
+      isSaving = false;
+      saveModalButton.disabled = false;
+
+      if (error) {
+        console.error("Failed to update profile:", error);
+        modalStatus.style.color = "var(--danger)";
+        modalStatus.textContent = `Could not save profile: ${error.message || "unknown error"}`;
+        return;
+      }
+
+      modalStatus.style.color = "var(--accent)";
+      modalStatus.textContent = "Saved.";
+      await render();
+      closeModal();
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      return date.toLocaleString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+  </script>
+</body>
+</html>

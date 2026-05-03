@@ -27,12 +27,12 @@ create table if not exists public.profiles (
   bank_account_number text,
   bank_name text,
   account_type text,
-  role text not null default 'employee' check (role in ('employee', 'manager')),
+  role text not null default 'employee' check (role in ('employee', 'manager', 'webadmin')),
   created_at timestamptz not null default now()
 );
 
 comment on table public.profiles is 'Application profile and role for each authenticated user.';
-comment on column public.profiles.role is 'Allowed values: employee, manager.';
+comment on column public.profiles.role is 'Allowed values: employee, manager, webadmin.';
 comment on column public.profiles.username is 'Optional profile username.';
 comment on column public.profiles.phone_number is 'Optional profile phone number.';
 comment on column public.profiles.bank_account_number is 'Optional bank account number used for payroll.';
@@ -122,8 +122,8 @@ for select
 to authenticated
 using (id = auth.uid());
 
--- Managers can read all profiles.
-create policy "profiles_select_manager_all"
+-- Managers and webadmins can read all profiles.
+create policy "profiles_select_admin_all"
 on public.profiles
 for select
 to authenticated
@@ -132,7 +132,7 @@ using (
     select 1
     from public.profiles p
     where p.id = auth.uid()
-      and p.role = 'manager'
+      and p.role in ('manager', 'webadmin')
   )
 );
 
@@ -170,6 +170,28 @@ with check (
   and role = 'manager'
 );
 
+-- Webadmins can update any profile row.
+create policy "profiles_update_webadmin_all"
+on public.profiles
+for update
+to authenticated
+using (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'webadmin'
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role = 'webadmin'
+  )
+);
+
 -- -------------------------------------------------------------------
 -- 6) Payroll submissions RLS policies
 -- -------------------------------------------------------------------
@@ -187,8 +209,8 @@ for select
 to authenticated
 using (employee_id = auth.uid());
 
--- Managers can read all submissions.
-create policy "submissions_select_manager_all"
+-- Managers and webadmins can read all submissions.
+create policy "submissions_select_admin_all"
 on public.payroll_submissions
 for select
 to authenticated
@@ -197,12 +219,12 @@ using (
     select 1
     from public.profiles p
     where p.id = auth.uid()
-      and p.role = 'manager'
+      and p.role in ('manager', 'webadmin')
   )
 );
 
--- Managers can delete any submission.
-create policy "submissions_delete_manager_all"
+-- Managers and webadmins can delete any submission.
+create policy "submissions_delete_admin_all"
 on public.payroll_submissions
 for delete
 to authenticated
@@ -211,7 +233,7 @@ using (
     select 1
     from public.profiles p
     where p.id = auth.uid()
-      and p.role = 'manager'
+      and p.role in ('manager', 'webadmin')
   )
 );
 
@@ -246,8 +268,8 @@ using (
   )
 );
 
--- Managers can read all entries.
-create policy "entries_select_manager_all"
+-- Managers and webadmins can read all entries.
+create policy "entries_select_admin_all"
 on public.payroll_entries
 for select
 to authenticated
@@ -256,7 +278,7 @@ using (
     select 1
     from public.profiles p
     where p.id = auth.uid()
-      and p.role = 'manager'
+      and p.role in ('manager', 'webadmin')
   )
 );
 
