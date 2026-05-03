@@ -860,6 +860,7 @@
       }
 
       const resolvedEntries = await Promise.all((entryRows || []).map(async (row) => {
+        const claimPayload = parseClaimNotePayload(row.claim_notes || "");
         const resolvedClaimUrl = await resolveClaimImageUrl(row.claim_image_url || "");
         return {
           id: row.id,
@@ -871,7 +872,8 @@
           hours: row.hours,
           replacementName: row.replacement_name || "",
           customRate: row.custom_rate,
-          claimNotes: row.claim_notes || "",
+          claimNotes: claimPayload.notes,
+          claimCost: claimPayload.cost,
           claimProofDataUrl: resolvedClaimUrl,
           claimProofName: getClaimProofName(row.claim_image_url || ""),
         };
@@ -1141,7 +1143,25 @@
       if (entry.type === "Replacement" && entry.replacementName) {
         return `${escapeHtml(entry.type)} for ${escapeHtml(entry.replacementName)}`;
       }
+      if (entry.type === "Claim") {
+        const claimCost = Number(entry.claimCost || 0);
+        const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
+        return `Claim${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
+      }
       return escapeHtml(entry.type);
+    }
+
+    function parseClaimNotePayload(rawValue) {
+      const raw = String(rawValue || "");
+      const match = raw.match(/^\[ClaimCost:(\d+(?:\.\d{1,2})?)\]\s*/i);
+      if (!match) {
+        return { notes: raw, cost: null };
+      }
+      const parsedCost = Number(match[1]);
+      return {
+        notes: raw.replace(match[0], ""),
+        cost: Number.isFinite(parsedCost) ? parsedCost : null,
+      };
     }
 
     function formatHoursCell(entry) {

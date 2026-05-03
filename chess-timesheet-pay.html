@@ -1199,7 +1199,7 @@
         hours: Number(entry.hours || 0),
         replacement_name: entry.replacementName || null,
         custom_rate: entry.customRate != null ? Number(entry.customRate) : null,
-        claim_notes: entry.claimNotes || null,
+        claim_notes: serializeClaimNotesForStorage(entry),
         claim_image_url: entry.claimImagePath || entry.claimProofDataUrl || null,
       }));
 
@@ -1491,7 +1491,25 @@
       if ((entry.type === "Private" || entry.type === "Event") && Number(entry.customRate) > 0) {
         return `${escapeHtml(entry.type)} @ ${formatCurrency(entry.customRate)}/hr`;
       }
+      if (entry.type === "Claim") {
+        const claimCost = Number(entry.claimCost || 0);
+        const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
+        return `Claim${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
+      }
       return escapeHtml(entry.type);
+    }
+
+    function serializeClaimNotesForStorage(entry) {
+      if (entry.type !== "Claim") {
+        return entry.claimNotes || null;
+      }
+      const noteText = String(entry.claimNotes || "").trim();
+      const claimCost = Number(entry.claimCost || 0);
+      if (claimCost > 0) {
+        const amount = claimCost.toFixed(2);
+        return `[ClaimCost:${amount}] ${noteText}`.trim();
+      }
+      return noteText || null;
     }
 
     function formatTimeRange(entry) {
@@ -1520,10 +1538,7 @@
       const pending = (sourceEntries || []).filter((entry) => {
         if (entry.type !== "Claim") return false;
         if (!entry.claimImagePath) return false;
-        const r2Key = typeof window.claimProofStorage.isR2ClaimKey === "function"
-          ? window.claimProofStorage.isR2ClaimKey(entry.claimImagePath)
-          : false;
-        if (!r2Key && entry.claimProofDataUrl) return false;
+        if (entry.claimProofDataUrl) return false;
         return true;
       });
       if (!pending.length) return;
@@ -1538,7 +1553,7 @@
               fallbackSupabaseSignedSeconds: 60 * 60,
               expiresInSeconds: 60 * 60,
             });
-            if (resolvedUrl) {
+            if (resolvedUrl && resolvedUrl !== entry.claimProofDataUrl) {
               entry.claimProofDataUrl = resolvedUrl;
               changed = true;
             }

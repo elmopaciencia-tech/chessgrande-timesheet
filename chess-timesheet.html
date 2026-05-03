@@ -957,6 +957,10 @@
         <input id="claimNotes" name="claimNotes" type="text" placeholder="e.g. Transport reimbursement">
       </div>
       <div class="full">
+        <label for="claimCost">Claim Cost</label>
+        <input id="claimCost" name="claimCost" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 14.50">
+      </div>
+      <div class="full">
         <label for="claimProof">Proof Image</label>
         <input id="claimProof" name="claimProof" type="file" accept="image/*">
       </div>
@@ -1200,8 +1204,10 @@
         unmountTimeFields();
         ensureClaimFieldsRendered();
         const claimNotesInput = document.getElementById("claimNotes");
+        const claimCostInput = document.getElementById("claimCost");
         const claimProofInput = document.getElementById("claimProof");
         claimNotesInput.required = true;
+        claimCostInput.required = true;
         claimProofInput.required = true;
         replacementNameInput.value = "";
         customRateInput.value = "";
@@ -1254,8 +1260,10 @@
       const hasCustomRate = (entryType === "Private" || entryType === "Event") && customRateInput.value !== "";
       const isClaim = entryType === "Claim";
       const claimNotesInput = document.getElementById("claimNotes");
+      const claimCostInput = document.getElementById("claimCost");
       const claimProofInput = document.getElementById("claimProof");
       const claimNotes = claimNotesInput ? claimNotesInput.value.trim() : "";
+      const claimCost = claimCostInput ? Number(claimCostInput.value) : 0;
       const isRecurring = document.getElementById("isRecurring").checked;
       const claimProofFile = claimProofInput && claimProofInput.files && claimProofInput.files[0];
 
@@ -1266,6 +1274,10 @@
 
       if (!isClaim && hoursWorked <= 0) {
         alert("Hours worked needs to be greater than zero.");
+        return;
+      }
+      if (isClaim && (!Number.isFinite(claimCost) || claimCost <= 0)) {
+        alert("Claim cost needs to be greater than zero.");
         return;
       }
       const endTime = isClaim ? "" : calculateEndTime(startTime, hoursWorked);
@@ -1292,6 +1304,7 @@
         replacementName: entryType === "Replacement" ? replacementName : "",
         customRate: hasCustomRate && customRateValue > 0 ? customRateValue : null,
         claimNotes: isClaim ? claimNotes : "",
+        claimCost: isClaim ? claimCost : null,
         claimProofName: isClaim ? claimProofFile.name : "",
         claimImagePath,
         claimProofDataUrl,
@@ -1641,10 +1654,7 @@
       const pending = (sourceEntries || []).filter((entry) => {
         if (entry.type !== "Claim") return false;
         if (!entry.claimImagePath) return false;
-        const r2Key = typeof window.claimProofStorage.isR2ClaimKey === "function"
-          ? window.claimProofStorage.isR2ClaimKey(entry.claimImagePath)
-          : false;
-        if (!r2Key && entry.claimProofDataUrl) return false;
+        if (entry.claimProofDataUrl) return false;
         return true;
       });
       if (!pending.length) return;
@@ -1659,7 +1669,7 @@
               fallbackSupabaseSignedSeconds: 60 * 60,
               expiresInSeconds: 60 * 60,
             });
-            if (resolvedUrl) {
+            if (resolvedUrl && resolvedUrl !== entry.claimProofDataUrl) {
               entry.claimProofDataUrl = resolvedUrl;
               changed = true;
             }
@@ -1689,7 +1699,9 @@
         return `${escapeHtml(entry.type)} @ ${formatCurrency(entry.customRate)}/hr`;
       }
       if (entry.type === "Claim") {
-        return `Claim: ${escapeHtml(entry.claimNotes || "")}`;
+        const claimCost = Number(entry.claimCost || 0);
+        const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
+        return `Claim${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
       }
       return escapeHtml(entry.type);
     }
