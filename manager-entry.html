@@ -737,6 +737,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./claim-proof-storage.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
@@ -1164,10 +1165,22 @@
 
     async function resolveClaimImageUrl(storedValue) {
       if (!storedValue) return "";
+      if (window.claimProofStorage && typeof window.claimProofStorage.resolveClaimImageUrl === "function") {
+        try {
+          return await window.claimProofStorage.resolveClaimImageUrl(storedValue, {
+            fallbackSupabaseBucket: claimProofBucket,
+            fallbackSupabaseSignedSeconds: 60 * 60,
+            expiresInSeconds: 60 * 60,
+          });
+        } catch (error) {
+          console.warn("Could not resolve claim image URL via shared helper:", error?.message || error);
+          return "";
+        }
+      }
+
       if (/^https?:\/\//i.test(storedValue) || /^data:/i.test(storedValue)) {
         return storedValue;
       }
-
       const { data, error } = await window.supabaseClient.storage
         .from(claimProofBucket)
         .createSignedUrl(storedValue, 60 * 60);

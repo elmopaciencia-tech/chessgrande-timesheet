@@ -850,16 +850,16 @@
 
         <div class="summary">
           <div class="stat">
-            <span class="stat-label">Calculated Pay</span>
-            <span class="stat-value" id="summaryPay">SGD 0.00</span>
+            <span class="stat-label">Rate</span>
+            <span class="stat-value" id="rateCount">$0.00</span>
           </div>
           <div class="stat">
             <span class="stat-label">Hours</span>
             <span class="stat-value" id="hoursCount">0</span>
           </div>
           <div class="stat">
-            <span class="stat-label">Rate</span>
-            <span class="stat-value" id="rateCount">$0</span>
+            <span class="stat-label">Calculated Pay</span>
+            <span class="stat-value" id="summaryPay">$0.00</span>
           </div>
         </div>
 
@@ -917,6 +917,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./claim-proof-storage.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
@@ -958,6 +959,7 @@
     const imageLightboxContent = document.getElementById("imageLightboxContent");
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
+    const claimProofBucket = "claim-proofs";
     const storageBackends = getStorageBackends();
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
@@ -969,6 +971,7 @@
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
     let isSubmitting = false;
+    let isHydratingClaimProofUrls = false;
 
     initApp();
     window.addEventListener("profile-updated", async () => {
@@ -1238,9 +1241,9 @@
         0
       );
 
-      summaryPay.textContent = formatCurrency(totalPay);
+      summaryPay.textContent = formatCompactDollar(totalPay);
       hoursCount.textContent = trimHours(totalHours);
-      rateCount.textContent = formatCurrency(hourlyRate);
+      rateCount.textContent = formatCompactDollar(hourlyRate);
       payName.textContent = currentProfile?.full_name || "-";
       payBank.textContent = currentProfile?.bank_account_number || "-";
       payMonth.textContent = formatMonthLabel(monthPicker.value);
@@ -1249,6 +1252,7 @@
 
       renderCalendar(activeEntries, monthPicker.value);
       renderGroups(activeEntries);
+      void hydrateClaimProofUrls(activeEntries);
     }
 
     function getEntriesForMonth(monthValue) {
@@ -1473,6 +1477,13 @@
       }).format(Number(value || 0));
     }
 
+    function formatCompactDollar(value) {
+      return `$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Number(value || 0))}`;
+    }
+
     function formatEntryType(entry) {
       if (entry.type === "Replacement" && entry.replacementName) {
         return `${escapeHtml(entry.type)} for ${escapeHtml(entry.replacementName)}`;
@@ -1502,6 +1513,47 @@
         return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
       }
       return `<div class="entry-image-placeholder"></div>`;
+    }
+
+    async function hydrateClaimProofUrls(sourceEntries) {
+      if (isHydratingClaimProofUrls || !window.claimProofStorage) return;
+      const pending = (sourceEntries || []).filter((entry) => {
+        if (entry.type !== "Claim") return false;
+        if (!entry.claimImagePath) return false;
+        const r2Key = typeof window.claimProofStorage.isR2ClaimKey === "function"
+          ? window.claimProofStorage.isR2ClaimKey(entry.claimImagePath)
+          : false;
+        if (!r2Key && entry.claimProofDataUrl) return false;
+        return true;
+      });
+      if (!pending.length) return;
+
+      isHydratingClaimProofUrls = true;
+      let changed = false;
+      try {
+        for (const entry of pending) {
+          try {
+            const resolvedUrl = await window.claimProofStorage.resolveClaimImageUrl(entry.claimImagePath, {
+              fallbackSupabaseBucket: claimProofBucket,
+              fallbackSupabaseSignedSeconds: 60 * 60,
+              expiresInSeconds: 60 * 60,
+            });
+            if (resolvedUrl) {
+              entry.claimProofDataUrl = resolvedUrl;
+              changed = true;
+            }
+          } catch (error) {
+            console.warn("Could not hydrate claim proof preview URL on payroll page:", error?.message || error);
+          }
+        }
+      } finally {
+        isHydratingClaimProofUrls = false;
+      }
+
+      if (changed) {
+        writeJsonToStorage(entryStorageKey, entries);
+        render();
+      }
     }
 
     function initImageViewer() {

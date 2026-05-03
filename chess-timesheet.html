@@ -1000,6 +1000,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./claim-proof-storage.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
@@ -1051,6 +1052,7 @@
     let entries = [];
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
+    let isHydratingClaimProofUrls = false;
 
     initApp();
     window.addEventListener("profile-updated", async () => {
@@ -1355,6 +1357,7 @@
       updateSummary(activeEntries);
       renderCalendar(activeEntries, monthPicker.value);
       renderGroups(activeEntries);
+      void hydrateClaimProofUrls(activeEntries);
     }
 
     function getEntriesForMonth(monthValue) {
@@ -1633,6 +1636,47 @@
       return `<div class="entry-image-placeholder"></div>`;
     }
 
+    async function hydrateClaimProofUrls(sourceEntries) {
+      if (isHydratingClaimProofUrls || !window.claimProofStorage) return;
+      const pending = (sourceEntries || []).filter((entry) => {
+        if (entry.type !== "Claim") return false;
+        if (!entry.claimImagePath) return false;
+        const r2Key = typeof window.claimProofStorage.isR2ClaimKey === "function"
+          ? window.claimProofStorage.isR2ClaimKey(entry.claimImagePath)
+          : false;
+        if (!r2Key && entry.claimProofDataUrl) return false;
+        return true;
+      });
+      if (!pending.length) return;
+
+      isHydratingClaimProofUrls = true;
+      let changed = false;
+      try {
+        for (const entry of pending) {
+          try {
+            const resolvedUrl = await window.claimProofStorage.resolveClaimImageUrl(entry.claimImagePath, {
+              fallbackSupabaseBucket: claimProofBucket,
+              fallbackSupabaseSignedSeconds: 60 * 60,
+              expiresInSeconds: 60 * 60,
+            });
+            if (resolvedUrl) {
+              entry.claimProofDataUrl = resolvedUrl;
+              changed = true;
+            }
+          } catch (error) {
+            console.warn("Could not hydrate claim proof preview URL:", error?.message || error);
+          }
+        }
+      } finally {
+        isHydratingClaimProofUrls = false;
+      }
+
+      if (changed) {
+        saveEntries();
+        render();
+      }
+    }
+
     function trimHours(value) {
       return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
     }
@@ -1734,46 +1778,10 @@
     }
 
     async function uploadClaimProofToStorage(file, monthValue) {
-      const user = await getCurrentUser();
-      if (!user) {
-        throw new Error("Please log in before uploading a claim proof image.");
+      if (!window.claimProofStorage || typeof window.claimProofStorage.uploadClaimProof !== "function") {
+        throw new Error("Claim proof upload helper is unavailable. Please reload this page.");
       }
-
-      const safeFileName = sanitizeFileName(file.name || "proof-image");
-      const path = `${user.id}/${monthValue}/${Date.now()}-${generateId()}-${safeFileName}`;
-
-      const { error: uploadError } = await window.supabaseClient.storage
-        .from(claimProofBucket)
-        .upload(path, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type || "application/octet-stream",
-        });
-
-      if (uploadError) {
-        throw new Error(`Could not upload claim proof: ${uploadError.message || "unknown error"}`);
-      }
-
-      const { data: signed, error: signError } = await window.supabaseClient.storage
-        .from(claimProofBucket)
-        .createSignedUrl(path, 60 * 60 * 24 * 7);
-      if (signError) {
-        console.warn("Could not create signed preview URL for claim proof:", signError.message);
-      }
-
-      return {
-        path,
-        previewUrl: signed?.signedUrl || "",
-      };
-    }
-
-    function sanitizeFileName(name) {
-      return String(name)
-        .trim()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-zA-Z0-9._-]/g, "")
-        .replace(/^-+/, "")
-        .slice(0, 120) || "proof-image";
+      return window.claimProofStorage.uploadClaimProof(file, monthValue);
     }
   </script>
 </body>

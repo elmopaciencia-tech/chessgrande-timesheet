@@ -1,0 +1,14 @@
+name = "claim-proof-worker"
+main = "claim-proof-worker.js"
+compatibility_date = "2026-05-01"
+workers_dev = true
+account_id = "a6e96615c3a53da5b223b391ed7758a0"
+
+[[r2_buckets]]
+binding = "CLAIM_PROOFS_BUCKET"
+bucket_name = "payclaim-receipts"
+
+# Optional: if you deploy to a custom domain later, set this to your worker URL.
+# Keep secrets out of this file; use `wrangler secret put ...` for sensitive values.
+[vars]
+PUBLIC_WORKER_BASE_URL = "https://claim-proof-worker.elmopaciencia.workers.dev"

@@ -43,12 +43,39 @@ add constraint profiles_role_check
 check (role in ('employee', 'manager', 'webadmin'));
 ```
 
-## Storage Bucket for Claim Images
+## Claim Proof Images (Private Cloudflare R2)
 
-Create a Supabase Storage bucket named:
-- `claim-proofs`
+Claim proof images now use a private Cloudflare R2 bucket via a Cloudflare Worker.
 
-The app uploads claim proof images there and stores the path in `payroll_entries.claim_image_url`.
+The app pages that use claim images are:
+- `./chess-timesheet.html` (upload + preview)
+- `./chess-timesheet-pay.html` (preview + submission payload)
+- `./manager-entry.html` (manager proof viewing)
+
+### 1) Configure frontend worker URL
+
+Open `claim-proof-storage.js` and replace:
+- `PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE`
+
+### 2) Deploy worker
+
+Use the template at:
+- `./cloudflare-worker/claim-proof-worker.js`
+
+Set Worker secrets/bindings:
+- `CLAIM_PROOFS_BUCKET` (R2 binding)
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `WORKER_UPLOAD_TOKEN_SECRET` (long random secret)
+- `PUBLIC_WORKER_BASE_URL` (your deployed worker URL)
+
+### 3) Data in Supabase
+
+The app stores only a stable object key/path (for example `r2/<user-id>/<month>/...`) in:
+- `payroll_entries.claim_image_url`
+
+Legacy Supabase claim image paths/URLs still render through compatibility fallback.
 
 ## Deploy to Vercel (Static)
 
