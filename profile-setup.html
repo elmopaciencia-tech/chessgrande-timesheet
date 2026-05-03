@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Profile Setup | Chess Grande Payroll</title>
+  <style>
+    :root {
+      --bg: #f3f8f8;
+      --panel: #ffffff;
+      --text: #1d2a2a;
+      --muted: #5f7572;
+      --line: rgba(36, 90, 82, 0.18);
+      --accent: #245a52;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #edf6f5 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      padding: 18px;
+    }
+    .card {
+      width: min(620px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+    }
+    h1 { margin: 0 0 8px; font-size: 1.6rem; }
+    p { margin: 0 0 18px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .full { grid-column: 1 / -1; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.92rem; }
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+    }
+    button {
+      margin-top: 14px;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      width: 100%;
+    }
+    .status {
+      margin-top: 12px;
+      min-height: 22px;
+      color: #7a3d25;
+      font-weight: 600;
+    }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Complete Your Profile</h1>
+    <p>Please fill in these required details before using the payroll portal.</p>
+
+    <form id="setupForm">
+      <div class="grid">
+        <div class="full">
+          <label for="fullName">Full name</label>
+          <input id="fullName" type="text" required>
+        </div>
+        <div class="full">
+          <label for="phoneNumber">Phone number</label>
+          <input id="phoneNumber" type="text" required>
+        </div>
+        <div class="full">
+          <label for="bankAccountNumber">Bank account number</label>
+          <input id="bankAccountNumber" type="text" required>
+        </div>
+        <div>
+          <label for="bankName">Bank</label>
+          <input id="bankName" type="text" required>
+        </div>
+        <div>
+          <label for="accountType">Account type</label>
+          <input id="accountType" type="text" required>
+        </div>
+      </div>
+      <button type="submit" id="saveButton">Save Profile</button>
+      <div class="status" id="statusMessage"></div>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./auth.js"></script>
+  <script>
+    const setupForm = document.getElementById("setupForm");
+    const fullNameInput = document.getElementById("fullName");
+    const phoneNumberInput = document.getElementById("phoneNumber");
+    const bankAccountNumberInput = document.getElementById("bankAccountNumber");
+    const bankNameInput = document.getElementById("bankName");
+    const accountTypeInput = document.getElementById("accountType");
+    const saveButton = document.getElementById("saveButton");
+    const statusMessage = document.getElementById("statusMessage");
+
+    let nextUrl = "./chess-timesheet.html";
+
+    init();
+
+    async function init() {
+      const user = await requireLogin();
+      if (!user) return;
+
+      const params = new URLSearchParams(window.location.search);
+      const nextParam = params.get("next");
+      if (nextParam && !nextParam.includes("login.html") && !nextParam.includes("signup.html") && !nextParam.includes("profile-setup.html")) {
+        nextUrl = nextParam;
+      }
+
+      const profile = await getCurrentProfile();
+      if (profile && profile.role && profile.role !== "employee" && isProfileSetupComplete(profile)) {
+        window.location.href = nextUrl;
+        return;
+      }
+
+      const fullNameFromMetadata = (user.user_metadata && user.user_metadata.full_name) ? String(user.user_metadata.full_name).trim() : "";
+      fullNameInput.value = (profile && profile.full_name) ? profile.full_name : fullNameFromMetadata;
+      phoneNumberInput.value = (profile && profile.phone_number) ? profile.phone_number : "";
+      bankAccountNumberInput.value = (profile && profile.bank_account_number) ? profile.bank_account_number : "";
+      bankNameInput.value = (profile && profile.bank_name) ? profile.bank_name : "";
+      accountTypeInput.value = (profile && profile.account_type) ? profile.account_type : "";
+
+      if (profile && profile.role === "employee" && isProfileSetupComplete(profile)) {
+        window.location.href = nextUrl;
+      }
+    }
+
+    setupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const user = await getCurrentUser();
+      if (!user) {
+        window.location.href = "./login.html";
+        return;
+      }
+
+      const payload = {
+        id: user.id,
+        full_name: fullNameInput.value.trim(),
+        phone_number: phoneNumberInput.value.trim(),
+        bank_account_number: bankAccountNumberInput.value.trim(),
+        bank_name: bankNameInput.value.trim(),
+        account_type: accountTypeInput.value.trim(),
+        role: "employee",
+      };
+
+      if (!payload.full_name || !payload.phone_number || !payload.bank_account_number || !payload.bank_name || !payload.account_type) {
+        statusMessage.textContent = "Please complete all required fields.";
+        return;
+      }
+
+      saveButton.disabled = true;
+      statusMessage.textContent = "Saving profile...";
+
+      const { error } = await window.supabaseClient
+        .from("profiles")
+        .upsert(payload, { onConflict: "id" });
+
+      saveButton.disabled = false;
+
+      if (error) {
+        statusMessage.textContent = `Could not save profile: ${error.message || "unknown error"}`;
+        return;
+      }
+
+      statusMessage.textContent = "Profile saved. Redirecting...";
+      window.location.href = nextUrl;
+    });
+  </script>
+</body>
+</html>

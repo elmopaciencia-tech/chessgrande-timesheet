@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Sign Up | Chess Grande Payroll</title>
+  <style>
+    :root {
+      --bg: #f3f8f8;
+      --panel: #ffffff;
+      --text: #1d2a2a;
+      --muted: #5f7572;
+      --line: rgba(36, 90, 82, 0.18);
+      --accent: #245a52;
+      --accent-2: #bd5d38;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #edf6f5 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      padding: 18px;
+    }
+    .card {
+      width: min(520px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+    }
+    h1 { margin: 0 0 8px; font-size: 1.6rem; }
+    p { margin: 0 0 18px; color: var(--muted); }
+    label { display: block; margin-bottom: 6px; font-weight: 600; }
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      margin-bottom: 14px;
+    }
+    .actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 4px; }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    .status {
+      margin-top: 12px;
+      min-height: 22px;
+      color: #7a3d25;
+      font-weight: 600;
+    }
+    .footnote { margin: 14px 0 0; font-size: 0.9rem; color: var(--muted); }
+    .footnote a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Create Employee Account</h1>
+    <p>Sign up with your name, email, and password.</p>
+
+    <form id="signupForm">
+      <label for="fullName">Full name</label>
+      <input id="fullName" type="text" autocomplete="name" required>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="new-password" required>
+
+      <label for="confirmPassword">Confirm password</label>
+      <input id="confirmPassword" type="password" autocomplete="new-password" required>
+
+      <div class="actions">
+        <button type="submit" id="signupButton">Create Account</button>
+      </div>
+      <div class="status" id="statusMessage"></div>
+    </form>
+    <p class="footnote"><a href="./login.html">Back to login</a></p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script>
+    const signupForm = document.getElementById("signupForm");
+    const fullNameInput = document.getElementById("fullName");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const statusMessage = document.getElementById("statusMessage");
+
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusMessage.textContent = "";
+
+      const fullName = fullNameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if (!fullName || !email || !password || !confirmPassword) {
+        statusMessage.textContent = "Please complete all fields.";
+        return;
+      }
+      if (password !== confirmPassword) {
+        statusMessage.textContent = "Passwords do not match.";
+        return;
+      }
+
+      statusMessage.textContent = "Creating account...";
+      const { data, error } = await window.supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+        },
+      });
+
+      if (error) {
+        statusMessage.textContent = error.message || "Sign up failed.";
+        return;
+      }
+
+      const userId = data.user && data.user.id;
+      if (userId && data.session) {
+        const { error: profileError } = await window.supabaseClient
+          .from("profiles")
+          .upsert(
+            { id: userId, full_name: fullName, role: "employee" },
+            { onConflict: "id" }
+          );
+        if (profileError) {
+          statusMessage.textContent = `Account created, but profile setup is still required after login: ${profileError.message}`;
+          return;
+        }
+      }
+
+      statusMessage.textContent = "Account created. Check your email if confirmation is required, then log in.";
+      signupForm.reset();
+    });
+  </script>
+</body>
+</html>
