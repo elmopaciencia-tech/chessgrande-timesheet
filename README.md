@@ -2,6 +2,15 @@
 
 This is a plain HTML/CSS/JavaScript payroll app designed for static hosting.
 
+## Things to Add in the Future
+1. User Profile Pictures
+2. Fixes to wording
+3. New 'processed' filter for entries in manager-dashboard.html
+4. Nicer UI probably
+5. Email Confirmation
+6. Any requested feature
+
+
 ## Configure Supabase
 
 1. Open `supabase-client.js`.
