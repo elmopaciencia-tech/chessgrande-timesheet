@@ -8,7 +8,8 @@ This is a plain HTML/CSS/JavaScript payroll app designed for static hosting.
 3. New 'processed' filter for entries in manager-dashboard.html
 4. Nicer UI probably
 5. Email Confirmation
-6. Any requested feature
+6. Colour coding for type of entry
+7. Any requested feature
 
 
 ## Configure Supabase
