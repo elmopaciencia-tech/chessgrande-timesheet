@@ -63,14 +63,16 @@
     .stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
     .stat { padding: 20px; min-height: 132px; display: grid; align-content: end; }
     .stat-label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
-    .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; word-break: break-word; }
+    #totalSubmittedPay { text-wrap: balance; line-height: 1.1; font-size: clamp(1.35rem, 4vw, 1.8rem); }
     .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
     .filter-card, .toolbar-card { padding: 16px; }
     .filter-title, .search-wrap label, .role-filter label { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
     .filter-select, .search-wrap input, .role-filter select { width: 100%; border-radius: 16px; border: 1px solid var(--line); padding: 11px 12px; background: var(--surface-strong); color: var(--ink); min-height: 52px; font-size: 1rem; box-sizing: border-box; }
     .filter-select:focus-visible, .search-wrap input:focus-visible, .role-filter select:focus-visible { border-color: color-mix(in srgb, var(--focus) 60%, white 40%); box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%); }
     .file-list { display: grid; gap: 14px; }
-    .file-item { display: grid; grid-template-columns: 58px minmax(0, 1.2fr) minmax(140px, .9fr) minmax(120px, .8fr) auto; gap: 14px; align-items: center; padding: 18px; color: inherit; text-decoration: none; }
+    .file-item { display: grid; grid-template-columns: 58px minmax(0, 1.2fr) minmax(120px, .9fr) minmax(120px, .8fr) minmax(130px, .9fr) auto; gap: 14px; align-items: center; padding: 18px; color: inherit; text-decoration: none; }
+    .file-item-actions { justify-self: end; }
     .folder-icon { width: 58px; height: 44px; border-radius: 12px; background: linear-gradient(180deg, var(--gold) 0%, color-mix(in srgb, var(--gold-deep) 72%, white 28%) 100%); position: relative; box-shadow: inset 0 0 0 1px rgba(113,85,12,.12); }
     .folder-icon::before { content: ""; position: absolute; top: -7px; left: 8px; width: 24px; height: 12px; border-radius: 8px 8px 0 0; background: var(--gold-deep); }
     .file-name { font-weight: 700; margin-bottom: 2px; }
@@ -89,8 +91,25 @@
     .field.full { grid-column: 1 / -1; }
     .modal-grid input, .modal-grid select { width: 100%; border-radius: 16px; border: 1px solid var(--line); padding: 12px 14px; background: var(--surface-strong); min-height: 52px; }
     .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-    @media (max-width: 1100px) { .toolbar, .summary-strip, .stat-row, .filters, .file-item { grid-template-columns: 1fr; } .file-item { align-items: start; } }
-    @media (max-width: 760px) { .hero, .panel, .modal { padding: 20px; } .app-header-inner { min-height: 66px; padding: 0 16px; } .modal-grid, .modal-actions { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) {
+      .toolbar, .stat-row, .filters { grid-template-columns: 1fr; }
+      .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+      .summary-card.lead { grid-column: 1 / -1; padding: 20px; }
+      .summary-title { font-size: .94rem; line-height: 1.2; }
+      .summary-card.stat { min-height: 132px; padding: 18px; display: grid; align-content: center; gap: 6px; }
+      .summary-card.stat .stat-label { margin-bottom: 0; font-size: .72rem; letter-spacing: .06em; white-space: nowrap; }
+      .stat-value { font-size: 1.6rem; }
+      .file-item { grid-template-columns: 58px minmax(0, 1fr) minmax(100px, auto) minmax(110px, auto) minmax(120px, auto) auto; align-items: center; }
+    }
+    @media (max-width: 760px) {
+      .hero, .panel, .modal { padding: 20px; }
+      .app-header-inner { min-height: 66px; padding: 0 16px; }
+      .modal-grid, .modal-actions { grid-template-columns: 1fr; }
+      .summary-strip { grid-template-columns: 1fr; }
+      .summary-card.lead, .summary-card.stat { min-height: 0; }
+      .file-item { grid-template-columns: 1fr; align-items: start; }
+      .file-item-actions { justify-self: start; }
+    }
 
 </style></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
 <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
@@ -269,7 +288,7 @@
           <div class="file-meta">${trimHours(submission.totalHours || 0)} hrs</div>
           <div class="file-meta">${formatCurrency(submission.hourlyRate || 0)}/hr</div>
           <div class="file-pay">${formatCurrency(submission.totalPay || 0)}</div>
-          <div><button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}">Delete</button></div>
+          <div class="file-item-actions"><button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}">Delete</button></div>
         `;
         fileList.appendChild(link);
       });

@@ -128,7 +128,7 @@
     }
 
     .app-header-inner {
-      width: min(1320px, 100%);
+      width: min(1180px, 100%);
       margin: 0 auto;
       min-height: 72px;
       display: flex;
@@ -204,7 +204,7 @@
     }
 
     .page {
-      width: min(1320px, 100%);
+      width: min(1180px, 100%);
       margin: var(--space-7) auto 0;
       display: grid;
       gap: var(--space-7);
@@ -331,6 +331,7 @@
     .month-box {
       display: grid;
       gap: var(--space-4);
+      border-color: transparent;
     }
 
     .month-box-header {
@@ -969,7 +970,10 @@
     .entry-actions button {
       width: 100%;
       display: inline-flex;
+      align-items: center;
       justify-content: center;
+      text-align: center;
+      line-height: 1.2;
       padding: 7px 12px;
       font-size: 0.84rem;
     }
@@ -1027,16 +1031,87 @@
       }
     }
 
+    @media (min-width: 1024px) {
+      body {
+        font-size: 14px;
+      }
+
+      .hero,
+      .panel {
+        padding: var(--space-7);
+      }
+
+      h1 {
+        font-size: clamp(2.15rem, 3.8vw, 3.85rem);
+      }
+    }
+
     @media (max-width: 900px) {
-      .hero-guidance,
       .form-grid,
       .form-grid.compact,
       .summary {
         grid-template-columns: 1fr;
       }
 
+      .hero-guidance {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+      }
+
+      .guidance-item {
+        padding-top: 10px;
+      }
+
+      .guidance-item p {
+        max-width: none;
+        font-size: 0.9rem;
+        line-height: 1.35;
+      }
+
       .summary-strip {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        align-items: start;
+      }
+
+      .summary-card.lead {
+        grid-column: span 1;
+        min-height: 136px;
+        padding: 14px;
+        gap: 8px;
+        align-content: center;
+      }
+
+      .summary-card.lead p {
+        display: none;
+      }
+
+      .summary-title {
+        font-size: 0.8rem;
+        line-height: 1.12;
+      }
+
+      .summary-card.stat {
+        min-height: 136px;
+        padding: 14px;
+        display: grid;
+        align-content: center;
+        gap: 4px;
+      }
+
+      .summary-card {
+        align-self: start;
+      }
+
+      .summary-card.stat .stat-label {
+        margin-bottom: 0;
+        font-size: 0.66rem;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+      }
+
+      .stat-value {
+        font-size: 1.45rem;
       }
 
       .actions {
@@ -1073,7 +1148,6 @@
         max-width: 9ch;
       }
 
-      .summary-strip,
       .summary {
         grid-template-columns: 1fr;
       }
@@ -1232,7 +1306,7 @@
     <div class="workspace">
       <div class="layout">
         <div class="review-column">
-          <section class="panel" aria-labelledby="calendarTitle">
+          <section class="panel" id="monthlyReviewPanel" aria-labelledby="calendarTitle">
             <div class="panel-header">
               <div>
                 <p class="panel-eyebrow">Monthly review</p>
@@ -1249,7 +1323,7 @@
             </div>
           </section>
 
-          <section class="panel">
+          <section class="panel" id="schoolLedgerPanel">
             <div class="panel-header">
               <div>
                 <p class="panel-eyebrow">School ledger</p>
@@ -1263,7 +1337,7 @@
         </div>
 
         <aside class="action-column">
-          <section class="panel">
+          <section class="panel" id="entryComposerPanel">
             <div class="panel-header">
               <div>
                 <p class="panel-eyebrow">Entry composer</p>
@@ -1322,7 +1396,7 @@
             </form>
           </section>
 
-          <section class="panel">
+          <section class="panel" id="payrollHandoffPanel">
             <div class="panel-header">
               <div>
                 <p class="panel-eyebrow">Payroll handoff</p>
@@ -1425,6 +1499,12 @@
     const seedDemoButton = document.getElementById("seedDemo");
     const clearMonthButton = document.getElementById("clearMonth");
     const payrollLink = document.getElementById("payrollLink");
+    const reviewColumn = document.querySelector(".review-column");
+    const actionColumn = document.querySelector(".action-column");
+    const monthlyReviewPanel = document.getElementById("monthlyReviewPanel");
+    const schoolLedgerPanel = document.getElementById("schoolLedgerPanel");
+    const entryComposerPanel = document.getElementById("entryComposerPanel");
+    const payrollHandoffPanel = document.getElementById("payrollHandoffPanel");
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
@@ -1459,6 +1539,14 @@
     let isHydratingClaimProofUrls = false;
 
     initApp();
+
+    const mobileLayoutQuery = window.matchMedia("(max-width: 1240px)");
+    if (typeof mobileLayoutQuery.addEventListener === "function") {
+      mobileLayoutQuery.addEventListener("change", syncCompactPanelOrder);
+    } else if (typeof mobileLayoutQuery.addListener === "function") {
+      mobileLayoutQuery.addListener(syncCompactPanelOrder);
+    }
+    syncCompactPanelOrder();
     window.addEventListener("profile-updated", async () => {
       await applyRoleMenuVisibility();
     });
@@ -1519,6 +1607,37 @@
           userMenuButton.setAttribute("aria-expanded", "false");
         }
       });
+    }
+
+    function syncCompactPanelOrder() {
+      if (!reviewColumn || !actionColumn || !entryComposerPanel || !payrollHandoffPanel || !monthlyReviewPanel || !schoolLedgerPanel) {
+        return;
+      }
+
+      if (mobileLayoutQuery.matches) {
+        if (reviewColumn.firstElementChild !== entryComposerPanel) {
+          reviewColumn.prepend(entryComposerPanel);
+        }
+        if (reviewColumn.children[1] !== monthlyReviewPanel) {
+          reviewColumn.insertBefore(monthlyReviewPanel, schoolLedgerPanel);
+        }
+        if (reviewColumn.children[2] !== payrollHandoffPanel) {
+          reviewColumn.insertBefore(payrollHandoffPanel, schoolLedgerPanel);
+        }
+      } else {
+        if (reviewColumn.firstElementChild !== monthlyReviewPanel) {
+          reviewColumn.prepend(monthlyReviewPanel);
+        }
+        if (reviewColumn.lastElementChild !== schoolLedgerPanel) {
+          reviewColumn.appendChild(schoolLedgerPanel);
+        }
+        if (actionColumn.firstElementChild !== entryComposerPanel) {
+          actionColumn.prepend(entryComposerPanel);
+        }
+        if (actionColumn.lastElementChild !== payrollHandoffPanel) {
+          actionColumn.appendChild(payrollHandoffPanel);
+        }
+      }
     }
 
     async function applyRoleMenuVisibility() {

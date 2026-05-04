@@ -124,7 +124,7 @@
     .month-box, .stat, .pay-card, .school-card, .filter-card {
       background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); border: 1px solid var(--line); border-radius: 22px;
     }
-    .month-box { display: grid; gap: var(--space-4); }
+    .month-box { display: grid; gap: var(--space-4); border-color: transparent; }
     .month-box-header { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
     .month-box-header strong, .month-box-value { color: var(--ink); font-size: 1rem; font-weight: 700; }
     .month-box-note, .hero p, .panel-copy, .label-note, .calendar-note { margin: 0; color: var(--muted); line-height: 1.5; }
@@ -209,7 +209,35 @@
     #fullName[readonly]::placeholder, #bankAccount[readonly]::placeholder, #bankName[readonly]::placeholder, #accountType[readonly]::placeholder { color: var(--muted); opacity: 1; }
     #bankAccount[readonly].missing-profile::placeholder, #bankName[readonly].missing-profile::placeholder, #accountType[readonly].missing-profile::placeholder, .missing-profile { color: var(--clay); font-weight: 700; }
     @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 900px) { .hero-guidance, .summary-strip, .form-grid, .summary, .actions { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) {
+      .hero-guidance, .form-grid, .summary, .actions { grid-template-columns: 1fr; }
+      .summary-strip {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 160px));
+        justify-content: start;
+        gap: 10px;
+        align-items: start;
+      }
+      .summary-card.lead {
+        grid-column: 1 / -1;
+        padding: 14px;
+      }
+      .summary-title { font-size: .8rem; line-height: 1.12; }
+      .summary-card.stat {
+        aspect-ratio: 1 / 1;
+        min-height: 0;
+        padding: 14px;
+        display: grid;
+        align-content: center;
+        gap: 4px;
+      }
+      .summary-card.stat .stat-label {
+        margin-bottom: 0;
+        font-size: .66rem;
+        letter-spacing: .04em;
+        white-space: nowrap;
+      }
+      .stat-value { font-size: 1.45rem; }
+    }
     @media (max-width: 760px) {
       .page { gap: var(--space-5); }
       .app-header-inner { min-height: 66px; padding: 0 var(--space-4); }

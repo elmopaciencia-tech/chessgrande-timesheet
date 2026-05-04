@@ -89,7 +89,16 @@
     .field.full { grid-column: 1 / -1; }
     .modal-grid input, .modal-grid select { width: 100%; border-radius: 16px; border: 1px solid var(--line); padding: 12px 14px; background: var(--surface-strong); min-height: 52px; }
     .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-    @media (max-width: 1100px) { .toolbar, .summary-strip, .stat-row, .filters, .file-item { grid-template-columns: 1fr; } .file-item { align-items: start; } }
+    @media (max-width: 1100px) {
+      .toolbar, .stat-row, .filters, .file-item { grid-template-columns: 1fr; }
+      .summary-strip { grid-template-columns: repeat(auto-fit, minmax(120px, 160px)); justify-content: start; gap: 10px; align-items: start; }
+      .summary-card.lead { grid-column: 1 / -1; padding: 14px; }
+      .summary-title { font-size: .8rem; line-height: 1.12; }
+      .summary-card.stat { aspect-ratio: 1 / 1; min-height: 0; padding: 14px; display: grid; align-content: center; gap: 4px; }
+      .summary-card.stat .stat-label { margin-bottom: 0; font-size: .66rem; letter-spacing: .04em; white-space: nowrap; }
+      .stat-value { font-size: 1.45rem; }
+      .file-item { align-items: start; }
+    }
     @media (max-width: 760px) { .hero, .panel, .modal { padding: 20px; } .app-header-inner { min-height: 66px; padding: 0 16px; } .modal-grid, .modal-actions { grid-template-columns: 1fr; } }
 
 </style></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
