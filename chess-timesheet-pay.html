@@ -139,14 +139,18 @@
     html[data-browser-engine="webkit"] #monthPicker { display: none !important; }
     #monthPickerFallback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 160px); gap: 10px; }
     #monthPickerFallback[hidden] { display: none; }
-    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, .8fr)); gap: var(--space-4); }
+    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, .8fr)); gap: var(--space-4); }
     .summary-card { padding: var(--space-5); border-radius: 22px; border: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); }
-    .summary-card.lead { background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); display: grid; gap: var(--space-3); }
+    .summary-card.lead { background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); display: grid; gap: var(--space-3); grid-column: 1 / -1; }
     .summary-title { margin: 0; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.25; }
     .workspace { display: grid; gap: var(--space-7); }
     .layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(320px, .92fr); gap: var(--space-7); align-items: start; }
     .review-column, .action-column { display: grid; gap: var(--space-6); align-content: start; }
     .action-column { position: sticky; top: calc(env(safe-area-inset-top) + 96px); }
+
+@media (max-width: 1240px) {
+  .action-column { order: -1; }
+}
     .panel {
       padding: var(--space-7); background: color-mix(in srgb, var(--surface) 88%, white 12%);
       border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%); border-radius: 28px; box-shadow: var(--shadow-md);
@@ -208,11 +212,10 @@
     #fullName[readonly], #bankAccount[readonly], #bankName[readonly], #accountType[readonly] { border: 0; background: transparent; padding: 4px 0 6px; border-radius: 0; color: var(--ink); pointer-events: none; caret-color: transparent; }
     #fullName[readonly]::placeholder, #bankAccount[readonly]::placeholder, #bankName[readonly]::placeholder, #accountType[readonly]::placeholder { color: var(--muted); opacity: 1; }
     #bankAccount[readonly].missing-profile::placeholder, #bankName[readonly].missing-profile::placeholder, #accountType[readonly].missing-profile::placeholder, .missing-profile { color: var(--clay); font-weight: 700; }
-    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     @media (max-width: 900px) {
       .hero-guidance, .form-grid, .summary, .actions { grid-template-columns: 1fr; }
       .summary-strip {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 160px));
         justify-content: start;
         gap: 10px;
         align-items: start;
@@ -223,7 +226,6 @@
       }
       .summary-title { font-size: .8rem; line-height: 1.12; }
       .summary-card.stat {
-        aspect-ratio: 1 / 1;
         min-height: 0;
         padding: 14px;
         display: grid;
@@ -252,6 +254,11 @@
       td::before { content: attr(data-label); display: block; font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
       .entry-actions, .entry-actions button { width: 100%; min-width: 0; }
     }
+    @media (max-width: 600px) {
+  .summary-card.lead p {
+    display: none;
+  }
+}
 
   </style>
 </head>
