@@ -27,6 +27,7 @@ create table if not exists public.profiles (
   bank_account_number text,
   bank_name text,
   account_type text,
+  avatar_r2_key text,
   role text not null default 'employee' check (role in ('employee', 'manager', 'webadmin')),
   created_at timestamptz not null default now()
 );
@@ -45,6 +46,7 @@ alter table public.profiles add column if not exists phone_number text;
 alter table public.profiles add column if not exists bank_account_number text;
 alter table public.profiles add column if not exists bank_name text;
 alter table public.profiles add column if not exists account_type text;
+alter table public.profiles add column if not exists avatar_r2_key text;
 
 -- -------------------------------------------------------------------
 -- 2) Payroll submissions table

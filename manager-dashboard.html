@@ -37,7 +37,7 @@
     .app-header-inner { width: min(1320px, 100%); margin: 0 auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; }
     .app-header-title { font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; white-space: nowrap; color: var(--ink-soft); }
     .menu-wrap { position: relative; }
-    .menu-button { border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); border-radius: 999px; padding: 10px 16px; font-weight: 700; cursor: pointer; min-height: 44px; }
+    .menu-button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); border-radius: 999px; padding: 10px 16px; font-weight: 700; cursor: pointer; min-height: 44px; }
     .menu-panel { position: absolute; right: 0; top: calc(100% + 10px); min-width: 220px; background: var(--surface-strong); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-md); padding: 8px; z-index: 80; }
     .menu-panel[hidden] { display: none; }
     .menu-item { width: 100%; border: 0; border-radius: 10px; padding: 11px 12px; text-align: left; cursor: pointer; background: transparent; color: var(--ink); display: block; text-decoration: none; min-height: 44px; }
@@ -74,6 +74,7 @@
     .file-item { display: grid; grid-template-columns: 58px minmax(0, 1.2fr) minmax(120px, .9fr) minmax(120px, .8fr) minmax(130px, .9fr) auto; gap: 14px; align-items: center; padding: 18px; color: inherit; text-decoration: none; }
     .file-item-actions { justify-self: end; }
     .folder-icon { width: 58px; height: 44px; border-radius: 12px; background: linear-gradient(180deg, var(--gold) 0%, color-mix(in srgb, var(--gold-deep) 72%, white 28%) 100%); position: relative; box-shadow: inset 0 0 0 1px rgba(113,85,12,.12); }
+    .file-avatar-img[src]:not([src=""]) + .folder-icon { display: none; }
     .folder-icon::before { content: ""; position: absolute; top: -7px; left: 8px; width: 24px; height: 12px; border-radius: 8px 8px 0 0; background: var(--gold-deep); }
     .file-name { font-weight: 700; margin-bottom: 2px; }
     .file-sub, .file-meta { color: var(--muted); font-size: .9rem; line-height: 1.4; }
@@ -120,8 +121,10 @@
         </div>
       
 </div></div></div></header><main class="page" id="main-content"><section class="hero"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1><p>Review submitted monthly payroll ledgers in one operational queue. Filter by year and month, then open any employee submission for full inspection.</p></section><section class="summary-strip" aria-label="Dashboard summary"><article class="summary-card lead"><p class="panel-eyebrow">Queue posture</p><h2 class="summary-title">This dashboard is for sorting, scanning, and opening submissions quickly.</h2><p>The list stays file-like, but the hierarchy is calmer and more deliberate so totals, filters, and entry access are easier to parse.</p></article><article class="summary-card stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></article><article class="summary-card stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></article><article class="summary-card stat"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></article></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./claim-proof-storage.js"></script>
+  <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
@@ -154,6 +157,7 @@
       webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
       setupUserMenu();
       await render();
+      hydrateHeaderAvatar();
     }
 
     function setupUserMenu() {
@@ -280,6 +284,7 @@
         link.className = "file-item";
         link.href = `./manager-entry.html?id=${encodeURIComponent(submission.id)}`;
         link.innerHTML = `
+          <img class="file-avatar-img" src="" alt="" width="44" height="44" style="display:none;width:44px;height:44px;border-radius:999px;object-fit:cover;flex-shrink:0;">
           <div class="folder-icon" aria-hidden="true"></div>
           <div>
             <div class="file-name">${escapeHtml(submission.employeeName || "Unnamed Employee")}</div>
@@ -320,6 +325,8 @@
           await render();
         });
       });
+
+      hydrateFileListAvatars(visibleSubmissions);
     }
 
     function renderFilterControls(submissions, filters) {
@@ -413,6 +420,21 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#39;");
+    }
+
+    function hydrateHeaderAvatar() {
+      if (window.profileAvatar && typeof window.profileAvatar.hydrateHeaderAvatar === "function") {
+        window.profileAvatar.hydrateHeaderAvatar(userMenuButtonLabel, { size: 32 });
+      }
+    }
+
+    function hydrateFileListAvatars(submissions) {
+      if (!window.profileAvatar || typeof window.profileAvatar.hydrateAvatarsForItems !== "function") return;
+      if (!submissions || !submissions.length) return;
+      window.profileAvatar.hydrateAvatarsForItems(submissions, function (item) {
+        var linkEl = document.querySelector('a.file-item[href*="' + encodeURIComponent(item.id) + '"]');
+        return linkEl && linkEl.querySelector(".file-avatar-img");
+      });
     }
   </script>
 </body>

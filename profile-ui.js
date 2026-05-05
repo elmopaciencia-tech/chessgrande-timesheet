@@ -15,6 +15,12 @@
   let activeTrigger = null;
   let isSaving = false;
   let menuNameTargets = [];
+  let avatarPreviewImg = null;
+  let avatarUploadInput = null;
+  let avatarUploadButton = null;
+  let avatarRemoveButton = null;
+  let pendingAvatarFile = null;
+  let pendingAvatarUrl = "";
 
   function ensureMounted() {
     if (mounted) return;
@@ -107,6 +113,42 @@
         font-size: 0.92rem;
         text-align: center;
       }
+      .profile-avatar-section {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(29, 42, 42, 0.12);
+      }
+      .profile-avatar-preview {
+        width: 96px;
+        height: 96px;
+        border-radius: 999px;
+        border: 2px solid rgba(29, 42, 42, 0.14);
+        object-fit: cover;
+        background: #f8faf9;
+        flex-shrink: 0;
+      }
+      .profile-avatar-preview[src=""], .profile-avatar-preview:not([src]) {
+        background: #eef3f1;
+      }
+      .profile-avatar-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .profile-avatar-upload {
+        font-size: 0.88rem;
+        padding: 7px 16px;
+      }
+      .profile-avatar-remove {
+        font-size: 0.82rem;
+        padding: 5px 10px;
+      }
+      .profile-avatar-remove[hidden] {
+        display: none;
+      }
       .profile-modal-status {
         min-height: 24px;
         margin-top: 10px;
@@ -151,6 +193,14 @@
           <button type="button" class="profile-modal-close" id="profileModalClose" aria-label="Close">×</button>
         </div>
         <div class="profile-modal-body">
+          <div class="profile-avatar-section">
+            <img class="profile-avatar-preview" id="profileAvatarPreview" src="" alt="Profile avatar preview" width="96" height="96">
+            <div class="profile-avatar-actions">
+              <button type="button" class="profile-btn profile-avatar-upload" id="profileAvatarUpload">Upload Photo</button>
+              <button type="button" class="profile-btn profile-avatar-remove ghost" id="profileAvatarRemove" hidden>Remove</button>
+              <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden>
+            </div>
+          </div>
           <div class="profile-field">
             <label for="profileDisplayName">Display name</label>
             <input id="profileDisplayName" type="text" autocomplete="off">
@@ -192,10 +242,51 @@
     saveButton = document.getElementById("profileModalSave");
     cancelButton = document.getElementById("profileModalCancel");
     closeButton = document.getElementById("profileModalClose");
+    avatarPreviewImg = document.getElementById("profileAvatarPreview");
+    avatarUploadButton = document.getElementById("profileAvatarUpload");
+    avatarRemoveButton = document.getElementById("profileAvatarRemove");
+    avatarUploadInput = document.getElementById("profileAvatarInput");
 
     closeButton.addEventListener("click", () => closeModal());
     cancelButton.addEventListener("click", () => closeModal());
     saveButton.addEventListener("click", saveProfile);
+
+    avatarUploadButton.addEventListener("click", () => {
+      if (avatarUploadInput) avatarUploadInput.click();
+    });
+    avatarUploadInput.addEventListener("change", async () => {
+      var file = avatarUploadInput.files && avatarUploadInput.files[0];
+      if (!file) return;
+      try {
+        if (window.profileAvatar && typeof window.profileAvatar.uploadProfileAvatar === "function") {
+          statusEl.textContent = "Uploading avatar...";
+          var result = await window.profileAvatar.uploadProfileAvatar(file);
+          pendingAvatarFile = null;
+          pendingAvatarUrl = result.previewUrl || "";
+          if (pendingAvatarUrl) {
+            avatarPreviewImg.src = pendingAvatarUrl;
+          }
+          avatarRemoveButton.hidden = false;
+          statusEl.textContent = "Avatar ready. Save to keep it.";
+        }
+      } catch (e) {
+        statusEl.textContent = e.message || "Could not upload avatar.";
+      }
+    });
+    avatarRemoveButton.addEventListener("click", async () => {
+      try {
+        if (window.profileAvatar && typeof window.profileAvatar.removeProfileAvatar === "function") {
+          await window.profileAvatar.removeProfileAvatar();
+        }
+      } catch (e) {
+        console.warn("Failed to clear avatar from profile:", e.message);
+      }
+      pendingAvatarFile = null;
+      pendingAvatarUrl = "";
+      avatarPreviewImg.src = "";
+      avatarRemoveButton.hidden = true;
+      statusEl.textContent = "Avatar removed. Save to keep changes.";
+    });
 
     overlay.addEventListener("click", (event) => {
       if (event.target === overlay) closeModal();
@@ -241,6 +332,10 @@
     bankAccountInput.value = "";
     bankNameInput.value = "";
     accountTypeInput.value = "";
+    pendingAvatarFile = null;
+    pendingAvatarUrl = "";
+    if (avatarPreviewImg) avatarPreviewImg.src = "";
+    if (avatarRemoveButton) avatarRemoveButton.hidden = true;
 
     const { data, error } = await window.supabaseClient
       .from("profiles")
@@ -283,6 +378,14 @@
       accountTypeInput.value = "";
     }
 
+    if (data && data.avatar_r2_key && window.profileAvatar && typeof window.profileAvatar.resolveAvatarUrl === "function") {
+      var avatarUrl = await window.profileAvatar.resolveAvatarUrl(data.avatar_r2_key);
+      if (avatarPreviewImg && avatarUrl) {
+        avatarPreviewImg.src = avatarUrl;
+        avatarRemoveButton.hidden = false;
+      }
+    }
+
     overlay.hidden = false;
     document.body.style.overflow = "hidden";
     displayNameInput.focus();
@@ -292,6 +395,8 @@
     if (!overlay || overlay.hidden || isSaving) return;
     overlay.hidden = true;
     statusEl.textContent = "";
+    pendingAvatarFile = null;
+    pendingAvatarUrl = "";
     document.body.style.overflow = "";
     if (activeTrigger && typeof activeTrigger.focus === "function") {
       activeTrigger.focus();

@@ -32,6 +32,42 @@
       border-radius: 18px;
       padding: 24px;
     }
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .avatar-preview {
+      width: 88px;
+      height: 88px;
+      border-radius: 999px;
+      border: 2px solid var(--line);
+      object-fit: cover;
+      background: #f8faf9;
+      flex-shrink: 0;
+    }
+    .avatar-preview[src=""], .avatar-preview:not([src]) {
+      background: #eef3f1;
+    }
+    .avatar-info {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+    .avatar-btn {
+      font-size: 0.84rem;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+    }
     h1 { margin: 0 0 8px; font-size: 1.6rem; }
     p { margin: 0 0 18px; color: var(--muted); }
     .grid {
@@ -74,9 +110,18 @@
 <body>
   <main class="card">
     <h1>Complete Your Profile</h1>
-    <p>Please fill in these required details before using the payroll portal.</p>
+      <p>Please fill in these required details before using the payroll portal.</p>
 
-    <form id="setupForm">
+      <div class="avatar-section">
+        <img class="avatar-preview" id="avatarPreview" src="" alt="Profile photo preview" width="88" height="88">
+        <div>
+          <p class="avatar-info">Optional: add a profile photo so people can recognize you across the portal.</p>
+          <button type="button" class="avatar-btn" id="avatarUploadBtn">Upload Photo</button>
+          <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/webp" hidden>
+        </div>
+      </div>
+
+      <form id="setupForm">
       <div class="grid">
         <div class="full">
           <label for="fullName">Full name</label>
@@ -106,6 +151,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./claim-proof-storage.js"></script>
+  <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script>
     const setupForm = document.getElementById("setupForm");
@@ -116,6 +163,9 @@
     const accountTypeInput = document.getElementById("accountType");
     const saveButton = document.getElementById("saveButton");
     const statusMessage = document.getElementById("statusMessage");
+    const avatarPreview = document.getElementById("avatarPreview");
+    const avatarUploadBtn = document.getElementById("avatarUploadBtn");
+    const avatarInput = document.getElementById("avatarInput");
 
     let nextUrl = "./chess-timesheet.html";
 
@@ -147,7 +197,34 @@
       if (profile && profile.role === "employee" && isProfileSetupComplete(profile)) {
         window.location.href = nextUrl;
       }
+
+      if (profile && profile.avatar_r2_key && window.profileAvatar && typeof window.profileAvatar.resolveAvatarUrl === "function") {
+        var avatarUrl = await window.profileAvatar.resolveAvatarUrl(profile.avatar_r2_key);
+        if (avatarPreview && avatarUrl) {
+          avatarPreview.src = avatarUrl;
+        }
+      }
     }
+
+    avatarUploadBtn.addEventListener("click", function () {
+      if (avatarInput) avatarInput.click();
+    });
+    avatarInput.addEventListener("change", async function () {
+      var file = avatarInput.files && avatarInput.files[0];
+      if (!file) return;
+      try {
+        if (window.profileAvatar && typeof window.profileAvatar.uploadProfileAvatar === "function") {
+          statusMessage.textContent = "Uploading photo...";
+          var result = await window.profileAvatar.uploadProfileAvatar(file);
+          if (avatarPreview && result.previewUrl) {
+            avatarPreview.src = result.previewUrl;
+          }
+          statusMessage.textContent = "Photo uploaded.";
+        }
+      } catch (e) {
+        statusMessage.textContent = e.message || "Could not upload photo.";
+      }
+    });
 
     setupForm.addEventListener("submit", async (event) => {
       event.preventDefault();

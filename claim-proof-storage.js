@@ -262,5 +262,11 @@
     resolveClaimImageUrl,
     isR2ClaimKey,
     buildClaimProofKey,
+    signR2ObjectKey,
+    getAccessToken,
+    getCurrentUserSafe,
+    getWorkerBaseUrl,
+    hasWorkerUrl,
+    postJson,
   };
 })();

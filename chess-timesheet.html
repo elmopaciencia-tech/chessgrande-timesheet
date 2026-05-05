@@ -152,6 +152,9 @@
     }
 
     .menu-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       border: 1px solid var(--line);
       background: var(--surface-strong);
       color: var(--ink);
@@ -1479,6 +1482,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./claim-proof-storage.js"></script>
+  <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
@@ -1549,6 +1553,7 @@
     syncCompactPanelOrder();
     window.addEventListener("profile-updated", async () => {
       await applyRoleMenuVisibility();
+      hydrateHeaderAvatar();
     });
 
     async function initApp() {
@@ -1565,6 +1570,7 @@
       initImageViewer();
       setupUserMenu();
       render();
+      hydrateHeaderAvatar();
     }
 
     function setupUserMenu() {
@@ -2313,6 +2319,12 @@
         throw new Error("Claim proof upload helper is unavailable. Please reload this page.");
       }
       return window.claimProofStorage.uploadClaimProof(file, monthValue);
+    }
+
+    function hydrateHeaderAvatar() {
+      if (window.profileAvatar && typeof window.profileAvatar.hydrateHeaderAvatar === "function") {
+        window.profileAvatar.hydrateHeaderAvatar(userMenuButtonLabel, { size: 32 });
+      }
     }
   </script>
 </body>

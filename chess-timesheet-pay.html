@@ -79,6 +79,9 @@
     }
     .menu-wrap { position: relative; }
     .menu-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink);
       border-radius: 999px; padding: 10px 16px; font-weight: 700; cursor: pointer; min-height: 44px;
     }
@@ -352,6 +355,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./claim-proof-storage.js"></script>
+  <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
@@ -429,6 +433,7 @@
       initImageViewer();
       setupUserMenu();
       render();
+      hydrateHeaderAvatar();
     }
 
     function setupUserMenu() {
@@ -1152,6 +1157,12 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+    }
+
+    function hydrateHeaderAvatar() {
+      if (window.profileAvatar && typeof window.profileAvatar.hydrateHeaderAvatar === "function") {
+        window.profileAvatar.hydrateHeaderAvatar(userMenuButtonLabel, { size: 32 });
+      }
     }
   </script>
 </body>
