@@ -222,7 +222,7 @@
           img.width = size;
           img.height = size;
           img.alt = (profile.full_name || "Profile") + " avatar";
-          img.style.cssText = "width:" + size + "px;height:" + size + "px;border-radius:999px;object-fit:cover;vertical-align:middle;margin-right:2px;";
+          img.style.cssText = "width:" + size + "px;height:" + size + "px;border-radius:999px;object-fit:cover;vertical-align:middle;margin-right:7px;";
           img.onerror = function () {
             img.style.display = "none";
           };
