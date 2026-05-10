@@ -618,6 +618,12 @@
       font-weight: 700;
     }
 
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+    }
+
     @media (hover: hover) and (pointer: fine) {
       button:hover,
       .nav-button:hover,
@@ -1390,7 +1396,7 @@
 
               <div class="actions">
                 <button class="primary" type="submit" id="addEntry">Save Entry</button>
-                <button class="secondary" type="button" id="clearMonth">Clear Selected Month</button>
+                <button class="secondary" type="button" id="clearMonth" disabled>Clear Selected Month</button>
               </div>
               <div class="hint">
                 End time is calculated automatically from the start time and hours worked. Claims require notes, cost, and proof before they can be saved.
@@ -1672,7 +1678,7 @@
     });
 
     bindAction(seedDemoButton, seedDemoData);
-    bindAction(clearMonthButton, clearCurrentMonth);
+    clearMonthButton.addEventListener("click", clearCurrentMonth);
     entryTypeSelect.addEventListener("change", syncReplacementField);
     entryTypeSelect.addEventListener("input", syncReplacementField);
 
@@ -1891,10 +1897,16 @@
 
     function render() {
       const activeEntries = getEntriesForMonth(monthPicker.value);
+      syncClearMonthButton(activeEntries);
       updateSummary(activeEntries);
       renderCalendar(activeEntries, monthPicker.value);
       renderGroups(activeEntries);
       void hydrateClaimProofUrls(activeEntries);
+    }
+
+    function syncClearMonthButton(activeEntries) {
+      const monthEntries = Array.isArray(activeEntries) ? activeEntries : getEntriesForMonth(monthPicker.value);
+      clearMonthButton.disabled = monthEntries.length === 0;
     }
 
     function getEntriesForMonth(monthValue) {
