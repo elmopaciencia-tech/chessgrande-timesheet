@@ -59,6 +59,31 @@ alter table public.profiles add column if not exists bank_name text;
 alter table public.profiles add column if not exists account_type text;
 alter table public.profiles add column if not exists avatar_r2_key text;
 
+create or replace function public.current_profile_role()
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select role
+  from public.profiles
+  where id = auth.uid()
+$$;
+
+create or replace function public.has_app_role(required_roles text[])
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(public.current_profile_role() = any(required_roles), false)
+$$;
+
+grant execute on function public.current_profile_role() to authenticated;
+grant execute on function public.has_app_role(text[]) to authenticated;
+
 -- -------------------------------------------------------------------
 -- 2) Payroll submissions table
 -- -------------------------------------------------------------------
@@ -132,23 +157,49 @@ create table if not exists public.draft_timesheet_entries (
   status text not null default 'active' check (status in ('active', 'submitted')),
   school_name text not null default '',
   date date not null,
-  type text not null check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event')),
+  type text not null check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim')),
   start_time text,
   end_time text,
+  start_time_minutes integer not null default 0,
   hours numeric(10,2) not null default 0 check (hours >= 0),
   replacement_name text,
   custom_rate numeric(10,2) check (custom_rate is null or custom_rate >= 0),
+  notes text,
+  repeats_weekly boolean not null default false,
+  repeat_until date,
   claim_notes text,
   claim_cost numeric(10,2) check (claim_cost is null or claim_cost >= 0),
+  claim_amount_cents integer not null default 0 check (claim_amount_cents >= 0),
   claim_proof_name text,
   claim_image_path text,
   claim_proof_data_url text,
+  claim_image_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 comment on table public.draft_timesheet_entries is 'Editable cross-device payroll draft entries before monthly submission.';
 comment on column public.draft_timesheet_entries.status is 'active rows can be edited; submitted rows are locked source drafts linked to a payroll snapshot.';
+
+alter table public.draft_timesheet_entries add column if not exists start_time text;
+alter table public.draft_timesheet_entries add column if not exists end_time text;
+alter table public.draft_timesheet_entries add column if not exists start_time_minutes integer not null default 0;
+alter table public.draft_timesheet_entries add column if not exists custom_rate numeric(10,2) check (custom_rate is null or custom_rate >= 0);
+alter table public.draft_timesheet_entries add column if not exists notes text;
+alter table public.draft_timesheet_entries add column if not exists repeats_weekly boolean not null default false;
+alter table public.draft_timesheet_entries add column if not exists repeat_until date;
+alter table public.draft_timesheet_entries add column if not exists claim_notes text;
+alter table public.draft_timesheet_entries add column if not exists claim_cost numeric(10,2) check (claim_cost is null or claim_cost >= 0);
+alter table public.draft_timesheet_entries add column if not exists claim_amount_cents integer not null default 0 check (claim_amount_cents >= 0);
+alter table public.draft_timesheet_entries add column if not exists claim_proof_name text;
+alter table public.draft_timesheet_entries add column if not exists claim_image_path text;
+alter table public.draft_timesheet_entries add column if not exists claim_proof_data_url text;
+alter table public.draft_timesheet_entries add column if not exists claim_image_url text;
+
+alter table public.draft_timesheet_entries drop constraint if exists draft_timesheet_entries_type_check;
+alter table public.draft_timesheet_entries
+add constraint draft_timesheet_entries_type_check
+check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim'));
 
 create index if not exists draft_timesheet_entries_employee_status_date_idx
   on public.draft_timesheet_entries (employee_id, status, date);
@@ -175,6 +226,7 @@ alter table public.draft_timesheet_entries enable row level security;
 -- 6) Profiles RLS policies
 -- -------------------------------------------------------------------
 -- Employees can read their own profile.
+drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own"
 on public.profiles
 for select
@@ -182,21 +234,17 @@ to authenticated
 using (id = auth.uid());
 
 -- Managers and webadmins can read all profiles.
+drop policy if exists "profiles_select_admin_all" on public.profiles;
+drop policy if exists "profiles_select_manager_all" on public.profiles;
 create policy "profiles_select_admin_all"
 on public.profiles
 for select
 to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
-);
+using (public.has_app_role(array['manager', 'webadmin']));
 
 -- Employees can create their own profile as employee.
 -- This prevents self-assigning manager at insert time.
+drop policy if exists "profiles_insert_self_employee" on public.profiles;
 create policy "profiles_insert_self_employee"
 on public.profiles
 for insert
@@ -208,6 +256,7 @@ with check (
 
 -- Employees can update their own row only while role remains employee.
 -- This allows full_name edits but blocks promoting self to manager.
+drop policy if exists "profiles_update_own_employee_only" on public.profiles;
 create policy "profiles_update_own_employee_only"
 on public.profiles
 for update
@@ -219,6 +268,7 @@ with check (
 );
 
 -- Managers can also update only their own profile row while remaining manager.
+drop policy if exists "profiles_update_own_manager_only" on public.profiles;
 create policy "profiles_update_own_manager_only"
 on public.profiles
 for update
@@ -230,31 +280,19 @@ with check (
 );
 
 -- Webadmins can update any profile row.
+drop policy if exists "profiles_update_webadmin_all" on public.profiles;
 create policy "profiles_update_webadmin_all"
 on public.profiles
 for update
 to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role = 'webadmin'
-  )
-)
-with check (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role = 'webadmin'
-  )
-);
+using (public.has_app_role(array['webadmin']))
+with check (public.has_app_role(array['webadmin']));
 
 -- -------------------------------------------------------------------
 -- 7) Payroll submissions RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert their own submissions.
+drop policy if exists "submissions_insert_own" on public.payroll_submissions;
 create policy "submissions_insert_own"
 on public.payroll_submissions
 for insert
@@ -262,6 +300,7 @@ to authenticated
 with check (employee_id = auth.uid());
 
 -- Employees can read their own submissions.
+drop policy if exists "submissions_select_own" on public.payroll_submissions;
 create policy "submissions_select_own"
 on public.payroll_submissions
 for select
@@ -269,37 +308,28 @@ to authenticated
 using (employee_id = auth.uid());
 
 -- Managers and webadmins can read all submissions.
+drop policy if exists "submissions_select_admin_all" on public.payroll_submissions;
+drop policy if exists "submissions_select_manager_all" on public.payroll_submissions;
 create policy "submissions_select_admin_all"
 on public.payroll_submissions
 for select
 to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
-);
+using (public.has_app_role(array['manager', 'webadmin']));
 
 -- Managers and webadmins can delete any submission.
+drop policy if exists "submissions_delete_admin_all" on public.payroll_submissions;
+drop policy if exists "submissions_delete_manager_all" on public.payroll_submissions;
 create policy "submissions_delete_admin_all"
 on public.payroll_submissions
 for delete
 to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
-);
+using (public.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
 -- 8) Payroll entries RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert entries only into their own submissions.
+drop policy if exists "entries_insert_for_own_submission" on public.payroll_entries;
 create policy "entries_insert_for_own_submission"
 on public.payroll_entries
 for insert
@@ -314,6 +344,7 @@ with check (
 );
 
 -- Employees can read entries only from their own submissions.
+drop policy if exists "entries_select_for_own_submission" on public.payroll_entries;
 create policy "entries_select_for_own_submission"
 on public.payroll_entries
 for select
@@ -328,18 +359,13 @@ using (
 );
 
 -- Managers and webadmins can read all entries.
+drop policy if exists "entries_select_admin_all" on public.payroll_entries;
+drop policy if exists "entries_select_manager_all" on public.payroll_entries;
 create policy "entries_select_admin_all"
 on public.payroll_entries
 for select
 to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
-);
+using (public.has_app_role(array['manager', 'webadmin']));
 
 -- Managers and webadmins can delete any entry.
 drop policy if exists "entries_delete_manager_all" on public.payroll_entries;
@@ -347,14 +373,7 @@ create policy "entries_delete_manager_all"
 on public.payroll_entries
 for delete
 to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
-);
+using (public.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
 -- 9) Draft timesheet entries RLS policies
@@ -371,14 +390,7 @@ create policy "draft_entries_select_admin_all"
 on public.draft_timesheet_entries
 for select
 to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
-);
+using (public.has_app_role(array['manager', 'webadmin']));
 
 drop policy if exists "draft_entries_insert_own_active" on public.draft_timesheet_entries;
 create policy "draft_entries_insert_own_active"
@@ -424,15 +436,10 @@ for insert
 to authenticated
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
   and coalesce(created_by, auth.uid()) = auth.uid()
   and coalesce(updated_by, auth.uid()) = auth.uid()
-  and exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
+  and public.has_app_role(array['manager', 'webadmin'])
 );
 
 drop policy if exists "draft_entries_update_admin_lessons" on public.draft_timesheet_entries;
@@ -442,24 +449,14 @@ for update
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
-  and exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and public.has_app_role(array['manager', 'webadmin'])
 )
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
   and coalesce(updated_by, auth.uid()) = auth.uid()
-  and exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
+  and public.has_app_role(array['manager', 'webadmin'])
 );
 
 drop policy if exists "draft_entries_delete_admin_lessons" on public.draft_timesheet_entries;
@@ -469,13 +466,8 @@ for delete
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
-  and exists (
-    select 1
-    from public.profiles p
-    where p.id = auth.uid()
-      and p.role in ('manager', 'webadmin')
-  )
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and public.has_app_role(array['manager', 'webadmin'])
 );
 
 commit;
