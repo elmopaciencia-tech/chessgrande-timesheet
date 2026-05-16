@@ -8,6 +8,13 @@
 // - SUPABASE_SERVICE_ROLE_KEY
 // - WORKER_UPLOAD_TOKEN_SECRET
 // - PUBLIC_WORKER_BASE_URL (e.g. https://claim-proof.example.workers.dev)
+// - OPENROUTER_API_KEY
+// - RAG_DOCS_BUCKET (R2 bucket binding)
+
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { ChatOpenRouter } from "@langchain/openrouter";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -20,6 +27,13 @@ const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8 MB
 const MIN_READ_TTL = 60;
 const MAX_READ_TTL = 60 * 60;
 const WORKER_URL_PLACEHOLDER = "your-subdomain.workers.dev";
+const MAX_CHAT_MESSAGES = 12;
+const MAX_CHAT_MESSAGE_CHARS = 1800;
+const MAX_RAG_FILES = 40;
+const MAX_RAG_FILE_CHARS = 24000;
+const MAX_RAG_CONTEXT_CHARS = 9000;
+const DEFAULT_RAG_DOCS_PREFIX = "rag-docs/";
+const DEFAULT_OPENROUTER_MODEL = "openai/gpt-4.1-mini";
 
 export default {
   async fetch(request, env) {
@@ -42,6 +56,9 @@ export default {
       }
       if (request.method === "GET" && pathname === "/api/claim-proofs/read") {
         return withCors(await handleRead(request, env));
+      }
+      if (request.method === "POST" && pathname === "/api/webadmin-chat") {
+        return withCors(await handleWebadminChat(request, env));
       }
 
       return withCors(jsonResponse(404, { error: "Not found" }));
@@ -213,6 +230,43 @@ async function handleRead(request, env) {
   });
 }
 
+async function handleWebadminChat(request, env) {
+  const user = await requireAuthUser(request, env);
+  const profile = await getProfileForUser(user.id, env);
+  if (String(profile?.role || "").toLowerCase() !== "webadmin") {
+    throw new ErrorResponse(403, "This chat is available to webadmin accounts only.");
+  }
+  if (!env.OPENROUTER_API_KEY) {
+    throw new ErrorResponse(500, "OPENROUTER_API_KEY is not configured.");
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const messages = normalizeChatMessages(body?.messages, body?.message);
+  const question = messages[messages.length - 1]?.content || "";
+  if (!question) {
+    throw new ErrorResponse(400, "Message is required.");
+  }
+
+  const retrieved = await retrieveRagDocuments(question, env);
+  const context = formatRagContext(retrieved);
+  const history = formatChatHistory(messages.slice(0, -1));
+  const chain = buildWebadminChatChain(env);
+  const answer = await chain.invoke({
+    question,
+    history,
+    context: context || "No private RAG documents matched this question.",
+  });
+
+  return jsonResponse(200, {
+    answer,
+    sources: retrieved.map((doc) => ({
+      key: doc.key,
+      title: doc.title,
+      score: doc.score,
+    })),
+  });
+}
+
 async function requireAuthUser(request, env) {
   const authHeader = request.headers.get("Authorization") || "";
   const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
@@ -236,6 +290,156 @@ async function requireAuthUser(request, env) {
     throw new ErrorResponse(401, "Could not resolve authenticated user.");
   }
   return user;
+}
+
+function buildWebadminChatChain(env) {
+  const model = new ChatOpenRouter({
+    apiKey: env.OPENROUTER_API_KEY,
+    model: env.OPENROUTER_MODEL || DEFAULT_OPENROUTER_MODEL,
+    temperature: Number(env.OPENROUTER_TEMPERATURE || 0.2),
+    maxTokens: Number(env.OPENROUTER_MAX_TOKENS || 900),
+    siteUrl: env.OPENROUTER_SITE_URL || env.PUBLIC_WORKER_BASE_URL || undefined,
+    siteName: env.OPENROUTER_SITE_NAME || "Chess Grande Payroll Admin",
+    provider: {
+      data_collection: "deny",
+    },
+  });
+
+  const prompt = ChatPromptTemplate.fromMessages([
+    [
+      "system",
+      [
+        "You are the private assistant for Chess Grande webadmins.",
+        "Answer only from the retrieved private documents and the conversation context.",
+        "If the answer is not in the documents, say what is missing and suggest which document to add.",
+        "Keep answers concise, operational, and careful with payroll or profile data.",
+      ].join(" "),
+    ],
+    [
+      "human",
+      [
+        "Conversation so far:",
+        "{history}",
+        "",
+        "Retrieved private documents:",
+        "{context}",
+        "",
+        "Webadmin question:",
+        "{question}",
+      ].join("\n"),
+    ],
+  ]);
+
+  return RunnableSequence.from([prompt, model, new StringOutputParser()]);
+}
+
+function normalizeChatMessages(messages, fallbackMessage) {
+  const rawMessages = Array.isArray(messages)
+    ? messages
+    : [{ role: "user", content: fallbackMessage }];
+  return rawMessages
+    .slice(-MAX_CHAT_MESSAGES)
+    .map((message) => ({
+      role: String(message?.role || "user").toLowerCase() === "assistant" ? "assistant" : "user",
+      content: String(message?.content || "").trim().slice(0, MAX_CHAT_MESSAGE_CHARS),
+    }))
+    .filter((message) => message.content);
+}
+
+function formatChatHistory(messages) {
+  if (!messages.length) return "No earlier messages.";
+  return messages
+    .map((message) => `${message.role === "assistant" ? "Assistant" : "Webadmin"}: ${message.content}`)
+    .join("\n");
+}
+
+async function retrieveRagDocuments(question, env) {
+  if (!env.RAG_DOCS_BUCKET) return [];
+
+  const prefix = String(env.RAG_DOCS_PREFIX || DEFAULT_RAG_DOCS_PREFIX).replace(/^\/+/, "");
+  const listed = await env.RAG_DOCS_BUCKET.list({ prefix, limit: MAX_RAG_FILES });
+  const objects = Array.isArray(listed?.objects) ? listed.objects : [];
+  const allowedObjects = objects.filter((object) => isSupportedRagKey(object.key));
+  const terms = getSearchTerms(question);
+  const documents = [];
+
+  for (const object of allowedObjects) {
+    const stored = await env.RAG_DOCS_BUCKET.get(object.key);
+    if (!stored) continue;
+    const text = (await stored.text()).slice(0, MAX_RAG_FILE_CHARS);
+    const chunks = chunkText(text, object.key);
+    for (const chunk of chunks) {
+      const score = scoreChunk(chunk.text, terms);
+      if (score > 0 || !terms.length) {
+        documents.push({ ...chunk, score });
+      }
+    }
+  }
+
+  return documents
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
+}
+
+function isSupportedRagKey(key) {
+  return /\.(txt|md|markdown|csv|json)$/i.test(String(key || ""));
+}
+
+function getSearchTerms(question) {
+  const stopWords = new Set([
+    "about", "after", "again", "also", "and", "are", "can", "for", "from",
+    "has", "have", "how", "into", "our", "the", "this", "that", "what",
+    "when", "where", "which", "with", "you", "your",
+  ]);
+  return Array.from(new Set(
+    String(question || "")
+      .toLowerCase()
+      .match(/[a-z0-9]{3,}/g) || []
+  )).filter((term) => !stopWords.has(term));
+}
+
+function chunkText(text, key) {
+  const cleanText = String(text || "").replace(/\s+/g, " ").trim();
+  if (!cleanText) return [];
+  const chunks = [];
+  const chunkSize = 1800;
+  const overlap = 220;
+  for (let start = 0; start < cleanText.length; start += chunkSize - overlap) {
+    const value = cleanText.slice(start, start + chunkSize).trim();
+    if (value) {
+      chunks.push({
+        key,
+        title: key.split("/").pop() || key,
+        text: value,
+      });
+    }
+  }
+  return chunks;
+}
+
+function scoreChunk(text, terms) {
+  if (!terms.length) return 1;
+  const lowerText = String(text || "").toLowerCase();
+  return terms.reduce((score, term) => {
+    const matches = lowerText.match(new RegExp(`\\b${escapeRegExp(term)}\\b`, "g"));
+    return score + (matches ? matches.length : 0);
+  }, 0);
+}
+
+function formatRagContext(documents) {
+  let remainingChars = MAX_RAG_CONTEXT_CHARS;
+  const parts = [];
+  for (const doc of documents) {
+    if (remainingChars <= 0) break;
+    const excerpt = doc.text.slice(0, remainingChars);
+    remainingChars -= excerpt.length;
+    parts.push(`[${doc.title}]\n${excerpt}`);
+  }
+  return parts.join("\n\n---\n\n");
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function isRoleAllowed(role) {

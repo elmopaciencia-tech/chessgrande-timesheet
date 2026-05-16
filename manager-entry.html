@@ -638,7 +638,7 @@
 
       const { data: remainingEntries, error: remainingError } = await window.supabaseClient
         .from("payroll_entries")
-        .select("hours, custom_rate")
+        .select("type, hours, custom_rate, claim_notes")
         .eq("submission_id", submissionId);
       if (!remainingError) {
         const { data: submissionRow } = await window.supabaseClient
@@ -648,11 +648,7 @@
           .maybeSingle();
         const fallbackRate = Number(submissionRow?.hourly_rate || 0);
         const totalHours = (remainingEntries || []).reduce((sum, item) => sum + Number(item.hours || 0), 0);
-        const totalPay = (remainingEntries || []).reduce((sum, item) => {
-          const rowRate = Number(item.custom_rate || 0);
-          const appliedRate = rowRate > 0 ? rowRate : fallbackRate;
-          return sum + Number(item.hours || 0) * appliedRate;
-        }, 0);
+        const totalPay = (remainingEntries || []).reduce((sum, item) => sum + calculateStoredEntryPay(item, fallbackRate), 0);
         await window.supabaseClient
           .from("payroll_submissions")
           .update({ total_hours: totalHours, total_pay: totalPay })
@@ -660,6 +656,15 @@
       }
 
       await render();
+    }
+
+    function calculateStoredEntryPay(entry, fallbackRate) {
+      if (entry.type === "Claim") {
+        return parseClaimNotePayload(entry.claim_notes || "").cost || 0;
+      }
+      const rowRate = Number(entry.custom_rate || 0);
+      const appliedRate = rowRate > 0 ? rowRate : Number(fallbackRate || 0);
+      return Number(entry.hours || 0) * appliedRate;
     }
 
     function groupBy(list, getKey) {

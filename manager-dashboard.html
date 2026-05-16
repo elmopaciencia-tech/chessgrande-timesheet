@@ -2,55 +2,67 @@
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><meta name="robots" content="noindex"><title>Manager Payroll Dashboard</title><style>
 
     :root {
-      --bg: oklch(95.7% 0.012 151);
-      --bg-soft: oklch(97.5% 0.008 151);
-      --surface: oklch(98.7% 0.006 151);
-      --surface-strong: oklch(99.3% 0.004 151);
-      --surface-muted: oklch(96.8% 0.01 151);
-      --ink: oklch(26.2% 0.022 171);
-      --ink-soft: oklch(40.2% 0.016 171);
-      --muted: oklch(53.4% 0.014 171);
-      --line: oklch(85.3% 0.01 171);
+      --bg: oklch(95.6% 0.015 96);
+      --bg-soft: oklch(97.3% 0.01 96);
+      --surface: oklch(98.5% 0.008 96);
+      --surface-strong: oklch(99.1% 0.006 96);
+      --surface-muted: oklch(96.8% 0.012 96);
+      --surface-accent: oklch(94.6% 0.022 174);
+      --ink: oklch(25.6% 0.028 178);
+      --ink-soft: oklch(39.8% 0.02 178);
+      --muted: oklch(52.4% 0.018 178);
+      --line: oklch(84.8% 0.012 178);
+      --line-strong: oklch(76.8% 0.018 178);
       --accent: oklch(43.5% 0.076 177);
+      --accent-deep: oklch(36.8% 0.066 177);
       --accent-soft: oklch(91.4% 0.028 175);
       --clay: oklch(57.5% 0.108 44);
       --clay-soft: oklch(92.6% 0.03 44);
       --gold: oklch(92.6% 0.049 88);
       --gold-deep: oklch(77.1% 0.09 83);
       --focus: oklch(66% 0.104 44);
-      --shadow-lg: 0 22px 52px rgba(43, 56, 50, 0.10);
-      --shadow-md: 0 14px 30px rgba(43, 56, 50, 0.08);
-      --shadow-sm: 0 8px 18px rgba(43, 56, 50, 0.06);
+      --shadow-lg: 0 24px 56px rgba(61, 52, 36, 0.10);
+      --shadow-md: 0 14px 32px rgba(61, 52, 36, 0.08);
+      --shadow-sm: 0 8px 18px rgba(61, 52, 36, 0.06);
       --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 28px; --space-8: 32px;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0; font-family: "Avenir Next", "Segoe UI", sans-serif; color: var(--ink);
-      background: linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 60%, oklch(94.8% 0.012 151) 100%); min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(191, 114, 71, 0.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(49, 99, 92, 0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 58%, oklch(94.8% 0.014 96) 100%);
+      min-height: 100vh;
       padding: env(safe-area-inset-top) max(18px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
     }
     a { color: inherit; } button, input, select { font: inherit; }
+    button, a, input, select { touch-action: manipulation; }
     :focus { outline: none; } :focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 72%, white 28%); outline-offset: 3px; }
     .skip-link { position: absolute; left: 20px; top: 16px; transform: translateY(-180%); background: var(--accent); color: var(--surface-strong); padding: 10px 14px; border-radius: 999px; text-decoration: none; font-weight: 700; z-index: 1000; }
     .skip-link:focus-visible { transform: translateY(0); }
     .app-header { position: sticky; top: env(safe-area-inset-top); z-index: 40; background: color-mix(in srgb, var(--surface) 90%, white 10%); border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); border-radius: 24px; box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
-    .app-header-inner { width: min(1320px, 100%); margin: 0 auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; }
+    .app-header-inner { width: min(1180px, 100%); margin: 0 auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; }
     .app-header-title { font-size: .78rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; white-space: nowrap; color: var(--ink-soft); }
     .menu-wrap { position: relative; }
-    .menu-button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); border-radius: 999px; padding: 10px 16px; font-weight: 700; cursor: pointer; min-height: 44px; }
+    .menu-button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); border-radius: 999px; padding: 10px 16px; font-weight: 700; cursor: pointer; min-height: 44px; transition: border-color 180ms ease, transform 180ms ease, background 180ms ease; }
+    .menu-button:hover { border-color: var(--line-strong); transform: translateY(-1px); }
     .menu-panel { position: absolute; right: 0; top: calc(100% + 10px); min-width: 220px; background: var(--surface-strong); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-md); padding: 8px; z-index: 80; }
     .menu-panel[hidden] { display: none; }
     .menu-item { width: 100%; border: 0; border-radius: 10px; padding: 11px 12px; text-align: left; cursor: pointer; background: transparent; color: var(--ink); display: block; text-decoration: none; min-height: 44px; }
     .menu-item:hover { background: var(--accent-soft); }
-    .page { width: min(1320px, 100%); margin: 28px auto 0; display: grid; gap: 28px; }
-    .hero { padding: 32px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-muted) 78%, white 22%) 100%); border: 1px solid color-mix(in srgb, var(--line) 78%, white 22%); border-radius: 32px; box-shadow: var(--shadow-lg); }
+    .page { width: min(1180px, 100%); margin: 28px auto 0; display: grid; gap: 28px; }
+    .hero { position: relative; padding: 32px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 32px; box-shadow: var(--shadow-lg); overflow: hidden; }
+    .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)), linear-gradient(180deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)); background-size: 100% 100%, 100% 36px; pointer-events: none; opacity: .34; }
+    .hero > * { position: relative; z-index: 1; }
     .eyebrow { margin: 0 0 8px; color: var(--clay); font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
     h1 { margin: 0 0 10px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.3rem, 5vw, 4rem); line-height: .95; font-weight: 400; }
     .hero p, .panel-copy, .status, .modal-status { margin: 0; color: var(--muted); line-height: 1.5; }
     .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, .8fr)); gap: 16px; }
     .summary-card, .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
     .summary-card { padding: 20px; }
-    .summary-card.lead { display: grid; gap: 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--accent-soft) 42%, var(--surface-strong) 58%) 100%); }
+    .summary-card.lead { display: grid; gap: 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); }
     .summary-title { margin: 0; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.25; }
     .panel { padding: 28px; background: color-mix(in srgb, var(--surface) 90%, white 10%); border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 28px; box-shadow: var(--shadow-md); }
     .panel-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -115,12 +127,13 @@
 </style></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
 <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
           <a class="menu-item" href="./chess-timesheet.html">Employee Timesheet</a>
+          <a class="menu-item" href="./manager-drafts.html">Draft Timesheets</a>
           <a class="menu-item" id="webAdminDashboardLink" href="./webadmin-dashboard.html" hidden>Webadmin Dashboard</a>
           <button class="menu-item" id="profileButton" type="button">Profile</button>
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
       
-</div></div></div></header><main class="page" id="main-content"><section class="hero"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1><p>Review submitted monthly payroll ledgers in one operational queue. Filter by year and month, then open any employee submission for full inspection.</p></section><section class="summary-strip" aria-label="Dashboard summary"><article class="summary-card lead"><p class="panel-eyebrow">Queue posture</p><h2 class="summary-title">This dashboard is for sorting, scanning, and opening submissions quickly.</h2><p>The list stays file-like, but the hierarchy is calmer and more deliberate so totals, filters, and entry access are easier to parse.</p></article><article class="summary-card stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></article><article class="summary-card stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></article><article class="summary-card stat"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></article></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+</div></div></div></header><main class="page" id="main-content"><section class="hero"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1><p>Review submitted monthly payroll ledgers in one operational queue. Filter by year and month, then open any employee submission for full inspection.</p></section><section class="summary-strip" aria-label="Dashboard summary"><article class="summary-card lead"><p class="panel-eyebrow">Queue posture</p><h2 class="summary-title">This dashboard is for sorting, scanning, and opening submissions quickly.</h2><p>The list stays file-like, but the hierarchy is calmer and more deliberate so totals, filters, and entry access are easier to parse.</p></article><article class="summary-card stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></article><article class="summary-card stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></article><article class="summary-card stat"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></article></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./claim-proof-storage.js"></script>

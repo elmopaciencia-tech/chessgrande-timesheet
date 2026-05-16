@@ -7,12 +7,20 @@
   <title>Profile Setup | Chess Grande Payroll</title>
   <style>
     :root {
-      --bg: #f3f8f8;
-      --panel: #ffffff;
-      --text: #1d2a2a;
-      --muted: #5f7572;
-      --line: rgba(36, 90, 82, 0.18);
-      --accent: #245a52;
+      --bg: oklch(95.6% 0.015 96);
+      --bg-soft: oklch(97.3% 0.01 96);
+      --surface: oklch(98.5% 0.008 96);
+      --surface-strong: oklch(99.1% 0.006 96);
+      --surface-muted: oklch(96.8% 0.012 96);
+      --surface-accent: oklch(94.6% 0.022 174);
+      --ink: oklch(25.6% 0.028 178);
+      --muted: oklch(52.4% 0.018 178);
+      --line: oklch(84.8% 0.012 178);
+      --line-strong: oklch(76.8% 0.018 178);
+      --accent: oklch(43.5% 0.076 177);
+      --clay: oklch(57.5% 0.108 44);
+      --focus: oklch(66% 0.104 44);
+      --shadow-lg: 0 24px 56px rgba(61, 52, 36, 0.10);
     }
     * { box-sizing: border-box; }
     body {
@@ -20,17 +28,23 @@
       min-height: 100vh;
       display: grid;
       place-items: center;
-      background: linear-gradient(180deg, #edf6f5 0%, var(--bg) 100%);
-      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(191, 114, 71, 0.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(49, 99, 92, 0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 58%, oklch(94.8% 0.014 96) 100%);
+      color: var(--ink);
       font-family: "Avenir Next", "Segoe UI", sans-serif;
       padding: 18px;
     }
+    :focus { outline: none; }
+    :focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 72%, white 28%); outline-offset: 3px; }
     .card {
       width: min(620px, 100%);
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 24px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
+      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
+      border-radius: 32px;
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
     }
     .avatar-section {
       display: flex;
@@ -46,11 +60,11 @@
       border-radius: 999px;
       border: 2px solid var(--line);
       object-fit: cover;
-      background: #f8faf9;
+      background: color-mix(in srgb, var(--surface-strong) 90%, white 10%);
       flex-shrink: 0;
     }
     .avatar-preview[src=""], .avatar-preview:not([src]) {
-      background: #eef3f1;
+      background: var(--surface-accent);
     }
     .avatar-info {
       color: var(--muted);
@@ -62,13 +76,20 @@
       padding: 6px 14px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: #fff;
-      color: var(--text);
+      background: var(--surface-strong);
+      color: var(--ink);
       cursor: pointer;
       font-family: inherit;
       font-weight: 600;
     }
-    h1 { margin: 0 0 8px; font-size: 1.6rem; }
+    h1 {
+      margin: 0 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.15rem, 8vw, 3.4rem);
+      line-height: .95;
+      font-weight: 400;
+      text-wrap: balance;
+    }
     p { margin: 0 0 18px; color: var(--muted); }
     .grid {
       display: grid;
@@ -76,30 +97,40 @@
       gap: 12px;
     }
     .full { grid-column: 1 / -1; }
-    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.92rem; }
+    label { display: block; margin-bottom: 6px; color: var(--muted); font-weight: 600; font-size: 0.84rem; }
     input {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 11px 12px;
+      border-radius: 16px;
+      padding: 12px 14px;
       font: inherit;
+      min-height: 52px;
+      background: color-mix(in srgb, var(--surface-strong) 90%, white 10%);
+      color: var(--ink);
     }
     button {
       margin-top: 14px;
       border: 0;
-      border-radius: 10px;
-      padding: 11px 12px;
+      border-radius: 999px;
+      padding: 12px 16px;
       font: inherit;
       font-weight: 700;
       cursor: pointer;
       background: var(--accent);
-      color: #fff;
+      color: var(--surface-strong);
       width: 100%;
+      min-height: 46px;
+    }
+    .avatar-btn {
+      width: auto;
+      min-height: 0;
+      margin-top: 0;
+      border: 1px solid var(--line);
     }
     .status {
       margin-top: 12px;
       min-height: 22px;
-      color: #7a3d25;
+      color: var(--clay);
       font-weight: 600;
     }
     @media (max-width: 720px) {
@@ -177,9 +208,7 @@
 
       const params = new URLSearchParams(window.location.search);
       const nextParam = params.get("next");
-      if (nextParam && !nextParam.includes("login.html") && !nextParam.includes("signup.html") && !nextParam.includes("profile-setup.html")) {
-        nextUrl = nextParam;
-      }
+      nextUrl = getSafeNextUrl(nextParam);
 
       const profile = await getCurrentProfile();
       if (profile && profile.role && profile.role !== "employee" && isProfileSetupComplete(profile)) {
@@ -266,6 +295,17 @@
       statusMessage.textContent = "Profile saved. Redirecting...";
       window.location.href = nextUrl;
     });
+
+    function getSafeNextUrl(value) {
+      const raw = String(value || "").trim();
+      if (!raw || /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(raw)) {
+        return "./chess-timesheet.html";
+      }
+      if (raw.includes("login.html") || raw.includes("signup.html") || raw.includes("profile-setup.html")) {
+        return "./chess-timesheet.html";
+      }
+      return raw.startsWith("./") ? raw : `./${raw.replace(/^\/+/, "")}`;
+    }
   </script>
 </body>
 </html>

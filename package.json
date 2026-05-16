@@ -1,0 +1,18 @@
+{
+  "name": "chess-grande-payroll",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "worker:dev": "wrangler dev --config cloudflare-worker/wrangler.toml",
+    "worker:dry-run": "wrangler deploy --dry-run --config cloudflare-worker/wrangler.toml",
+    "worker:deploy": "wrangler deploy --config cloudflare-worker/wrangler.toml"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.1.46",
+    "@langchain/openrouter": "^0.2.4"
+  },
+  "devDependencies": {
+    "wrangler": "^4.91.0"
+  }
+}

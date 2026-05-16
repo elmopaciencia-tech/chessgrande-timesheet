@@ -183,6 +183,7 @@
     .day-items { display: grid; gap: 3px; align-content: start; }
     .chip { font-size: .7rem; line-height: 1.2; background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); border: 1px solid color-mix(in srgb, var(--accent) 12%, white 88%); color: var(--accent); padding: 4px 5px; border-radius: 10px; overflow: hidden; }
     .chip strong { color: var(--ink); }
+    .chip.submitted { opacity: .72; border-style: dashed; color: var(--muted); }
     .groups { display: grid; gap: var(--space-4); }
     .school-card { padding: 18px; }
     .school-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-bottom: 10px; }
@@ -203,6 +204,7 @@
     .empty { padding: var(--space-7); border-radius: 24px; background: var(--calendar); color: var(--muted); border: 1px dashed color-mix(in srgb, var(--line-strong) 42%, white 58%); text-align: center; line-height: 1.5; }
     .entry-actions { width: 160px; min-width: 160px; }
     .row-remove-button, .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
+    .entry-actions .locked { display: inline-flex; width: 100%; min-height: 34px; align-items: center; justify-content: center; border-radius: 999px; background: color-mix(in srgb, var(--surface-muted) 78%, white 22%); color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
     .footer-note, .status-message { color: var(--muted); font-size: .9rem; line-height: 1.45; }
     .pay-card { padding: 14px; display: grid; gap: 10px; }
     .pay-card-header { display: grid; gap: 2px; }
@@ -375,12 +377,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./draft-timesheet-store.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
-    const entryStorageKey = "chessGrandeTimesheetEntries";
     const payStorageKey = "chessGrandePayrollProfile";
     const monthPicker = document.getElementById("monthPicker");
     const monthPickerFallback = document.getElementById("monthPickerFallback");
@@ -424,6 +426,7 @@
     ];
 
     let entries = [];
+    let currentUser = null;
     let currentProfile = null;
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
@@ -439,13 +442,14 @@
     async function initApp() {
       const user = await requireLogin();
       if (!user) return;
+      currentUser = user;
       const profileReady = await requireProfileSetup();
       if (!profileReady) return;
       const profile = await getCurrentProfile();
       const role = String(profile?.role || "").trim().toLowerCase();
       managerDashboardLink.hidden = !(role === "manager" || role === "webadmin");
       webAdminDashboardLink.hidden = role !== "webadmin";
-      entries = loadEntries();
+      entries = await loadEntries();
       setupMonthPickerUi();
       initializeMonth();
       await loadProfileIntoForm();
@@ -518,21 +522,15 @@
       await submitPayrollToSupabase();
     });
 
-    function generateId() {
-      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-        return crypto.randomUUID();
-      }
-      return Date.now().toString(36) + Math.random().toString(36).substring(2);
-    }
-
     function initializeMonth() {
       const params = new URLSearchParams(window.location.search);
       const monthFromQuery = params.get("month");
       setMonthValue(monthFromQuery || formatMonthValue(new Date()));
     }
 
-    function loadEntries() {
-      return readArrayFromStorage(entryStorageKey);
+    async function loadEntries() {
+      if (!currentUser) return [];
+      return window.draftTimesheetStore.loadEntriesForEmployee(currentUser.id);
     }
 
     function loadProfile() {
@@ -592,6 +590,7 @@
 
       try {
       saveProfile();
+      entries = await loadEntries();
       render();
       submitStatus.textContent = "Submitting payroll...";
 
@@ -606,7 +605,8 @@
       const profile = loadProfile();
       const selectedMonth = monthPicker.value;
       const monthLabel = formatMonthLabel(selectedMonth);
-      const activeEntries = getEntriesForMonth(selectedMonth);
+      const monthEntries = getEntriesForMonth(selectedMonth);
+      const activeEntries = monthEntries.filter((entry) => window.draftTimesheetStore.isActive(entry));
       const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
       const hourlyRate = Number(profile.hourlyRate || 0);
       const totalPay = activeEntries.reduce(
@@ -620,7 +620,7 @@
       }
 
       if (!activeEntries.length) {
-        submitStatus.textContent = "Add at least one entry for this month before submitting.";
+        submitStatus.textContent = "Add at least one active entry for this month before submitting.";
         return;
       }
 
@@ -678,7 +678,19 @@
         return;
       }
 
-      submitStatus.textContent = `Submitted ${submission.month_label} for ${submission.employee_name}.`;
+      try {
+        await window.draftTimesheetStore.markSubmitted(
+          activeEntries.map((entry) => entry.id),
+          submission.id,
+          user.id
+        );
+        entries = await loadEntries();
+        render();
+        submitStatus.textContent = `Submitted ${submission.month_label} for ${submission.employee_name}.`;
+      } catch (lockError) {
+        console.error("Failed to lock submitted draft entries:", lockError);
+        submitStatus.textContent = `Submitted ${submission.month_label}, but the draft rows could not be locked: ${lockError?.message || "unknown error"}`;
+      }
       } catch (error) {
         console.error("Unexpected submit error:", error);
         submitStatus.textContent = `Unexpected error during submission: ${error?.message || "unknown error"}`;
@@ -689,9 +701,9 @@
     }
 
     function render() {
-      entries = loadEntries();
       const profile = loadProfile();
-      const activeEntries = getEntriesForMonth(monthPicker.value);
+      const monthEntries = getEntriesForMonth(monthPicker.value);
+      const activeEntries = monthEntries.filter((entry) => window.draftTimesheetStore.isActive(entry));
       const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
       const hourlyRate = Number(profile.hourlyRate || 0);
       const totalPay = activeEntries.reduce(
@@ -706,9 +718,9 @@
       payHours.textContent = trimHours(totalHours);
       payTotal.textContent = formatCurrency(totalPay);
 
-      renderCalendar(activeEntries, monthPicker.value);
-      renderGroups(activeEntries);
-      void hydrateClaimProofUrls(activeEntries);
+      renderCalendar(monthEntries, monthPicker.value);
+      renderGroups(monthEntries);
+      void hydrateClaimProofUrls(monthEntries);
     }
 
     function getEntriesForMonth(monthValue) {
@@ -761,6 +773,9 @@
         (groupedByDate[key] || []).forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "chip";
+          if (window.draftTimesheetStore.isSubmitted(entry)) {
+            chip.classList.add("submitted");
+          }
           chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
@@ -800,12 +815,15 @@
         const body = fragment.querySelector("tbody");
         schoolEntries.forEach((entry) => {
           const row = document.createElement("tr");
+          const actionCell = window.draftTimesheetStore.isSubmitted(entry)
+            ? `<span class="locked">Submitted</span>`
+            : `<button type="button" class="row-remove-button" data-remove-id="${escapeHtml(entry.id)}">Remove</button>`;
           if (entry.type === "Claim") {
             row.innerHTML = `
               <td data-label="Image">${formatImageCell(entry)}</td>
               <td data-label="Date">${formatLongDate(entry.date)}</td>
               <td data-label="Type">${formatEntryType(entry)}</td>
-              <td class="entry-actions" data-label="Action"><button type="button" class="row-remove-button" data-remove-id="${escapeHtml(entry.id)}">Remove</button></td>
+              <td class="entry-actions" data-label="Action">${actionCell}</td>
             `;
           } else {
             row.innerHTML = `
@@ -813,7 +831,7 @@
               <td data-label="Type">${formatEntryType(entry)}</td>
               <td data-label="Hours">${trimHours(entry.hours)}</td>
               <td data-label="Time">${formatTimeRange(entry)}</td>
-              <td class="entry-actions" data-label="Action"><button type="button" class="row-remove-button" data-remove-id="${escapeHtml(entry.id)}">Remove</button></td>
+              <td class="entry-actions" data-label="Action">${actionCell}</td>
             `;
           }
           body.appendChild(row);
@@ -1022,7 +1040,6 @@
       }
 
       if (changed) {
-        writeJsonToStorage(entryStorageKey, entries);
         render();
       }
     }
@@ -1102,12 +1119,18 @@
       return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
     }
 
-    function removeEntry(entryId) {
+    async function removeEntry(entryId) {
       if (!entryId) return;
-      const nextEntries = loadEntries().filter((entry) => entry.id !== entryId);
-      writeJsonToStorage(entryStorageKey, nextEntries);
-      entries = nextEntries;
-      render();
+      const entry = entries.find((item) => item.id === entryId);
+      if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
+
+      try {
+        await window.draftTimesheetStore.deleteEntry(entryId);
+        entries = await loadEntries();
+        render();
+      } catch (error) {
+        alert(error?.message || "Could not delete the draft timesheet entry.");
+      }
     }
 
     function getStorageBackends() {

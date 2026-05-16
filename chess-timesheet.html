@@ -820,6 +820,12 @@
       margin-right: 4px;
     }
 
+    .chip.submitted {
+      opacity: 0.72;
+      border-style: dashed;
+      color: var(--muted);
+    }
+
     .groups {
       display: grid;
       gap: var(--space-5);
@@ -995,6 +1001,21 @@
       font-weight: 700;
       cursor: pointer;
       transition: transform 140ms ease, opacity 140ms ease;
+    }
+
+    .entry-actions .locked {
+      display: inline-flex;
+      width: 100%;
+      min-height: 34px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-muted) 78%, white 22%);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .footer-note {
@@ -1341,7 +1362,7 @@
               </div>
             </div>
             <div id="schoolGroups" class="groups"></div>
-            <p class="footer-note">Entries are stored in local browser storage on this device, so shared devices should not be used for final payroll work.</p>
+            <p class="footer-note">Entries sync through Supabase across devices. Submitted rows stay visible here, but they are locked after payroll handoff.</p>
           </section>
         </div>
 
@@ -1486,12 +1507,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./draft-timesheet-store.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
   <script>
-    const storageKey = "chessGrandeTimesheetEntries";
     const monthPicker = document.getElementById("monthPicker");
     const monthPickerFallback = document.getElementById("monthPickerFallback");
     const monthNameSelect = document.getElementById("monthNameSelect");
@@ -1543,6 +1564,7 @@
     ];
 
     let entries = [];
+    let currentUser = null;
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
     let isHydratingClaimProofUrls = false;
@@ -1564,10 +1586,11 @@
     async function initApp() {
       const user = await requireLogin();
       if (!user) return;
+      currentUser = user;
       const profileReady = await requireProfileSetup();
       if (!profileReady) return;
       await applyRoleMenuVisibility();
-      entries = loadEntries();
+      entries = await loadEntries();
       setupMonthPickerUi();
       initializeMonth();
       syncPayrollLink();
@@ -1674,7 +1697,7 @@
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      addEntriesFromForm();
+      void addEntriesFromForm();
     });
 
     bindAction(seedDemoButton, seedDemoData);
@@ -1765,16 +1788,9 @@
       }
     }
 
-    function loadEntries() {
-      try {
-        return JSON.parse(localStorage.getItem(storageKey)) || [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveEntries() {
-      localStorage.setItem(storageKey, JSON.stringify(entries));
+    async function loadEntries() {
+      if (!currentUser) return [];
+      return window.draftTimesheetStore.loadEntriesForEmployee(currentUser.id);
     }
 
     async function addEntriesFromForm() {
@@ -1844,19 +1860,23 @@
         ? buildWeeklyEntries(baseEntry, monthPicker.value)
         : [baseEntry];
 
-      entries.push(...newEntries.map((entry) => ({ ...entry, id: generateId() })));
-      saveEntries();
-      form.reset();
-      syncDateFieldToMonth();
-      syncReplacementField();
-      render();
-    }
-
-    function generateId() {
-      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-        return crypto.randomUUID();
+      addEntryButton.disabled = true;
+      try {
+        await window.draftTimesheetStore.insertEntries(newEntries, {
+          employeeId: currentUser.id,
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+        });
+        entries = await loadEntries();
+        form.reset();
+        syncDateFieldToMonth();
+        syncReplacementField();
+        render();
+      } catch (error) {
+        alert(error?.message || "Could not save the draft timesheet entry.");
+      } finally {
+        addEntryButton.disabled = false;
       }
-      return Date.now().toString(36) + Math.random().toString(36).substring(2);
     }
 
     function buildWeeklyEntries(baseEntry, monthValue) {
@@ -1906,7 +1926,7 @@
 
     function syncClearMonthButton(activeEntries) {
       const monthEntries = Array.isArray(activeEntries) ? activeEntries : getEntriesForMonth(monthPicker.value);
-      clearMonthButton.disabled = monthEntries.length === 0;
+      clearMonthButton.disabled = !monthEntries.some((entry) => window.draftTimesheetStore.isActive(entry));
     }
 
     function getEntriesForMonth(monthValue) {
@@ -1972,6 +1992,9 @@
         (groupedByDate[key] || []).forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "chip";
+          if (window.draftTimesheetStore.isSubmitted(entry)) {
+            chip.classList.add("submitted");
+          }
           chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
@@ -2011,12 +2034,15 @@
         const body = fragment.querySelector("tbody");
         schoolEntries.forEach((entry) => {
           const row = document.createElement("tr");
+          const actionCell = window.draftTimesheetStore.isSubmitted(entry)
+            ? `<span class="locked">Submitted</span>`
+            : `<button class="ghost" type="button" data-id="${escapeHtml(entry.id)}">Remove</button>`;
           if (entry.type === "Claim") {
             row.innerHTML = `
               <td data-label="Image">${formatImageCell(entry)}</td>
               <td data-label="Date">${formatLongDate(entry.date)}</td>
               <td data-label="Type">${formatEntryType(entry)}</td>
-              <td data-label="Action" class="entry-actions"><button class="ghost" type="button" data-id="${entry.id}">Remove</button></td>
+              <td data-label="Action" class="entry-actions">${actionCell}</td>
             `;
           } else {
             row.innerHTML = `
@@ -2024,7 +2050,7 @@
               <td data-label="Type">${formatEntryType(entry)}</td>
               <td data-label="Hours">${trimHours(entry.hours)}</td>
               <td data-label="Time">${formatTimeRange(entry)}</td>
-              <td data-label="Action" class="entry-actions"><button class="ghost" type="button" data-id="${entry.id}">Remove</button></td>
+              <td data-label="Action" class="entry-actions">${actionCell}</td>
             `;
           }
           body.appendChild(row);
@@ -2038,26 +2064,39 @@
       });
     }
 
-    function removeEntry(id) {
-      entries = entries.filter((entry) => entry.id !== id);
-      saveEntries();
-      render();
+    async function removeEntry(id) {
+      const entry = entries.find((item) => item.id === id);
+      if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
+
+      try {
+        await window.draftTimesheetStore.deleteEntry(id);
+        entries = await loadEntries();
+        render();
+      } catch (error) {
+        alert(error?.message || "Could not delete the draft timesheet entry.");
+      }
     }
 
-    function clearCurrentMonth() {
+    async function clearCurrentMonth() {
       const monthValue = monthPicker.value;
       const monthEntries = getEntriesForMonth(monthValue);
-      if (!monthEntries.length) return;
+      const removableEntries = monthEntries.filter((entry) => window.draftTimesheetStore.isActive(entry));
+      if (!removableEntries.length) return;
 
-      const confirmed = confirm(`Remove all ${monthEntries.length} entries from ${calendarTitle.textContent}?`);
+      const confirmed = confirm(`Remove all ${removableEntries.length} active entries from ${calendarTitle.textContent}? Submitted rows will remain visible.`);
       if (!confirmed) return;
 
-      entries = entries.filter((entry) => !entry.date.startsWith(monthValue));
-      saveEntries();
-      render();
+      clearMonthButton.disabled = true;
+      try {
+        await window.draftTimesheetStore.deleteEntries(removableEntries.map((entry) => entry.id));
+        entries = await loadEntries();
+        render();
+      } catch (error) {
+        alert(error?.message || "Could not clear the selected month.");
+      }
     }
 
-    function seedDemoData() {
+    async function seedDemoData() {
       const monthValue = monthPicker.value;
       const [year, month] = monthValue.split("-").map(Number);
       const samples = [
@@ -2066,9 +2105,20 @@
         { schoolName: "SCF Beginner Saturday", date: formatDateInput(new Date(year, month - 1, 12)), type: "Replacement", startTime: "15:30", endTime: "17:00", hours: 1.5 },
       ];
 
-      entries.push(...samples.map((entry) => ({ ...entry, id: generateId() })));
-      saveEntries();
-      render();
+      seedDemoButton.disabled = true;
+      try {
+        await window.draftTimesheetStore.insertEntries(samples, {
+          employeeId: currentUser.id,
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+        });
+        entries = await loadEntries();
+        render();
+      } catch (error) {
+        alert(error?.message || "Could not create sample draft entries.");
+      } finally {
+        seedDemoButton.disabled = false;
+      }
     }
 
     function normalizeSchool(value) {
@@ -2218,7 +2268,6 @@
       }
 
       if (changed) {
-        saveEntries();
         render();
       }
     }

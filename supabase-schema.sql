@@ -4,6 +4,7 @@
 --   1) profiles
 --   2) payroll_submissions
 --   3) payroll_entries
+--   4) draft_timesheet_entries
 -- plus Row Level Security (RLS) policies.
 
 begin;
@@ -13,6 +14,16 @@ begin;
 -- -------------------------------------------------------------------
 -- gen_random_uuid() is used for primary keys.
 create extension if not exists pgcrypto;
+
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
 
 -- -------------------------------------------------------------------
 -- 1) Profiles table
@@ -108,14 +119,60 @@ create index if not exists payroll_entries_date_idx
   on public.payroll_entries (date);
 
 -- -------------------------------------------------------------------
--- 4) Enable RLS
+-- 4) Draft timesheet entries table
+-- -------------------------------------------------------------------
+-- Editable working rows. Submitted payroll copies these rows into
+-- payroll_submissions/payroll_entries and then locks the source drafts.
+create table if not exists public.draft_timesheet_entries (
+  id uuid primary key default gen_random_uuid(),
+  employee_id uuid not null references public.profiles(id) on delete cascade,
+  created_by uuid references public.profiles(id),
+  updated_by uuid references public.profiles(id),
+  submission_id uuid references public.payroll_submissions(id) on delete set null,
+  status text not null default 'active' check (status in ('active', 'submitted')),
+  school_name text not null default '',
+  date date not null,
+  type text not null check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event')),
+  start_time text,
+  end_time text,
+  hours numeric(10,2) not null default 0 check (hours >= 0),
+  replacement_name text,
+  custom_rate numeric(10,2) check (custom_rate is null or custom_rate >= 0),
+  claim_notes text,
+  claim_cost numeric(10,2) check (claim_cost is null or claim_cost >= 0),
+  claim_proof_name text,
+  claim_image_path text,
+  claim_proof_data_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+comment on table public.draft_timesheet_entries is 'Editable cross-device payroll draft entries before monthly submission.';
+comment on column public.draft_timesheet_entries.status is 'active rows can be edited; submitted rows are locked source drafts linked to a payroll snapshot.';
+
+create index if not exists draft_timesheet_entries_employee_status_date_idx
+  on public.draft_timesheet_entries (employee_id, status, date);
+create index if not exists draft_timesheet_entries_employee_date_idx
+  on public.draft_timesheet_entries (employee_id, date);
+create index if not exists draft_timesheet_entries_submission_id_idx
+  on public.draft_timesheet_entries (submission_id);
+
+drop trigger if exists draft_timesheet_entries_set_updated_at on public.draft_timesheet_entries;
+create trigger draft_timesheet_entries_set_updated_at
+before update on public.draft_timesheet_entries
+for each row
+execute function public.set_updated_at();
+
+-- -------------------------------------------------------------------
+-- 5) Enable RLS
 -- -------------------------------------------------------------------
 alter table public.profiles enable row level security;
 alter table public.payroll_submissions enable row level security;
 alter table public.payroll_entries enable row level security;
+alter table public.draft_timesheet_entries enable row level security;
 
 -- -------------------------------------------------------------------
--- 5) Profiles RLS policies
+-- 6) Profiles RLS policies
 -- -------------------------------------------------------------------
 -- Employees can read their own profile.
 create policy "profiles_select_own"
@@ -195,7 +252,7 @@ with check (
 );
 
 -- -------------------------------------------------------------------
--- 6) Payroll submissions RLS policies
+-- 7) Payroll submissions RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert their own submissions.
 create policy "submissions_insert_own"
@@ -240,7 +297,7 @@ using (
 );
 
 -- -------------------------------------------------------------------
--- 7) Payroll entries RLS policies
+-- 8) Payroll entries RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert entries only into their own submissions.
 create policy "entries_insert_for_own_submission"
@@ -284,7 +341,8 @@ using (
   )
 );
 
--- Managers can delete any entry.
+-- Managers and webadmins can delete any entry.
+drop policy if exists "entries_delete_manager_all" on public.payroll_entries;
 create policy "entries_delete_manager_all"
 on public.payroll_entries
 for delete
@@ -294,7 +352,129 @@ using (
     select 1
     from public.profiles p
     where p.id = auth.uid()
-      and p.role = 'manager'
+      and p.role in ('manager', 'webadmin')
+  )
+);
+
+-- -------------------------------------------------------------------
+-- 9) Draft timesheet entries RLS policies
+-- -------------------------------------------------------------------
+drop policy if exists "draft_entries_select_own" on public.draft_timesheet_entries;
+create policy "draft_entries_select_own"
+on public.draft_timesheet_entries
+for select
+to authenticated
+using (employee_id = auth.uid());
+
+drop policy if exists "draft_entries_select_admin_all" on public.draft_timesheet_entries;
+create policy "draft_entries_select_admin_all"
+on public.draft_timesheet_entries
+for select
+to authenticated
+using (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role in ('manager', 'webadmin')
+  )
+);
+
+drop policy if exists "draft_entries_insert_own_active" on public.draft_timesheet_entries;
+create policy "draft_entries_insert_own_active"
+on public.draft_timesheet_entries
+for insert
+to authenticated
+with check (
+  employee_id = auth.uid()
+  and coalesce(created_by, auth.uid()) = auth.uid()
+  and coalesce(updated_by, auth.uid()) = auth.uid()
+  and status = 'active'
+);
+
+drop policy if exists "draft_entries_update_own_active" on public.draft_timesheet_entries;
+create policy "draft_entries_update_own_active"
+on public.draft_timesheet_entries
+for update
+to authenticated
+using (
+  employee_id = auth.uid()
+  and status = 'active'
+)
+with check (
+  employee_id = auth.uid()
+  and coalesce(updated_by, auth.uid()) = auth.uid()
+  and status in ('active', 'submitted')
+);
+
+drop policy if exists "draft_entries_delete_own_active" on public.draft_timesheet_entries;
+create policy "draft_entries_delete_own_active"
+on public.draft_timesheet_entries
+for delete
+to authenticated
+using (
+  employee_id = auth.uid()
+  and status = 'active'
+);
+
+drop policy if exists "draft_entries_insert_admin_lessons" on public.draft_timesheet_entries;
+create policy "draft_entries_insert_admin_lessons"
+on public.draft_timesheet_entries
+for insert
+to authenticated
+with check (
+  status = 'active'
+  and type in ('School Coaching', 'Replacement')
+  and coalesce(created_by, auth.uid()) = auth.uid()
+  and coalesce(updated_by, auth.uid()) = auth.uid()
+  and exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role in ('manager', 'webadmin')
+  )
+);
+
+drop policy if exists "draft_entries_update_admin_lessons" on public.draft_timesheet_entries;
+create policy "draft_entries_update_admin_lessons"
+on public.draft_timesheet_entries
+for update
+to authenticated
+using (
+  status = 'active'
+  and type in ('School Coaching', 'Replacement')
+  and exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role in ('manager', 'webadmin')
+  )
+)
+with check (
+  status = 'active'
+  and type in ('School Coaching', 'Replacement')
+  and coalesce(updated_by, auth.uid()) = auth.uid()
+  and exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role in ('manager', 'webadmin')
+  )
+);
+
+drop policy if exists "draft_entries_delete_admin_lessons" on public.draft_timesheet_entries;
+create policy "draft_entries_delete_admin_lessons"
+on public.draft_timesheet_entries
+for delete
+to authenticated
+using (
+  status = 'active'
+  and type in ('School Coaching', 'Replacement')
+  and exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.role in ('manager', 'webadmin')
   )
 );
 

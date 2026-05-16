@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Manager Draft Timesheets</title>
+  <style>
+    :root {
+      --bg: oklch(95.6% 0.015 96);
+      --bg-soft: oklch(97.3% 0.01 96);
+      --surface: oklch(98.5% 0.008 96);
+      --surface-strong: oklch(99.1% 0.006 96);
+      --surface-muted: oklch(96.8% 0.012 96);
+      --surface-accent: oklch(94.6% 0.022 174);
+      --ink: oklch(25.6% 0.028 178);
+      --ink-soft: oklch(39.8% 0.02 178);
+      --muted: oklch(52.4% 0.018 178);
+      --line: oklch(84.8% 0.012 178);
+      --line-strong: oklch(76.8% 0.018 178);
+      --accent: oklch(43.5% 0.076 177);
+      --accent-soft: oklch(91.4% 0.028 175);
+      --clay: oklch(57.5% 0.108 44);
+      --clay-soft: oklch(92.6% 0.03 44);
+      --focus: oklch(66% 0.104 44);
+      --shadow-lg: 0 24px 56px rgba(61, 52, 36, 0.10);
+      --shadow-md: 0 14px 32px rgba(61, 52, 36, 0.08);
+      --shadow-sm: 0 8px 18px rgba(61, 52, 36, 0.06);
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(191, 114, 71, 0.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(49, 99, 92, 0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 58%, oklch(94.8% 0.014 96) 100%);
+      min-height: 100vh;
+      padding:
+        env(safe-area-inset-top)
+        max(18px, env(safe-area-inset-right))
+        max(32px, env(safe-area-inset-bottom))
+        max(18px, env(safe-area-inset-left));
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    button, a, input, select { touch-action: manipulation; }
+    :focus { outline: none; }
+    :focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 72%, white 28%); outline-offset: 3px; }
+
+    .app-header {
+      position: sticky;
+      top: env(safe-area-inset-top);
+      z-index: 40;
+      background: color-mix(in srgb, var(--surface) 90%, white 10%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      border-radius: 24px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+    }
+
+    .app-header-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 24px;
+    }
+
+    .app-header-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: var(--ink-soft);
+    }
+
+    .menu-wrap { position: relative; }
+    .menu-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface-strong);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 44px;
+    }
+    .menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 10px);
+      min-width: 220px;
+      background: var(--surface-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow-md);
+      padding: 8px;
+      z-index: 80;
+    }
+    .menu-panel[hidden] { display: none; }
+    .menu-item {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 12px;
+      text-align: left;
+      cursor: pointer;
+      background: transparent;
+      color: var(--ink);
+      display: block;
+      text-decoration: none;
+      min-height: 44px;
+    }
+    .menu-item:hover { background: var(--accent-soft); }
+
+    .page {
+      width: min(1180px, 100%);
+      margin: 28px auto 0;
+      display: grid;
+      gap: 28px;
+    }
+
+    .hero, .panel, .toolbar-card, .draft-card {
+      background: color-mix(in srgb, var(--surface) 90%, white 10%);
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
+      border-radius: 28px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hero {
+      padding: 32px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
+    }
+
+    .eyebrow, .panel-eyebrow {
+      margin: 0 0 8px;
+      color: var(--clay);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.3rem, 5vw, 4rem);
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p, .panel-copy, .status, .empty {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: block;
+    }
+
+    .panel { padding: var(--space-7); }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-5);
+    }
+    .panel h2 { margin: 0; font-size: 1.38rem; line-height: 1.15; letter-spacing: -0.02em; }
+    .toolbar { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(180px, 0.55fr); gap: var(--space-4); margin-bottom: var(--space-5); }
+    .toolbar-card { padding: var(--space-4); box-shadow: none; }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    input, select {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      background: var(--surface-strong);
+      color: var(--ink);
+      min-height: 52px;
+    }
+    input:focus-visible, select:focus-visible {
+      border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%);
+    }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+    .full { grid-column: 1 / -1; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-4); }
+    .button, .primary, .secondary, .danger {
+      border-radius: 999px;
+      min-height: 46px;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .button, .primary { border: 0; background: var(--accent); color: var(--surface-strong); }
+    .secondary { border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%); background: var(--surface-strong); color: var(--accent); }
+    .danger { border: 0; background: var(--clay-soft); color: var(--clay); }
+
+    .status { min-height: 1.4rem; font-size: 0.92rem; margin-bottom: var(--space-4); }
+    .draft-list { display: grid; gap: var(--space-4); }
+    .draft-card {
+      padding: var(--space-5);
+      box-shadow: none;
+      display: grid;
+      gap: var(--space-3);
+    }
+    .draft-card.locked { opacity: 0.78; }
+    .draft-head {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .draft-title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--ink); }
+    .draft-meta { color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+    .draft-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-muted) 78%, white 22%);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .draft-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .empty {
+      padding: 28px;
+      border-radius: 24px;
+      background: color-mix(in srgb, var(--surface-muted) 74%, white 26%);
+      border: 1px dashed color-mix(in srgb, var(--line) 82%, white 18%);
+      text-align: center;
+    }
+
+    @media (max-width: 920px) {
+      .toolbar, .form-grid, .actions { grid-template-columns: 1fr; }
+      .hero, .panel { padding: 20px; }
+      .app-header-inner { min-height: 66px; padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-header-title">Chess Grande Draft Desk</div>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
+          <a class="menu-item" href="./chess-timesheet.html">Employee Timesheet</a>
+          <a class="menu-item" href="./manager-dashboard.html">Manager Dashboard</a>
+          <a class="menu-item" href="./webadmin-dashboard.html" id="webAdminDashboardLink" hidden>Webadmin Dashboard</a>
+          <button class="menu-item" id="profileButton" type="button">Profile</button>
+          <button class="menu-item" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page" id="main-content">
+    <section class="hero">
+      <p class="eyebrow">Manager View</p>
+      <h1>Draft Timesheets</h1>
+      <p>Prefill employee coaching and replacement drafts before payroll submission. Claims and submitted rows are visible for context, but remain read-only here.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <p class="panel-eyebrow">Employee scope</p>
+          <h2>Choose Employee And Month</h2>
+          <p class="panel-copy">The list below reads from Supabase draft rows, so changes appear for the employee across devices.</p>
+        </div>
+        <a class="button" href="./manager-dashboard.html">Submitted Payroll</a>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-card">
+          <label for="employeeSelect">Employee</label>
+          <select id="employeeSelect"></select>
+        </div>
+        <div class="toolbar-card">
+          <label for="monthPicker">Month</label>
+          <input id="monthPicker" type="month">
+        </div>
+      </div>
+      <div class="status" id="statusMessage"></div>
+      <div id="draftList" class="draft-list"></div>
+    </section>
+
+    <aside class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-eyebrow">Draft editor</p>
+            <h2 id="formTitle">Add Coaching Draft</h2>
+            <p class="panel-copy">Managers can only create or change active School Coaching and Replacement rows.</p>
+          </div>
+        </div>
+        <form id="draftForm">
+          <div class="form-grid">
+            <div class="full">
+              <label for="schoolName">School Name</label>
+              <input id="schoolName" type="text" required placeholder="e.g. ACS">
+            </div>
+            <div>
+              <label for="entryType">Entry Type</label>
+              <select id="entryType">
+                <option value="School Coaching">School Coaching</option>
+                <option value="Replacement">Replacement</option>
+              </select>
+            </div>
+            <div id="replacementField" hidden>
+              <label for="replacementName">Replacing</label>
+              <input id="replacementName" type="text" placeholder="e.g. Ericka">
+            </div>
+            <div>
+              <label for="entryDate">Date</label>
+              <input id="entryDate" type="date" required>
+            </div>
+            <div>
+              <label for="startTime">Start Time</label>
+              <input id="startTime" type="time" required>
+            </div>
+            <div>
+              <label for="hoursWorked">Hours</label>
+              <input id="hoursWorked" type="number" min="0.5" step="0.5" inputmode="decimal" required>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="saveDraftButton" type="submit">Save Draft</button>
+            <button class="secondary" id="cancelEditButton" type="button">Cancel Edit</button>
+          </div>
+        </form>
+      </section>
+    </aside>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./draft-timesheet-store.js"></script>
+  <script src="./profile-avatar.js"></script>
+  <script src="./auth.js"></script>
+  <script src="./profile-ui.js"></script>
+  <script>
+    const employeeSelect = document.getElementById("employeeSelect");
+    const monthPicker = document.getElementById("monthPicker");
+    const statusMessage = document.getElementById("statusMessage");
+    const draftList = document.getElementById("draftList");
+    const draftForm = document.getElementById("draftForm");
+    const formTitle = document.getElementById("formTitle");
+    const schoolNameInput = document.getElementById("schoolName");
+    const entryTypeSelect = document.getElementById("entryType");
+    const replacementField = document.getElementById("replacementField");
+    const replacementNameInput = document.getElementById("replacementName");
+    const entryDateInput = document.getElementById("entryDate");
+    const startTimeInput = document.getElementById("startTime");
+    const hoursWorkedInput = document.getElementById("hoursWorked");
+    const saveDraftButton = document.getElementById("saveDraftButton");
+    const cancelEditButton = document.getElementById("cancelEditButton");
+    const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
+    const menuProfileName = document.getElementById("menuProfileName");
+    const userMenuButton = document.getElementById("userMenuButton");
+    const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
+    const userMenuPanel = document.getElementById("userMenuPanel");
+    const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
+
+    let currentUser = null;
+    let employees = [];
+    let entries = [];
+    let editingEntryId = "";
+
+    initApp();
+
+    async function initApp() {
+      const user = await requireLogin();
+      if (!user) return;
+      currentUser = user;
+
+      const profileReady = await requireProfileSetup();
+      if (!profileReady) return;
+
+      const profile = await getCurrentProfile();
+      const role = String(profile?.role || "").trim().toLowerCase();
+      if (role !== "manager" && role !== "webadmin") {
+        window.location.href = "./chess-timesheet.html";
+        return;
+      }
+
+      webAdminDashboardLink.hidden = role !== "webadmin";
+      monthPicker.value = formatMonthValue(new Date());
+      entryDateInput.value = formatDateInput(new Date());
+      setupUserMenu();
+      bindEvents();
+      await loadEmployees();
+      await loadSelectedEmployeeEntries();
+      hydrateHeaderAvatar();
+    }
+
+    function setupUserMenu() {
+      logoutButton.addEventListener("click", logout);
+      if (typeof window.attachProfileMenu === "function") {
+        window.attachProfileMenu({
+          profileButton,
+          menuPanel: userMenuPanel,
+          menuButton: userMenuButton,
+          displayNameEl: menuProfileName,
+        });
+      } else {
+        profileButton.disabled = true;
+      }
+
+      const syncMenuButtonLabel = () => {
+        const name = (menuProfileName.textContent || "").trim();
+        userMenuButtonLabel.textContent = name || "Profile";
+      };
+      syncMenuButtonLabel();
+      new MutationObserver(syncMenuButtonLabel).observe(menuProfileName, { childList: true, characterData: true, subtree: true });
+
+      userMenuButton.addEventListener("click", () => {
+        const nextState = !userMenuPanel.hidden;
+        userMenuPanel.hidden = nextState;
+        userMenuButton.setAttribute("aria-expanded", String(!nextState));
+      });
+      document.addEventListener("click", (event) => {
+        if (!userMenuPanel.hidden && !event.target.closest(".menu-wrap")) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !userMenuPanel.hidden) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+
+    function bindEvents() {
+      employeeSelect.addEventListener("change", async () => {
+        resetForm();
+        await loadSelectedEmployeeEntries();
+      });
+      monthPicker.addEventListener("change", () => {
+        resetForm();
+        render();
+      });
+      entryTypeSelect.addEventListener("change", syncReplacementField);
+      cancelEditButton.addEventListener("click", resetForm);
+      draftForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await saveDraft();
+      });
+      draftList.addEventListener("click", async (event) => {
+        const editButton = event.target.closest("[data-edit-id]");
+        const deleteButton = event.target.closest("[data-delete-id]");
+        if (editButton) {
+          editDraft(editButton.dataset.editId);
+          return;
+        }
+        if (deleteButton) {
+          await deleteDraft(deleteButton.dataset.deleteId);
+        }
+      });
+      syncReplacementField();
+    }
+
+    async function loadEmployees() {
+      statusMessage.textContent = "Loading employees...";
+      const { data, error } = await window.supabaseClient
+        .from("profiles")
+        .select("id, full_name, username, role")
+        .order("full_name", { ascending: true });
+
+      if (error) {
+        statusMessage.textContent = `Could not load employees: ${error.message || "unknown error"}`;
+        return;
+      }
+
+      employees = (data || []).filter((profile) => profile.id);
+      employeeSelect.innerHTML = employees.map((profile) => {
+        const label = profile.full_name || profile.username || profile.id;
+        const roleLabel = profile.role ? ` (${profile.role})` : "";
+        return `<option value="${escapeHtml(profile.id)}">${escapeHtml(label + roleLabel)}</option>`;
+      }).join("");
+
+      statusMessage.textContent = employees.length ? "" : "No employees found.";
+    }
+
+    async function loadSelectedEmployeeEntries() {
+      const employeeId = employeeSelect.value;
+      if (!employeeId) {
+        entries = [];
+        render();
+        return;
+      }
+
+      statusMessage.textContent = "Loading draft rows...";
+      try {
+        entries = await window.draftTimesheetStore.loadEntriesForEmployee(employeeId);
+        statusMessage.textContent = "";
+        render();
+      } catch (error) {
+        statusMessage.textContent = error?.message || "Could not load draft rows.";
+      }
+    }
+
+    async function saveDraft() {
+      const employeeId = employeeSelect.value;
+      if (!employeeId) return;
+
+      const entryType = entryTypeSelect.value;
+      const schoolName = schoolNameInput.value.trim();
+      const date = entryDateInput.value;
+      const startTime = startTimeInput.value;
+      const hours = Number(hoursWorkedInput.value || 0);
+      const replacementName = replacementNameInput.value.trim();
+
+      if (!schoolName || !date || !startTime || !hours) return;
+      if (entryType === "Replacement" && !replacementName) {
+        statusMessage.textContent = "Replacement rows need a replacing name.";
+        return;
+      }
+      if (!Number.isFinite(hours) || hours <= 0) {
+        statusMessage.textContent = "Hours need to be greater than zero.";
+        return;
+      }
+
+      const draft = {
+        employeeId,
+        schoolName,
+        date,
+        type: entryType,
+        startTime,
+        endTime: calculateEndTime(startTime, hours),
+        hours,
+        replacementName: entryType === "Replacement" ? replacementName : "",
+        status: "active",
+      };
+
+      saveDraftButton.disabled = true;
+      statusMessage.textContent = editingEntryId ? "Updating draft..." : "Creating draft...";
+      try {
+        if (editingEntryId) {
+          const existing = entries.find((entry) => entry.id === editingEntryId);
+          if (!window.draftTimesheetStore.isManagerEditable(existing)) {
+            statusMessage.textContent = "This row is locked and cannot be edited.";
+            return;
+          }
+          await window.draftTimesheetStore.updateEntry(editingEntryId, { ...existing, ...draft }, {
+            employeeId,
+            updatedBy: currentUser.id,
+          });
+        } else {
+          await window.draftTimesheetStore.insertEntries([draft], {
+            employeeId,
+            createdBy: currentUser.id,
+            updatedBy: currentUser.id,
+          });
+        }
+        resetForm();
+        await loadSelectedEmployeeEntries();
+        statusMessage.textContent = "Draft saved.";
+      } catch (error) {
+        statusMessage.textContent = error?.message || "Could not save draft.";
+      } finally {
+        saveDraftButton.disabled = false;
+      }
+    }
+
+    function editDraft(id) {
+      const entry = entries.find((item) => item.id === id);
+      if (!window.draftTimesheetStore.isManagerEditable(entry)) return;
+
+      editingEntryId = id;
+      formTitle.textContent = "Edit Coaching Draft";
+      saveDraftButton.textContent = "Update Draft";
+      schoolNameInput.value = entry.schoolName || "";
+      entryTypeSelect.value = entry.type || "School Coaching";
+      replacementNameInput.value = entry.replacementName || "";
+      entryDateInput.value = entry.date || "";
+      startTimeInput.value = entry.startTime || "";
+      hoursWorkedInput.value = entry.hours || "";
+      syncReplacementField();
+      schoolNameInput.focus();
+    }
+
+    async function deleteDraft(id) {
+      const entry = entries.find((item) => item.id === id);
+      if (!window.draftTimesheetStore.isManagerEditable(entry)) {
+        statusMessage.textContent = "Claims and submitted rows are read-only here.";
+        return;
+      }
+
+      const confirmed = confirm(`Delete ${entry.schoolName || "this draft"} on ${formatLongDate(entry.date)}?`);
+      if (!confirmed) return;
+
+      statusMessage.textContent = "Deleting draft...";
+      try {
+        await window.draftTimesheetStore.deleteEntry(id);
+        await loadSelectedEmployeeEntries();
+        statusMessage.textContent = "Draft deleted.";
+      } catch (error) {
+        statusMessage.textContent = error?.message || "Could not delete draft.";
+      }
+    }
+
+    function render() {
+      const monthEntries = getEntriesForMonth(monthPicker.value);
+      draftList.innerHTML = "";
+
+      if (!monthEntries.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No draft rows for this employee and month.";
+        draftList.appendChild(empty);
+        return;
+      }
+
+      monthEntries.forEach((entry) => {
+        const editable = window.draftTimesheetStore.isManagerEditable(entry);
+        const card = document.createElement("article");
+        card.className = `draft-card${editable ? "" : " locked"}`;
+        const status = window.draftTimesheetStore.isSubmitted(entry) ? "Submitted" : entry.type === "Claim" ? "Claim" : "Read Only";
+        const actions = editable
+          ? `<div class="draft-actions"><button class="secondary" type="button" data-edit-id="${escapeHtml(entry.id)}">Edit</button><button class="danger" type="button" data-delete-id="${escapeHtml(entry.id)}">Delete</button></div>`
+          : `<span class="draft-status">${escapeHtml(status)}</span>`;
+
+        card.innerHTML = `
+          <div class="draft-head">
+            <h3 class="draft-title">${escapeHtml(entry.schoolName || "Untitled")}</h3>
+            ${actions}
+          </div>
+          <div class="draft-meta">${formatLongDate(entry.date)} · ${escapeHtml(formatEntryType(entry))}</div>
+          <div class="draft-meta">${entry.type === "Claim" ? escapeHtml(entry.claimNotes || "Claim") : `${formatTime(entry.startTime)}-${formatTime(entry.endTime)} · ${trimHours(entry.hours)} hrs`}</div>
+        `;
+        draftList.appendChild(card);
+      });
+    }
+
+    function resetForm() {
+      editingEntryId = "";
+      formTitle.textContent = "Add Coaching Draft";
+      saveDraftButton.textContent = "Save Draft";
+      draftForm.reset();
+      entryTypeSelect.value = "School Coaching";
+      entryDateInput.value = firstDayInViewedMonth();
+      syncReplacementField();
+    }
+
+    function syncReplacementField() {
+      const isReplacement = entryTypeSelect.value === "Replacement";
+      replacementField.hidden = !isReplacement;
+      replacementNameInput.required = isReplacement;
+      if (!isReplacement) {
+        replacementNameInput.value = "";
+      }
+    }
+
+    function getEntriesForMonth(monthValue) {
+      return entries
+        .filter((entry) => String(entry.date || "").startsWith(monthValue))
+        .sort((a, b) => {
+          const dateCompare = String(a.date || "").localeCompare(String(b.date || ""));
+          if (dateCompare !== 0) return dateCompare;
+          return String(a.startTime || "").localeCompare(String(b.startTime || ""));
+        });
+    }
+
+    function firstDayInViewedMonth() {
+      const [year, month] = monthPicker.value.split("-").map(Number);
+      if (!year || !month) return formatDateInput(new Date());
+      return formatDateInput(new Date(year, month - 1, 1));
+    }
+
+    function calculateEndTime(startTime, hoursWorked) {
+      const totalMinutes = toMinutes(startTime) + Math.round(Number(hoursWorked) * 60);
+      const minutesInDay = 24 * 60;
+      const normalized = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
+      const hours = String(Math.floor(normalized / 60)).padStart(2, "0");
+      const minutes = String(normalized % 60).padStart(2, "0");
+      return `${hours}:${minutes}`;
+    }
+
+    function toMinutes(value) {
+      const [hours, minutes] = String(value || "0:00").split(":").map(Number);
+      return (hours || 0) * 60 + (minutes || 0);
+    }
+
+    function formatMonthValue(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function formatDateInput(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatLongDate(value) {
+      const date = new Date(`${value}T00:00:00`);
+      return date.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+    }
+
+    function formatTime(value) {
+      if (!value) return "";
+      const [hours, minutes] = String(value).split(":").map(Number);
+      const date = new Date();
+      date.setHours(hours, minutes, 0, 0);
+      return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+
+    function trimHours(value) {
+      return Number(value || 0).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat(undefined, { style: "currency", currency: "SGD" }).format(Number(value || 0));
+    }
+
+    function formatEntryType(entry) {
+      if (entry.type === "Replacement" && entry.replacementName) {
+        return `${entry.type} for ${entry.replacementName}`;
+      }
+      if ((entry.type === "Private" || entry.type === "Event") && Number(entry.customRate) > 0) {
+        return `${entry.type} @ ${formatCurrency(entry.customRate)}/hr`;
+      }
+      if (entry.type === "Claim") {
+        const claimCost = Number(entry.claimCost || 0);
+        const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
+        return `Claim${costLabel}`;
+      }
+      return entry.type || "";
+    }
+
+    function escapeHtml(value) {
+      if (typeof value !== "string") return value;
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>

@@ -8,7 +8,14 @@ account_id = "a6e96615c3a53da5b223b391ed7758a0"
 binding = "CLAIM_PROOFS_BUCKET"
 bucket_name = "payclaim-receipts"
 
+[[r2_buckets]]
+binding = "RAG_DOCS_BUCKET"
+bucket_name = "chessgrande-admin-rag"
+
 # Optional: if you deploy to a custom domain later, set this to your worker URL.
 # Keep secrets out of this file; use `wrangler secret put ...` for sensitive values.
 [vars]
 PUBLIC_WORKER_BASE_URL = "https://claim-proof-worker.elmopaciencia.workers.dev"
+OPENROUTER_MODEL = "openai/gpt-4.1-mini"
+OPENROUTER_SITE_NAME = "Chess Grande Payroll Admin"
+RAG_DOCS_PREFIX = "rag-docs/"
