@@ -230,6 +230,114 @@
     .danger { border: 0; background: var(--clay-soft); color: var(--clay); }
 
     .status { min-height: 1.4rem; font-size: 0.92rem; margin-bottom: var(--space-4); }
+    .calendar-shell {
+      display: grid;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+      padding: var(--space-4);
+      border-radius: 24px;
+      background: color-mix(in srgb, var(--surface-muted) 72%, white 28%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+    }
+    .calendar-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+    .calendar-title {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .calendar-meta {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .weekday {
+      min-height: 24px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .calendar-day {
+      min-height: 104px;
+      border-radius: 16px;
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      background: var(--surface-strong);
+      padding: 8px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 6px;
+      align-content: start;
+      overflow: hidden;
+    }
+    .calendar-day.outside {
+      opacity: 0.46;
+      background: color-mix(in srgb, var(--surface-muted) 70%, white 30%);
+    }
+    .calendar-day.today {
+      border-color: color-mix(in srgb, var(--accent) 42%, white 58%);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, white 82%);
+    }
+    .day-number {
+      color: var(--ink-soft);
+      font-size: 0.78rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .day-items {
+      display: grid;
+      gap: 4px;
+      align-content: start;
+    }
+    .calendar-chip {
+      border-radius: 10px;
+      border: 1px solid color-mix(in srgb, var(--accent) 14%, white 86%);
+      background: color-mix(in srgb, var(--accent-soft) 44%, white 56%);
+      color: var(--accent);
+      padding: 5px 6px;
+      font-size: 0.7rem;
+      line-height: 1.18;
+      overflow: hidden;
+    }
+    .calendar-chip strong {
+      display: block;
+      color: var(--ink);
+      font-size: 0.72rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .calendar-chip.claim {
+      border-color: color-mix(in srgb, var(--clay) 18%, white 82%);
+      background: color-mix(in srgb, var(--clay-soft) 72%, white 28%);
+      color: var(--clay);
+    }
+    .calendar-chip.submitted {
+      opacity: 0.68;
+      border-style: dashed;
+      color: var(--muted);
+      background: color-mix(in srgb, var(--surface-muted) 72%, white 28%);
+    }
+    .more-count {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding-left: 2px;
+    }
     .draft-list { display: grid; gap: var(--space-4); }
     .draft-card {
       padding: var(--space-5);
@@ -274,6 +382,18 @@
       .toolbar, .form-grid, .actions { grid-template-columns: 1fr; }
       .hero, .panel { padding: 20px; }
       .app-header-inner { min-height: 66px; padding: 0 16px; }
+      .calendar-shell { padding: 12px; }
+      .calendar-grid { gap: 4px; }
+      .calendar-day {
+        min-height: 78px;
+        border-radius: 12px;
+        padding: 6px;
+      }
+      .calendar-chip {
+        padding: 4px 5px;
+        font-size: 0.66rem;
+      }
+      .calendar-chip strong { font-size: 0.68rem; }
     }
   </style>
 </head>
@@ -322,6 +442,13 @@
         </div>
       </div>
       <div class="status" id="statusMessage"></div>
+      <div class="calendar-shell" aria-labelledby="calendarTitle">
+        <div class="calendar-header">
+          <h3 class="calendar-title" id="calendarTitle">Month Calendar</h3>
+          <div class="calendar-meta" id="calendarMeta">0 entries</div>
+        </div>
+        <div id="draftCalendar" class="calendar-grid"></div>
+      </div>
       <div id="draftList" class="draft-list"></div>
     </section>
 
@@ -376,6 +503,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./draft-timesheet-store.js"></script>
+  <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
@@ -383,6 +511,9 @@
     const employeeSelect = document.getElementById("employeeSelect");
     const monthPicker = document.getElementById("monthPicker");
     const statusMessage = document.getElementById("statusMessage");
+    const draftCalendar = document.getElementById("draftCalendar");
+    const calendarTitle = document.getElementById("calendarTitle");
+    const calendarMeta = document.getElementById("calendarMeta");
     const draftList = document.getElementById("draftList");
     const draftForm = document.getElementById("draftForm");
     const formTitle = document.getElementById("formTitle");
@@ -402,6 +533,7 @@
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
     const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
+    const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     let currentUser = null;
     let employees = [];
@@ -645,6 +777,7 @@
 
     function render() {
       const monthEntries = getEntriesForMonth(monthPicker.value);
+      renderCalendar(monthEntries);
       draftList.innerHTML = "";
 
       if (!monthEntries.length) {
@@ -676,6 +809,72 @@
       });
     }
 
+    function renderCalendar(monthEntries) {
+      const visibleEntries = Array.isArray(monthEntries) ? monthEntries : [];
+      draftCalendar.innerHTML = "";
+      calendarTitle.textContent = `${formatMonthLabel(monthPicker.value)} Calendar`;
+      calendarMeta.textContent = `${visibleEntries.length} entr${visibleEntries.length === 1 ? "y" : "ies"}`;
+
+      weekdayLabels.forEach((label) => {
+        const weekday = document.createElement("div");
+        weekday.className = "weekday";
+        weekday.textContent = label;
+        draftCalendar.appendChild(weekday);
+      });
+
+      const [year, month] = monthPicker.value.split("-").map(Number);
+      if (!year || !month) return;
+
+      const firstOfMonth = new Date(year, month - 1, 1);
+      const firstDayOffset = (firstOfMonth.getDay() + 6) % 7;
+      const gridStart = new Date(firstOfMonth);
+      gridStart.setDate(firstOfMonth.getDate() - firstDayOffset);
+
+      const groupedByDate = groupBy(visibleEntries, (entry) => entry.date || "");
+      const todayKey = formatDateInput(new Date());
+
+      for (let index = 0; index < 42; index += 1) {
+        const day = new Date(gridStart);
+        day.setDate(gridStart.getDate() + index);
+        const dateKey = formatDateInput(day);
+        const dayEntries = groupedByDate[dateKey] || [];
+
+        const cell = document.createElement("div");
+        cell.className = "calendar-day";
+        if (day.getMonth() !== month - 1) cell.classList.add("outside");
+        if (dateKey === todayKey) cell.classList.add("today");
+
+        const dayNumber = document.createElement("div");
+        dayNumber.className = "day-number";
+        dayNumber.textContent = String(day.getDate());
+        cell.appendChild(dayNumber);
+
+        const items = document.createElement("div");
+        items.className = "day-items";
+        dayEntries.slice(0, 3).forEach((entry) => {
+          const chip = document.createElement("div");
+          chip.className = "calendar-chip";
+          if (entry.type === "Claim") chip.classList.add("claim");
+          if (window.draftTimesheetStore.isSubmitted(entry)) chip.classList.add("submitted");
+          chip.innerHTML = `
+            <strong>${escapeHtml(entry.schoolName || "Untitled")}</strong>
+            <span>${escapeHtml(formatCalendarEntryMeta(entry))}</span>
+          `;
+          items.appendChild(chip);
+        });
+
+        if (dayEntries.length > 3) {
+          const more = document.createElement("div");
+          more.className = "more-count";
+          more.textContent = `+${dayEntries.length - 3} more`;
+          items.appendChild(more);
+        }
+
+        cell.appendChild(items);
+        draftCalendar.appendChild(cell);
+      }
+    }
+
     function resetForm() {
       editingEntryId = "";
       formTitle.textContent = "Add Coaching Draft";
@@ -703,6 +902,16 @@
           if (dateCompare !== 0) return dateCompare;
           return String(a.startTime || "").localeCompare(String(b.startTime || ""));
         });
+    }
+
+    function groupBy(list, getKey) {
+      return list.reduce((acc, item) => {
+        const key = getKey(item);
+        if (!key) return acc;
+        acc[key] ||= [];
+        acc[key].push(item);
+        return acc;
+      }, {});
     }
 
     function firstDayInViewedMonth() {
@@ -741,6 +950,15 @@
       return date.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
     }
 
+    function formatMonthLabel(value) {
+      const [year, month] = String(value || "").split("-").map(Number);
+      if (!year || !month) return "Selected Month";
+      return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+        month: "long",
+        year: "numeric",
+      });
+    }
+
     function formatTime(value) {
       if (!value) return "";
       const [hours, minutes] = String(value).split(":").map(Number);
@@ -770,6 +988,15 @@
         return `Claim${costLabel}`;
       }
       return entry.type || "";
+    }
+
+    function formatCalendarEntryMeta(entry) {
+      if (entry.type === "Claim") {
+        return "Claim";
+      }
+      const time = formatTime(entry.startTime);
+      const hours = trimHours(entry.hours);
+      return `${time || "No time"} · ${hours} hr${hours === "1" ? "" : "s"}`;
     }
 
     function escapeHtml(value) {
