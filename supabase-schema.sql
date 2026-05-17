@@ -157,7 +157,7 @@ create table if not exists public.draft_timesheet_entries (
   status text not null default 'active' check (status in ('active', 'submitted')),
   school_name text not null default '',
   date date not null,
-  type text not null check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim')),
+  type text not null check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event')),
   start_time text,
   end_time text,
   start_time_minutes integer not null default 0,
@@ -167,12 +167,8 @@ create table if not exists public.draft_timesheet_entries (
   notes text,
   repeats_weekly boolean not null default false,
   repeat_until date,
-  claim_notes text,
-  claim_cost numeric(10,2) check (claim_cost is null or claim_cost >= 0),
   claim_amount_cents integer not null default 0 check (claim_amount_cents >= 0),
   claim_proof_name text,
-  claim_image_path text,
-  claim_proof_data_url text,
   claim_image_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -180,6 +176,9 @@ create table if not exists public.draft_timesheet_entries (
 
 comment on table public.draft_timesheet_entries is 'Editable cross-device payroll draft entries before monthly submission.';
 comment on column public.draft_timesheet_entries.status is 'active rows can be edited; submitted rows are locked source drafts linked to a payroll snapshot.';
+comment on column public.draft_timesheet_entries.type is 'Allowed values: School Coaching, Replacement, Claim, Camp, Private, Event.';
+comment on column public.draft_timesheet_entries.claim_amount_cents is 'Claim reimbursement amount in cents.';
+comment on column public.draft_timesheet_entries.claim_image_url is 'Claim proof storage key, signed URL, or legacy public URL.';
 
 alter table public.draft_timesheet_entries add column if not exists start_time text;
 alter table public.draft_timesheet_entries add column if not exists end_time text;
@@ -188,18 +187,22 @@ alter table public.draft_timesheet_entries add column if not exists custom_rate 
 alter table public.draft_timesheet_entries add column if not exists notes text;
 alter table public.draft_timesheet_entries add column if not exists repeats_weekly boolean not null default false;
 alter table public.draft_timesheet_entries add column if not exists repeat_until date;
-alter table public.draft_timesheet_entries add column if not exists claim_notes text;
-alter table public.draft_timesheet_entries add column if not exists claim_cost numeric(10,2) check (claim_cost is null or claim_cost >= 0);
 alter table public.draft_timesheet_entries add column if not exists claim_amount_cents integer not null default 0 check (claim_amount_cents >= 0);
 alter table public.draft_timesheet_entries add column if not exists claim_proof_name text;
-alter table public.draft_timesheet_entries add column if not exists claim_image_path text;
-alter table public.draft_timesheet_entries add column if not exists claim_proof_data_url text;
 alter table public.draft_timesheet_entries add column if not exists claim_image_url text;
+
+update public.draft_timesheet_entries
+set type = case type
+  when 'schoolCoaching' then 'School Coaching'
+  when 'replacement' then 'Replacement'
+  when 'claim' then 'Claim'
+  else type
+end;
 
 alter table public.draft_timesheet_entries drop constraint if exists draft_timesheet_entries_type_check;
 alter table public.draft_timesheet_entries
 add constraint draft_timesheet_entries_type_check
-check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim'));
+check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event'));
 
 create index if not exists draft_timesheet_entries_employee_status_date_idx
   on public.draft_timesheet_entries (employee_id, status, date);
@@ -436,7 +439,7 @@ for insert
 to authenticated
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement')
   and coalesce(created_by, auth.uid()) = auth.uid()
   and coalesce(updated_by, auth.uid()) = auth.uid()
   and public.has_app_role(array['manager', 'webadmin'])
@@ -449,12 +452,12 @@ for update
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement')
   and public.has_app_role(array['manager', 'webadmin'])
 )
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement')
   and coalesce(updated_by, auth.uid()) = auth.uid()
   and public.has_app_role(array['manager', 'webadmin'])
 );
@@ -466,7 +469,7 @@ for delete
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement')
   and public.has_app_role(array['manager', 'webadmin'])
 );
 

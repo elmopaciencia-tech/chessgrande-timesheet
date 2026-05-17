@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node tests/draft-timesheet-store.test.js",
     "worker:dev": "wrangler dev --config cloudflare-worker/wrangler.toml",
     "worker:dry-run": "wrangler deploy --dry-run --config cloudflare-worker/wrangler.toml",
     "worker:deploy": "wrangler deploy --config cloudflare-worker/wrangler.toml"

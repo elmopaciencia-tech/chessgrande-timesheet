@@ -40,6 +40,11 @@ This creates:
 - `draft_timesheet_entries`
 - Row Level Security (RLS) policies
 
+`draft_timesheet_entries` is shared with the iOS app. Keep these Supabase values and names canonical across both clients:
+- `type`: `School Coaching`, `Replacement`, `Claim`, `Camp`, `Private`, `Event`
+- claim fields: `notes`, `claim_amount_cents`, `claim_proof_name`, `claim_image_url`
+- lesson timing: `start_time`, `end_time`, `start_time_minutes`
+
 If your database was already created before profile customization was added, run:
 
 ```sql
