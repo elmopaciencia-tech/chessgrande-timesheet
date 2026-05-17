@@ -213,6 +213,26 @@
 
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
     .full { grid-column: 1 / -1; }
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: var(--space-4);
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .checkbox-row input {
+      width: auto;
+      min-height: auto;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+    .hint {
+      margin-top: var(--space-3);
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-4); }
     .button, .primary, .secondary, .danger {
       border-radius: 999px;
@@ -457,8 +477,8 @@
         <div class="panel-header">
           <div>
             <p class="panel-eyebrow">Draft editor</p>
-            <h2 id="formTitle">Add Coaching Draft</h2>
-            <p class="panel-copy">Managers can only create or change active School Coaching and Replacement rows.</p>
+            <h2 id="formTitle">Add Draft</h2>
+            <p class="panel-copy">Managers can create or change active non-claim rows. Claims and submitted rows remain read-only.</p>
           </div>
         </div>
         <form id="draftForm">
@@ -472,33 +492,51 @@
               <select id="entryType">
                 <option value="School Coaching">School Coaching</option>
                 <option value="Replacement">Replacement</option>
+                <option value="Camp">Camp</option>
+                <option value="Private">Private</option>
+                <option value="Event">Event</option>
               </select>
             </div>
             <div id="replacementField" hidden>
               <label for="replacementName">Replacing</label>
               <input id="replacementName" type="text" placeholder="e.g. Ericka">
             </div>
+            <div class="full" id="customRateField" hidden>
+              <label for="customRate">Custom Pay Per Hour (for Private/Event)</label>
+              <input id="customRate" type="number" min="0" step="0.01" placeholder="e.g. 75">
+            </div>
             <div>
               <label for="entryDate">Date</label>
               <input id="entryDate" type="date" required>
             </div>
-            <div>
-              <label for="startTime">Start Time</label>
-              <input id="startTime" type="time" required>
-            </div>
-            <div>
-              <label for="hoursWorked">Hours</label>
-              <input id="hoursWorked" type="number" min="0.5" step="0.5" inputmode="decimal" required>
-            </div>
+          </div>
+          <div id="timeFieldsMount"></div>
+          <div class="checkbox-row" id="recurringRow">
+            <input id="isRecurring" type="checkbox">
+            <label for="isRecurring" style="margin: 0;">Repeat weekly for this school until the end of the selected month</label>
           </div>
           <div class="actions">
             <button class="primary" id="saveDraftButton" type="submit">Save Draft</button>
             <button class="secondary" id="cancelEditButton" type="button">Cancel Edit</button>
           </div>
+          <div class="hint">End time is calculated automatically from the start time and hours worked.</div>
         </form>
       </section>
     </aside>
   </main>
+
+  <template id="timeFieldsTemplate">
+    <div class="form-grid compact" id="timeFields">
+      <div>
+        <label for="startTime">Start Time</label>
+        <input id="startTime" type="time" required>
+      </div>
+      <div>
+        <label for="hoursWorked">Hours Worked</label>
+        <input id="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
+      </div>
+    </div>
+  </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
@@ -521,9 +559,13 @@
     const entryTypeSelect = document.getElementById("entryType");
     const replacementField = document.getElementById("replacementField");
     const replacementNameInput = document.getElementById("replacementName");
+    const customRateField = document.getElementById("customRateField");
+    const customRateInput = document.getElementById("customRate");
     const entryDateInput = document.getElementById("entryDate");
-    const startTimeInput = document.getElementById("startTime");
-    const hoursWorkedInput = document.getElementById("hoursWorked");
+    const timeFieldsMount = document.getElementById("timeFieldsMount");
+    const timeFieldsTemplate = document.getElementById("timeFieldsTemplate");
+    const recurringRow = document.getElementById("recurringRow");
+    const recurringInput = document.getElementById("isRecurring");
     const saveDraftButton = document.getElementById("saveDraftButton");
     const cancelEditButton = document.getElementById("cancelEditButton");
     const logoutButton = document.getElementById("logoutButton");
@@ -560,6 +602,7 @@
       webAdminDashboardLink.hidden = role !== "webadmin";
       monthPicker.value = formatMonthValue(new Date());
       entryDateInput.value = formatDateInput(new Date());
+      ensureTimeFieldsRendered();
       setupUserMenu();
       bindEvents();
       await loadEmployees();
@@ -616,6 +659,7 @@
         render();
       });
       entryTypeSelect.addEventListener("change", syncReplacementField);
+      entryTypeSelect.addEventListener("input", syncReplacementField);
       cancelEditButton.addEventListener("click", resetForm);
       draftForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -682,9 +726,14 @@
       const entryType = entryTypeSelect.value;
       const schoolName = schoolNameInput.value.trim();
       const date = entryDateInput.value;
+      const startTimeInput = document.getElementById("startTime");
+      const hoursWorkedInput = document.getElementById("hoursWorked");
       const startTime = startTimeInput.value;
       const hours = Number(hoursWorkedInput.value || 0);
       const replacementName = replacementNameInput.value.trim();
+      const customRateValue = Number(customRateInput.value);
+      const hasCustomRate = (entryType === "Private" || entryType === "Event") && customRateInput.value !== "";
+      const isRecurring = recurringInput.checked && !editingEntryId;
 
       if (!schoolName || !date || !startTime || !hours) return;
       if (entryType === "Replacement" && !replacementName) {
@@ -693,6 +742,10 @@
       }
       if (!Number.isFinite(hours) || hours <= 0) {
         statusMessage.textContent = "Hours need to be greater than zero.";
+        return;
+      }
+      if (hasCustomRate && (!Number.isFinite(customRateValue) || customRateValue < 0)) {
+        statusMessage.textContent = "Custom pay per hour must be zero or greater.";
         return;
       }
 
@@ -705,8 +758,12 @@
         endTime: calculateEndTime(startTime, hours),
         hours,
         replacementName: entryType === "Replacement" ? replacementName : "",
+        customRate: hasCustomRate ? customRateValue : null,
         status: "active",
       };
+      const draftsToSave = isRecurring
+        ? buildWeeklyEntries(draft, monthPicker.value)
+        : [draft];
 
       saveDraftButton.disabled = true;
       statusMessage.textContent = editingEntryId ? "Updating draft..." : "Creating draft...";
@@ -722,7 +779,7 @@
             updatedBy: currentUser.id,
           });
         } else {
-          await window.draftTimesheetStore.insertEntries([draft], {
+          await window.draftTimesheetStore.insertEntries(draftsToSave, {
             employeeId,
             createdBy: currentUser.id,
             updatedBy: currentUser.id,
@@ -743,14 +800,19 @@
       if (!window.draftTimesheetStore.isManagerEditable(entry)) return;
 
       editingEntryId = id;
-      formTitle.textContent = "Edit Coaching Draft";
+      formTitle.textContent = "Edit Draft";
       saveDraftButton.textContent = "Update Draft";
       schoolNameInput.value = entry.schoolName || "";
       entryTypeSelect.value = entry.type || "School Coaching";
       replacementNameInput.value = entry.replacementName || "";
+      customRateInput.value = entry.customRate != null ? entry.customRate : "";
       entryDateInput.value = entry.date || "";
+      ensureTimeFieldsRendered();
+      const startTimeInput = document.getElementById("startTime");
+      const hoursWorkedInput = document.getElementById("hoursWorked");
       startTimeInput.value = entry.startTime || "";
       hoursWorkedInput.value = entry.hours || "";
+      recurringInput.checked = false;
       syncReplacementField();
       schoolNameInput.focus();
     }
@@ -877,11 +939,13 @@
 
     function resetForm() {
       editingEntryId = "";
-      formTitle.textContent = "Add Coaching Draft";
+      formTitle.textContent = "Add Draft";
       saveDraftButton.textContent = "Save Draft";
       draftForm.reset();
       entryTypeSelect.value = "School Coaching";
       entryDateInput.value = firstDayInViewedMonth();
+      recurringInput.checked = false;
+      ensureTimeFieldsRendered();
       syncReplacementField();
     }
 
@@ -892,6 +956,17 @@
       if (!isReplacement) {
         replacementNameInput.value = "";
       }
+
+      const supportsCustomRate = entryTypeSelect.value === "Private" || entryTypeSelect.value === "Event";
+      customRateField.hidden = !supportsCustomRate;
+      if (!supportsCustomRate) {
+        customRateInput.value = "";
+      }
+
+      recurringRow.hidden = Boolean(editingEntryId);
+      recurringRow.style.display = editingEntryId ? "none" : "flex";
+      recurringRow.setAttribute("aria-hidden", editingEntryId ? "true" : "false");
+      ensureTimeFieldsRendered();
     }
 
     function getEntriesForMonth(monthValue) {
@@ -918,6 +993,28 @@
       const [year, month] = monthPicker.value.split("-").map(Number);
       if (!year || !month) return formatDateInput(new Date());
       return formatDateInput(new Date(year, month - 1, 1));
+    }
+
+    function buildWeeklyEntries(baseEntry, monthValue) {
+      const [year, month] = monthValue.split("-").map(Number);
+      const firstDate = new Date(`${baseEntry.date}T00:00:00`);
+      const lastDay = new Date(year, month, 0);
+      const built = [];
+      let current = new Date(firstDate);
+
+      while (
+        current.getFullYear() === year &&
+        current.getMonth() === month - 1 &&
+        current <= lastDay
+      ) {
+        built.push({
+          ...baseEntry,
+          date: formatDateInput(current),
+        });
+        current.setDate(current.getDate() + 7);
+      }
+
+      return built;
     }
 
     function calculateEndTime(startTime, hoursWorked) {
@@ -997,6 +1094,12 @@
       const time = formatTime(entry.startTime);
       const hours = trimHours(entry.hours);
       return `${time || "No time"} · ${hours} hr${hours === "1" ? "" : "s"}`;
+    }
+
+    function ensureTimeFieldsRendered() {
+      if (document.getElementById("timeFields")) return;
+      timeFieldsMount.innerHTML = "";
+      timeFieldsMount.appendChild(timeFieldsTemplate.content.cloneNode(true));
     }
 
     function escapeHtml(value) {

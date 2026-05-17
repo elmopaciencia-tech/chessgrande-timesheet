@@ -456,7 +456,7 @@ for insert
 to authenticated
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
   and coalesce(created_by, auth.uid()) = auth.uid()
   and coalesce(updated_by, auth.uid()) = auth.uid()
   and authz.has_app_role(array['manager', 'webadmin'])
@@ -469,12 +469,12 @@ for update
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
   and authz.has_app_role(array['manager', 'webadmin'])
 )
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
   and coalesce(updated_by, auth.uid()) = auth.uid()
   and authz.has_app_role(array['manager', 'webadmin'])
 );
@@ -486,7 +486,7 @@ for delete
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
   and authz.has_app_role(array['manager', 'webadmin'])
 );
 

@@ -97,4 +97,10 @@ assert.equal(entry.claimCost, 14.5);
 assert.equal(entry.claimProofName, "receipt.jpg");
 assert.equal(entry.claimImagePath, "r2/employee-1/2026-05/receipt.jpg");
 
+assert.equal(store.isManagerEditable({ type: "Private", status: "active" }), true);
+assert.equal(store.isManagerEditable({ type: "Event", status: "active" }), true);
+assert.equal(store.isManagerEditable({ type: "Camp", status: "active" }), true);
+assert.equal(store.isManagerEditable({ type: "Claim", status: "active" }), false);
+assert.equal(store.isManagerEditable({ type: "Private", status: "submitted" }), false);
+
 console.log("draft-timesheet-store contract tests passed");

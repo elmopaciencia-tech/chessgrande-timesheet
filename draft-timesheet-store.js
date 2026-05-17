@@ -348,7 +348,7 @@
   }
 
   function isManagerEditable(entry) {
-    return !isSubmitted(entry) && ["School Coaching", "Replacement"].includes(normalizeType(entry?.type));
+    return !isSubmitted(entry) && ["School Coaching", "Replacement", "Camp", "Private", "Event"].includes(normalizeType(entry?.type));
   }
 
   function isActive(entry) {
