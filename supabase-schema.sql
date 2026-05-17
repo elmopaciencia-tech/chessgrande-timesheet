@@ -18,12 +18,18 @@ create extension if not exists pgcrypto;
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
+set search_path = pg_catalog, public
 as $$
 begin
   new.updated_at = now();
   return new;
 end;
 $$;
+
+revoke all on function public.set_updated_at() from public;
+revoke all on function public.set_updated_at() from anon;
+revoke all on function public.set_updated_at() from authenticated;
+grant execute on function public.set_updated_at() to service_role;
 
 -- -------------------------------------------------------------------
 -- 1) Profiles table
@@ -59,30 +65,42 @@ alter table public.profiles add column if not exists bank_name text;
 alter table public.profiles add column if not exists account_type text;
 alter table public.profiles add column if not exists avatar_r2_key text;
 
-create or replace function public.current_profile_role()
+create schema if not exists authz;
+revoke all on schema authz from public;
+revoke all on schema authz from anon;
+grant usage on schema authz to authenticated;
+grant usage on schema authz to service_role;
+
+create or replace function authz.current_profile_role()
 returns text
 language sql
 stable
 security definer
-set search_path = public
+set search_path = pg_catalog, public
 as $$
-  select role
-  from public.profiles
-  where id = auth.uid()
+  select p.role
+  from public.profiles as p
+  where p.id = auth.uid()
 $$;
 
-create or replace function public.has_app_role(required_roles text[])
+create or replace function authz.has_app_role(required_roles text[])
 returns boolean
 language sql
 stable
 security definer
-set search_path = public
+set search_path = pg_catalog, public
 as $$
-  select coalesce(public.current_profile_role() = any(required_roles), false)
+  select coalesce(authz.current_profile_role() = any(required_roles), false)
 $$;
 
-grant execute on function public.current_profile_role() to authenticated;
-grant execute on function public.has_app_role(text[]) to authenticated;
+revoke all on function authz.current_profile_role() from public;
+revoke all on function authz.current_profile_role() from anon;
+revoke all on function authz.has_app_role(text[]) from public;
+revoke all on function authz.has_app_role(text[]) from anon;
+grant execute on function authz.current_profile_role() to authenticated;
+grant execute on function authz.current_profile_role() to service_role;
+grant execute on function authz.has_app_role(text[]) to authenticated;
+grant execute on function authz.has_app_role(text[]) to service_role;
 
 -- -------------------------------------------------------------------
 -- 2) Payroll submissions table
@@ -157,7 +175,7 @@ create table if not exists public.draft_timesheet_entries (
   status text not null default 'active' check (status in ('active', 'submitted')),
   school_name text not null default '',
   date date not null,
-  type text not null check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event')),
+  type text not null check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim')),
   start_time text,
   end_time text,
   start_time_minutes integer not null default 0,
@@ -167,8 +185,12 @@ create table if not exists public.draft_timesheet_entries (
   notes text,
   repeats_weekly boolean not null default false,
   repeat_until date,
+  claim_notes text,
+  claim_cost numeric(10,2) check (claim_cost is null or claim_cost >= 0),
   claim_amount_cents integer not null default 0 check (claim_amount_cents >= 0),
   claim_proof_name text,
+  claim_image_path text,
+  claim_proof_data_url text,
   claim_image_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -176,9 +198,6 @@ create table if not exists public.draft_timesheet_entries (
 
 comment on table public.draft_timesheet_entries is 'Editable cross-device payroll draft entries before monthly submission.';
 comment on column public.draft_timesheet_entries.status is 'active rows can be edited; submitted rows are locked source drafts linked to a payroll snapshot.';
-comment on column public.draft_timesheet_entries.type is 'Allowed values: School Coaching, Replacement, Claim, Camp, Private, Event.';
-comment on column public.draft_timesheet_entries.claim_amount_cents is 'Claim reimbursement amount in cents.';
-comment on column public.draft_timesheet_entries.claim_image_url is 'Claim proof storage key, signed URL, or legacy public URL.';
 
 alter table public.draft_timesheet_entries add column if not exists start_time text;
 alter table public.draft_timesheet_entries add column if not exists end_time text;
@@ -187,22 +206,18 @@ alter table public.draft_timesheet_entries add column if not exists custom_rate 
 alter table public.draft_timesheet_entries add column if not exists notes text;
 alter table public.draft_timesheet_entries add column if not exists repeats_weekly boolean not null default false;
 alter table public.draft_timesheet_entries add column if not exists repeat_until date;
+alter table public.draft_timesheet_entries add column if not exists claim_notes text;
+alter table public.draft_timesheet_entries add column if not exists claim_cost numeric(10,2) check (claim_cost is null or claim_cost >= 0);
 alter table public.draft_timesheet_entries add column if not exists claim_amount_cents integer not null default 0 check (claim_amount_cents >= 0);
 alter table public.draft_timesheet_entries add column if not exists claim_proof_name text;
+alter table public.draft_timesheet_entries add column if not exists claim_image_path text;
+alter table public.draft_timesheet_entries add column if not exists claim_proof_data_url text;
 alter table public.draft_timesheet_entries add column if not exists claim_image_url text;
-
-update public.draft_timesheet_entries
-set type = case type
-  when 'schoolCoaching' then 'School Coaching'
-  when 'replacement' then 'Replacement'
-  when 'claim' then 'Claim'
-  else type
-end;
 
 alter table public.draft_timesheet_entries drop constraint if exists draft_timesheet_entries_type_check;
 alter table public.draft_timesheet_entries
 add constraint draft_timesheet_entries_type_check
-check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event'));
+check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim'));
 
 create index if not exists draft_timesheet_entries_employee_status_date_idx
   on public.draft_timesheet_entries (employee_id, status, date);
@@ -243,7 +258,7 @@ create policy "profiles_select_admin_all"
 on public.profiles
 for select
 to authenticated
-using (public.has_app_role(array['manager', 'webadmin']));
+using (authz.has_app_role(array['manager', 'webadmin']));
 
 -- Employees can create their own profile as employee.
 -- This prevents self-assigning manager at insert time.
@@ -259,6 +274,7 @@ with check (
 
 -- Employees can update their own row only while role remains employee.
 -- This allows full_name edits but blocks promoting self to manager.
+drop policy if exists "profiles_update_own_any_role" on public.profiles;
 drop policy if exists "profiles_update_own_employee_only" on public.profiles;
 create policy "profiles_update_own_employee_only"
 on public.profiles
@@ -288,8 +304,8 @@ create policy "profiles_update_webadmin_all"
 on public.profiles
 for update
 to authenticated
-using (public.has_app_role(array['webadmin']))
-with check (public.has_app_role(array['webadmin']));
+using (authz.has_app_role(array['webadmin']))
+with check (authz.has_app_role(array['webadmin']));
 
 -- -------------------------------------------------------------------
 -- 7) Payroll submissions RLS policies
@@ -317,7 +333,7 @@ create policy "submissions_select_admin_all"
 on public.payroll_submissions
 for select
 to authenticated
-using (public.has_app_role(array['manager', 'webadmin']));
+using (authz.has_app_role(array['manager', 'webadmin']));
 
 -- Managers and webadmins can delete any submission.
 drop policy if exists "submissions_delete_admin_all" on public.payroll_submissions;
@@ -326,7 +342,7 @@ create policy "submissions_delete_admin_all"
 on public.payroll_submissions
 for delete
 to authenticated
-using (public.has_app_role(array['manager', 'webadmin']));
+using (authz.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
 -- 8) Payroll entries RLS policies
@@ -368,15 +384,16 @@ create policy "entries_select_admin_all"
 on public.payroll_entries
 for select
 to authenticated
-using (public.has_app_role(array['manager', 'webadmin']));
+using (authz.has_app_role(array['manager', 'webadmin']));
 
 -- Managers and webadmins can delete any entry.
+drop policy if exists "entries_delete_admin_all" on public.payroll_entries;
 drop policy if exists "entries_delete_manager_all" on public.payroll_entries;
-create policy "entries_delete_manager_all"
+create policy "entries_delete_admin_all"
 on public.payroll_entries
 for delete
 to authenticated
-using (public.has_app_role(array['manager', 'webadmin']));
+using (authz.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
 -- 9) Draft timesheet entries RLS policies
@@ -393,7 +410,7 @@ create policy "draft_entries_select_admin_all"
 on public.draft_timesheet_entries
 for select
 to authenticated
-using (public.has_app_role(array['manager', 'webadmin']));
+using (authz.has_app_role(array['manager', 'webadmin']));
 
 drop policy if exists "draft_entries_insert_own_active" on public.draft_timesheet_entries;
 create policy "draft_entries_insert_own_active"
@@ -439,10 +456,10 @@ for insert
 to authenticated
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
   and coalesce(created_by, auth.uid()) = auth.uid()
   and coalesce(updated_by, auth.uid()) = auth.uid()
-  and public.has_app_role(array['manager', 'webadmin'])
+  and authz.has_app_role(array['manager', 'webadmin'])
 );
 
 drop policy if exists "draft_entries_update_admin_lessons" on public.draft_timesheet_entries;
@@ -452,14 +469,14 @@ for update
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
-  and public.has_app_role(array['manager', 'webadmin'])
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and authz.has_app_role(array['manager', 'webadmin'])
 )
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
   and coalesce(updated_by, auth.uid()) = auth.uid()
-  and public.has_app_role(array['manager', 'webadmin'])
+  and authz.has_app_role(array['manager', 'webadmin'])
 );
 
 drop policy if exists "draft_entries_delete_admin_lessons" on public.draft_timesheet_entries;
@@ -469,9 +486,15 @@ for delete
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement')
-  and public.has_app_role(array['manager', 'webadmin'])
+  and type in ('School Coaching', 'Replacement', 'schoolCoaching', 'replacement')
+  and authz.has_app_role(array['manager', 'webadmin'])
 );
+
+drop function if exists public.is_manager(uuid);
+drop function if exists public.current_user_has_role(text[]);
+drop function if exists public.has_app_role(uuid, text[]);
+drop function if exists public.has_app_role(text[]);
+drop function if exists public.current_profile_role();
 
 commit;
 
