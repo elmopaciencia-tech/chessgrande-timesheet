@@ -2,7 +2,7 @@
 
 A static web payroll portal for Chess Grande employees, managers, and webadmins, replacing a manual monthly Excel timesheet with a clearer browser-based workflow.
 
-> Screenshots use curated demo data for GitHub. No real payroll, bank, or user records are shown.
+> Screenshots use curated demo data for GitHub. Real payroll, bank, or user records are hidden. 
 
 ## Before And After
 
