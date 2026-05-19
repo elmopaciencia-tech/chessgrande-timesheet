@@ -65,38 +65,9 @@ Webadmins manage the user directory from one maintenance screen, including role 
 - Optional OpenRouter + LangChain RAG chatbot for webadmin support documents
 - Static hosting on Vercel or Cloudflare Pages
 
-## Configure Supabase
+## Claims Images
 
-Update the browser-safe Supabase client configuration:
-
-```js
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY";
-```
-
-Use only the Supabase anon/publishable key in browser code. Never expose the Supabase service role key in this repo or any frontend bundle.
-
-## Create Or Update The Database
-
-In Supabase SQL Editor, run the schema SQL from `supabase-schema.sql`.
-
-The schema creates and protects:
-
-- `profiles`
-- `payroll_submissions`
-- `payroll_entries`
-- `draft_timesheet_entries`
-- RLS policies for employee, manager, and webadmin access
-
-The draft table is shared with the iOS app contract. Keep these values canonical across clients:
-
-- Entry types: `School Coaching`, `Replacement`, `Claim`, `Camp`, `Private`, `Event`
-- Claim fields: `notes`, `claim_amount_cents`, `claim_proof_name`, `claim_image_url`
-- Lesson timing: `start_time`, `end_time`, `start_time_minutes`
-
-## Claim Proof Images
-
-Claim proof images use a private Cloudflare R2 bucket through a Cloudflare Worker.
+Claim proof images use a private Cloudflare R2 bucket through a Cloudflare Worker. Used when an employee files a company claim (i.e. Taxi/Grab claims).
 
 Pages that use claim images:
 
@@ -104,61 +75,21 @@ Pages that use claim images:
 - Pay review preview
 - Manager submitted-entry review
 
-Configure the frontend Worker URL in the claim proof storage helper, then set these Worker bindings/secrets:
-
-- `CLAIM_PROOFS_BUCKET`
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `WORKER_UPLOAD_TOKEN_SECRET`
-- `PUBLIC_WORKER_BASE_URL`
-
-Deploy the Worker:
-
-```sh
-npm run worker:deploy
-```
-
 ## Webadmin Chatbot
 
-The webadmin dashboard includes an optional AI chat popup. The browser sends the logged-in Supabase token to the Worker, and the Worker verifies the user is a webadmin before calling OpenRouter through LangChain.
-
-Set the OpenRouter secret:
-
-```sh
-npx wrangler secret put OPENROUTER_API_KEY --config cloudflare-worker/wrangler.toml
-```
-
-Optional Worker settings include:
-
-- `OPENROUTER_MODEL`
-- `RAG_DOCS_PREFIX`
-- `OPENROUTER_SITE_NAME`
+The webadmin dashboard includes an optional AI chat popup. The browser sends the logged-in Supabase token to the Worker, and the Worker verifies the user is a webadmin before calling OpenRouter through LangChain. This is just a proof of concept for now
 
 Upload text, Markdown, CSV, or JSON support documents into the configured R2 prefix for RAG retrieval.
 
 ## Deploy
 
-This is a static app, so Vercel or Cloudflare Pages can serve it without a framework build step.
-
-For Vercel:
-
-1. Create a new project from the repo.
-2. Use framework preset **Other**.
-3. Leave build command empty.
-4. Leave output directory empty.
+This is a static app, so Cloudflare Pages can serve it without a framework build step.
 
 Routing note: `index.html` redirects to `login.html`; the rest of the app is served as plain `.html` files.
 
 ## Roles And Access
 
 New signups start as employees. Promote manager or webadmin accounts from trusted SQL in Supabase:
-
-```sql
-update public.profiles
-set role = 'manager'
-where id = 'USER_UUID_HERE';
-```
 
 Allowed roles:
 
