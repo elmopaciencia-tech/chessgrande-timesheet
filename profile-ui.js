@@ -15,12 +15,13 @@
   let activeTrigger = null;
   let isSaving = false;
   let menuNameTargets = [];
+  let avatarButton = null;
   let avatarPreviewImg = null;
+  let avatarInitialsEl = null;
   let avatarUploadInput = null;
-  let avatarUploadButton = null;
-  let avatarRemoveButton = null;
   let pendingAvatarFile = null;
   let pendingAvatarUrl = "";
+  let hasAvatarImage = false;
 
   function ensureMounted() {
     if (mounted) return;
@@ -53,24 +54,26 @@
         z-index: 1000;
       }
       .profile-modal {
-        width: min(660px, 100%);
+        width: min(560px, 100%);
         background: #fff;
         border: 1px solid rgba(29, 42, 42, 0.16);
-        border-radius: 24px;
-        box-shadow: 0 26px 70px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
+        border-radius: 18px;
+        box-shadow: 0 22px 58px rgba(0, 0, 0, 0.18);
+        overflow: visible;
       }
       .profile-modal-head {
-        padding: 20px 22px 6px;
+        padding: 22px 22px 0;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
+        gap: 14px;
       }
       .profile-modal-title {
         margin: 0;
-        font-size: 2rem;
-        line-height: 1;
+        font-size: clamp(1.55rem, 3vw, 2rem);
+        line-height: 1.08;
         font-weight: 500;
+        letter-spacing: 0;
       }
       .profile-modal-close {
         border: 0;
@@ -81,93 +84,173 @@
         font: inherit;
       }
       .profile-modal-body {
-        padding: 8px 22px 14px;
+        padding: 24px 22px 6px;
       }
       .profile-field {
-        border: 0;
-        border-radius: 0;
-        padding: 0;
-        margin: 10px 0;
+        border: 1px solid rgba(29, 42, 42, 0.18);
+        border-radius: 10px;
+        padding: 10px 16px 11px;
+        margin: 0 0 10px;
+        background: #fff;
       }
       .profile-field label {
         display: block;
-        font-size: 0.8rem;
-        color: #5d6a67;
-        margin: 0 0 6px 2px;
-        font-weight: 700;
+        font-size: 0.82rem;
+        color: #1b1f1e;
+        margin: 0 0 6px;
+        font-weight: 500;
       }
       .profile-field input {
         width: 100%;
-        border: 1px solid rgba(29, 42, 42, 0.22);
-        border-radius: 12px;
-        padding: 12px 14px;
+        border: 0;
+        border-radius: 0;
+        padding: 0;
         outline: none;
         font: inherit;
-        font-size: 1.05rem;
-        color: #1d2a2a;
-        background: #fff;
-      }
-      .profile-modal-note {
-        margin: 14px 2px 0;
-        color: #7b8784;
-        font-size: 0.92rem;
-        text-align: center;
+        font-size: 1.02rem;
+        line-height: 1.25;
+        color: #111615;
+        background: transparent;
       }
       .profile-avatar-section {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 18px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid rgba(29, 42, 42, 0.12);
+        display: grid;
+        place-items: center;
+        margin: 0 auto 22px;
+      }
+      .profile-avatar-button {
+        --profile-avatar-size: clamp(104px, 20vw, 132px);
+        position: relative;
+        width: var(--profile-avatar-size);
+        height: var(--profile-avatar-size);
+        border-radius: 999px;
+        border: 3px solid #0b61d8;
+        padding: 5px;
+        background: #fff;
+        cursor: pointer;
+        box-shadow: 0 12px 24px rgba(13, 92, 201, 0.1);
       }
       .profile-avatar-preview {
-        width: 96px;
-        height: 96px;
+        width: 100%;
+        height: 100%;
         border-radius: 999px;
-        border: 2px solid rgba(29, 42, 42, 0.14);
+        border: 0;
         object-fit: cover;
-        background: #f8faf9;
-        flex-shrink: 0;
+        object-position: center center;
+        background: #2fcf74;
+        display: block;
       }
       .profile-avatar-preview[src=""], .profile-avatar-preview:not([src]) {
-        background: #eef3f1;
-      }
-      .profile-avatar-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .profile-avatar-upload {
-        font-size: 0.88rem;
-        padding: 7px 16px;
-      }
-      .profile-avatar-remove {
-        font-size: 0.82rem;
-        padding: 5px 10px;
-      }
-      .profile-avatar-remove[hidden] {
         display: none;
       }
+      .profile-avatar-initials {
+        position: absolute;
+        inset: 5px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        background: #2fcf74;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: clamp(2.2rem, 7vw, 3.55rem);
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0;
+      }
+      .profile-avatar-button.has-image .profile-avatar-initials {
+        display: none;
+      }
+      .profile-avatar-edit-icon {
+        position: absolute;
+        right: 8px;
+        bottom: 6px;
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        border: 2px solid rgba(16, 24, 24, 0.1);
+        background: #fff;
+        color: #5b6361;
+        box-shadow: 0 7px 18px rgba(16, 24, 24, 0.2);
+        opacity: 0;
+        transform: translateY(4px) scale(0.96);
+        transition: opacity 150ms ease, transform 150ms ease;
+      }
+      .profile-avatar-edit-icon svg {
+        width: 18px;
+        height: 18px;
+      }
+      .profile-avatar-button::before,
+      .profile-avatar-button::after {
+        position: absolute;
+        left: 50%;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease, transform 150ms ease;
+        z-index: 2;
+      }
+      .profile-avatar-button::before {
+        content: attr(data-tooltip);
+        bottom: calc(100% + 12px);
+        width: max-content;
+        max-width: 220px;
+        padding: 7px 9px;
+        border-radius: 9px;
+        background: #111615;
+        color: #fff;
+        font-size: 0.75rem;
+        line-height: 1;
+        font-weight: 700;
+        transform: translate(-50%, 4px);
+        white-space: nowrap;
+      }
+      .profile-avatar-button::after {
+        content: "";
+        bottom: calc(100% + 5px);
+        border: 7px solid transparent;
+        border-top-color: #111615;
+        transform: translate(-50%, 4px);
+      }
+      .profile-avatar-button:hover::before,
+      .profile-avatar-button:hover::after,
+      .profile-avatar-button:focus-visible::before,
+      .profile-avatar-button:focus-visible::after {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .profile-avatar-button:hover .profile-avatar-edit-icon,
+      .profile-avatar-button:focus-visible .profile-avatar-edit-icon {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      .profile-avatar-button:focus-visible {
+        outline: 3px solid rgba(11, 97, 216, 0.28);
+        outline-offset: 4px;
+      }
       .profile-modal-status {
-        min-height: 24px;
-        margin-top: 10px;
+        min-height: 18px;
+        margin-top: 6px;
         color: #7a3d25;
+        font-size: 0.86rem;
         font-weight: 600;
+        text-align: center;
       }
       .profile-modal-footer {
-        padding: 8px 22px 20px;
+        padding: 8px 22px 18px;
         display: flex;
         justify-content: flex-end;
-        gap: 10px;
+        gap: 12px;
       }
       .profile-btn {
         border-radius: 999px;
         border: 1px solid rgba(29, 42, 42, 0.2);
-        padding: 10px 24px;
+        min-width: 88px;
+        min-height: 44px;
+        padding: 9px 18px;
         font: inherit;
         font-size: 1rem;
         cursor: pointer;
+        background: #fff;
+        color: #111615;
       }
       .profile-btn-primary {
         background: #0f1211;
@@ -177,6 +260,33 @@
       .profile-btn:disabled {
         opacity: 0.65;
         cursor: not-allowed;
+      }
+      @media (max-width: 640px) {
+        .profile-modal-head {
+          padding: 18px 16px 0;
+        }
+        .profile-modal-body {
+          padding: 20px 16px 6px;
+        }
+        .profile-avatar-section {
+          margin-bottom: 18px;
+        }
+        .profile-field {
+          padding: 10px 14px 11px;
+        }
+        .profile-field input {
+          font-size: 1rem;
+        }
+        .profile-modal-footer {
+          padding-inline: 16px;
+          gap: 10px;
+        }
+        .profile-btn {
+          min-width: 0;
+          flex: 1;
+          min-height: 44px;
+          font-size: 1rem;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -194,12 +304,18 @@
         </div>
         <div class="profile-modal-body">
           <div class="profile-avatar-section">
-            <img class="profile-avatar-preview" id="profileAvatarPreview" src="" alt="Profile avatar preview" width="96" height="96">
-            <div class="profile-avatar-actions">
-              <button type="button" class="profile-btn profile-avatar-upload" id="profileAvatarUpload">Upload Photo</button>
-              <button type="button" class="profile-btn profile-avatar-remove ghost" id="profileAvatarRemove" hidden>Remove</button>
-              <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden>
-            </div>
+            <button class="profile-avatar-button" id="profileAvatarButton" type="button" aria-label="Change Profile Picture" data-tooltip="Change Profile Picture">
+              <img class="profile-avatar-preview" id="profileAvatarPreview" src="" alt="Profile picture preview" width="132" height="132">
+              <span class="profile-avatar-initials" id="profileAvatarInitials" aria-hidden="true">?</span>
+              <span class="profile-avatar-edit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+                  <path d="M8.25 6.5 9.7 4.75h4.6l1.45 1.75h2.5c1.05 0 1.9.85 1.9 1.9v8.75c0 1.05-.85 1.9-1.9 1.9H5.75c-1.05 0-1.9-.85-1.9-1.9V8.4c0-1.05.85-1.9 1.9-1.9h2.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12.75" r="3.45" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M17.2 9.25h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </button>
+            <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden>
           </div>
           <div class="profile-field">
             <label for="profileDisplayName">Display name</label>
@@ -221,7 +337,6 @@
             <label for="profileAccountType">Account type</label>
             <input id="profileAccountType" type="text" autocomplete="off" placeholder="e.g. Savings">
           </div>
-          <p class="profile-modal-note">Your profile helps people recognize you in team workflows.</p>
           <div class="profile-modal-status" id="profileModalStatus"></div>
         </div>
         <div class="profile-modal-footer">
@@ -242,17 +357,22 @@
     saveButton = document.getElementById("profileModalSave");
     cancelButton = document.getElementById("profileModalCancel");
     closeButton = document.getElementById("profileModalClose");
+    avatarButton = document.getElementById("profileAvatarButton");
     avatarPreviewImg = document.getElementById("profileAvatarPreview");
-    avatarUploadButton = document.getElementById("profileAvatarUpload");
-    avatarRemoveButton = document.getElementById("profileAvatarRemove");
+    avatarInitialsEl = document.getElementById("profileAvatarInitials");
     avatarUploadInput = document.getElementById("profileAvatarInput");
 
     closeButton.addEventListener("click", () => closeModal());
     cancelButton.addEventListener("click", () => closeModal());
     saveButton.addEventListener("click", saveProfile);
 
-    avatarUploadButton.addEventListener("click", () => {
+    avatarButton.addEventListener("click", () => {
       if (avatarUploadInput) avatarUploadInput.click();
+    });
+    displayNameInput.addEventListener("input", () => {
+      if (!hasAvatarImage) {
+        updateAvatarInitials(displayNameInput.value || displayNameInput.placeholder);
+      }
     });
     avatarUploadInput.addEventListener("change", async () => {
       var file = avatarUploadInput.files && avatarUploadInput.files[0];
@@ -264,28 +384,13 @@
           pendingAvatarFile = null;
           pendingAvatarUrl = result.previewUrl || "";
           if (pendingAvatarUrl) {
-            avatarPreviewImg.src = pendingAvatarUrl;
+            setAvatarImage(pendingAvatarUrl);
           }
-          avatarRemoveButton.hidden = false;
-          statusEl.textContent = "Avatar ready. Save to keep it.";
+          statusEl.textContent = "Profile picture updated.";
         }
       } catch (e) {
         statusEl.textContent = e.message || "Could not upload avatar.";
       }
-    });
-    avatarRemoveButton.addEventListener("click", async () => {
-      try {
-        if (window.profileAvatar && typeof window.profileAvatar.removeProfileAvatar === "function") {
-          await window.profileAvatar.removeProfileAvatar();
-        }
-      } catch (e) {
-        console.warn("Failed to clear avatar from profile:", e.message);
-      }
-      pendingAvatarFile = null;
-      pendingAvatarUrl = "";
-      avatarPreviewImg.src = "";
-      avatarRemoveButton.hidden = true;
-      statusEl.textContent = "Avatar removed. Save to keep changes.";
     });
 
     overlay.addEventListener("click", (event) => {
@@ -319,6 +424,36 @@
     }
   }
 
+  function getInitials(value) {
+    const words = String(value || "")
+      .trim()
+      .replace(/@.*/, "")
+      .split(/\s+/)
+      .filter(Boolean);
+    if (!words.length) return "?";
+    const first = words[0].charAt(0);
+    const second = words.length > 1 ? words[words.length - 1].charAt(0) : words[0].charAt(1);
+    return `${first || ""}${second || ""}`.toUpperCase();
+  }
+
+  function updateAvatarInitials(value) {
+    if (avatarInitialsEl) {
+      avatarInitialsEl.textContent = getInitials(value);
+    }
+  }
+
+  function setAvatarImage(src) {
+    const imageUrl = String(src || "").trim();
+    hasAvatarImage = Boolean(imageUrl);
+    if (avatarButton) {
+      avatarButton.classList.toggle("has-image", hasAvatarImage);
+    }
+    if (avatarPreviewImg) {
+      avatarPreviewImg.src = imageUrl;
+      avatarPreviewImg.alt = imageUrl ? "Profile picture preview" : "No profile picture selected";
+    }
+  }
+
   async function openModal(trigger) {
     ensureMounted();
     const user = await window.requireLogin();
@@ -334,8 +469,8 @@
     accountTypeInput.value = "";
     pendingAvatarFile = null;
     pendingAvatarUrl = "";
-    if (avatarPreviewImg) avatarPreviewImg.src = "";
-    if (avatarRemoveButton) avatarRemoveButton.hidden = true;
+    setAvatarImage("");
+    updateAvatarInitials(user.email || "Profile");
 
     const { data, error } = await window.supabaseClient
       .from("profiles")
@@ -351,9 +486,11 @@
     if (profileName) {
       displayNameInput.value = profileName;
       displayNameInput.placeholder = "";
+      updateAvatarInitials(profileName);
     } else {
       displayNameInput.value = "";
       displayNameInput.placeholder = user.email || "";
+      updateAvatarInitials(user.email || "Profile");
     }
 
     if (data && typeof data.phone_number === "string") {
@@ -381,8 +518,7 @@
     if (data && data.avatar_r2_key && window.profileAvatar && typeof window.profileAvatar.resolveAvatarUrl === "function") {
       var avatarUrl = await window.profileAvatar.resolveAvatarUrl(data.avatar_r2_key);
       if (avatarPreviewImg && avatarUrl) {
-        avatarPreviewImg.src = avatarUrl;
-        avatarRemoveButton.hidden = false;
+        setAvatarImage(avatarUrl);
       }
     }
 

@@ -141,7 +141,7 @@
     }
 
     .app-header-inner {
-      width: min(1180px, 100%);
+      width: min(1320px, 100%);
       margin: 0 auto;
       min-height: 72px;
       display: flex;
@@ -220,7 +220,7 @@
     }
 
     .page {
-      width: min(1180px, 100%);
+      width: min(1320px, 100%);
       margin: var(--space-7) auto 0;
       display: grid;
       gap: var(--space-7);
@@ -688,6 +688,15 @@
         );
       box-shadow:
         inset 0 0 0 2px color-mix(in srgb, white 72%, transparent),
+        var(--shadow-sm);
+    }
+
+    .calendar-color-toggle.has-selected-color {
+      background: var(--selected-calendar-color);
+      border-color: color-mix(in srgb, var(--selected-calendar-color) 76%, black 24%);
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, white 72%, transparent),
+        0 0 0 4px color-mix(in srgb, var(--selected-calendar-color) 24%, transparent),
         var(--shadow-sm);
     }
 
@@ -1165,10 +1174,23 @@
     }
 
     .school-card {
+      position: relative;
+      overflow: hidden;
+      transform: translateY(0);
       border-radius: 24px;
       padding: var(--space-6);
       background: color-mix(in srgb, var(--surface-strong) 92%, white 8%);
       border: 1px solid var(--line);
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      will-change: transform;
+    }
+
+    #schoolGroups .school-card:hover,
+    #schoolGroups .school-card:focus-within {
+      transform: translateY(-3px);
+      border-color: color-mix(in srgb, var(--accent) 30%, var(--line) 70%);
+      background: color-mix(in srgb, var(--surface-strong) 96%, white 4%);
+      box-shadow: 0 18px 42px rgba(31, 41, 35, 0.12);
     }
 
     .school-head {
@@ -1311,37 +1333,105 @@
     }
 
     .entry-actions {
-      width: 160px;
-      min-width: 160px;
+      width: 94px;
+      min-width: 94px;
+      vertical-align: middle;
     }
 
-    .entry-actions button {
-      width: 100%;
+    .entry-actions-inner {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      text-align: center;
-      line-height: 1.2;
-      padding: 7px 12px;
-      font-size: 0.84rem;
+      justify-content: flex-end;
+      gap: 8px;
+      min-height: 36px;
     }
 
-    .entry-actions .ghost {
+    .entry-actions .entry-action-button {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      min-width: 34px;
+      height: 34px;
+      min-height: 34px;
+      padding: 0;
       border: 0;
       border-radius: 999px;
-      background: var(--clay-soft);
-      color: var(--clay);
-      font-weight: 700;
+      line-height: 1;
       cursor: pointer;
-      transition: transform 140ms ease, opacity 140ms ease;
+      transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+    }
+
+    .entry-actions .entry-action-button:hover,
+    .entry-actions .entry-action-button:focus-visible {
+      transform: translateY(-1px);
+    }
+
+    .entry-action-button svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 2.2;
+    }
+
+    .entry-edit-button {
+      background: #7c3aed;
+      color: white;
+      box-shadow: 0 8px 18px rgba(124, 58, 237, 0.22);
+    }
+
+    .entry-remove-button {
+      background: #c73832;
+      color: white;
+      box-shadow: 0 8px 18px rgba(199, 56, 50, 0.22);
+    }
+
+    .entry-action-button[data-tooltip]::before,
+    .entry-action-button[data-tooltip]::after {
+      position: absolute;
+      left: 50%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms ease, transform 120ms ease;
+      z-index: 6;
+    }
+
+    .entry-action-button[data-tooltip]::before {
+      content: attr(data-tooltip);
+      bottom: calc(100% + 9px);
+      transform: translate(-50%, 4px);
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: white;
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+    }
+
+    .entry-action-button[data-tooltip]::after {
+      content: "";
+      bottom: calc(100% + 4px);
+      transform: translate(-50%, 4px);
+      border: 5px solid transparent;
+      border-top-color: var(--ink);
+    }
+
+    .entry-action-button[data-tooltip]:hover::before,
+    .entry-action-button[data-tooltip]:hover::after,
+    .entry-action-button[data-tooltip]:focus-visible::before,
+    .entry-action-button[data-tooltip]:focus-visible::after {
+      opacity: 1;
+      transform: translate(-50%, 0);
     }
 
     .entry-actions .locked {
       display: inline-flex;
-      width: 100%;
+      width: auto;
       min-height: 34px;
       align-items: center;
       justify-content: center;
+      padding: 0 12px;
       border-radius: 999px;
       background: color-mix(in srgb, var(--surface-muted) 78%, white 22%);
       color: var(--muted);
@@ -1588,10 +1678,18 @@
         margin-bottom: 2px;
       }
 
-      .entry-actions,
-      .entry-actions button {
-        width: 100%;
+      .entry-actions {
+        width: auto;
         min-width: 0;
+      }
+
+      .entry-actions-inner {
+        justify-content: flex-start;
+      }
+
+      .entry-actions .entry-action-button {
+        width: 34px;
+        min-width: 34px;
       }
     }
   </style>
@@ -1733,7 +1831,7 @@
               <div>
                 <p class="panel-eyebrow">Entry composer</p>
                 <h2>Add Or Update A Session</h2>
-                <p class="panel-copy">Use this composer for school sessions, private work, events, replacements, and claims. Weekly recurring entries repeat from the chosen date to the end of the selected month.</p>
+                <p class="panel-copy">Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Weekly recurring entries repeat from the chosen date to the end of the selected month.</p>
               </div>
             </div>
             <form id="entryForm">
@@ -1783,7 +1881,7 @@
                   <input id="replacementName" name="replacementName" type="text" placeholder="e.g. Ericka">
                 </div>
                 <div class="full" id="customRateField" hidden>
-                  <label for="customRate">Custom Pay Per Hour (for Private/Event)</label>
+                  <label for="customRate">Custom Pay Per Hour (for Private)</label>
                   <input id="customRate" name="customRate" type="number" min="0" step="0.01" placeholder="e.g. 75">
                 </div>
               </div>
@@ -1802,7 +1900,7 @@
                 <button class="secondary" type="button" id="clearMonth" disabled>Clear Month</button>
               </div>
               <div class="hint">
-                End time is calculated automatically from the start time and hours worked. Claims require notes, cost, and proof before they can be saved.
+                End time is calculated automatically from the start time and hours worked. Events need a name, notes, and cost; claims also need proof before they can be saved.
               </div>
             </form>
           </section>
@@ -1845,7 +1943,7 @@
         <label for="claimCost">Claim Cost</label>
         <input id="claimCost" name="claimCost" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 14.50">
       </div>
-      <div class="full">
+      <div class="full" id="claimProofField">
         <label for="claimProof">Proof Image</label>
         <input id="claimProof" name="claimProof" type="file" accept="image/*">
       </div>
@@ -1905,6 +2003,8 @@
     const monthNameSelect = document.getElementById("monthNameSelect");
     const monthYearSelect = document.getElementById("monthYearSelect");
     const form = document.getElementById("entryForm");
+    const schoolNameInput = document.getElementById("schoolName");
+    const schoolNameLabel = document.querySelector('label[for="schoolName"]');
     const schoolGroups = document.getElementById("schoolGroups");
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
@@ -1958,10 +2058,13 @@
       "July", "August", "September", "October", "November", "December",
     ];
     const weekdayLabels = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const editEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+    const trashEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>';
 
     let entries = [];
     let quickAddTemplates = [];
     let currentUser = null;
+    let editingEntryId = "";
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
     let isHydratingClaimProofUrls = false;
@@ -1999,6 +2102,7 @@
       initImageViewer();
       setupUserMenu();
       render();
+      openRequestedEntryForEditing();
       syncQuickAddSaveButton();
       hydrateHeaderAvatar();
     }
@@ -2244,31 +2348,33 @@
     function syncReplacementField() {
       const isReplacement = entryTypeSelect.value === "Replacement";
       const isClaim = entryTypeSelect.value === "Claim";
+      const isEvent = entryTypeSelect.value === "Event";
+      const isCostEntry = isClaim || isEvent;
       replacementField.hidden = !isReplacement;
       replacementNameInput.required = isReplacement;
       if (!isReplacement) {
         replacementNameInput.value = "";
       }
 
-      const supportsCustomRate = entryTypeSelect.value === "Private" || entryTypeSelect.value === "Event";
+      const supportsCustomRate = entryTypeSelect.value === "Private";
       customRateField.hidden = !supportsCustomRate;
       if (!supportsCustomRate) {
         customRateInput.value = "";
       }
 
-      recurringRow.hidden = isClaim;
-      recurringRow.style.display = isClaim ? "none" : "flex";
-      recurringRow.setAttribute("aria-hidden", isClaim ? "true" : "false");
-      document.getElementById("schoolName").required = !isClaim;
-      if (isClaim) {
+      const shouldHideRecurring = isCostEntry || Boolean(editingEntryId);
+      recurringRow.hidden = shouldHideRecurring;
+      recurringRow.style.display = shouldHideRecurring ? "none" : "flex";
+      recurringRow.setAttribute("aria-hidden", shouldHideRecurring ? "true" : "false");
+      document.getElementById("isRecurring").checked = shouldHideRecurring ? false : document.getElementById("isRecurring").checked;
+      schoolNameInput.required = !isClaim;
+      if (schoolNameLabel) {
+        schoolNameLabel.textContent = isEvent ? "Name" : "School Name";
+      }
+      schoolNameInput.placeholder = isEvent ? "e.g. Tournament support" : "e.g. ACS";
+      if (isCostEntry) {
         unmountTimeFields();
-        ensureClaimFieldsRendered();
-        const claimNotesInput = document.getElementById("claimNotes");
-        const claimCostInput = document.getElementById("claimCost");
-        const claimProofInput = document.getElementById("claimProof");
-        claimNotesInput.required = true;
-        claimCostInput.required = true;
-        claimProofInput.required = true;
+        ensureClaimFieldsRendered(entryTypeSelect.value);
         replacementNameInput.value = "";
         customRateInput.value = "";
       } else {
@@ -2331,15 +2437,31 @@
 
     function syncCalendarColorToggle() {
       if (!calendarColorToggle) return;
+      const selectedColor = getSelectedCalendarColor();
       calendarColorToggle.setAttribute("aria-label", "Select a Colour");
       calendarColorToggle.dataset.tooltip = "Select a Colour";
+      calendarColorToggle.classList.toggle("has-selected-color", Boolean(selectedColor));
+      if (selectedColor) {
+        calendarColorToggle.style.setProperty("--selected-calendar-color", selectedColor);
+      } else {
+        calendarColorToggle.style.removeProperty("--selected-calendar-color");
+      }
     }
 
     function initializeMonth() {
       const today = new Date();
-      setMonthValue(formatMonthValue(today));
+      const params = new URLSearchParams(window.location.search);
+      const requestedMonth = params.get("month");
+      setMonthValue(/^\d{4}-\d{2}$/.test(requestedMonth || "") ? requestedMonth : formatMonthValue(today));
       syncDateFieldToMonth();
       syncReplacementField();
+    }
+
+    function openRequestedEntryForEditing() {
+      const params = new URLSearchParams(window.location.search);
+      const entryId = params.get("edit");
+      if (!entryId) return;
+      editEntry(entryId);
     }
 
     function syncDateFieldToMonth() {
@@ -2389,7 +2511,7 @@
         applyButton.className = "quick-add-apply";
         applyButton.type = "button";
         applyButton.dataset.quickAddId = template.id;
-        applyButton.setAttribute("aria-label", `Apply quick add for ${template.schoolName}`);
+        applyButton.setAttribute("aria-label", `Apply saved shortcut for ${template.schoolName}`);
 
         const school = document.createElement("span");
         school.className = "quick-add-school";
@@ -2405,7 +2527,7 @@
         removeButton.className = "quick-add-remove";
         removeButton.type = "button";
         removeButton.dataset.quickAddRemoveId = template.id;
-        removeButton.setAttribute("aria-label", `Remove quick add for ${template.schoolName}`);
+        removeButton.setAttribute("aria-label", `Delete saved shortcut for ${template.schoolName}`);
 
         item.appendChild(applyButton);
         item.appendChild(removeButton);
@@ -2578,7 +2700,7 @@
     }
 
     async function addEntriesFromForm() {
-      const schoolName = document.getElementById("schoolName").value.trim();
+      const schoolName = schoolNameInput.value.trim();
       const entryDate = document.getElementById("entryDate").value;
       const entryType = document.getElementById("entryType").value;
       const startTimeInput = document.getElementById("startTime");
@@ -2587,8 +2709,10 @@
       const hoursWorked = hoursWorkedInput ? Number(hoursWorkedInput.value) : 0;
       const replacementName = replacementNameInput.value.trim();
       const customRateValue = Number(customRateInput.value);
-      const hasCustomRate = (entryType === "Private" || entryType === "Event") && customRateInput.value !== "";
+      const hasCustomRate = entryType === "Private" && customRateInput.value !== "";
       const isClaim = entryType === "Claim";
+      const isEvent = entryType === "Event";
+      const isCostEntry = isClaim || isEvent;
       const claimNotesInput = document.getElementById("claimNotes");
       const claimCostInput = document.getElementById("claimCost");
       const claimProofInput = document.getElementById("claimProof");
@@ -2596,28 +2720,39 @@
       const claimCost = claimCostInput ? Number(claimCostInput.value) : 0;
       const isRecurring = document.getElementById("isRecurring").checked;
       const claimProofFile = claimProofInput && claimProofInput.files && claimProofInput.files[0];
+      const existingEntry = editingEntryId ? entries.find((item) => item.id === editingEntryId) : null;
+      const hasStoredClaimProof = Boolean(existingEntry?.claimImagePath || existingEntry?.claimProofDataUrl);
 
+      if (editingEntryId && !existingEntry) {
+        alert("Could not find the entry you were editing. Please choose it from the ledger again.");
+        resetEntryComposer();
+        return;
+      }
       if (!entryDate) return;
-      if (!isClaim && (!schoolName || !startTime || !hoursWorked)) return;
-      if (isClaim && (!claimNotes || !claimProofFile)) return;
+      if (!isCostEntry && (!schoolName || !startTime || !hoursWorked)) return;
+      if (isEvent && !schoolName) return;
+      if (isCostEntry && !claimNotes) return;
+      if (isClaim && !claimProofFile && !hasStoredClaimProof) return;
       if (entryType === "Replacement" && !replacementName) return;
 
-      if (!isClaim && hoursWorked <= 0) {
+      if (!isCostEntry && hoursWorked <= 0) {
         alert("Hours worked needs to be greater than zero.");
         return;
       }
-      if (isClaim && (!Number.isFinite(claimCost) || claimCost <= 0)) {
-        alert("Claim cost needs to be greater than zero.");
+      if (isCostEntry && (!Number.isFinite(claimCost) || claimCost <= 0)) {
+        alert(`${isEvent ? "Event" : "Claim"} cost needs to be greater than zero.`);
         return;
       }
-      const endTime = isClaim ? "" : calculateEndTime(startTime, hoursWorked);
-      let claimProofDataUrl = null;
-      let claimImagePath = "";
-      if (isClaim) {
+      const endTime = isCostEntry ? "" : calculateEndTime(startTime, hoursWorked);
+      let claimProofDataUrl = isClaim ? existingEntry?.claimProofDataUrl || "" : null;
+      let claimImagePath = isClaim ? existingEntry?.claimImagePath || "" : "";
+      let claimProofName = isClaim ? existingEntry?.claimProofName || "" : "";
+      if (isClaim && claimProofFile) {
         try {
           const uploadResult = await uploadClaimProofToStorage(claimProofFile, monthPicker.value);
           claimImagePath = uploadResult.path;
           claimProofDataUrl = uploadResult.previewUrl || "";
+          claimProofName = claimProofFile.name;
         } catch (error) {
           alert(error && error.message ? error.message : "Could not upload the proof image. Please try again.");
           return;
@@ -2628,42 +2763,61 @@
         schoolName: isClaim ? "Claims" : schoolName,
         date: entryDate,
         type: entryType,
-        startTime: isClaim ? "" : startTime,
+        startTime: isCostEntry ? "" : startTime,
         endTime,
-        hours: isClaim ? 0 : hoursWorked,
+        hours: isCostEntry ? 0 : hoursWorked,
         replacementName: entryType === "Replacement" ? replacementName : "",
         customRate: hasCustomRate && customRateValue > 0 ? customRateValue : null,
         calendarColor: getSelectedCalendarColor(),
-        claimNotes: isClaim ? claimNotes : "",
-        claimCost: isClaim ? claimCost : null,
-        claimProofName: isClaim ? claimProofFile.name : "",
+        claimNotes: isCostEntry ? claimNotes : "",
+        claimCost: isCostEntry ? claimCost : null,
+        claimProofName: isClaim ? claimProofName : "",
         claimImagePath,
         claimProofDataUrl,
       };
 
-      const newEntries = isRecurring
+      const newEntries = !editingEntryId && isRecurring && !isCostEntry
         ? buildWeeklyEntries(baseEntry, monthPicker.value)
         : [baseEntry];
 
       addEntryButton.disabled = true;
       try {
-        await window.draftTimesheetStore.insertEntries(newEntries, {
-          employeeId: currentUser.id,
-          createdBy: currentUser.id,
-          updatedBy: currentUser.id,
-        });
+        if (editingEntryId) {
+          await window.draftTimesheetStore.updateEntry(editingEntryId, {
+            ...existingEntry,
+            ...baseEntry,
+            id: editingEntryId,
+            status: existingEntry?.status || "active",
+          }, {
+            employeeId: currentUser.id,
+            updatedBy: currentUser.id,
+          });
+        } else {
+          await window.draftTimesheetStore.insertEntries(newEntries, {
+            employeeId: currentUser.id,
+            createdBy: currentUser.id,
+            updatedBy: currentUser.id,
+          });
+        }
         entries = await loadEntries();
-        form.reset();
-        setSelectedCalendarColor(defaultCalendarColor);
-        syncDateFieldToMonth();
-        syncReplacementField();
-        syncQuickAddSaveButton();
+        resetEntryComposer();
         render();
       } catch (error) {
         alert(error?.message || "Could not save the draft timesheet entry.");
       } finally {
         addEntryButton.disabled = false;
       }
+    }
+
+    function resetEntryComposer() {
+      editingEntryId = "";
+      form.removeAttribute("data-editing-entry");
+      addEntryButton.textContent = "Save Entry";
+      form.reset();
+      setSelectedCalendarColor(defaultCalendarColor);
+      syncDateFieldToMonth();
+      syncReplacementField();
+      syncQuickAddSaveButton();
     }
 
     function buildWeeklyEntries(baseEntry, monthValue) {
@@ -2798,6 +2952,20 @@
       }
     }
 
+    function renderEntryActions(entry) {
+      if (window.draftTimesheetStore.isSubmitted(entry)) {
+        return `<span class="locked">Submitted</span>`;
+      }
+
+      const entryId = escapeHtml(entry.id || "");
+      return `
+        <div class="entry-actions-inner">
+          <button class="entry-action-button entry-edit-button" type="button" data-edit-id="${entryId}" aria-label="Edit Entry" data-tooltip="Edit Entry">${editEntryIconSvg}</button>
+          <button class="entry-action-button entry-remove-button" type="button" data-remove-id="${entryId}" aria-label="Remove Entry" data-tooltip="Remove Entry">${trashEntryIconSvg}</button>
+        </div>
+      `;
+    }
+
     function renderGroups(activeEntries) {
       schoolGroups.innerHTML = "";
       if (!activeEntries.length) {
@@ -2815,25 +2983,35 @@
         const schoolEntries = grouped[schoolKey];
         const fragment = schoolTemplate.content.cloneNode(true);
         fragment.querySelector("h3").textContent = schoolEntries[0].schoolName;
-        const isClaimGroup = schoolEntries.every((entry) => entry.type === "Claim");
+        const isCostOnlyGroup = schoolEntries.every(isCostEntry);
+        const hasClaimRows = schoolEntries.some((entry) => entry.type === "Claim");
         const headRow = fragment.querySelector("thead tr");
-        headRow.innerHTML = isClaimGroup
-          ? `<th>Image</th><th>Date</th><th>Type</th><th></th>`
+        headRow.innerHTML = isCostOnlyGroup
+          ? hasClaimRows
+            ? `<th>Image</th><th>Date</th><th>Type</th><th></th>`
+            : `<th>Date</th><th>Type</th><th></th>`
           : `<th>Date</th><th>Type</th><th>Hours</th><th>Time</th><th></th>`;
 
         const totalHours = schoolEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+        const totalCost = schoolEntries.reduce((sum, entry) => sum + getCostEntryValue(entry), 0);
         fragment.querySelector(".school-meta").textContent =
-          `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
+          isCostOnlyGroup
+            ? `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${formatCurrency(totalCost)}`
+            : `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
 
         const body = fragment.querySelector("tbody");
         schoolEntries.forEach((entry) => {
           const row = document.createElement("tr");
-          const actionCell = window.draftTimesheetStore.isSubmitted(entry)
-            ? `<span class="locked">Submitted</span>`
-            : `<button class="ghost" type="button" data-id="${escapeHtml(entry.id)}">Remove</button>`;
-          if (entry.type === "Claim") {
+          const actionCell = renderEntryActions(entry);
+          if (isCostEntry(entry) && isCostOnlyGroup && hasClaimRows) {
             row.innerHTML = `
               <td data-label="Image">${formatImageCell(entry)}</td>
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td data-label="Action" class="entry-actions">${actionCell}</td>
+            `;
+          } else if (isCostEntry(entry) && isCostOnlyGroup) {
+            row.innerHTML = `
               <td data-label="Date">${formatLongDate(entry.date)}</td>
               <td data-label="Type">${formatEntryType(entry)}</td>
               <td data-label="Action" class="entry-actions">${actionCell}</td>
@@ -2853,9 +3031,57 @@
         schoolGroups.appendChild(fragment);
       });
 
-      schoolGroups.querySelectorAll("[data-id]").forEach((button) => {
-        button.addEventListener("click", () => removeEntry(button.dataset.id));
+      schoolGroups.querySelectorAll("[data-remove-id]").forEach((button) => {
+        button.addEventListener("click", () => removeEntry(button.dataset.removeId));
       });
+      schoolGroups.querySelectorAll("[data-edit-id]").forEach((button) => {
+        button.addEventListener("click", () => editEntry(button.dataset.editId));
+      });
+    }
+
+    function editEntry(id) {
+      const entry = entries.find((item) => item.id === id);
+      if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
+
+      editingEntryId = id;
+      form.dataset.editingEntry = id;
+      addEntryButton.textContent = "Update Entry";
+
+      const entryDateField = document.getElementById("entryDate");
+      const entryMonth = (entry.date || "").slice(0, 7);
+      if (/^\d{4}-\d{2}$/.test(entryMonth) && entryMonth !== monthPicker.value) {
+        setMonthValue(entryMonth);
+        syncPayrollLink();
+      }
+
+      entryTypeSelect.value = entry.type || "School Coaching";
+      if (entryDateField) entryDateField.value = entry.date || "";
+      schoolNameInput.value = entry.type === "Claim" ? "" : entry.schoolName || "";
+      replacementNameInput.value = entry.type === "Replacement" ? entry.replacementName || "" : "";
+      customRateInput.value = entry.type === "Private" && entry.customRate != null ? entry.customRate : "";
+      setSelectedCalendarColor(entry.calendarColor || defaultCalendarColor);
+      document.getElementById("isRecurring").checked = false;
+      syncReplacementField();
+
+      if (entry.type === "Claim" || isEventCostEntry(entry)) {
+        const claimNotesInput = document.getElementById("claimNotes");
+        const claimCostInput = document.getElementById("claimCost");
+        if (claimNotesInput) claimNotesInput.value = entry.claimNotes || "";
+        if (claimCostInput) claimCostInput.value = entry.claimCost != null ? entry.claimCost : "";
+      } else {
+        const startTimeInput = document.getElementById("startTime");
+        const hoursWorkedInput = document.getElementById("hoursWorked");
+        if (startTimeInput) startTimeInput.value = entry.startTime || "";
+        if (hoursWorkedInput) hoursWorkedInput.value = entry.hours != null ? entry.hours : "";
+      }
+
+      syncQuickAddSaveButton();
+      render();
+      entryComposerPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => {
+        const focusTarget = entry.type === "Claim" ? document.getElementById("claimNotes") : schoolNameInput;
+        focusTarget?.focus({ preventScroll: true });
+      }, 120);
     }
 
     async function removeEntry(id) {
@@ -2865,6 +3091,9 @@
       try {
         await window.draftTimesheetStore.deleteEntry(id);
         entries = await loadEntries();
+        if (editingEntryId === id) {
+          resetEntryComposer();
+        }
         render();
       } catch (error) {
         alert(error?.message || "Could not delete the draft timesheet entry.");
@@ -3013,6 +3242,9 @@
       if (entry.type === "Claim") {
         return entry.claimProofName ? `Proof: ${escapeHtml(entry.claimProofName)}` : "Claim";
       }
+      if (isEventCostEntry(entry)) {
+        return getCostEntryValue(entry) > 0 ? formatCurrency(getCostEntryValue(entry)) : "Event";
+      }
       const start = formatTime(entry.startTime);
       const end = formatTime(entry.endTime);
       if (!start || !end) return "-";
@@ -3075,7 +3307,7 @@
       if (entry.type === "Replacement" && entry.replacementName) {
         return `${escapeHtml(entry.type)} for ${escapeHtml(entry.replacementName)}`;
       }
-      if ((entry.type === "Private" || entry.type === "Event") && Number(entry.customRate) > 0) {
+      if (entry.type === "Private" && Number(entry.customRate) > 0) {
         return `${escapeHtml(entry.type)} @ ${formatCurrency(entry.customRate)}/hr`;
       }
       if (entry.type === "Claim") {
@@ -3083,7 +3315,29 @@
         const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
         return `Claim${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
       }
+      if (isEventCostEntry(entry)) {
+        const eventCost = getCostEntryValue(entry);
+        const costLabel = eventCost > 0 ? ` (${formatCurrency(eventCost)})` : "";
+        return `Event${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
+      }
       return escapeHtml(entry.type);
+    }
+
+    function isCostEntry(entry) {
+      return entry?.type === "Claim" || isEventCostEntry(entry);
+    }
+
+    function isEventCostEntry(entry) {
+      return entry?.type === "Event"
+        && (
+          getCostEntryValue(entry) > 0
+          || String(entry?.claimNotes || "").trim().length > 0
+        );
+    }
+
+    function getCostEntryValue(entry) {
+      const parsed = Number(entry?.claimCost || 0);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
     }
 
     function formatCurrency(value) {
@@ -3103,10 +3357,45 @@
         .replace(/'/g, "&#39;");
     }
 
-    function ensureClaimFieldsRendered() {
-      if (document.getElementById("claimFields")) return;
-      claimFieldsMount.innerHTML = "";
-      claimFieldsMount.appendChild(claimFieldsTemplate.content.cloneNode(true));
+    function ensureClaimFieldsRendered(entryType = entryTypeSelect.value) {
+      if (!document.getElementById("claimFields")) {
+        claimFieldsMount.innerHTML = "";
+        claimFieldsMount.appendChild(claimFieldsTemplate.content.cloneNode(true));
+      }
+      syncClaimFields(entryType);
+    }
+
+    function syncClaimFields(entryType = entryTypeSelect.value) {
+      const isEvent = entryType === "Event";
+      const claimNotesInput = document.getElementById("claimNotes");
+      const claimCostInput = document.getElementById("claimCost");
+      const claimProofInput = document.getElementById("claimProof");
+      const claimProofField = document.getElementById("claimProofField");
+      const notesLabel = document.querySelector('label[for="claimNotes"]');
+      const costLabel = document.querySelector('label[for="claimCost"]');
+      const existingEntry = editingEntryId ? entries.find((entry) => entry.id === editingEntryId) : null;
+      const hasStoredClaimProof = Boolean(existingEntry?.claimImagePath || existingEntry?.claimProofDataUrl);
+
+      if (notesLabel) notesLabel.textContent = isEvent ? "Notes" : "Claim Notes";
+      if (costLabel) costLabel.textContent = isEvent ? "Cost" : "Claim Cost";
+      if (claimNotesInput) {
+        claimNotesInput.required = true;
+        claimNotesInput.placeholder = isEvent ? "e.g. Tournament arbiter fee" : "e.g. Transport reimbursement";
+      }
+      if (claimCostInput) {
+        claimCostInput.required = true;
+        claimCostInput.placeholder = isEvent ? "e.g. 80.00" : "e.g. 14.50";
+      }
+      if (claimProofField) {
+        claimProofField.hidden = isEvent;
+        claimProofField.style.display = isEvent ? "none" : "";
+      }
+      if (claimProofInput) {
+        claimProofInput.required = !isEvent && !hasStoredClaimProof;
+        if (isEvent) {
+          claimProofInput.value = "";
+        }
+      }
     }
 
     function unmountClaimFields() {

@@ -96,6 +96,34 @@ assert.equal(claimRow.claim_amount_cents, 1450);
 assert.equal(claimRow.claim_proof_name, "receipt.jpg");
 assert.equal(claimRow.claim_image_url, "r2/employee-1/2026-05/receipt.jpg");
 
+const eventCostRow = store.toRow(
+  {
+    employeeId: "employee-1",
+    schoolName: "Tournament Support",
+    date: "2026-05-18",
+    type: "Event",
+    claimNotes: "Pairing desk",
+    claimCost: 45,
+    status: "active",
+  },
+  {
+    employeeId: "employee-1",
+    createdBy: "employee-1",
+    updatedBy: "employee-1",
+  }
+);
+
+assert.equal(eventCostRow.type, "Event");
+assert.equal(eventCostRow.school_name, "Tournament Support");
+assert.equal(eventCostRow.start_time, null);
+assert.equal(eventCostRow.end_time, null);
+assert.equal(eventCostRow.start_time_minutes, 0);
+assert.equal(eventCostRow.hours, 0);
+assert.equal(eventCostRow.notes, "Pairing desk");
+assert.equal(eventCostRow.claim_amount_cents, 4500);
+assert.equal(eventCostRow.claim_proof_name, null);
+assert.equal(eventCostRow.claim_image_url, null);
+
 const entry = store.toEntry({
   id: "draft-1",
   employee_id: "employee-1",
@@ -121,10 +149,35 @@ assert.equal(entry.claimProofName, "receipt.jpg");
 assert.equal(entry.claimImagePath, "r2/employee-1/2026-05/receipt.jpg");
 assert.equal(entry.calendarColor, "#BBA6DD");
 
+const eventEntry = store.toEntry({
+  id: "draft-2",
+  employee_id: "employee-1",
+  status: "active",
+  school_name: "Tournament Support",
+  date: "2026-05-18",
+  type: "Event",
+  start_time: null,
+  end_time: null,
+  start_time_minutes: 0,
+  hours: 0,
+  notes: "Pairing desk",
+  claim_amount_cents: 4500,
+});
+
+assert.equal(eventEntry.type, "Event");
+assert.equal(eventEntry.schoolName, "Tournament Support");
+assert.equal(eventEntry.startTime, "");
+assert.equal(eventEntry.endTime, "");
+assert.equal(eventEntry.hours, 0);
+assert.equal(eventEntry.claimNotes, "Pairing desk");
+assert.equal(eventEntry.claimCost, 45);
+assert.equal(eventEntry.claimProofName, "");
+
 assert.equal(store.isManagerEditable({ type: "Private", status: "active" }), true);
-assert.equal(store.isManagerEditable({ type: "Event", status: "active" }), true);
+assert.equal(store.isManagerEditable({ type: "Event", status: "active", hours: 2 }), true);
+assert.equal(store.isManagerEditable({ type: "Event", status: "active", claimCost: 45 }), true);
 assert.equal(store.isManagerEditable({ type: "Camp", status: "active" }), true);
-assert.equal(store.isManagerEditable({ type: "Claim", status: "active" }), false);
+assert.equal(store.isManagerEditable({ type: "Claim", status: "active" }), true);
 assert.equal(store.isManagerEditable({ type: "Private", status: "submitted" }), false);
 
 console.log("draft-timesheet-store contract tests passed");

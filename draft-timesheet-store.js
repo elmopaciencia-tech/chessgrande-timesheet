@@ -147,6 +147,15 @@
       case "claim":
       case "Claim":
         return "Claim";
+      case "event":
+      case "Event":
+        return "Event";
+      case "private":
+      case "Private":
+        return "Private";
+      case "camp":
+      case "Camp":
+        return "Camp";
       default:
         return value || "School Coaching";
     }
@@ -180,6 +189,14 @@
   function addHoursToTime(startTime, hoursWorked) {
     if (!startTime) return "";
     return minutesToTime(toMinutes(startTime) + Math.round(normalizeNumber(hoursWorked) * 60));
+  }
+
+  function hasEventCostPayload(entry) {
+    return normalizeType(entry?.type) === "Event"
+      && (
+        normalizeNumber(entry?.claimCost, 0) > 0
+        || String(entry?.claimNotes || "").trim().length > 0
+      );
   }
 
   function getFileNameFromPath(value) {
@@ -230,13 +247,15 @@
   function toEntry(row) {
     const type = normalizeType(row.type);
     const isClaim = type === "Claim";
-    const startTime = isClaim ? "" : normalizeTime(row.start_time) || minutesToTime(row.start_time_minutes);
-    const endTime = isClaim ? "" : normalizeTime(row.end_time) || addHoursToTime(startTime, row.hours);
     const claimImageUrl = row.claim_image_url || row.claim_image_path || row.claim_proof_data_url || "";
     const claimAmountCents = row.claim_amount_cents == null
       ? Math.round(normalizeNumber(row.claim_cost) * 100)
       : normalizeNumber(row.claim_amount_cents);
     const claimNotes = row.notes || row.claim_notes || "";
+    const isEventCost = type === "Event" && (claimAmountCents > 0 || String(claimNotes).trim().length > 0);
+    const isCostEntry = isClaim || isEventCost;
+    const startTime = isCostEntry ? "" : normalizeTime(row.start_time) || minutesToTime(row.start_time_minutes);
+    const endTime = isCostEntry ? "" : normalizeTime(row.end_time) || addHoursToTime(startTime, row.hours);
     return {
       id: row.id,
       employeeId: row.employee_id,
@@ -249,14 +268,14 @@
       type,
       startTime,
       endTime,
-      hours: isClaim ? 0 : normalizeNumber(row.hours),
+      hours: isCostEntry ? 0 : normalizeNumber(row.hours),
       replacementName: row.replacement_name || "",
       customRate: row.custom_rate == null ? null : normalizeNumber(row.custom_rate),
-      claimNotes: isClaim ? claimNotes : "",
-      claimCost: isClaim ? claimAmountCents / 100 : null,
-      claimProofName: row.claim_proof_name || getFileNameFromPath(claimImageUrl),
-      claimImagePath: claimImageUrl,
-      claimProofDataUrl: /^https?:|^data:/i.test(claimImageUrl) ? claimImageUrl : "",
+      claimNotes: isCostEntry ? claimNotes : "",
+      claimCost: isCostEntry ? claimAmountCents / 100 : null,
+      claimProofName: isClaim ? row.claim_proof_name || getFileNameFromPath(claimImageUrl) : "",
+      claimImagePath: isClaim ? claimImageUrl : "",
+      claimProofDataUrl: isClaim && /^https?:|^data:/i.test(claimImageUrl) ? claimImageUrl : "",
       calendarColor: normalizeCalendarColor(row.calendar_color),
       createdAt: row.created_at || "",
       updatedAt: row.updated_at || "",
@@ -266,6 +285,8 @@
   function toRow(entry, context = {}, schema = activeSchema || "ios") {
     const type = normalizeType(entry.type);
     const isClaim = type === "Claim";
+    const isEventCost = hasEventCostPayload({ ...entry, type });
+    const isCostEntry = isClaim || isEventCost;
     const calendarColor = normalizeCalendarColor(entry.calendarColor);
     if (isIosSchema(schema)) {
       const row = {
@@ -277,14 +298,14 @@
         replacement_name: type === "Replacement" ? entry.replacementName || null : null,
         date: entry.date,
         type,
-        start_time: isClaim ? null : entry.startTime || null,
-        end_time: isClaim ? null : entry.endTime || null,
-        start_time_minutes: isClaim ? 0 : toMinutes(entry.startTime),
-        hours: isClaim ? 0 : normalizeNumber(entry.hours),
-        notes: isClaim ? entry.claimNotes || null : null,
+        start_time: isCostEntry ? null : entry.startTime || null,
+        end_time: isCostEntry ? null : entry.endTime || null,
+        start_time_minutes: isCostEntry ? 0 : toMinutes(entry.startTime),
+        hours: isCostEntry ? 0 : normalizeNumber(entry.hours),
+        notes: isCostEntry ? entry.claimNotes || null : null,
         repeats_weekly: false,
         repeat_until: null,
-        claim_amount_cents: isClaim && entry.claimCost != null ? Math.round(normalizeNumber(entry.claimCost) * 100) : 0,
+        claim_amount_cents: isCostEntry && entry.claimCost != null ? Math.round(normalizeNumber(entry.claimCost) * 100) : 0,
         claim_proof_name: isClaim ? entry.claimProofName || null : null,
         claim_image_url: isClaim ? entry.claimImagePath || entry.claimProofDataUrl || null : null,
       };
@@ -302,13 +323,13 @@
       school_name: isClaim ? "Claims" : entry.schoolName || "",
       date: entry.date,
       type,
-      start_time: isClaim ? null : entry.startTime || null,
-      end_time: isClaim ? null : entry.endTime || null,
-      hours: isClaim ? 0 : normalizeNumber(entry.hours),
+      start_time: isCostEntry ? null : entry.startTime || null,
+      end_time: isCostEntry ? null : entry.endTime || null,
+      hours: isCostEntry ? 0 : normalizeNumber(entry.hours),
       replacement_name: type === "Replacement" ? entry.replacementName || null : null,
-      custom_rate: entry.customRate != null ? normalizeNumber(entry.customRate) : null,
-      claim_notes: isClaim ? entry.claimNotes || null : entry.claimNotes || null,
-      claim_cost: isClaim && entry.claimCost != null ? normalizeNumber(entry.claimCost) : null,
+      custom_rate: isCostEntry ? null : entry.customRate != null ? normalizeNumber(entry.customRate) : null,
+      claim_notes: isCostEntry ? entry.claimNotes || null : entry.claimNotes || null,
+      claim_cost: isCostEntry && entry.claimCost != null ? normalizeNumber(entry.claimCost) : null,
       claim_proof_name: isClaim ? entry.claimProofName || null : null,
       claim_image_path: isClaim ? entry.claimImagePath || null : null,
       claim_proof_data_url: isClaim ? entry.claimProofDataUrl || null : null,
@@ -455,7 +476,8 @@
   }
 
   function isManagerEditable(entry) {
-    return !isSubmitted(entry) && ["School Coaching", "Replacement", "Camp", "Private", "Event"].includes(normalizeType(entry?.type));
+    return !isSubmitted(entry)
+      && ["School Coaching", "Replacement", "Claim", "Camp", "Private", "Event"].includes(normalizeType(entry?.type));
   }
 
   function isActive(entry) {

@@ -186,7 +186,8 @@
     .chip strong { color: var(--ink); }
     .chip.submitted { opacity: .72; border-style: dashed; color: var(--muted); }
     .groups { display: grid; gap: var(--space-4); }
-    .school-card { padding: 18px; }
+    .school-card { position: relative; overflow: hidden; transform: translateY(0); padding: 18px; transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; will-change: transform; }
+    #schoolGroups .school-card:hover, #schoolGroups .school-card:focus-within { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 30%, var(--line) 70%); background: color-mix(in srgb, var(--surface-strong) 96%, white 4%); box-shadow: 0 18px 42px rgba(31,41,35,.12); }
     .school-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-bottom: 10px; }
     .school-head h3 { margin: 0; font-size: 1.12rem; }
     .school-meta { color: var(--muted); font-size: .92rem; }
@@ -203,9 +204,18 @@
     .lightbox-image { display: block; max-width: 100%; max-height: 90vh; width: auto; height: auto; border-radius: 18px; object-fit: contain; background: oklch(21% 0.01 178); }
     .lightbox-close { position: absolute; top: -14px; right: -14px; width: 34px; height: 34px; border-radius: 999px; border: 0; background: var(--surface-strong); color: var(--ink); font-size: 1.05rem; font-weight: 700; line-height: 1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
     .empty { padding: var(--space-7); border-radius: 24px; background: var(--calendar); color: var(--muted); border: 1px dashed color-mix(in srgb, var(--line-strong) 42%, white 58%); text-align: center; line-height: 1.5; }
-    .entry-actions { width: 160px; min-width: 160px; }
-    .row-remove-button, .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
-    .entry-actions .locked { display: inline-flex; width: 100%; min-height: 34px; align-items: center; justify-content: center; border-radius: 999px; background: color-mix(in srgb, var(--surface-muted) 78%, white 22%); color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .entry-actions { width: 94px; min-width: 94px; vertical-align: middle; }
+    .entry-actions-inner { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 36px; }
+    .entry-actions .entry-action-button { position: relative; display: inline-grid; place-items: center; width: 34px; min-width: 34px; height: 34px; min-height: 34px; padding: 0; border: 0; border-radius: 999px; line-height: 1; cursor: pointer; transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease; }
+    .entry-actions .entry-action-button:hover, .entry-actions .entry-action-button:focus-visible { transform: translateY(-1px); }
+    .entry-action-button svg { width: 17px; height: 17px; stroke-width: 2.2; }
+    .entry-edit-button { background: #7c3aed; color: white; box-shadow: 0 8px 18px rgba(124,58,237,.22); }
+    .entry-remove-button { background: #c73832; color: white; box-shadow: 0 8px 18px rgba(199,56,50,.22); }
+    .entry-action-button[data-tooltip]::before, .entry-action-button[data-tooltip]::after { position: absolute; left: 50%; opacity: 0; pointer-events: none; transition: opacity 120ms ease, transform 120ms ease; z-index: 6; }
+    .entry-action-button[data-tooltip]::before { content: attr(data-tooltip); bottom: calc(100% + 9px); transform: translate(-50%, 4px); padding: 6px 8px; border-radius: 8px; background: var(--ink); color: white; font-size: .74rem; font-weight: 700; white-space: nowrap; box-shadow: 0 8px 22px rgba(0,0,0,.18); }
+    .entry-action-button[data-tooltip]::after { content: ""; bottom: calc(100% + 4px); transform: translate(-50%, 4px); border: 5px solid transparent; border-top-color: var(--ink); }
+    .entry-action-button[data-tooltip]:hover::before, .entry-action-button[data-tooltip]:hover::after, .entry-action-button[data-tooltip]:focus-visible::before, .entry-action-button[data-tooltip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+    .entry-actions .locked { display: inline-flex; width: auto; min-height: 34px; align-items: center; justify-content: center; padding: 0 12px; border-radius: 999px; background: color-mix(in srgb, var(--surface-muted) 78%, white 22%); color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
     .footer-note, .status-message { color: var(--muted); font-size: .9rem; line-height: 1.45; }
     .pay-card { padding: 14px; display: grid; gap: 10px; }
     .pay-card-header { display: grid; gap: 2px; }
@@ -285,7 +295,9 @@
       thead { display: none; }
       td { padding: 6px 0; }
       td::before { content: attr(data-label); display: block; font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
-      .entry-actions, .entry-actions button { width: 100%; min-width: 0; }
+      .entry-actions { width: auto; min-width: 0; }
+      .entry-actions-inner { justify-content: flex-start; }
+      .entry-actions .entry-action-button { width: 34px; min-width: 34px; }
       .pay-card { padding: 12px; gap: 8px; }
       .pay-card-section { gap: 5px; }
       .pay-card-section + .pay-card-section { padding-top: 7px; }
@@ -439,6 +451,8 @@
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December",
     ];
+    const editEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+    const trashEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>';
 
     let entries = [];
     let currentUser = null;
@@ -829,6 +843,20 @@
       }
     }
 
+    function renderEntryActions(entry) {
+      if (window.draftTimesheetStore.isSubmitted(entry)) {
+        return `<span class="locked">Submitted</span>`;
+      }
+
+      const entryId = escapeHtml(entry.id || "");
+      return `
+        <div class="entry-actions-inner">
+          <button class="entry-action-button entry-edit-button" type="button" data-edit-id="${entryId}" aria-label="Edit Entry" data-tooltip="Edit Entry">${editEntryIconSvg}</button>
+          <button class="entry-action-button entry-remove-button" type="button" data-remove-id="${entryId}" aria-label="Remove Entry" data-tooltip="Remove Entry">${trashEntryIconSvg}</button>
+        </div>
+      `;
+    }
+
     function renderGroups(activeEntries) {
       schoolGroups.innerHTML = "";
       if (!activeEntries.length) {
@@ -846,25 +874,35 @@
         const schoolEntries = grouped[schoolKey];
         const fragment = schoolTemplate.content.cloneNode(true);
         fragment.querySelector("h3").textContent = schoolEntries[0].schoolName;
-        const isClaimGroup = schoolEntries.every((entry) => entry.type === "Claim");
+        const isCostOnlyGroup = schoolEntries.every(isCostEntry);
+        const hasClaimRows = schoolEntries.some((entry) => entry.type === "Claim");
         const headRow = fragment.querySelector("thead tr");
-        headRow.innerHTML = isClaimGroup
-          ? `<th>Image</th><th>Date</th><th>Type</th><th class="entry-actions"></th>`
+        headRow.innerHTML = isCostOnlyGroup
+          ? hasClaimRows
+            ? `<th>Image</th><th>Date</th><th>Type</th><th class="entry-actions"></th>`
+            : `<th>Date</th><th>Type</th><th class="entry-actions"></th>`
           : `<th>Date</th><th>Type</th><th>Hours</th><th>Time</th><th class="entry-actions"></th>`;
 
         const totalHours = schoolEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+        const totalCost = schoolEntries.reduce((sum, entry) => sum + getCostEntryValue(entry), 0);
         fragment.querySelector(".school-meta").textContent =
-          `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
+          isCostOnlyGroup
+            ? `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${formatCurrency(totalCost)}`
+            : `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
 
         const body = fragment.querySelector("tbody");
         schoolEntries.forEach((entry) => {
           const row = document.createElement("tr");
-          const actionCell = window.draftTimesheetStore.isSubmitted(entry)
-            ? `<span class="locked">Submitted</span>`
-            : `<button type="button" class="row-remove-button" data-remove-id="${escapeHtml(entry.id)}">Remove</button>`;
-          if (entry.type === "Claim") {
+          const actionCell = renderEntryActions(entry);
+          if (isCostEntry(entry) && isCostOnlyGroup && hasClaimRows) {
             row.innerHTML = `
               <td data-label="Image">${formatImageCell(entry)}</td>
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td class="entry-actions" data-label="Action">${actionCell}</td>
+            `;
+          } else if (isCostEntry(entry) && isCostOnlyGroup) {
+            row.innerHTML = `
               <td data-label="Date">${formatLongDate(entry.date)}</td>
               <td data-label="Type">${formatEntryType(entry)}</td>
               <td class="entry-actions" data-label="Action">${actionCell}</td>
@@ -1006,7 +1044,7 @@
       if (entry.type === "Replacement" && entry.replacementName) {
         return `${escapeHtml(entry.type)} for ${escapeHtml(entry.replacementName)}`;
       }
-      if ((entry.type === "Private" || entry.type === "Event") && Number(entry.customRate) > 0) {
+      if (entry.type === "Private" && Number(entry.customRate) > 0) {
         return `${escapeHtml(entry.type)} @ ${formatCurrency(entry.customRate)}/hr`;
       }
       if (entry.type === "Claim") {
@@ -1014,18 +1052,24 @@
         const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
         return `Claim${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
       }
+      if (isEventCostEntry(entry)) {
+        const eventCost = getCostEntryValue(entry);
+        const costLabel = eventCost > 0 ? ` (${formatCurrency(eventCost)})` : "";
+        return `Event${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
+      }
       return escapeHtml(entry.type);
     }
 
     function serializeClaimNotesForStorage(entry) {
-      if (entry.type !== "Claim") {
+      if (!isCostEntry(entry)) {
         return entry.claimNotes || null;
       }
       const noteText = String(entry.claimNotes || "").trim();
       const claimCost = Number(entry.claimCost || 0);
       if (claimCost > 0) {
         const amount = claimCost.toFixed(2);
-        return `[ClaimCost:${amount}] ${noteText}`.trim();
+        const prefix = entry.type === "Event" ? "EventCost" : "ClaimCost";
+        return `[${prefix}:${amount}] ${noteText}`.trim();
       }
       return noteText || null;
     }
@@ -1033,6 +1077,9 @@
     function formatTimeRange(entry) {
       if (entry.type === "Claim") {
         return entry.claimProofName ? `Proof: ${escapeHtml(entry.claimProofName)}` : "Claim";
+      }
+      if (isEventCostEntry(entry)) {
+        return getCostEntryValue(entry) > 0 ? formatCurrency(getCostEntryValue(entry)) : "Event";
       }
       const start = formatTime(entry.startTime);
       const end = formatTime(entry.endTime);
@@ -1090,6 +1137,13 @@
 
     function initImageViewer() {
       schoolGroups.addEventListener("click", (event) => {
+        const editButton = event.target.closest("[data-edit-id]");
+        if (editButton) {
+          event.preventDefault();
+          editEntry(editButton.dataset.editId);
+          return;
+        }
+
         const removeButton = event.target.closest("[data-remove-id]");
         if (removeButton) {
           event.preventDefault();
@@ -1141,26 +1195,49 @@
     }
 
     function calculateEntryPay(entry, defaultRate) {
-      if (entry.type === "Claim") {
-        return getClaimCostValue(entry);
+      if (isCostEntry(entry)) {
+        return getCostEntryValue(entry);
       }
       const customRate = Number(entry.customRate || 0);
       const appliedRate = customRate > 0 ? customRate : Number(defaultRate || 0);
       return Number(entry.hours || 0) * appliedRate;
     }
 
-    function getClaimCostValue(entry) {
+    function isCostEntry(entry) {
+      return entry?.type === "Claim" || isEventCostEntry(entry);
+    }
+
+    function isEventCostEntry(entry) {
+      return entry?.type === "Event"
+        && (
+          getCostEntryValue(entry) > 0
+          || String(entry?.claimNotes || "").trim().length > 0
+        );
+    }
+
+    function getCostEntryValue(entry) {
       const direct = Number(entry.claimCost || 0);
       if (Number.isFinite(direct) && direct > 0) {
         return direct;
       }
       const noteText = String(entry.claimNotes || "");
-      const match = noteText.match(/^\[ClaimCost:(\d+(?:\.\d{1,2})?)\]\s*/i);
+      const match = noteText.match(/^\[(?:ClaimCost|EventCost|EntryCost):(\d+(?:\.\d{1,2})?)\]\s*/i);
       if (!match) {
         return 0;
       }
       const parsed = Number(match[1]);
       return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    }
+
+    function editEntry(entryId) {
+      if (!entryId) return;
+      const entry = entries.find((item) => item.id === entryId);
+      if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
+
+      const editUrl = new URL("./chess-timesheet.html", window.location.href);
+      editUrl.searchParams.set("month", (entry.date || monthPicker.value).slice(0, 7));
+      editUrl.searchParams.set("edit", entryId);
+      window.location.href = editUrl.toString();
     }
 
     async function removeEntry(entryId) {

@@ -181,7 +181,8 @@
     .chip { font-size: .72rem; line-height: 1.2; background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); border: 1px solid color-mix(in srgb, var(--accent) 12%, white 88%); color: var(--accent); padding: 5px 6px; border-radius: 10px; overflow: hidden; }
     .chip strong { color: var(--ink); }
     .groups { display: grid; gap: var(--space-5); }
-    .school-card { padding: 20px; }
+    .school-card { position: relative; overflow: hidden; transform: translateY(0); padding: 20px; transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; will-change: transform; }
+    #schoolGroups .school-card:hover, #schoolGroups .school-card:focus-within { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 30%, var(--line) 70%); background: color-mix(in srgb, var(--surface-strong) 96%, white 4%); box-shadow: 0 18px 42px rgba(31,41,35,.12); }
     .school-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; margin-bottom: 12px; }
     .school-head h3 { margin: 0; font-size: 1.12rem; }
     .school-meta { color: var(--muted); font-size: .92rem; }
@@ -198,8 +199,17 @@
     .lightbox-image { display: block; max-width: 100%; max-height: 90vh; width: auto; height: auto; border-radius: 18px; object-fit: contain; background: oklch(21% 0.01 178); }
     .lightbox-close { position: absolute; top: -14px; right: -14px; width: 34px; height: 34px; border-radius: 999px; border: 0; background: var(--surface-strong); color: var(--ink); font-size: 1.05rem; font-weight: 700; line-height: 1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
     .empty { padding: var(--space-8); border-radius: 24px; background: var(--calendar); color: var(--muted); border: 1px dashed color-mix(in srgb, var(--line-strong) 42%, white 58%); text-align: center; line-height: 1.5; }
-    .entry-actions { width: 160px; min-width: 160px; }
-    .row-remove-button, .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
+    .entry-actions { width: 94px; min-width: 94px; vertical-align: middle; }
+    .entry-actions-inner { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 36px; }
+    .entry-actions .entry-action-button { position: relative; display: inline-grid; place-items: center; width: 34px; min-width: 34px; height: 34px; min-height: 34px; padding: 0; border: 0; border-radius: 999px; line-height: 1; cursor: pointer; transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease; }
+    .entry-actions .entry-action-button:hover, .entry-actions .entry-action-button:focus-visible { transform: translateY(-1px); }
+    .entry-action-button svg { width: 17px; height: 17px; stroke-width: 2.2; }
+    .entry-edit-button { background: #7c3aed; color: white; box-shadow: 0 8px 18px rgba(124,58,237,.22); }
+    .entry-remove-button { background: #c73832; color: white; box-shadow: 0 8px 18px rgba(199,56,50,.22); }
+    .entry-action-button[data-tooltip]::before, .entry-action-button[data-tooltip]::after { position: absolute; left: 50%; opacity: 0; pointer-events: none; transition: opacity 120ms ease, transform 120ms ease; z-index: 6; }
+    .entry-action-button[data-tooltip]::before { content: attr(data-tooltip); bottom: calc(100% + 9px); transform: translate(-50%, 4px); padding: 6px 8px; border-radius: 8px; background: var(--ink); color: white; font-size: .74rem; font-weight: 700; white-space: nowrap; box-shadow: 0 8px 22px rgba(0,0,0,.18); }
+    .entry-action-button[data-tooltip]::after { content: ""; bottom: calc(100% + 4px); transform: translate(-50%, 4px); border: 5px solid transparent; border-top-color: var(--ink); }
+    .entry-action-button[data-tooltip]:hover::before, .entry-action-button[data-tooltip]:hover::after, .entry-action-button[data-tooltip]:focus-visible::before, .entry-action-button[data-tooltip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
     .footer-note, .status-message { color: var(--muted); font-size: .9rem; line-height: 1.45; }
     .pay-card { padding: 20px; display: grid; gap: 0; margin-top: 18px; }
     .pay-line { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
@@ -236,7 +246,9 @@
       thead { display: none; }
       td { padding: 8px 0; }
       td::before { content: attr(data-label); display: block; font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
-      .entry-actions, .entry-actions button { width: 100%; min-width: 0; }
+      .entry-actions { width: auto; min-width: 0; }
+      .entry-actions-inner { justify-content: flex-start; }
+      .entry-actions .entry-action-button { width: 34px; min-width: 34px; }
     }
 
     .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
@@ -351,6 +363,8 @@
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
     const claimProofBucket = "claim-proofs";
+    const editEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+    const trashEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>';
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
 
@@ -563,6 +577,16 @@
       }
     }
 
+    function renderEntryActions(entry) {
+      const entryId = escapeHtml(entry.id || "");
+      return `
+        <div class="entry-actions-inner">
+          <button class="entry-action-button entry-edit-button" type="button" data-edit-id="${entryId}" aria-label="Edit Entry" data-tooltip="Edit Entry">${editEntryIconSvg}</button>
+          <button class="entry-action-button entry-remove-button" type="button" data-remove-id="${entryId}" aria-label="Remove Entry" data-tooltip="Remove Entry">${trashEntryIconSvg}</button>
+        </div>
+      `;
+    }
+
     function renderGroups(activeEntries, submission) {
       schoolGroups.innerHTML = "";
       if (!activeEntries.length) {
@@ -580,25 +604,38 @@
         const schoolEntries = grouped[schoolKey];
         const fragment = schoolTemplate.content.cloneNode(true);
         fragment.querySelector("h3").textContent = schoolEntries[0].schoolName;
-        const isClaimGroup = schoolEntries.every((entry) => entry.type === "Claim");
+        const isCostOnlyGroup = schoolEntries.every(isCostEntry);
+        const hasClaimRows = schoolEntries.some((entry) => entry.type === "Claim");
         const headRow = fragment.querySelector("thead tr");
-        headRow.innerHTML = isClaimGroup
-          ? `<th>Image</th><th>Date</th><th>Type</th><th></th>`
+        headRow.innerHTML = isCostOnlyGroup
+          ? hasClaimRows
+            ? `<th>Image</th><th>Date</th><th>Type</th><th></th>`
+            : `<th>Date</th><th>Type</th><th></th>`
           : `<th>Date</th><th>Type</th><th>Hours</th><th>Time</th><th></th>`;
 
         const totalHours = schoolEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+        const totalCost = schoolEntries.reduce((sum, entry) => sum + getCostEntryValue(entry), 0);
         fragment.querySelector(".school-meta").textContent =
-          `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
+          isCostOnlyGroup
+            ? `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${formatCurrency(totalCost)}`
+            : `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
 
         const body = fragment.querySelector("tbody");
         schoolEntries.forEach((entry) => {
           const row = document.createElement("tr");
-          if (entry.type === "Claim") {
+          const actionCell = renderEntryActions(entry);
+          if (isCostEntry(entry) && isCostOnlyGroup && hasClaimRows) {
             row.innerHTML = `
               <td data-label="Image">${formatImageCell(entry)}</td>
               <td data-label="Date">${formatLongDate(entry.date)}</td>
               <td data-label="Type">${formatEntryType(entry)}</td>
-              <td data-label="Action" class="entry-actions"><button class="entry-remove" type="button" data-entry-id="${escapeHtml(entry.id || "")}">Remove</button></td>
+              <td data-label="Action" class="entry-actions">${actionCell}</td>
+            `;
+          } else if (isCostEntry(entry) && isCostOnlyGroup) {
+            row.innerHTML = `
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td data-label="Action" class="entry-actions">${actionCell}</td>
             `;
           } else {
             row.innerHTML = `
@@ -606,7 +643,7 @@
               <td data-label="Type">${formatEntryType(entry)}</td>
               <td data-label="Hours" class="hours-cell">${formatHoursCell(entry)}</td>
               <td data-label="Time">${formatTimeRange(entry)}</td>
-              <td data-label="Action" class="entry-actions"><button class="entry-remove" type="button" data-entry-id="${escapeHtml(entry.id || "")}">Remove</button></td>
+              <td data-label="Action" class="entry-actions">${actionCell}</td>
             `;
           }
           body.appendChild(row);
@@ -615,11 +652,144 @@
         schoolGroups.appendChild(fragment);
       });
 
-      schoolGroups.querySelectorAll("[data-entry-id]").forEach((button) => {
+      schoolGroups.querySelectorAll("[data-remove-id]").forEach((button) => {
         button.addEventListener("click", async () => {
-          await removeEntryFromSubmission(submission.id, button.dataset.entryId);
+          await removeEntryFromSubmission(submission.id, button.dataset.removeId);
         });
       });
+      schoolGroups.querySelectorAll("[data-edit-id]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          await editEntryFromSubmission(submission.id, button.dataset.editId);
+        });
+      });
+    }
+
+    async function editEntryFromSubmission(submissionId, entryId) {
+      const { data: row, error: entryError } = await window.supabaseClient
+        .from("payroll_entries")
+        .select("*")
+        .eq("id", entryId)
+        .maybeSingle();
+      if (entryError) {
+        alert(`Could not load entry: ${entryError.message || "unknown error"}`);
+        return;
+      }
+      if (!row) return;
+
+      const allowedTypes = ["School Coaching", "Replacement", "Camp", "Private", "Event", "Claim"];
+      const claimPayload = parseClaimNotePayload(row.claim_notes || "");
+      const currentType = row.type || "School Coaching";
+      const typeInput = prompt(`Entry type (${allowedTypes.join(", ")})`, currentType);
+      if (typeInput == null) return;
+      const nextType = allowedTypes.find((type) => type.toLowerCase() === typeInput.trim().toLowerCase());
+      if (!nextType) {
+        alert("Choose one of the listed entry types.");
+        return;
+      }
+
+      const isClaim = nextType === "Claim";
+      const isEvent = nextType === "Event";
+      const schoolLabel = isEvent ? "Name" : "School name";
+      const schoolInput = isClaim
+        ? "Claims"
+        : prompt(schoolLabel, row.school_name || "");
+      if (schoolInput == null) return;
+      const schoolName = isClaim ? "Claims" : schoolInput.trim();
+      if (!isClaim && !schoolName) {
+        alert(`${schoolLabel} cannot be empty.`);
+        return;
+      }
+
+      const dateInput = prompt("Date (YYYY-MM-DD)", row.date || "");
+      if (dateInput == null) return;
+      const date = dateInput.trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        alert("Use a date in YYYY-MM-DD format.");
+        return;
+      }
+
+      let updates = {
+        school_name: schoolName,
+        date,
+        type: nextType,
+        replacement_name: null,
+        custom_rate: null,
+        claim_notes: null,
+        claim_image_url: isClaim ? row.claim_image_url || null : null,
+      };
+
+      if (isClaim || isEvent) {
+        const notesInput = prompt(isEvent ? "Notes" : "Claim notes", claimPayload.notes || "");
+        if (notesInput == null) return;
+        const costInput = prompt(isEvent ? "Cost" : "Claim cost", claimPayload.cost || "");
+        if (costInput == null) return;
+        const cost = Number(costInput);
+        if (!Number.isFinite(cost) || cost <= 0) {
+          alert(`${isEvent ? "Event" : "Claim"} cost needs to be greater than zero.`);
+          return;
+        }
+        updates = {
+          ...updates,
+          start_time: null,
+          end_time: null,
+          hours: 0,
+          claim_notes: serializeSubmittedCostNotes(nextType, notesInput.trim(), cost),
+        };
+      } else {
+        const startInput = prompt("Start time (HH:MM)", row.start_time || "");
+        if (startInput == null) return;
+        const startTime = startInput.trim();
+        if (!/^([01]\d|2[0-3]):[0-5]\d/.test(startTime)) {
+          alert("Use a start time in HH:MM format.");
+          return;
+        }
+        const hoursInput = prompt("Hours worked", row.hours || "");
+        if (hoursInput == null) return;
+        const hours = Number(hoursInput);
+        if (!Number.isFinite(hours) || hours <= 0) {
+          alert("Hours worked needs to be greater than zero.");
+          return;
+        }
+        updates = {
+          ...updates,
+          start_time: startTime,
+          end_time: calculateEndTime(startTime, hours),
+          hours,
+        };
+
+        if (nextType === "Replacement") {
+          const replacementInput = prompt("Replacement name", row.replacement_name || "");
+          if (replacementInput == null) return;
+          if (!replacementInput.trim()) {
+            alert("Replacement name cannot be empty.");
+            return;
+          }
+          updates.replacement_name = replacementInput.trim();
+        }
+
+        if (nextType === "Private") {
+          const rateInput = prompt("Custom hourly rate (optional)", row.custom_rate || "");
+          if (rateInput == null) return;
+          const rate = rateInput === "" ? null : Number(rateInput);
+          if (rateInput !== "" && (!Number.isFinite(rate) || rate <= 0)) {
+            alert("Custom hourly rate needs to be greater than zero.");
+            return;
+          }
+          updates.custom_rate = rate;
+        }
+      }
+
+      const { error: updateError } = await window.supabaseClient
+        .from("payroll_entries")
+        .update(updates)
+        .eq("id", entryId);
+      if (updateError) {
+        alert(`Could not update entry: ${updateError.message || "unknown error"}`);
+        return;
+      }
+
+      await refreshSubmissionTotals(submissionId);
+      await render();
     }
 
     async function removeEntryFromSubmission(submissionId, entryId) {
@@ -648,6 +818,11 @@
         return;
       }
 
+      await refreshSubmissionTotals(submissionId);
+      await render();
+    }
+
+    async function refreshSubmissionTotals(submissionId) {
       const { data: remainingEntries, error: remainingError } = await window.supabaseClient
         .from("payroll_entries")
         .select("type, hours, custom_rate, claim_notes")
@@ -666,17 +841,37 @@
           .update({ total_hours: totalHours, total_pay: totalPay })
           .eq("id", submissionId);
       }
+    }
 
-      await render();
+    function serializeSubmittedCostNotes(type, notes, cost) {
+      const prefix = type === "Event" ? "EventCost" : "ClaimCost";
+      const amount = Number(cost || 0).toFixed(2);
+      return `[${prefix}:${amount}] ${String(notes || "").trim()}`.trim();
+    }
+
+    function calculateEndTime(startTime, hoursWorked) {
+      const [hourText, minuteText] = String(startTime || "").split(":");
+      const hour = Number(hourText);
+      const minute = Number(minuteText);
+      if (!Number.isFinite(hour) || !Number.isFinite(minute)) return "";
+      const totalMinutes = hour * 60 + minute + Math.round(Number(hoursWorked || 0) * 60);
+      const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+      const nextHour = String(Math.floor(normalized / 60)).padStart(2, "0");
+      const nextMinute = String(normalized % 60).padStart(2, "0");
+      return `${nextHour}:${nextMinute}`;
     }
 
     function calculateStoredEntryPay(entry, fallbackRate) {
-      if (entry.type === "Claim") {
+      if (entry.type === "Claim" || isStoredEventCostEntry(entry)) {
         return parseClaimNotePayload(entry.claim_notes || "").cost || 0;
       }
       const rowRate = Number(entry.custom_rate || 0);
       const appliedRate = rowRate > 0 ? rowRate : Number(fallbackRate || 0);
       return Number(entry.hours || 0) * appliedRate;
+    }
+
+    function isStoredEventCostEntry(entry) {
+      return entry?.type === "Event" && Boolean(parseClaimNotePayload(entry.claim_notes || "").cost);
     }
 
     function groupBy(list, getKey) {
@@ -744,12 +939,17 @@
         const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
         return `Claim${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
       }
+      if (isEventCostEntry(entry)) {
+        const eventCost = getCostEntryValue(entry);
+        const costLabel = eventCost > 0 ? ` (${formatCurrency(eventCost)})` : "";
+        return `Event${costLabel}: ${escapeHtml(entry.claimNotes || "")}`;
+      }
       return escapeHtml(entry.type);
     }
 
     function parseClaimNotePayload(rawValue) {
       const raw = String(rawValue || "");
-      const match = raw.match(/^\[ClaimCost:(\d+(?:\.\d{1,2})?)\]\s*/i);
+      const match = raw.match(/^\[(?:ClaimCost|EventCost|EntryCost):(\d+(?:\.\d{1,2})?)\]\s*/i);
       if (!match) {
         return { notes: raw, cost: null };
       }
@@ -766,6 +966,23 @@
         return `${hoursMain} <span class="hours-rate">@ ${formatCurrency(entry.customRate)}/hr</span>`;
       }
       return hoursMain;
+    }
+
+    function isCostEntry(entry) {
+      return entry?.type === "Claim" || isEventCostEntry(entry);
+    }
+
+    function isEventCostEntry(entry) {
+      return entry?.type === "Event"
+        && (
+          getCostEntryValue(entry) > 0
+          || String(entry?.claimNotes || "").trim().length > 0
+        );
+    }
+
+    function getCostEntryValue(entry) {
+      const parsed = Number(entry?.claimCost || 0);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
     }
 
     function formatImageCell(entry) {
@@ -817,6 +1034,9 @@
     function formatTimeRange(entry) {
       if (entry.type === "Claim") {
         return entry.claimProofName ? `Proof: ${escapeHtml(entry.claimProofName)}` : "Claim";
+      }
+      if (isEventCostEntry(entry)) {
+        return getCostEntryValue(entry) > 0 ? formatCurrency(getCostEntryValue(entry)) : "Event";
       }
       const start = formatTime(entry.startTime);
       const end = formatTime(entry.endTime);

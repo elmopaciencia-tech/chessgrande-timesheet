@@ -52,12 +52,13 @@
     [".chat-launcher", "bot"],
     [".chat-send", "send"],
     [".chat-close, .icon-close, .lightbox-close", "x"],
-    [".delete-button, .danger, .entry-remove, .row-remove-button, .ghost", "trash-2"],
+    [".delete-button, .danger, .entry-remove, .row-remove-button, .quick-add-remove, .ghost", "trash-2"],
     [".edit-button", "pencil"],
     [".avatar-btn", "upload"]
   ];
 
   const ICON_ONLY_SELECTOR = ".chat-send, .chat-close, .icon-close, .lightbox-close, .chat-launcher";
+  const SKIP_ICON_SELECTOR = ".quick-add-apply, .profile-avatar-button, .entry-action-button";
 
   function getText(element) {
     return `${element.textContent || ""} ${element.getAttribute("aria-label") || ""}`.trim();
@@ -76,6 +77,10 @@
   }
 
   function addIcon(element) {
+    if (element.matches(SKIP_ICON_SELECTOR)) {
+      return;
+    }
+
     if (element.dataset.cgIconified === "true") {
       return;
     }

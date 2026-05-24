@@ -143,6 +143,7 @@ alter table public.payroll_submissions add column if not exists paid_by uuid ref
 
 revoke update on public.payroll_submissions from anon, authenticated;
 grant update (paid_at, paid_by) on public.payroll_submissions to authenticated;
+grant update (total_hours, total_pay) on public.payroll_submissions to authenticated;
 
 -- -------------------------------------------------------------------
 -- 3) Payroll entries table
@@ -184,6 +185,20 @@ check (
     '#81B2D9', '#32769B', '#BBA6DD', '#8C7DA8', '#64557B', '#1E2136'
   )
 );
+
+grant update (
+  school_name,
+  date,
+  type,
+  start_time,
+  end_time,
+  hours,
+  replacement_name,
+  custom_rate,
+  claim_notes,
+  claim_image_url,
+  calendar_color
+) on public.payroll_entries to authenticated;
 
 -- -------------------------------------------------------------------
 -- 4) Draft timesheet entries table
@@ -443,6 +458,16 @@ with check (
   and authz.has_app_role(array['manager', 'webadmin'])
 );
 
+-- Managers and webadmins can refresh totals after correcting submitted rows.
+drop policy if exists "submissions_update_totals_admin_all" on public.payroll_submissions;
+drop policy if exists "submissions_update_totals_manager_all" on public.payroll_submissions;
+create policy "submissions_update_totals_admin_all"
+on public.payroll_submissions
+for update
+to authenticated
+using (authz.has_app_role(array['manager', 'webadmin']))
+with check (authz.has_app_role(array['manager', 'webadmin']));
+
 -- -------------------------------------------------------------------
 -- 9) Payroll entries RLS policies
 -- -------------------------------------------------------------------
@@ -493,6 +518,16 @@ on public.payroll_entries
 for delete
 to authenticated
 using (authz.has_app_role(array['manager', 'webadmin']));
+
+-- Managers and webadmins can correct submitted entry details.
+drop policy if exists "entries_update_admin_all" on public.payroll_entries;
+drop policy if exists "entries_update_manager_all" on public.payroll_entries;
+create policy "entries_update_admin_all"
+on public.payroll_entries
+for update
+to authenticated
+using (authz.has_app_role(array['manager', 'webadmin']))
+with check (authz.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
 -- 10) Draft timesheet entries RLS policies
@@ -555,7 +590,7 @@ for insert
 to authenticated
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim')
   and coalesce(created_by, auth.uid()) = auth.uid()
   and coalesce(updated_by, auth.uid()) = auth.uid()
   and authz.has_app_role(array['manager', 'webadmin'])
@@ -568,12 +603,12 @@ for update
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim')
   and authz.has_app_role(array['manager', 'webadmin'])
 )
 with check (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim')
   and coalesce(updated_by, auth.uid()) = auth.uid()
   and authz.has_app_role(array['manager', 'webadmin'])
 );
@@ -585,7 +620,7 @@ for delete
 to authenticated
 using (
   status = 'active'
-  and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
+  and type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim')
   and authz.has_app_role(array['manager', 'webadmin'])
 );
 

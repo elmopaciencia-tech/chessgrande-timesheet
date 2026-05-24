@@ -131,7 +131,7 @@
     .menu-item:hover { background: var(--accent-soft); }
 
     .page {
-      width: min(1180px, 100%);
+      width: min(1320px, 100%);
       margin: 28px auto 0;
       display: grid;
       gap: 28px;
@@ -172,8 +172,44 @@
       line-height: 1.5;
     }
 
-    .layout {
-      display: block;
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(440px, 0.55fr);
+      gap: var(--space-6);
+      align-items: start;
+    }
+
+    .review-column,
+    .action-column {
+      min-width: 0;
+    }
+
+    .review-column {
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    .action-column {
+      position: sticky;
+      top: calc(env(safe-area-inset-top) + 100px);
+      display: grid;
+      gap: var(--space-5);
+    }
+
+    #entryComposerPanel {
+      max-height: calc(100vh - 126px);
+      overflow: auto;
+    }
+
+    #entryComposerPanel .form-grid,
+    #entryComposerPanel .form-grid.compact {
+      grid-template-columns: 1fr;
+    }
+
+    #entryComposerPanel .date-field,
+    #entryComposerPanel .entry-type-row,
+    #entryComposerPanel #claimFields > div {
+      grid-column: 1 / -1;
     }
 
     .panel { padding: var(--space-7); }
@@ -211,8 +247,272 @@
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%);
     }
 
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+    .form-grid { display: grid; grid-template-columns: minmax(132px, 0.62fr) minmax(0, 1.38fr); gap: var(--space-4); }
+    .form-grid.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: var(--space-4); }
+    .form-grid > div,
+    .form-grid.compact > div { min-width: 0; }
     .full { grid-column: 1 / -1; }
+    .school-name-row,
+    .entry-type-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-3);
+      align-items: end;
+      position: relative;
+    }
+    .school-name-field,
+    .entry-type-field {
+      min-width: 0;
+    }
+    .quick-add-control {
+      position: relative;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      min-width: 0;
+    }
+    .quick-add-toggle {
+      white-space: nowrap;
+      min-width: 128px;
+    }
+    .hours-quick-add-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(150px, auto);
+      gap: var(--space-3);
+      align-items: end;
+    }
+    .quick-add-save {
+      min-height: 44px;
+      align-self: end;
+      min-width: 150px;
+      white-space: nowrap;
+      background: #2f8b57;
+      border-color: #2f8b57;
+      color: #fff;
+    }
+    .quick-add-save:hover:not(:disabled) {
+      background: #246b43;
+      border-color: #246b43;
+    }
+    .quick-add-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 40;
+      width: min(360px, calc(100vw - 48px));
+      display: grid;
+      gap: var(--space-3);
+      padding: 14px;
+      border-radius: 20px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      box-shadow: var(--shadow-md);
+    }
+    .quick-add-menu[hidden] {
+      display: none;
+    }
+    .quick-add-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+    .quick-add-copy {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+    .quick-add-list {
+      display: grid;
+      gap: 8px;
+    }
+    .quick-add-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 42px;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .quick-add-apply {
+      min-height: 46px;
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+      justify-items: start;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: var(--surface-strong);
+      border-color: color-mix(in srgb, var(--line) 84%, white 16%);
+      color: var(--ink);
+    }
+    .quick-add-school {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+    .quick-add-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.25;
+    }
+    .quick-add-remove {
+      min-height: 42px;
+      width: 42px;
+      padding: 0;
+      border-radius: 16px;
+      background: var(--surface-strong);
+      border-color: color-mix(in srgb, var(--line) 84%, white 16%);
+      color: var(--clay);
+    }
+    .quick-add-empty {
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-strong) 68%, transparent);
+      border: 1px dashed color-mix(in srgb, var(--line) 78%, white 22%);
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+    .quick-add-status {
+      min-height: 1.2em;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+    .quick-add-status.error {
+      color: #9f2f1f;
+    }
+    .calendar-color-control {
+      position: relative;
+      display: grid;
+      align-items: end;
+      padding-bottom: 4px;
+    }
+    .calendar-color-toggle {
+      position: relative;
+      width: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      aspect-ratio: 1;
+      padding: 0;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--line-strong) 66%, white 34%);
+      background:
+        conic-gradient(
+          from 20deg,
+          #fff689,
+          #ff9c5b,
+          #f67b45,
+          #e39b99,
+          #b4cfa4,
+          #62866c,
+          #81b2d9,
+          #32769b,
+          #bba6dd,
+          #64557b,
+          #fff689
+        );
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, white 72%, transparent),
+        var(--shadow-sm);
+    }
+    .calendar-color-toggle.has-selected-color {
+      background: var(--selected-calendar-color);
+      border-color: color-mix(in srgb, var(--selected-calendar-color) 76%, black 24%);
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, white 72%, transparent),
+        0 0 0 4px color-mix(in srgb, var(--selected-calendar-color) 24%, transparent),
+        var(--shadow-sm);
+    }
+    .calendar-color-toggle::before,
+    .calendar-color-toggle::after {
+      position: absolute;
+      right: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(3px);
+      transition: opacity 150ms ease, transform 150ms ease;
+      z-index: 60;
+    }
+    .calendar-color-toggle::before {
+      content: attr(data-tooltip);
+      bottom: calc(100% + 10px);
+      width: max-content;
+      max-width: 180px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: var(--surface-strong);
+      box-shadow: var(--shadow-sm);
+      font-size: 0.75rem;
+      line-height: 1;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .calendar-color-toggle::after {
+      content: "";
+      bottom: calc(100% + 3px);
+      border: 7px solid transparent;
+      border-top-color: var(--ink);
+    }
+    .calendar-color-toggle:hover::before,
+    .calendar-color-toggle:hover::after,
+    .calendar-color-toggle:focus-visible::before,
+    .calendar-color-toggle:focus-visible::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .calendar-color-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 42;
+      padding: 12px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      box-shadow: var(--shadow-md);
+    }
+    .calendar-color-menu[hidden] { display: none; }
+    .calendar-color-options {
+      display: grid;
+      grid-template-columns: repeat(5, 32px);
+      gap: 8px;
+    }
+    .calendar-color-option {
+      position: relative;
+      display: grid;
+      min-width: 0;
+      aspect-ratio: 1;
+    }
+    .calendar-color-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .calendar-color-swatch {
+      border-radius: 999px;
+      border: 2px solid color-mix(in srgb, var(--line-strong) 62%, white 38%);
+      background: var(--swatch-color, var(--surface-strong));
+      cursor: pointer;
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, white 82%, transparent);
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+    .calendar-color-swatch.neutral {
+      background:
+        linear-gradient(135deg, transparent calc(50% - 1px), var(--clay) 50%, transparent calc(50% + 1px)),
+        var(--surface-strong);
+    }
+    .calendar-color-option input:focus-visible + .calendar-color-swatch,
+    .calendar-color-option input:checked + .calendar-color-swatch {
+      border-color: var(--ink);
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, white 82%, transparent),
+        0 0 0 3px color-mix(in srgb, var(--focus) 18%, white 82%);
+      transform: translateY(-1px);
+    }
     .checkbox-row {
       display: flex;
       align-items: flex-start;
@@ -247,6 +547,15 @@
     }
     .button, .primary { border: 0; background: var(--accent); color: var(--surface-strong); }
     .secondary { border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%); background: var(--surface-strong); color: var(--accent); }
+    .secondary.quick-add-save {
+      background: #2f8b57;
+      border-color: #2f8b57;
+      color: #fff;
+    }
+    .secondary.quick-add-save:hover:not(:disabled) {
+      background: #246b43;
+      border-color: #246b43;
+    }
     .danger { border: 0; background: var(--clay-soft); color: var(--clay); }
 
     .status { min-height: 1.4rem; font-size: 0.92rem; margin-bottom: var(--space-4); }
@@ -398,8 +707,34 @@
       text-align: center;
     }
 
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 1fr; }
+      .action-column {
+        position: static;
+        order: -1;
+      }
+      #entryComposerPanel {
+        max-height: none;
+      }
+    }
+
     @media (max-width: 920px) {
-      .toolbar, .form-grid, .actions { grid-template-columns: 1fr; }
+      .toolbar, .form-grid, .form-grid.compact, .actions, .school-name-row { grid-template-columns: 1fr; }
+      .entry-type-row { grid-template-columns: minmax(0, 1fr) auto; }
+      .hours-quick-add-row { grid-template-columns: 1fr; }
+      .quick-add-control {
+        display: grid;
+        justify-content: stretch;
+      }
+      .quick-add-menu {
+        position: static;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .quick-add-toggle,
+      .quick-add-save {
+        width: 100%;
+      }
       .hero, .panel { padding: 20px; }
       .app-header-inner { min-height: 66px; padding: 0 16px; }
       .calendar-shell { padding: 12px; }
@@ -442,101 +777,148 @@
     <section class="hero">
       <p class="eyebrow">Manager View</p>
       <h1>Draft Timesheets</h1>
-      <p>Prefill employee coaching and replacement drafts before payroll submission. Claims and submitted rows are visible for context, but remain read-only here.</p>
+      <p>Prefill employee coaching, replacements, claims, event costs, and calendar colours before payroll submission. Submitted rows remain locked for context.</p>
     </section>
 
-    <section class="panel">
-      <div class="panel-header">
-        <div>
-          <p class="panel-eyebrow">Employee scope</p>
-          <h2>Choose Employee And Month</h2>
-          <p class="panel-copy">The list below reads from Supabase draft rows, so changes appear for the employee across devices.</p>
-        </div>
-        <a class="button" href="./manager-dashboard.html">Submitted Payroll</a>
+    <div class="workspace">
+      <div class="review-column">
+        <section class="panel" id="draftReviewPanel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-eyebrow">Employee scope</p>
+              <h2>Choose Employee And Month</h2>
+              <p class="panel-copy">The list below reads from Supabase draft rows, so changes appear for the employee across devices.</p>
+            </div>
+            <a class="button" href="./manager-dashboard.html">Submitted Payroll</a>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-card">
+              <label for="employeeSelect">Employee</label>
+              <select id="employeeSelect"></select>
+            </div>
+            <div class="toolbar-card">
+              <label for="monthPicker">Month</label>
+              <input id="monthPicker" type="month">
+            </div>
+          </div>
+          <div class="status" id="statusMessage"></div>
+          <div class="calendar-shell" aria-labelledby="calendarTitle">
+            <div class="calendar-header">
+              <h3 class="calendar-title" id="calendarTitle">Month Calendar</h3>
+              <div class="calendar-meta" id="calendarMeta">0 entries</div>
+            </div>
+            <div id="draftCalendar" class="calendar-grid"></div>
+          </div>
+          <div id="draftList" class="draft-list"></div>
+        </section>
       </div>
-      <div class="toolbar">
-        <div class="toolbar-card">
-          <label for="employeeSelect">Employee</label>
-          <select id="employeeSelect"></select>
-        </div>
-        <div class="toolbar-card">
-          <label for="monthPicker">Month</label>
-          <input id="monthPicker" type="month">
-        </div>
-      </div>
-      <div class="status" id="statusMessage"></div>
-      <div class="calendar-shell" aria-labelledby="calendarTitle">
-        <div class="calendar-header">
-          <h3 class="calendar-title" id="calendarTitle">Month Calendar</h3>
-          <div class="calendar-meta" id="calendarMeta">0 entries</div>
-        </div>
-        <div id="draftCalendar" class="calendar-grid"></div>
-      </div>
-      <div id="draftList" class="draft-list"></div>
-    </section>
 
-    <aside class="layout">
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <p class="panel-eyebrow">Draft editor</p>
-            <h2 id="formTitle">Add Draft</h2>
-            <p class="panel-copy">Managers can create or change active non-claim rows. Claims and submitted rows remain read-only.</p>
-          </div>
-        </div>
-        <form id="draftForm">
-          <div class="form-grid">
-            <div class="full">
-              <label for="schoolName">School Name</label>
-              <input id="schoolName" type="text" required placeholder="e.g. ACS">
-            </div>
+      <aside class="action-column">
+        <section class="panel" id="entryComposerPanel">
+          <div class="panel-header">
             <div>
-              <label for="entryType">Entry Type</label>
-              <select id="entryType">
-                <option value="School Coaching">School Coaching</option>
-                <option value="Replacement">Replacement</option>
-                <option value="Camp">Camp</option>
-                <option value="Private">Private</option>
-                <option value="Event">Event</option>
-              </select>
-            </div>
-            <div id="replacementField" hidden>
-              <label for="replacementName">Replacing</label>
-              <input id="replacementName" type="text" placeholder="e.g. Ericka">
-            </div>
-            <div class="full" id="customRateField" hidden>
-              <label for="customRate">Custom Pay Per Hour (for Private/Event)</label>
-              <input id="customRate" type="number" min="0" step="0.01" placeholder="e.g. 75">
-            </div>
-            <div>
-              <label for="entryDate">Date</label>
-              <input id="entryDate" type="date" required>
+              <p class="panel-eyebrow">Draft editor</p>
+              <h2 id="formTitle">Add Draft</h2>
+              <p class="panel-copy">Use the same composer shape as the employee timesheet to prepare sessions, replacements, claims, event costs, and calendar colours for the selected employee.</p>
             </div>
           </div>
-          <div id="timeFieldsMount"></div>
-          <div class="checkbox-row" id="recurringRow">
-            <input id="isRecurring" type="checkbox">
-            <label for="isRecurring" style="margin: 0;">Repeat weekly for this school until the end of the selected month</label>
-          </div>
-          <div class="actions">
-            <button class="primary" id="saveDraftButton" type="submit">Save Draft</button>
-            <button class="secondary" id="cancelEditButton" type="button">Cancel Edit</button>
-          </div>
-          <div class="hint">End time is calculated automatically from the start time and hours worked.</div>
-        </form>
-      </section>
-    </aside>
+          <form id="draftForm">
+            <div class="form-grid">
+              <div class="full school-name-row">
+                <div class="school-name-field">
+                  <label for="schoolName">School Name</label>
+                  <input id="schoolName" type="text" required placeholder="e.g. ACS">
+                </div>
+                <div class="quick-add-control">
+                  <button class="secondary quick-add-toggle" type="button" id="quickAddToggle" aria-expanded="false" aria-controls="quickAddMenu">Quick Add</button>
+                  <div class="quick-add-menu" id="quickAddMenu" role="dialog" aria-labelledby="quickAddTitle" hidden>
+                    <div>
+                      <p class="quick-add-title" id="quickAddTitle">Quick Add</p>
+                      <p class="quick-add-copy">Saved School Coaching slots stay with this account.</p>
+                    </div>
+                    <div class="quick-add-list" id="quickAddList"></div>
+                    <div class="quick-add-status" id="quickAddStatus" role="status" aria-live="polite"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="date-field">
+                <label for="entryDate">Date</label>
+                <input id="entryDate" type="date" required>
+              </div>
+              <div class="entry-type-row">
+                <div class="entry-type-field">
+                  <label for="entryType">Entry Type</label>
+                  <select id="entryType">
+                    <option value="School Coaching">School Coaching</option>
+                    <option value="Replacement">Replacement</option>
+                    <option value="Camp">Camp</option>
+                    <option value="Private">Private</option>
+                    <option value="Event">Event</option>
+                    <option value="Claim">Claim</option>
+                  </select>
+                </div>
+                <div class="calendar-color-control">
+                  <button class="calendar-color-toggle" type="button" id="calendarColorToggle" aria-label="Select a Colour" aria-expanded="false" aria-controls="calendarColorMenu" data-tooltip="Select a Colour"></button>
+                  <div class="calendar-color-menu" id="calendarColorMenu" hidden>
+                    <div class="calendar-color-options" id="calendarColorOptions"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="full" id="replacementField" hidden>
+                <label for="replacementName">Replaced Person</label>
+                <input id="replacementName" type="text" placeholder="e.g. Ericka">
+              </div>
+              <div class="full" id="customRateField" hidden>
+                <label for="customRate">Custom Pay Per Hour (for Private)</label>
+                <input id="customRate" type="number" min="0" step="0.01" placeholder="e.g. 75">
+              </div>
+            </div>
+            <div id="timeFieldsMount"></div>
+            <div class="checkbox-row" id="recurringRow">
+              <input id="isRecurring" type="checkbox">
+              <label for="isRecurring" style="margin: 0;">Repeat weekly for this school until the end of the selected month</label>
+            </div>
+            <div id="claimFieldsMount"></div>
+            <div class="actions">
+              <button class="primary" id="saveDraftButton" type="submit">Save Draft</button>
+              <button class="secondary" id="cancelEditButton" type="button">Cancel Edit</button>
+            </div>
+            <div class="hint">End time is calculated automatically from the start time and hours worked. Events need a name, notes, and cost; claims also need proof before they can be saved.</div>
+          </form>
+        </section>
+      </aside>
+    </div>
   </main>
 
+  <template id="claimFieldsTemplate">
+    <div class="form-grid" id="claimFields">
+      <div class="full">
+        <label for="claimNotes">Claim Notes</label>
+        <input id="claimNotes" type="text" placeholder="e.g. Transport reimbursement">
+      </div>
+      <div class="full">
+        <label for="claimCost">Claim Cost</label>
+        <input id="claimCost" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 14.50">
+      </div>
+      <div class="full" id="claimProofField">
+        <label for="claimProof">Proof Image</label>
+        <input id="claimProof" type="file" accept="image/*">
+      </div>
+    </div>
+  </template>
+
   <template id="timeFieldsTemplate">
-    <div class="form-grid compact" id="timeFields">
+    <div class="time-fields-grid form-grid compact" id="timeFields">
       <div>
         <label for="startTime">Start Time</label>
         <input id="startTime" type="time" required>
       </div>
-      <div>
-        <label for="hoursWorked">Hours Worked</label>
-        <input id="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
+      <div class="hours-quick-add-row">
+        <div>
+          <label for="hoursWorked">Hours Worked</label>
+          <input id="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
+        </div>
+        <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled>Save To Quick Add</button>
       </div>
     </div>
   </template>
@@ -544,6 +926,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./calendar-colors.js"></script>
+  <script src="./quick-add-store.js"></script>
   <script src="./draft-timesheet-store.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
@@ -560,14 +943,24 @@
     const draftForm = document.getElementById("draftForm");
     const formTitle = document.getElementById("formTitle");
     const schoolNameInput = document.getElementById("schoolName");
+    const schoolNameLabel = document.querySelector('label[for="schoolName"]');
+    const quickAddToggle = document.getElementById("quickAddToggle");
+    const quickAddMenu = document.getElementById("quickAddMenu");
+    const quickAddList = document.getElementById("quickAddList");
+    const quickAddStatus = document.getElementById("quickAddStatus");
     const entryTypeSelect = document.getElementById("entryType");
     const replacementField = document.getElementById("replacementField");
     const replacementNameInput = document.getElementById("replacementName");
     const customRateField = document.getElementById("customRateField");
     const customRateInput = document.getElementById("customRate");
     const entryDateInput = document.getElementById("entryDate");
+    const calendarColorToggle = document.getElementById("calendarColorToggle");
+    const calendarColorMenu = document.getElementById("calendarColorMenu");
+    const calendarColorOptions = document.getElementById("calendarColorOptions");
     const timeFieldsMount = document.getElementById("timeFieldsMount");
     const timeFieldsTemplate = document.getElementById("timeFieldsTemplate");
+    const claimFieldsMount = document.getElementById("claimFieldsMount");
+    const claimFieldsTemplate = document.getElementById("claimFieldsTemplate");
     const recurringRow = document.getElementById("recurringRow");
     const recurringInput = document.getElementById("isRecurring");
     const saveDraftButton = document.getElementById("saveDraftButton");
@@ -579,11 +972,15 @@
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
     const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
-    const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const quickAddWeekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const defaultCalendarColor = "#B4CFA4";
 
     let currentUser = null;
     let employees = [];
     let entries = [];
+    let quickAddTemplates = [];
+    let quickAddStatusTimer = 0;
     let editingEntryId = "";
 
     initApp();
@@ -607,8 +1004,10 @@
       monthPicker.value = formatMonthValue(new Date());
       entryDateInput.value = formatDateInput(new Date());
       ensureTimeFieldsRendered();
+      renderCalendarColorPicker();
       setupUserMenu();
       bindEvents();
+      await loadQuickAddTemplates();
       await loadEmployees();
       await loadSelectedEmployeeEntries();
       hydrateHeaderAvatar();
@@ -653,6 +1052,12 @@
       });
     }
 
+    function hydrateHeaderAvatar() {
+      if (window.profileAvatar && typeof window.profileAvatar.hydrateHeaderAvatar === "function") {
+        window.profileAvatar.hydrateHeaderAvatar(userMenuButtonLabel, { size: 32 });
+      }
+    }
+
     function bindEvents() {
       employeeSelect.addEventListener("change", async () => {
         resetForm();
@@ -664,6 +1069,16 @@
       });
       entryTypeSelect.addEventListener("change", syncReplacementField);
       entryTypeSelect.addEventListener("input", syncReplacementField);
+      draftForm.addEventListener("input", updateQuickAddSaveState);
+      draftForm.addEventListener("change", updateQuickAddSaveState);
+      quickAddToggle.addEventListener("click", toggleQuickAddMenu);
+      quickAddList.addEventListener("click", onQuickAddListClick);
+      calendarColorToggle.addEventListener("click", toggleCalendarColorMenu);
+      calendarColorOptions.addEventListener("change", () => {
+        syncCalendarColorToggle();
+        updateQuickAddSaveState();
+        closeCalendarColorMenu();
+      });
       cancelEditButton.addEventListener("click", resetForm);
       draftForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -680,7 +1095,374 @@
           await deleteDraft(deleteButton.dataset.deleteId);
         }
       });
+      document.addEventListener("click", (event) => {
+        if (calendarColorMenu?.hidden === false && !isCalendarColorInteraction(event)) {
+          closeCalendarColorMenu();
+        }
+        if (quickAddMenu?.hidden === false && !isQuickAddInteraction(event)) {
+          closeQuickAddMenu();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && calendarColorMenu?.hidden === false) {
+          closeCalendarColorMenu();
+          calendarColorToggle?.focus();
+        }
+        if (event.key === "Escape" && quickAddMenu?.hidden === false) {
+          closeQuickAddMenu();
+          quickAddToggle?.focus();
+        }
+      });
       syncReplacementField();
+    }
+
+    function toggleCalendarColorMenu() {
+      if (!calendarColorMenu) return;
+      if (calendarColorMenu.hidden) {
+        openCalendarColorMenu();
+      } else {
+        closeCalendarColorMenu();
+      }
+    }
+
+    function openCalendarColorMenu() {
+      if (!calendarColorMenu) return;
+      calendarColorMenu.hidden = false;
+      calendarColorToggle?.setAttribute("aria-expanded", "true");
+    }
+
+    function closeCalendarColorMenu() {
+      if (!calendarColorMenu) return;
+      calendarColorMenu.hidden = true;
+      calendarColorToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    function isCalendarColorInteraction(event) {
+      if (event.target instanceof Element && event.target.closest(".calendar-color-control")) {
+        return true;
+      }
+      return event.composedPath().some((node) => {
+        return node instanceof Element && node.classList.contains("calendar-color-control");
+      });
+    }
+
+    function renderCalendarColorPicker() {
+      if (!calendarColorOptions || calendarColorOptions.children.length) return;
+      const colors = window.calendarEntryColors?.palette || [];
+      const options = ["", ...colors];
+      const defaultColor = window.calendarEntryColors?.normalizeColor(defaultCalendarColor) || defaultCalendarColor;
+
+      options.forEach((color, index) => {
+        const id = color ? `managerCalendarColor${index}` : "managerCalendarColorNeutral";
+        const label = document.createElement("label");
+        label.className = "calendar-color-option";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "calendarColor";
+        input.value = color;
+        input.id = id;
+        input.checked = color === defaultColor;
+        input.defaultChecked = input.checked;
+        input.setAttribute("aria-label", color ? `Calendar colour ${color}` : "No calendar colour");
+
+        const swatch = document.createElement("span");
+        swatch.className = color ? "calendar-color-swatch" : "calendar-color-swatch neutral";
+        swatch.setAttribute("aria-hidden", "true");
+        if (color) {
+          swatch.style.setProperty("--swatch-color", color);
+        }
+
+        label.appendChild(input);
+        label.appendChild(swatch);
+        calendarColorOptions.appendChild(label);
+      });
+      syncCalendarColorToggle();
+    }
+
+    function getSelectedCalendarColor() {
+      const checked = draftForm.querySelector('input[name="calendarColor"]:checked');
+      return window.calendarEntryColors?.normalizeColor(checked?.value) || "";
+    }
+
+    function setSelectedCalendarColor(color) {
+      const normalized = window.calendarEntryColors?.normalizeColor(color) || "";
+      const selector = normalized
+        ? `input[name="calendarColor"][value="${normalized}"]`
+        : 'input[name="calendarColor"][value=""]';
+      const input = draftForm.querySelector(selector);
+      if (input) {
+        input.checked = true;
+      }
+      syncCalendarColorToggle();
+    }
+
+    function syncCalendarColorToggle() {
+      if (!calendarColorToggle) return;
+      const selectedColor = getSelectedCalendarColor();
+      calendarColorToggle.setAttribute("aria-label", "Select a Colour");
+      calendarColorToggle.dataset.tooltip = "Select a Colour";
+      calendarColorToggle.classList.toggle("has-selected-color", Boolean(selectedColor));
+      if (selectedColor) {
+        calendarColorToggle.style.setProperty("--selected-calendar-color", selectedColor);
+      } else {
+        calendarColorToggle.style.removeProperty("--selected-calendar-color");
+      }
+    }
+
+    function getSaveQuickAddButton() {
+      return document.getElementById("saveQuickAdd");
+    }
+
+    function bindSaveQuickAddButton() {
+      const button = getSaveQuickAddButton();
+      if (!button || button.dataset.quickAddBound === "true") return;
+      button.dataset.quickAddBound = "true";
+      button.addEventListener("click", saveQuickAddTemplate);
+      updateQuickAddSaveState();
+    }
+
+    function toggleQuickAddMenu() {
+      if (!quickAddMenu) return;
+      if (quickAddMenu.hidden) {
+        openQuickAddMenu();
+      } else {
+        closeQuickAddMenu();
+      }
+    }
+
+    function openQuickAddMenu() {
+      if (!quickAddMenu) return;
+      renderQuickAddTemplates();
+      quickAddMenu.hidden = false;
+      quickAddToggle?.setAttribute("aria-expanded", "true");
+    }
+
+    function closeQuickAddMenu() {
+      if (!quickAddMenu) return;
+      quickAddMenu.hidden = true;
+      quickAddToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    function isQuickAddInteraction(event) {
+      if (event.target instanceof Element && event.target.closest(".quick-add-control, #saveQuickAdd")) {
+        return true;
+      }
+      return event.composedPath().some((node) => {
+        return node instanceof Element
+          && (node.classList.contains("quick-add-control") || node.id === "saveQuickAdd");
+      });
+    }
+
+    async function loadQuickAddTemplates() {
+      if (!currentUser || !window.quickAddStore) {
+        quickAddTemplates = [];
+        renderQuickAddTemplates();
+        updateQuickAddSaveState();
+        return;
+      }
+
+      try {
+        quickAddTemplates = await window.quickAddStore.loadTemplatesForEmployee(currentUser.id);
+      } catch (error) {
+        console.warn("Could not load quick-add templates:", error?.message || error);
+        quickAddTemplates = [];
+        setQuickAddStatus("Quick Add could not load. Apply the latest database schema, then reload.", "error", { persist: true });
+      } finally {
+        renderQuickAddTemplates();
+        updateQuickAddSaveState();
+      }
+    }
+
+    function renderQuickAddTemplates() {
+      if (!quickAddList) return;
+      quickAddList.innerHTML = "";
+      if (!quickAddTemplates.length) {
+        const empty = document.createElement("div");
+        empty.className = "quick-add-empty";
+        empty.textContent = "No quick adds saved yet.";
+        quickAddList.appendChild(empty);
+        return;
+      }
+
+      quickAddTemplates.forEach((template) => {
+        const item = document.createElement("div");
+        item.className = "quick-add-item";
+
+        const applyButton = document.createElement("button");
+        applyButton.className = "quick-add-apply";
+        applyButton.type = "button";
+        applyButton.dataset.quickAddId = template.id;
+        applyButton.setAttribute("aria-label", `Apply saved shortcut for ${template.schoolName || "School Coaching"}`);
+
+        const school = document.createElement("span");
+        school.className = "quick-add-school";
+        school.textContent = template.schoolName || "School Coaching";
+
+        const meta = document.createElement("span");
+        meta.className = "quick-add-meta";
+        meta.textContent = `${formatQuickAddWeekday(template.weekday)} · ${formatTime(template.startTime)} · ${trimHours(template.hours)} hrs`;
+
+        applyButton.appendChild(school);
+        applyButton.appendChild(meta);
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "quick-add-remove";
+        removeButton.type = "button";
+        removeButton.dataset.quickAddRemoveId = template.id;
+        removeButton.setAttribute("aria-label", `Delete saved shortcut for ${template.schoolName || "School Coaching"}`);
+
+        item.appendChild(applyButton);
+        item.appendChild(removeButton);
+        quickAddList.appendChild(item);
+      });
+    }
+
+    function getQuickAddTemplateFromForm() {
+      if (entryTypeSelect.value !== "School Coaching") return null;
+      const schoolName = schoolNameInput.value.trim();
+      const date = entryDateInput.value;
+      const startTime = document.getElementById("startTime")?.value || "";
+      const hours = Number(document.getElementById("hoursWorked")?.value || 0);
+      if (!schoolName || !date || !startTime || !Number.isFinite(hours) || hours <= 0) {
+        return null;
+      }
+      const parsedDate = new Date(`${date}T00:00:00`);
+      if (Number.isNaN(parsedDate.getTime())) return null;
+      return {
+        schoolName,
+        weekday: parsedDate.getDay(),
+        startTime,
+        hours,
+        calendarColor: getSelectedCalendarColor(),
+      };
+    }
+
+    function updateQuickAddSaveState() {
+      const button = getSaveQuickAddButton();
+      if (!button) return;
+      button.disabled = !currentUser || !window.quickAddStore || !getQuickAddTemplateFromForm();
+    }
+
+    async function saveQuickAddTemplate() {
+      const button = getSaveQuickAddButton();
+      const template = getQuickAddTemplateFromForm();
+      if (!button || !template || !currentUser || !window.quickAddStore) return;
+
+      if (quickAddTemplates.some((item) => getQuickAddKey(item) === getQuickAddKey(template))) {
+        setQuickAddStatus("That shortcut is already saved.");
+        openQuickAddMenu();
+        return;
+      }
+
+      button.disabled = true;
+      setQuickAddStatus("Saving...");
+      try {
+        const createdTemplate = await window.quickAddStore.createTemplate(template, {
+          employeeId: currentUser.id,
+        });
+        quickAddTemplates = [...quickAddTemplates, createdTemplate].sort(compareQuickAdds);
+        renderQuickAddTemplates();
+        setQuickAddStatus("Saved to Quick Add.");
+        openQuickAddMenu();
+      } catch (error) {
+        setQuickAddStatus(error?.message || "Could not save Quick Add.", "error");
+      } finally {
+        updateQuickAddSaveState();
+      }
+    }
+
+    async function onQuickAddListClick(event) {
+      const removeButton = event.target.closest("[data-quick-add-remove-id]");
+      if (removeButton) {
+        await deleteQuickAddTemplate(removeButton.dataset.quickAddRemoveId, removeButton);
+        return;
+      }
+
+      const applyButton = event.target.closest("[data-quick-add-id]");
+      if (!applyButton) return;
+      const template = quickAddTemplates.find((item) => item.id === applyButton.dataset.quickAddId);
+      applyQuickAddTemplate(template);
+    }
+
+    async function deleteQuickAddTemplate(id, button) {
+      const template = quickAddTemplates.find((item) => item.id === id);
+      if (!template || !window.quickAddStore) return;
+      button.disabled = true;
+      setQuickAddStatus("Deleting...");
+      try {
+        await window.quickAddStore.deleteTemplate(id);
+        quickAddTemplates = quickAddTemplates.filter((item) => item.id !== id);
+        renderQuickAddTemplates();
+        setQuickAddStatus("Shortcut deleted.");
+      } catch (error) {
+        console.warn("Could not delete quick-add template:", error?.message || error);
+        setQuickAddStatus(error?.message || "Could not delete shortcut.", "error");
+      } finally {
+        button.disabled = false;
+        updateQuickAddSaveState();
+      }
+    }
+
+    function applyQuickAddTemplate(template) {
+      if (!template || !window.quickAddStore) return;
+      const nextDate = window.quickAddStore.getNextWeekdayDate(template.weekday);
+      const nextDateValue = formatDateInput(nextDate);
+      const nextMonthValue = formatMonthValue(nextDate);
+
+      if (monthPicker.value !== nextMonthValue) {
+        monthPicker.value = nextMonthValue;
+        render();
+      }
+
+      editingEntryId = "";
+      formTitle.textContent = "Add Draft";
+      saveDraftButton.textContent = "Save Draft";
+      entryTypeSelect.value = "School Coaching";
+      schoolNameInput.value = template.schoolName || "";
+      entryDateInput.value = nextDateValue;
+      replacementNameInput.value = "";
+      customRateInput.value = "";
+      recurringInput.checked = false;
+      setSelectedCalendarColor(template.calendarColor || defaultCalendarColor);
+      syncReplacementField();
+      document.getElementById("startTime").value = template.startTime || "";
+      document.getElementById("hoursWorked").value = template.hours || "";
+      updateQuickAddSaveState();
+      closeQuickAddMenu();
+      setQuickAddStatus("Shortcut applied.");
+    }
+
+    function getQuickAddKey(template) {
+      return [
+        String(template.schoolName || "").trim().toLowerCase(),
+        Number(template.weekday),
+        String(template.startTime || "").slice(0, 5),
+        Number(template.hours || 0),
+      ].join("|");
+    }
+
+    function compareQuickAdds(a, b) {
+      return Number(a.weekday) - Number(b.weekday)
+        || String(a.startTime || "").localeCompare(String(b.startTime || ""))
+        || String(a.schoolName || "").localeCompare(String(b.schoolName || ""));
+    }
+
+    function formatQuickAddWeekday(weekday) {
+      return quickAddWeekdayLabels[Number(weekday)] || "Day";
+    }
+
+    function setQuickAddStatus(message, type = "", options = {}) {
+      if (!quickAddStatus) return;
+      quickAddStatus.textContent = message;
+      quickAddStatus.className = type ? `quick-add-status ${type}` : "quick-add-status";
+      window.clearTimeout(quickAddStatusTimer);
+      if (message && !options.persist) {
+        quickAddStatusTimer = window.setTimeout(() => {
+          quickAddStatus.textContent = "";
+          quickAddStatus.className = "quick-add-status";
+        }, 3000);
+      }
     }
 
     async function loadEmployees() {
@@ -732,20 +1514,38 @@
       const date = entryDateInput.value;
       const startTimeInput = document.getElementById("startTime");
       const hoursWorkedInput = document.getElementById("hoursWorked");
-      const startTime = startTimeInput.value;
-      const hours = Number(hoursWorkedInput.value || 0);
+      const startTime = startTimeInput ? startTimeInput.value : "";
+      const hours = hoursWorkedInput ? Number(hoursWorkedInput.value || 0) : 0;
       const replacementName = replacementNameInput.value.trim();
       const customRateValue = Number(customRateInput.value);
-      const hasCustomRate = (entryType === "Private" || entryType === "Event") && customRateInput.value !== "";
-      const isRecurring = recurringInput.checked && !editingEntryId;
+      const hasCustomRate = entryType === "Private" && customRateInput.value !== "";
+      const isClaim = entryType === "Claim";
+      const isEvent = entryType === "Event";
+      const isCostEntry = isClaim || isEvent;
+      const claimNotesInput = document.getElementById("claimNotes");
+      const claimCostInput = document.getElementById("claimCost");
+      const claimProofInput = document.getElementById("claimProof");
+      const claimNotes = claimNotesInput ? claimNotesInput.value.trim() : "";
+      const claimCost = claimCostInput ? Number(claimCostInput.value) : 0;
+      const claimProofFile = claimProofInput && claimProofInput.files && claimProofInput.files[0];
+      const existing = editingEntryId ? entries.find((entry) => entry.id === editingEntryId) : null;
+      const isRecurring = recurringInput.checked && !editingEntryId && !isCostEntry;
 
-      if (!schoolName || !date || !startTime || !hours) return;
+      if (!date) return;
+      if (!isCostEntry && (!schoolName || !startTime || !hours)) return;
+      if (isEvent && !schoolName) return;
+      if (isCostEntry && !claimNotes) return;
+      if (isClaim && !claimProofFile && !existing?.claimImagePath && !existing?.claimProofDataUrl) return;
       if (entryType === "Replacement" && !replacementName) {
         statusMessage.textContent = "Replacement rows need a replacing name.";
         return;
       }
-      if (!Number.isFinite(hours) || hours <= 0) {
+      if (!isCostEntry && (!Number.isFinite(hours) || hours <= 0)) {
         statusMessage.textContent = "Hours need to be greater than zero.";
+        return;
+      }
+      if (isCostEntry && (!Number.isFinite(claimCost) || claimCost <= 0)) {
+        statusMessage.textContent = `${isEvent ? "Event" : "Claim"} cost needs to be greater than zero.`;
         return;
       }
       if (hasCustomRate && (!Number.isFinite(customRateValue) || customRateValue < 0)) {
@@ -753,16 +1553,37 @@
         return;
       }
 
+      let claimImagePath = isClaim ? existing?.claimImagePath || "" : "";
+      let claimProofDataUrl = isClaim ? existing?.claimProofDataUrl || "" : "";
+      let claimProofName = isClaim ? existing?.claimProofName || "" : "";
+      if (isClaim && claimProofFile) {
+        try {
+          const uploadResult = await uploadClaimProofToStorage(claimProofFile, monthPicker.value);
+          claimImagePath = uploadResult.path;
+          claimProofDataUrl = uploadResult.previewUrl || "";
+          claimProofName = claimProofFile.name;
+        } catch (error) {
+          statusMessage.textContent = error?.message || "Could not upload the proof image.";
+          return;
+        }
+      }
+
       const draft = {
         employeeId,
-        schoolName,
+        schoolName: isClaim ? "Claims" : schoolName,
         date,
         type: entryType,
-        startTime,
-        endTime: calculateEndTime(startTime, hours),
-        hours,
+        startTime: isCostEntry ? "" : startTime,
+        endTime: isCostEntry ? "" : calculateEndTime(startTime, hours),
+        hours: isCostEntry ? 0 : hours,
         replacementName: entryType === "Replacement" ? replacementName : "",
         customRate: hasCustomRate ? customRateValue : null,
+        calendarColor: getSelectedCalendarColor(),
+        claimNotes: isCostEntry ? claimNotes : "",
+        claimCost: isCostEntry ? claimCost : null,
+        claimProofName,
+        claimImagePath,
+        claimProofDataUrl,
         status: "active",
       };
       const draftsToSave = isRecurring
@@ -773,7 +1594,6 @@
       statusMessage.textContent = editingEntryId ? "Updating draft..." : "Creating draft...";
       try {
         if (editingEntryId) {
-          const existing = entries.find((entry) => entry.id === editingEntryId);
           if (!window.draftTimesheetStore.isManagerEditable(existing)) {
             statusMessage.textContent = "This row is locked and cannot be edited.";
             return;
@@ -811,20 +1631,28 @@
       replacementNameInput.value = entry.replacementName || "";
       customRateInput.value = entry.customRate != null ? entry.customRate : "";
       entryDateInput.value = entry.date || "";
-      ensureTimeFieldsRendered();
-      const startTimeInput = document.getElementById("startTime");
-      const hoursWorkedInput = document.getElementById("hoursWorked");
-      startTimeInput.value = entry.startTime || "";
-      hoursWorkedInput.value = entry.hours || "";
+      setSelectedCalendarColor(entry.calendarColor || defaultCalendarColor);
       recurringInput.checked = false;
       syncReplacementField();
+      if (isCostEntry(entry)) {
+        const claimNotesInput = document.getElementById("claimNotes");
+        const claimCostInput = document.getElementById("claimCost");
+        if (claimNotesInput) claimNotesInput.value = entry.claimNotes || "";
+        if (claimCostInput) claimCostInput.value = entry.claimCost != null ? entry.claimCost : "";
+      } else {
+        ensureTimeFieldsRendered();
+        const startTimeInput = document.getElementById("startTime");
+        const hoursWorkedInput = document.getElementById("hoursWorked");
+        startTimeInput.value = entry.startTime || "";
+        hoursWorkedInput.value = entry.hours || "";
+      }
       schoolNameInput.focus();
     }
 
     async function deleteDraft(id) {
       const entry = entries.find((item) => item.id === id);
       if (!window.draftTimesheetStore.isManagerEditable(entry)) {
-        statusMessage.textContent = "Claims and submitted rows are read-only here.";
+        statusMessage.textContent = "Claims, event costs, and submitted rows are read-only here.";
         return;
       }
 
@@ -858,7 +1686,7 @@
         const editable = window.draftTimesheetStore.isManagerEditable(entry);
         const card = document.createElement("article");
         card.className = `draft-card${editable ? "" : " locked"}`;
-        const status = window.draftTimesheetStore.isSubmitted(entry) ? "Submitted" : entry.type === "Claim" ? "Claim" : "Read Only";
+        const status = window.draftTimesheetStore.isSubmitted(entry) ? "Submitted" : isCostEntry(entry) ? entry.type : "Read Only";
         const actions = editable
           ? `<div class="draft-actions"><button class="secondary" type="button" data-edit-id="${escapeHtml(entry.id)}">Edit</button><button class="danger" type="button" data-delete-id="${escapeHtml(entry.id)}">Delete</button></div>`
           : `<span class="draft-status">${escapeHtml(status)}</span>`;
@@ -869,7 +1697,7 @@
             ${actions}
           </div>
           <div class="draft-meta">${formatLongDate(entry.date)} · ${escapeHtml(formatEntryType(entry))}</div>
-          <div class="draft-meta">${entry.type === "Claim" ? escapeHtml(entry.claimNotes || "Claim") : `${formatTime(entry.startTime)}-${formatTime(entry.endTime)} · ${trimHours(entry.hours)} hrs`}</div>
+          <div class="draft-meta">${isCostEntry(entry) ? escapeHtml(formatCostEntryMeta(entry)) : `${formatTime(entry.startTime)}-${formatTime(entry.endTime)} · ${trimHours(entry.hours)} hrs`}</div>
         `;
         draftList.appendChild(card);
       });
@@ -892,7 +1720,7 @@
       if (!year || !month) return;
 
       const firstOfMonth = new Date(year, month - 1, 1);
-      const firstDayOffset = (firstOfMonth.getDay() + 6) % 7;
+      const firstDayOffset = firstOfMonth.getDay();
       const gridStart = new Date(firstOfMonth);
       gridStart.setDate(firstOfMonth.getDate() - firstDayOffset);
 
@@ -950,36 +1778,64 @@
       entryTypeSelect.value = "School Coaching";
       entryDateInput.value = firstDayInViewedMonth();
       recurringInput.checked = false;
+      setSelectedCalendarColor(defaultCalendarColor);
       ensureTimeFieldsRendered();
       syncReplacementField();
     }
 
     function syncReplacementField() {
       const isReplacement = entryTypeSelect.value === "Replacement";
+      const isClaim = entryTypeSelect.value === "Claim";
+      const isEvent = entryTypeSelect.value === "Event";
+      const isCostEntry = isClaim || isEvent;
       replacementField.hidden = !isReplacement;
       replacementNameInput.required = isReplacement;
       if (!isReplacement) {
         replacementNameInput.value = "";
       }
 
-      const supportsCustomRate = entryTypeSelect.value === "Private" || entryTypeSelect.value === "Event";
+      const supportsCustomRate = entryTypeSelect.value === "Private";
       customRateField.hidden = !supportsCustomRate;
       if (!supportsCustomRate) {
         customRateInput.value = "";
       }
 
-      recurringRow.hidden = Boolean(editingEntryId);
-      recurringRow.style.display = editingEntryId ? "none" : "flex";
-      recurringRow.setAttribute("aria-hidden", editingEntryId ? "true" : "false");
-      ensureTimeFieldsRendered();
+      recurringRow.hidden = Boolean(editingEntryId) || isCostEntry;
+      recurringRow.style.display = recurringRow.hidden ? "none" : "flex";
+      recurringRow.setAttribute("aria-hidden", recurringRow.hidden ? "true" : "false");
+      if (recurringRow.hidden) {
+        recurringInput.checked = false;
+      }
+
+      schoolNameInput.required = !isClaim;
+      if (schoolNameLabel) {
+        schoolNameLabel.textContent = isEvent ? "Name" : "School Name";
+      }
+      schoolNameInput.placeholder = isEvent ? "e.g. Tournament support" : "e.g. ACS";
+
+      if (isCostEntry) {
+        unmountTimeFields();
+        ensureClaimFieldsRendered(entryTypeSelect.value);
+        replacementNameInput.value = "";
+        customRateInput.value = "";
+      } else {
+        ensureTimeFieldsRendered();
+        unmountClaimFields();
+      }
     }
 
     function getEntriesForMonth(monthValue) {
       return entries
         .filter((entry) => String(entry.date || "").startsWith(monthValue))
         .sort((a, b) => {
+          const schoolCompare = String(a.schoolName || "").localeCompare(String(b.schoolName || ""), undefined, {
+            sensitivity: "base",
+          });
+          if (schoolCompare !== 0) return schoolCompare;
+
           const dateCompare = String(a.date || "").localeCompare(String(b.date || ""));
           if (dateCompare !== 0) return dateCompare;
+
           return String(a.startTime || "").localeCompare(String(b.startTime || ""));
         });
     }
@@ -1089,6 +1945,11 @@
         const costLabel = claimCost > 0 ? ` (${formatCurrency(claimCost)})` : "";
         return `Claim${costLabel}`;
       }
+      if (isEventCostEntry(entry)) {
+        const eventCost = getCostEntryValue(entry);
+        const costLabel = eventCost > 0 ? ` (${formatCurrency(eventCost)})` : "";
+        return `Event${costLabel}`;
+      }
       return entry.type || "";
     }
 
@@ -1102,15 +1963,100 @@
       if (entry.type === "Claim") {
         return "Claim";
       }
+      if (isEventCostEntry(entry)) {
+        return getCostEntryValue(entry) > 0 ? formatCurrency(getCostEntryValue(entry)) : "Event";
+      }
       const time = formatTime(entry.startTime);
       const hours = trimHours(entry.hours);
       return `${time || "No time"} · ${hours} hr${hours === "1" ? "" : "s"}`;
     }
 
+    function isCostEntry(entry) {
+      return entry?.type === "Claim" || isEventCostEntry(entry);
+    }
+
+    function isEventCostEntry(entry) {
+      return entry?.type === "Event"
+        && (
+          getCostEntryValue(entry) > 0
+          || String(entry?.claimNotes || "").trim().length > 0
+        );
+    }
+
+    function getCostEntryValue(entry) {
+      const parsed = Number(entry?.claimCost || 0);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    }
+
+    function formatCostEntryMeta(entry) {
+      const cost = getCostEntryValue(entry);
+      const costLabel = cost > 0 ? `${formatCurrency(cost)} · ` : "";
+      return `${costLabel}${entry.claimNotes || entry.type || "Cost entry"}`;
+    }
+
     function ensureTimeFieldsRendered() {
-      if (document.getElementById("timeFields")) return;
+      if (!document.getElementById("timeFields")) {
+        timeFieldsMount.innerHTML = "";
+        timeFieldsMount.appendChild(timeFieldsTemplate.content.cloneNode(true));
+      }
+      bindSaveQuickAddButton();
+      updateQuickAddSaveState();
+    }
+
+    function unmountTimeFields() {
       timeFieldsMount.innerHTML = "";
-      timeFieldsMount.appendChild(timeFieldsTemplate.content.cloneNode(true));
+      updateQuickAddSaveState();
+    }
+
+    function ensureClaimFieldsRendered(entryType = entryTypeSelect.value) {
+      if (!document.getElementById("claimFields")) {
+        claimFieldsMount.innerHTML = "";
+        claimFieldsMount.appendChild(claimFieldsTemplate.content.cloneNode(true));
+      }
+      syncClaimFields(entryType);
+    }
+
+    function syncClaimFields(entryType = entryTypeSelect.value) {
+      const isEvent = entryType === "Event";
+      const claimNotesInput = document.getElementById("claimNotes");
+      const claimCostInput = document.getElementById("claimCost");
+      const claimProofInput = document.getElementById("claimProof");
+      const claimProofField = document.getElementById("claimProofField");
+      const notesLabel = document.querySelector('label[for="claimNotes"]');
+      const costLabel = document.querySelector('label[for="claimCost"]');
+
+      if (notesLabel) notesLabel.textContent = isEvent ? "Notes" : "Claim Notes";
+      if (costLabel) costLabel.textContent = isEvent ? "Cost" : "Claim Cost";
+      if (claimNotesInput) {
+        claimNotesInput.required = true;
+        claimNotesInput.placeholder = isEvent ? "e.g. Tournament arbiter fee" : "e.g. Transport reimbursement";
+      }
+      if (claimCostInput) {
+        claimCostInput.required = true;
+        claimCostInput.placeholder = isEvent ? "e.g. 80.00" : "e.g. 14.50";
+      }
+      if (claimProofField) {
+        claimProofField.hidden = isEvent;
+        claimProofField.style.display = isEvent ? "none" : "";
+      }
+      if (claimProofInput) {
+        const existing = editingEntryId ? entries.find((entry) => entry.id === editingEntryId) : null;
+        claimProofInput.required = !isEvent && !existing?.claimImagePath && !existing?.claimProofDataUrl;
+        if (isEvent) {
+          claimProofInput.value = "";
+        }
+      }
+    }
+
+    function unmountClaimFields() {
+      claimFieldsMount.innerHTML = "";
+    }
+
+    async function uploadClaimProofToStorage(file, monthValue) {
+      if (!window.claimProofStorage || typeof window.claimProofStorage.uploadClaimProof !== "function") {
+        throw new Error("Claim proof upload helper is unavailable. Please reload this page.");
+      }
+      return window.claimProofStorage.uploadClaimProof(file, monthValue);
     }
 
     function escapeHtml(value) {
