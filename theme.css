@@ -322,6 +322,17 @@ textarea:focus {
   transform-origin: top right;
 }
 
+.entry-edit-modal:not([hidden]),
+.profile-modal-overlay:not([hidden]) {
+  animation: cg-overlay-fade 180ms var(--motion-ease) both;
+}
+
+.entry-edit-modal:not([hidden]) .entry-edit-card,
+.profile-modal-overlay:not([hidden]) .profile-modal {
+  animation: cg-modal-pop 280ms var(--motion-ease) both;
+  transform-origin: center;
+}
+
 .cg-reveal {
   opacity: 0;
   animation: cg-rise 520ms var(--motion-ease) forwards;
@@ -358,6 +369,30 @@ textarea:focus {
   from {
     opacity: 0;
     transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cg-overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cg-modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+  }
+  58% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.006);
   }
   to {
     opacity: 1;

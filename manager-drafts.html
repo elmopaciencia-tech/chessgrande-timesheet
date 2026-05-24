@@ -345,6 +345,19 @@
       background: var(--surface-strong);
       border-color: color-mix(in srgb, var(--line) 84%, white 16%);
       color: var(--ink);
+      transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+    .quick-add-apply.has-saved-color {
+      background: var(--quick-add-color);
+      border-color: color-mix(in srgb, var(--quick-add-color) 74%, black 26%);
+      color: var(--quick-add-text);
+      box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, white 46%, transparent),
+        var(--shadow-sm);
+    }
+    .quick-add-apply.has-saved-color .quick-add-meta {
+      color: var(--quick-add-text);
+      opacity: 0.76;
     }
     .quick-add-school {
       max-width: 100%;
@@ -1294,6 +1307,7 @@
         applyButton.type = "button";
         applyButton.dataset.quickAddId = template.id;
         applyButton.setAttribute("aria-label", `Apply saved shortcut for ${template.schoolName || "School Coaching"}`);
+        applyQuickAddTemplateColor(applyButton, template);
 
         const school = document.createElement("span");
         school.className = "quick-add-school";
@@ -1316,6 +1330,14 @@
         item.appendChild(removeButton);
         quickAddList.appendChild(item);
       });
+    }
+
+    function applyQuickAddTemplateColor(button, template) {
+      const color = window.calendarEntryColors?.normalizeColor(template?.calendarColor) || "";
+      if (!button || !color) return;
+      button.classList.add("has-saved-color");
+      button.style.setProperty("--quick-add-color", color);
+      button.style.setProperty("--quick-add-text", window.calendarEntryColors?.getTextColor(color) || "#1E2136");
     }
 
     function getQuickAddTemplateFromForm() {

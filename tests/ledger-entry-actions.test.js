@@ -58,6 +58,7 @@ for (const [label, fileName] of pages) {
 }
 
 const timesheetHtml = fs.readFileSync(path.join(process.cwd(), "chess-timesheet.html"), "utf8");
+const theme = fs.readFileSync(path.join(process.cwd(), "theme.css"), "utf8");
 assert.match(
   timesheetHtml,
   /window\.draftTimesheetStore\.updateEntry/,
@@ -158,6 +159,16 @@ assert.match(
   uiEffects,
   /SKIP_ICON_SELECTOR[\s\S]*\.entry-edit-close/,
   "entry edit modal close buttons should not receive automatic pencil icons"
+);
+assert.match(
+  theme,
+  /\.entry-edit-modal:not\(\[hidden\]\)/,
+  "entry edit modal overlay should animate when opened"
+);
+assert.match(
+  theme,
+  /\.entry-edit-modal:not\(\[hidden\]\) \.entry-edit-card/,
+  "entry edit modal card should animate when opened"
 );
 
 console.log("ledger entry action checks passed");

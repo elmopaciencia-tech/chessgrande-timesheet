@@ -10,6 +10,10 @@ const uiEffects = fs.readFileSync(
   path.join(process.cwd(), "ui-effects.js"),
   "utf8"
 );
+const theme = fs.readFileSync(
+  path.join(process.cwd(), "theme.css"),
+  "utf8"
+);
 
 assert.ok(
   !source.includes("Your profile helps people recognize you in team workflows."),
@@ -52,6 +56,16 @@ assert.ok(
 assert.ok(
   uiEffects.includes(".profile-avatar-button"),
   "global icon enhancement should skip the avatar upload button"
+);
+
+assert.ok(
+  theme.includes(".profile-modal-overlay:not([hidden])"),
+  "profile modal overlay should animate when opened"
+);
+
+assert.ok(
+  theme.includes(".profile-modal-overlay:not([hidden]) .profile-modal"),
+  "profile modal card should animate when opened"
 );
 
 console.log("profile-ui modal checks passed");

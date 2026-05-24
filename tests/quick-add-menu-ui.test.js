@@ -42,6 +42,18 @@ assert.ok(
     `${label} quick-add text should align left`
   );
   assert.ok(
+    source.includes("applyQuickAddTemplateColor(applyButton, template)"),
+    `${label} quick-add apply button should receive its saved calendar colour`
+  );
+  assert.ok(
+    source.includes(".quick-add-apply.has-saved-color"),
+    `${label} quick-add apply button should have a saved-colour style`
+  );
+  assert.ok(
+    source.includes("--quick-add-text"),
+    `${label} quick-add apply button should set readable text colour for saved colours`
+  );
+  assert.ok(
     source.includes("No quick adds saved yet."),
     `${label} quick-add empty state should match`
   );
