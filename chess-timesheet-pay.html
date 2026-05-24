@@ -216,6 +216,38 @@
     .entry-action-button[data-tooltip]::after { content: ""; bottom: calc(100% + 4px); transform: translate(-50%, 4px); border: 5px solid transparent; border-top-color: var(--ink); }
     .entry-action-button[data-tooltip]:hover::before, .entry-action-button[data-tooltip]:hover::after, .entry-action-button[data-tooltip]:focus-visible::before, .entry-action-button[data-tooltip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
     .entry-actions .locked { display: inline-flex; width: auto; min-height: 34px; align-items: center; justify-content: center; padding: 0 12px; border-radius: 999px; background: color-mix(in srgb, var(--surface-muted) 78%, white 22%); color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .entry-edit-modal { position: fixed; inset: 0; z-index: 1300; display: grid; place-items: center; padding: 24px; background: rgba(23,26,25,.54); backdrop-filter: blur(10px); }
+    .entry-edit-modal[hidden] { display: none; }
+    .entry-edit-card { width: min(760px, 100%); max-height: min(88vh, 860px); overflow: auto; padding: 22px; border-radius: 26px; background: color-mix(in srgb, var(--surface) 94%, white 6%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); box-shadow: 0 28px 80px rgba(23,26,25,.24); }
+    .entry-edit-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .entry-edit-header h2 { margin: 0; color: var(--ink); font-size: 1.45rem; line-height: 1.15; }
+    .entry-edit-close { width: 36px; min-width: 36px; height: 36px; min-height: 36px; border: 0; border-radius: 999px; background: var(--surface-strong); color: var(--ink); cursor: pointer; font-size: 1.15rem; font-weight: 700; }
+    .entry-edit-form { display: grid; gap: 14px; }
+    .entry-edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .entry-edit-grid.compact { grid-template-columns: minmax(130px, .74fr) minmax(170px, 1.08fr) minmax(150px, .92fr); align-items: end; }
+    .entry-edit-grid.edit-top-row { grid-template-columns: minmax(130px, .74fr) minmax(260px, 1.46fr); }
+    .entry-edit-field.full { grid-column: 1 / -1; }
+    .entry-type-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3); align-items: end; position: relative; }
+    .entry-type-field { min-width: 0; }
+    .calendar-color-control { position: relative; display: grid; align-items: end; padding-bottom: 4px; }
+    .calendar-color-toggle { position: relative; width: 44px; min-width: 44px; min-height: 44px; aspect-ratio: 1; padding: 0; border-radius: 999px; border-color: color-mix(in srgb, var(--line-strong) 66%, white 34%); background: conic-gradient(from 20deg, #fff689, #ff9c5b, #f67b45, #e39b99, #b4cfa4, #62866c, #81b2d9, #32769b, #bba6dd, #64557b, #fff689); box-shadow: inset 0 0 0 2px color-mix(in srgb, white 72%, transparent), var(--shadow-sm); }
+    .calendar-color-toggle.has-selected-color { background: var(--selected-calendar-color); border-color: color-mix(in srgb, var(--selected-calendar-color) 76%, black 24%); box-shadow: inset 0 0 0 2px color-mix(in srgb, white 72%, transparent), 0 0 0 4px color-mix(in srgb, var(--selected-calendar-color) 24%, transparent), var(--shadow-sm); }
+    .calendar-color-toggle::before, .calendar-color-toggle::after { position: absolute; right: 0; opacity: 0; pointer-events: none; transform: translateY(3px); transition: opacity 150ms ease, transform 150ms ease; z-index: 60; }
+    .calendar-color-toggle::before { content: attr(data-tooltip); bottom: calc(100% + 10px); width: max-content; max-width: 180px; padding: 7px 10px; border-radius: 10px; background: var(--ink); color: var(--surface-strong); box-shadow: var(--shadow-sm); font-size: .75rem; line-height: 1; font-weight: 800; white-space: nowrap; }
+    .calendar-color-toggle::after { content: ""; bottom: calc(100% + 3px); border: 7px solid transparent; border-top-color: var(--ink); }
+    .calendar-color-toggle:hover::before, .calendar-color-toggle:hover::after, .calendar-color-toggle:focus-visible::before, .calendar-color-toggle:focus-visible::after { opacity: 1; transform: translateY(0); }
+    .calendar-color-menu { position: absolute; top: calc(100% + 10px); right: 0; z-index: 42; padding: 12px; border-radius: 18px; background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); box-shadow: var(--shadow-md); }
+    .calendar-color-menu[hidden] { display: none; }
+    .calendar-color-options { display: grid; grid-template-columns: repeat(5, 32px); gap: 8px; }
+    .calendar-color-option { position: relative; display: grid; min-width: 0; aspect-ratio: 1; }
+    .calendar-color-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .calendar-color-swatch { border-radius: 999px; border: 2px solid color-mix(in srgb, var(--line-strong) 62%, white 38%); background: var(--swatch-color, var(--surface-strong)); cursor: pointer; box-shadow: inset 0 0 0 2px color-mix(in srgb, white 82%, transparent); transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+    .calendar-color-swatch.neutral { background: linear-gradient(135deg, transparent calc(50% - 1px), var(--clay) 50%, transparent calc(50% + 1px)), var(--surface-strong); }
+    .calendar-color-option input:focus-visible + .calendar-color-swatch,
+    .calendar-color-option input:checked + .calendar-color-swatch { border-color: var(--ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, white 82%, transparent), 0 0 0 3px color-mix(in srgb, var(--focus) 18%, white 82%); transform: translateY(-1px); }
+    .entry-edit-fields[hidden] { display: none; }
+    .entry-edit-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
+    .entry-edit-status { min-height: 1.3em; color: var(--muted); font-size: .9rem; }
     .footer-note, .status-message { color: var(--muted); font-size: .9rem; line-height: 1.45; }
     .pay-card { padding: 14px; display: grid; gap: 10px; }
     .pay-card-header { display: grid; gap: 2px; }
@@ -298,6 +330,10 @@
       .entry-actions { width: auto; min-width: 0; }
       .entry-actions-inner { justify-content: flex-start; }
       .entry-actions .entry-action-button { width: 34px; min-width: 34px; }
+      .entry-edit-modal { padding: 12px; align-items: end; }
+      .entry-edit-card { max-height: 92vh; padding: 18px; border-radius: 22px 22px 0 0; }
+      .entry-edit-grid,
+      .entry-edit-grid.compact { grid-template-columns: 1fr; }
       .pay-card { padding: 12px; gap: 8px; }
       .pay-card-section { gap: 5px; }
       .pay-card-section + .pay-card-section { padding-top: 7px; }
@@ -379,6 +415,89 @@
     </div>
   </div>
 
+  <div class="entry-edit-modal" id="entryEditModal" hidden role="dialog" aria-modal="true" aria-labelledby="entryEditTitle">
+    <section class="entry-edit-card" id="entryEditCard" tabindex="-1">
+      <div class="entry-edit-header">
+        <div>
+          <p class="panel-eyebrow">Entry composer</p>
+          <h2 id="entryEditTitle">Edit Entry</h2>
+          <p class="panel-copy">Update the same fields used by the timesheet composer, then save the draft row back into this month.</p>
+        </div>
+        <button class="entry-edit-close" id="entryEditClose" type="button" aria-label="Close modal">×</button>
+      </div>
+      <form class="entry-edit-form" id="entryEditForm">
+        <div class="entry-edit-grid compact edit-top-row">
+          <div class="entry-edit-field">
+            <label for="editEntryDate">Date</label>
+            <input id="editEntryDate" type="date" required>
+          </div>
+          <div class="entry-edit-field entry-type-row">
+            <div class="entry-type-field">
+              <label for="editEntryType">Entry Type</label>
+              <select id="editEntryType" required>
+                <option value="School Coaching">School Coaching</option>
+                <option value="Replacement">Replacement</option>
+                <option value="Camp">Camp</option>
+                <option value="Private">Private</option>
+                <option value="Event">Event</option>
+                <option value="Claim">Claim</option>
+              </select>
+            </div>
+            <div class="calendar-color-control">
+              <button class="calendar-color-toggle" type="button" id="entryEditColorToggle" aria-label="Select a Colour" aria-expanded="false" aria-controls="entryEditColorMenu" data-tooltip="Select a Colour"></button>
+              <div class="calendar-color-menu" id="entryEditColorMenu" hidden>
+                <div class="calendar-color-options" id="entryEditColorOptions"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="entry-edit-grid">
+          <div class="entry-edit-field full" id="editSchoolField">
+            <label for="editSchoolName" id="editSchoolLabel">School Name</label>
+            <input id="editSchoolName" type="text" placeholder="e.g. ACS">
+          </div>
+          <div class="entry-edit-field" id="editReplacementField" hidden>
+            <label for="editReplacementName">Replacement For</label>
+            <input id="editReplacementName" type="text" placeholder="e.g. Ericka">
+          </div>
+          <div class="entry-edit-field" id="editCustomRateField" hidden>
+            <label for="editCustomRate">Custom Pay Per Hour</label>
+            <input id="editCustomRate" type="number" min="0" step="0.01" placeholder="e.g. 75">
+          </div>
+        </div>
+        <div class="entry-edit-grid compact entry-edit-fields" id="entryEditTimeFields">
+          <div class="entry-edit-field">
+            <label for="editStartTime">Start Time</label>
+            <input id="editStartTime" type="time">
+          </div>
+          <div class="entry-edit-field">
+            <label for="editHoursWorked">Hours Worked</label>
+            <input id="editHoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal">
+          </div>
+        </div>
+        <div class="entry-edit-grid entry-edit-fields" id="entryEditClaimFields" hidden>
+          <div class="entry-edit-field full">
+            <label for="editClaimNotes" id="editClaimNotesLabel">Claim Notes</label>
+            <input id="editClaimNotes" type="text" placeholder="e.g. Transport reimbursement">
+          </div>
+          <div class="entry-edit-field full">
+            <label for="editClaimCost" id="editClaimCostLabel">Claim Cost</label>
+            <input id="editClaimCost" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 14.50">
+          </div>
+          <div class="entry-edit-field full" id="editClaimProofField">
+            <label for="editClaimProof">Proof Image</label>
+            <input id="editClaimProof" type="file" accept="image/*">
+          </div>
+        </div>
+        <div class="entry-edit-status" id="entryEditStatus"></div>
+        <div class="entry-edit-actions">
+          <button class="secondary" id="entryEditCancel" type="button">Cancel</button>
+          <button class="primary" id="entryEditSave" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
   <template id="schoolTemplate">
     <article class="school-card">
       <div class="school-head">
@@ -445,6 +564,34 @@
     const imageLightboxContent = document.getElementById("imageLightboxContent");
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
+    const entryEditModal = document.getElementById("entryEditModal");
+    const entryEditCard = document.getElementById("entryEditCard");
+    const entryEditForm = document.getElementById("entryEditForm");
+    const entryEditClose = document.getElementById("entryEditClose");
+    const entryEditCancel = document.getElementById("entryEditCancel");
+    const entryEditSave = document.getElementById("entryEditSave");
+    const entryEditStatus = document.getElementById("entryEditStatus");
+    const editEntryDateInput = document.getElementById("editEntryDate");
+    const editEntryTypeSelect = document.getElementById("editEntryType");
+    const editSchoolNameInput = document.getElementById("editSchoolName");
+    const editSchoolLabel = document.getElementById("editSchoolLabel");
+    const editReplacementField = document.getElementById("editReplacementField");
+    const editReplacementNameInput = document.getElementById("editReplacementName");
+    const editCustomRateField = document.getElementById("editCustomRateField");
+    const editCustomRateInput = document.getElementById("editCustomRate");
+    const entryEditTimeFields = document.getElementById("entryEditTimeFields");
+    const entryEditClaimFields = document.getElementById("entryEditClaimFields");
+    const editStartTimeInput = document.getElementById("editStartTime");
+    const editHoursWorkedInput = document.getElementById("editHoursWorked");
+    const editClaimNotesInput = document.getElementById("editClaimNotes");
+    const editClaimCostInput = document.getElementById("editClaimCost");
+    const editClaimNotesLabel = document.getElementById("editClaimNotesLabel");
+    const editClaimCostLabel = document.getElementById("editClaimCostLabel");
+    const editClaimProofField = document.getElementById("editClaimProofField");
+    const editClaimProofInput = document.getElementById("editClaimProof");
+    const entryEditColorToggle = document.getElementById("entryEditColorToggle");
+    const entryEditColorMenu = document.getElementById("entryEditColorMenu");
+    const entryEditColorOptions = document.getElementById("entryEditColorOptions");
     const claimProofBucket = "claim-proofs";
     const storageBackends = getStorageBackends();
     const monthNames = [
@@ -459,6 +606,8 @@
     let currentProfile = null;
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
+    let editModalLastFocus = null;
+    let editingEntryId = "";
     let isSubmitting = false;
     let isHydratingClaimProofUrls = false;
 
@@ -482,6 +631,7 @@
       setupMonthPickerUi();
       initializeMonth();
       await loadProfileIntoForm();
+      setupEntryEditModal();
       initImageViewer();
       setupUserMenu();
       render();
@@ -841,6 +991,191 @@
       if (window.calendarEntryColors && typeof window.calendarEntryColors.applyToChip === "function") {
         window.calendarEntryColors.applyToChip(chip, color);
       }
+    }
+
+    function setupEntryEditModal() {
+      renderEntryEditColorOptions();
+      editEntryTypeSelect.addEventListener("change", syncEntryEditFields);
+      entryEditForm.addEventListener("submit", saveEditedDraftEntry);
+      entryEditClose.addEventListener("click", closeEntryEditModal);
+      entryEditCancel.addEventListener("click", closeEntryEditModal);
+      entryEditColorToggle.addEventListener("click", toggleEntryEditColorMenu);
+      entryEditColorOptions.addEventListener("change", () => {
+        syncEntryEditColorToggle();
+        closeEntryEditColorMenu();
+      });
+      entryEditModal.addEventListener("click", (event) => {
+        if (event.target === entryEditModal) {
+          closeEntryEditModal();
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (entryEditColorMenu?.hidden === false && !isEntryEditColorInteraction(event)) {
+          closeEntryEditColorMenu();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !entryEditModal.hidden) {
+          event.preventDefault();
+          if (entryEditColorMenu?.hidden === false) {
+            closeEntryEditColorMenu();
+            entryEditColorToggle?.focus();
+            return;
+          }
+          closeEntryEditModal();
+        }
+      });
+    }
+
+    function renderEntryEditColorOptions() {
+      if (entryEditColorOptions.children.length) return;
+      const palette = window.calendarEntryColors?.palette || [];
+      ["", ...palette].forEach((color, index) => {
+        const id = color ? `payEditColor${index}` : "payEditColorNeutral";
+        const label = document.createElement("label");
+        label.className = "calendar-color-option";
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "entryEditColor";
+        input.value = color;
+        input.id = id;
+        input.setAttribute("aria-label", color ? `Calendar colour ${color}` : "No calendar colour");
+        const swatch = document.createElement("span");
+        swatch.className = color ? "calendar-color-swatch" : "calendar-color-swatch neutral";
+        swatch.setAttribute("aria-hidden", "true");
+        if (color) {
+          swatch.style.setProperty("--swatch-color", color);
+        }
+        label.append(input, swatch);
+        entryEditColorOptions.appendChild(label);
+      });
+      syncEntryEditColorToggle();
+    }
+
+    function toggleEntryEditColorMenu() {
+      if (!entryEditColorMenu) return;
+      if (entryEditColorMenu.hidden) {
+        openEntryEditColorMenu();
+      } else {
+        closeEntryEditColorMenu();
+      }
+    }
+
+    function openEntryEditColorMenu() {
+      if (!entryEditColorMenu) return;
+      entryEditColorMenu.hidden = false;
+      entryEditColorToggle?.setAttribute("aria-expanded", "true");
+    }
+
+    function closeEntryEditColorMenu() {
+      if (!entryEditColorMenu) return;
+      entryEditColorMenu.hidden = true;
+      entryEditColorToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    function isEntryEditColorInteraction(event) {
+      if (event.target instanceof Element && event.target.closest(".calendar-color-control")) {
+        return true;
+      }
+      return event.composedPath().some((node) => {
+        return node instanceof Element && node.classList.contains("calendar-color-control");
+      });
+    }
+
+    function setEntryEditColor(color) {
+      const normalized = window.calendarEntryColors?.normalizeColor(color) || "";
+      const selector = normalized
+        ? `input[name="entryEditColor"][value="${normalized}"]`
+        : 'input[name="entryEditColor"][value=""]';
+      const option = entryEditColorOptions.querySelector(selector);
+      if (option) option.checked = true;
+      syncEntryEditColorToggle();
+    }
+
+    function getEntryEditColor() {
+      const checked = entryEditColorOptions.querySelector('input[name="entryEditColor"]:checked');
+      return window.calendarEntryColors?.normalizeColor(checked?.value) || "";
+    }
+
+    function syncEntryEditColorToggle() {
+      if (!entryEditColorToggle) return;
+      const selectedColor = getEntryEditColor();
+      entryEditColorToggle.setAttribute("aria-label", "Select a Colour");
+      entryEditColorToggle.dataset.tooltip = "Select a Colour";
+      entryEditColorToggle.classList.toggle("has-selected-color", Boolean(selectedColor));
+      if (selectedColor) {
+        entryEditColorToggle.style.setProperty("--selected-calendar-color", selectedColor);
+      } else {
+        entryEditColorToggle.style.removeProperty("--selected-calendar-color");
+      }
+    }
+
+    function openEntryEditModal(entry) {
+      if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
+      editingEntryId = entry.id || "";
+      editModalLastFocus = document.activeElement;
+      entryEditStatus.textContent = "";
+      entryEditForm.reset();
+      editEntryDateInput.value = entry.date || "";
+      editEntryTypeSelect.value = entry.type || "School Coaching";
+      editSchoolNameInput.value = entry.type === "Claim" ? "" : entry.schoolName || "";
+      editReplacementNameInput.value = entry.type === "Replacement" ? entry.replacementName || "" : "";
+      editCustomRateInput.value = entry.type === "Private" && entry.customRate != null ? entry.customRate : "";
+      editStartTimeInput.value = entry.startTime || "";
+      editHoursWorkedInput.value = entry.hours != null ? entry.hours : "";
+      editClaimNotesInput.value = entry.claimNotes || "";
+      editClaimCostInput.value = entry.claimCost != null ? entry.claimCost : "";
+      setEntryEditColor(entry.calendarColor || "");
+      syncEntryEditFields();
+      entryEditModal.hidden = false;
+      document.body.style.overflow = "hidden";
+      entryEditCard.focus();
+    }
+
+    function closeEntryEditModal() {
+      if (entryEditModal.hidden) return;
+      closeEntryEditColorMenu();
+      entryEditModal.hidden = true;
+      editingEntryId = "";
+      editEntrySaveDisabled(false);
+      document.body.style.overflow = "";
+      if (editModalLastFocus && typeof editModalLastFocus.focus === "function") {
+        editModalLastFocus.focus();
+      }
+    }
+
+    function syncEntryEditFields() {
+      const type = editEntryTypeSelect.value;
+      const isClaim = type === "Claim";
+      const isEvent = type === "Event";
+      const isCost = isClaim || isEvent;
+      editSchoolLabel.textContent = isEvent ? "Name" : "School Name";
+      editSchoolNameInput.placeholder = isEvent ? "e.g. Tournament support" : "e.g. ACS";
+      editSchoolNameInput.required = !isClaim;
+      entryEditTimeFields.hidden = isCost;
+      entryEditClaimFields.hidden = !isCost;
+      editStartTimeInput.required = !isCost;
+      editHoursWorkedInput.required = !isCost;
+      editClaimNotesInput.required = isCost;
+      editClaimCostInput.required = isCost;
+      editReplacementField.hidden = type !== "Replacement";
+      editReplacementNameInput.required = type === "Replacement";
+      editCustomRateField.hidden = type !== "Private";
+      editClaimNotesLabel.textContent = isEvent ? "Notes" : "Claim Notes";
+      editClaimCostLabel.textContent = isEvent ? "Cost" : "Claim Cost";
+      editClaimProofField.hidden = isEvent;
+      editClaimProofField.style.display = isEvent ? "none" : "";
+      editClaimProofInput.required = false;
+      if (isEvent) {
+        editClaimProofInput.value = "";
+      }
+    }
+
+    function editEntrySaveDisabled(disabled) {
+      entryEditSave.disabled = disabled;
+      entryEditClose.disabled = disabled;
+      entryEditCancel.disabled = disabled;
+      entryEditColorToggle.disabled = disabled;
     }
 
     function renderEntryActions(entry) {
@@ -1234,10 +1569,109 @@
       const entry = entries.find((item) => item.id === entryId);
       if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
 
-      const editUrl = new URL("./chess-timesheet.html", window.location.href);
-      editUrl.searchParams.set("month", (entry.date || monthPicker.value).slice(0, 7));
-      editUrl.searchParams.set("edit", entryId);
-      window.location.href = editUrl.toString();
+      openEntryEditModal(entry);
+    }
+
+    async function saveEditedDraftEntry(event) {
+      event.preventDefault();
+      const existingEntry = entries.find((entry) => entry.id === editingEntryId);
+      if (!existingEntry) {
+        entryEditStatus.textContent = "Could not find the entry you are editing.";
+        return;
+      }
+
+      const type = editEntryTypeSelect.value;
+      const isClaim = type === "Claim";
+      const isEvent = type === "Event";
+      const isCost = isClaim || isEvent;
+      const schoolName = editSchoolNameInput.value.trim();
+      const date = editEntryDateInput.value;
+      const startTime = editStartTimeInput.value;
+      const hours = Number(editHoursWorkedInput.value || 0);
+      const claimCost = Number(editClaimCostInput.value || 0);
+      const proofFile = editClaimProofInput.files && editClaimProofInput.files[0];
+
+      if (!date) return;
+      if (!isCost && (!schoolName || !startTime || hours <= 0)) return;
+      if (isEvent && !schoolName) return;
+      if (type === "Replacement" && !editReplacementNameInput.value.trim()) return;
+      if (isCost && (!editClaimNotesInput.value.trim() || !Number.isFinite(claimCost) || claimCost <= 0)) return;
+      if (type === "Private" && editCustomRateInput.value !== "" && Number(editCustomRateInput.value) <= 0) {
+        entryEditStatus.textContent = "Custom hourly rate needs to be greater than zero.";
+        return;
+      }
+
+      let claimImagePath = isClaim ? existingEntry.claimImagePath || "" : "";
+      let claimProofDataUrl = isClaim ? existingEntry.claimProofDataUrl || "" : "";
+      let claimProofName = isClaim ? existingEntry.claimProofName || "" : "";
+      if (isClaim && proofFile) {
+        try {
+          const uploadResult = await uploadClaimProofToStorage(proofFile, date.slice(0, 7));
+          claimImagePath = uploadResult.path;
+          claimProofDataUrl = uploadResult.previewUrl || "";
+          claimProofName = proofFile.name;
+        } catch (error) {
+          entryEditStatus.textContent = error?.message || "Could not upload the proof image.";
+          return;
+        }
+      }
+
+      const updatedEntry = {
+        ...existingEntry,
+        schoolName: isClaim ? "Claims" : schoolName,
+        date,
+        type,
+        startTime: isCost ? "" : startTime,
+        endTime: isCost ? "" : calculateEndTime(startTime, hours),
+        hours: isCost ? 0 : hours,
+        replacementName: type === "Replacement" ? editReplacementNameInput.value.trim() : "",
+        customRate: type === "Private" && editCustomRateInput.value !== "" ? Number(editCustomRateInput.value) : null,
+        calendarColor: getEntryEditColor(),
+        claimNotes: isCost ? editClaimNotesInput.value.trim() : "",
+        claimCost: isCost ? claimCost : null,
+        claimProofName,
+        claimImagePath,
+        claimProofDataUrl,
+      };
+
+      editEntrySaveDisabled(true);
+      entryEditStatus.textContent = "Saving changes...";
+      try {
+        await window.draftTimesheetStore.updateEntry(editingEntryId, updatedEntry, {
+          employeeId: currentUser.id,
+          updatedBy: currentUser.id,
+        });
+        entries = await loadEntries();
+        const nextMonth = date.slice(0, 7);
+        if (/^\d{4}-\d{2}$/.test(nextMonth) && nextMonth !== monthPicker.value) {
+          setMonthValue(nextMonth);
+        }
+        closeEntryEditModal();
+        render();
+      } catch (error) {
+        entryEditStatus.textContent = error?.message || "Could not update the entry.";
+      } finally {
+        editEntrySaveDisabled(false);
+      }
+    }
+
+    function calculateEndTime(startTime, hoursWorked) {
+      const [hourText, minuteText] = String(startTime || "").split(":");
+      const hour = Number(hourText);
+      const minute = Number(minuteText);
+      if (!Number.isFinite(hour) || !Number.isFinite(minute)) return "";
+      const totalMinutes = hour * 60 + minute + Math.round(Number(hoursWorked || 0) * 60);
+      const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+      const nextHour = String(Math.floor(normalized / 60)).padStart(2, "0");
+      const nextMinute = String(normalized % 60).padStart(2, "0");
+      return `${nextHour}:${nextMinute}`;
+    }
+
+    async function uploadClaimProofToStorage(file, monthValue) {
+      if (!window.claimProofStorage || typeof window.claimProofStorage.uploadClaimProof !== "function") {
+        throw new Error("Claim proof uploads are not configured for this page.");
+      }
+      return window.claimProofStorage.uploadClaimProof(file, monthValue);
     }
 
     async function removeEntry(entryId) {
