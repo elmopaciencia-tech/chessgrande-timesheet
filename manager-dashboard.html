@@ -69,27 +69,31 @@
     .panel h2 { margin: 0; font-size: 1.38rem; line-height: 1.15; letter-spacing: -.02em; }
     .panel-eyebrow { margin: 0 0 8px; color: var(--clay); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
     .toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; margin-bottom: 18px; }
-    .button, .delete-button, .edit-button { border-radius: 999px; min-height: 46px; padding: 12px 16px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; }
+    .button, .delete-button, .edit-button, .paid-button { border-radius: 999px; min-height: 46px; padding: 12px 16px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; }
     .button, .edit-button { border: 0; background: var(--accent); color: var(--surface-strong); }
+    .paid-button { border: 0; background: color-mix(in srgb, var(--brand) 18%, white 82%); color: color-mix(in srgb, var(--brand) 62%, black 38%); }
+    .paid-button[disabled] { cursor: default; opacity: 1; background: var(--accent-soft); color: var(--muted); }
     .delete-button { border: 0; background: var(--clay-soft); color: var(--clay); }
     .stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
     .stat { padding: 20px; min-height: 132px; display: grid; align-content: end; }
     .stat-label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
     .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; word-break: break-word; }
     #totalSubmittedPay { text-wrap: balance; line-height: 1.1; font-size: clamp(1.35rem, 4vw, 1.8rem); }
-    .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
+    .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
     .filter-card, .toolbar-card { padding: 16px; }
     .filter-title, .search-wrap label, .role-filter label { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
     .filter-select, .search-wrap input, .role-filter select { width: 100%; border-radius: 16px; border: 1px solid var(--line); padding: 11px 12px; background: var(--surface-strong); color: var(--ink); min-height: 52px; font-size: 1rem; box-sizing: border-box; }
     .filter-select:focus-visible, .search-wrap input:focus-visible, .role-filter select:focus-visible { border-color: color-mix(in srgb, var(--focus) 60%, white 40%); box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%); }
     .file-list { display: grid; gap: 14px; }
     .file-item { display: grid; grid-template-columns: 58px minmax(0, 1.2fr) minmax(120px, .9fr) minmax(120px, .8fr) minmax(130px, .9fr) auto; gap: 14px; align-items: center; padding: 18px; color: inherit; text-decoration: none; }
-    .file-item-actions { justify-self: end; }
+    .file-item-actions { justify-self: end; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    .file-item.is-paid { border-color: color-mix(in srgb, var(--brand) 34%, var(--line) 66%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 94%, var(--surface-accent) 6%) 0%, color-mix(in srgb, var(--surface-muted) 72%, var(--surface-accent) 28%) 100%); }
     .folder-icon { width: 58px; height: 44px; border-radius: 12px; background: linear-gradient(180deg, var(--gold) 0%, color-mix(in srgb, var(--gold-deep) 72%, white 28%) 100%); position: relative; box-shadow: inset 0 0 0 1px rgba(113,85,12,.12); }
     .file-avatar-img[src]:not([src=""]) + .folder-icon { display: none; }
     .folder-icon::before { content: ""; position: absolute; top: -7px; left: 8px; width: 24px; height: 12px; border-radius: 8px 8px 0 0; background: var(--gold-deep); }
     .file-name { font-weight: 700; margin-bottom: 2px; }
     .file-sub, .file-meta { color: var(--muted); font-size: .9rem; line-height: 1.4; }
+    .file-paid-status { color: color-mix(in srgb, var(--brand) 62%, black 38%); font-size: .82rem; font-weight: 700; margin-top: 4px; }
     .file-role { font-weight: 700; text-transform: capitalize; color: var(--accent); }
     .file-pay { font-weight: 700; color: var(--ink); }
     .status { min-height: 1.2rem; font-size: .92rem; margin-bottom: 14px; }
@@ -124,7 +128,7 @@
       .file-item-actions { justify-self: start; }
     }
 
-</style></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
+</style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
 <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
           <a class="menu-item" href="./chess-timesheet.html">Employee Timesheet</a>
           <a class="menu-item" href="./manager-drafts.html">Draft Timesheets</a>
@@ -133,7 +137,7 @@
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
       
-</div></div></div></header><main class="page" id="main-content"><section class="hero"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1><p>Review submitted monthly payroll ledgers in one operational queue. Filter by year and month, then open any employee submission for full inspection.</p></section><section class="summary-strip" aria-label="Dashboard summary"><article class="summary-card lead"><p class="panel-eyebrow">Queue posture</p><h2 class="summary-title">This dashboard is for sorting, scanning, and opening submissions quickly.</h2><p>The list stays file-like, but the hierarchy is calmer and more deliberate so totals, filters, and entry access are easier to parse.</p></article><article class="summary-card stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></article><article class="summary-card stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></article><article class="summary-card stat"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></article></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+</div></div></div></header><main class="page" id="main-content"><section class="hero"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1><p>Review submitted monthly payroll ledgers in one operational queue. Filter by year, month, and payment status, then open any employee submission for full inspection.</p></section><section class="summary-strip" aria-label="Dashboard summary"><article class="summary-card lead"><p class="panel-eyebrow">Queue posture</p><h2 class="summary-title">This dashboard is for sorting, scanning, and opening submissions quickly.</h2><p>The list stays file-like, but the hierarchy is calmer and more deliberate so totals, filters, and entry access are easier to parse.</p></article><article class="summary-card stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></article><article class="summary-card stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></article><article class="summary-card stat"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></article></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./claim-proof-storage.js"></script>
@@ -148,6 +152,7 @@
     const totalSubmittedPay = document.getElementById("totalSubmittedPay");
     const yearFilters = document.getElementById("yearFilters");
     const monthFilters = document.getElementById("monthFilters");
+    const paidFilters = document.getElementById("paidFilters");
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
@@ -155,6 +160,7 @@
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
+    let currentManagerId = null;
 
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
@@ -166,6 +172,7 @@
     async function initApp() {
       const user = await requireManager();
       if (!user) return;
+      currentManagerId = user.id;
       const profile = await getCurrentProfile();
       webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
       setupUserMenu();
@@ -250,6 +257,8 @@
           hourlyRate: submission.hourly_rate,
           totalHours: submission.total_hours,
           totalPay: submission.total_pay,
+          paidAt: submission.paid_at,
+          paidBy: submission.paid_by,
           year: getSubmissionYear(submission),
           monthNumber: getSubmissionMonthNumber(submission),
         }))
@@ -269,7 +278,11 @@
       const visibleSubmissions = submissions.filter((submission) => {
         const yearVisible = !filters.selectedYear || String(submission.year) === filters.selectedYear;
         const monthVisible = !filters.selectedMonth || String(submission.monthNumber) === filters.selectedMonth;
-        return yearVisible && monthVisible;
+        const paymentStatusVisible =
+          !filters.selectedPaidStatus
+          || (filters.selectedPaidStatus === "paid" && Boolean(submission.paidAt))
+          || (filters.selectedPaidStatus === "unpaid" && !submission.paidAt);
+        return yearVisible && monthVisible && paymentStatusVisible;
       });
 
       submissionCount.textContent = visibleSubmissions.length;
@@ -286,7 +299,7 @@
         const empty = document.createElement("div");
         empty.className = "empty";
         empty.textContent = submissions.length
-          ? "No submissions match the current year or month filters."
+          ? "No submissions match the current year, month, or payment-status filters."
           : "No employee submissions yet.";
         fileList.appendChild(empty);
         return;
@@ -294,21 +307,75 @@
 
       visibleSubmissions.forEach((submission) => {
         const link = document.createElement("a");
-        link.className = "file-item";
+        link.className = `file-item${submission.paidAt ? " is-paid" : ""}`;
         link.href = `./manager-entry.html?id=${encodeURIComponent(submission.id)}`;
+        const submissionLabel = getSubmissionLabel(submission);
+        const paidStatus = submission.paidAt ? formatPaidStatus(submission.paidAt) : "";
+        const paidButtonAttrs = submission.paidAt
+          ? `disabled aria-label="${escapeHtml(`${submissionLabel} is already marked paid`)}" title="${escapeHtml(paidStatus)}"`
+          : `data-paid-id="${escapeHtml(submission.id)}" aria-label="${escapeHtml(`Mark ${submissionLabel} as paid`)}"`;
         link.innerHTML = `
           <img class="file-avatar-img" src="" alt="" width="44" height="44" style="display:none;width:44px;height:44px;border-radius:999px;object-fit:cover;flex-shrink:0;">
           <div class="folder-icon" aria-hidden="true"></div>
           <div>
             <div class="file-name">${escapeHtml(submission.employeeName || "Unnamed Employee")}</div>
             <div class="file-sub">${escapeHtml(submission.monthLabel || submission.month || "")}</div>
+            ${paidStatus ? `<div class="file-paid-status">${escapeHtml(paidStatus)}</div>` : ""}
           </div>
           <div class="file-meta">${trimHours(submission.totalHours || 0)} hrs</div>
           <div class="file-meta">${formatCurrency(submission.hourlyRate || 0)}/hr</div>
           <div class="file-pay">${formatCurrency(submission.totalPay || 0)}</div>
-          <div class="file-item-actions"><button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}">Delete</button></div>
+          <div class="file-item-actions">
+            <button class="paid-button" type="button" ${paidButtonAttrs}>Paid</button>
+            <button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}">Delete</button>
+          </div>
         `;
         fileList.appendChild(link);
+      });
+
+      fileList.querySelectorAll(".paid-button:not([disabled])").forEach((button) => {
+        button.addEventListener("click", async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const submission = submissions.find((item) => item.id === button.dataset.paidId);
+          const label = getSubmissionLabel(submission);
+          const confirmed = confirm(`Mark ${label} as paid?`);
+          if (!confirmed) return;
+
+          if (!currentManagerId) {
+            alert("Could not mark submission as paid: manager session was not found.");
+            return;
+          }
+
+          button.disabled = true;
+          button.textContent = "Saving...";
+
+          const { data: updatedSubmission, error: updateError } = await window.supabaseClient
+            .from("payroll_submissions")
+            .update({
+              paid_at: new Date().toISOString(),
+              paid_by: currentManagerId,
+            })
+            .eq("id", button.dataset.paidId)
+            .is("paid_at", null)
+            .select("id, paid_at")
+            .maybeSingle();
+
+          if (updateError) {
+            console.error("Failed to mark submission as paid:", updateError);
+            alert(`Could not mark submission as paid: ${updateError.message || "unknown error"}`);
+            button.disabled = false;
+            button.textContent = "Paid";
+            return;
+          }
+
+          if (!updatedSubmission) {
+            alert("This submission was already marked paid or is no longer available.");
+          }
+
+          await render();
+        });
       });
 
       fileList.querySelectorAll(".delete-button").forEach((button) => {
@@ -317,9 +384,7 @@
           event.stopPropagation();
 
           const submission = submissions.find((item) => item.id === button.dataset.id);
-          const label = submission?.employeeName
-            ? `${submission.employeeName} - ${submission.monthLabel || submission.month || "submission"}`
-            : "this submission";
+          const label = getSubmissionLabel(submission);
 
           const confirmed = confirm(`Delete ${label}?`);
           if (!confirmed) return;
@@ -365,6 +430,15 @@
         labelForValue: (value) => monthNames[Number(value) - 1] || String(value),
         key: "selectedMonth",
       });
+
+      renderFilterSelect({
+        container: paidFilters,
+        values: ["unpaid", "paid"],
+        selectedValue: filters.selectedPaidStatus,
+        placeholder: "All Statuses",
+        labelForValue: (value) => value === "paid" ? "Paid" : "Unpaid",
+        key: "selectedPaidStatus",
+      });
     }
 
     function renderFilterSelect({ container, values, selectedValue, placeholder, labelForValue, key }) {
@@ -395,9 +469,12 @@
         return {
           selectedYear: typeof parsed.selectedYear === "string" ? parsed.selectedYear : "",
           selectedMonth: typeof parsed.selectedMonth === "string" ? parsed.selectedMonth : "",
+          selectedPaidStatus: ["paid", "unpaid"].includes(parsed.selectedPaidStatus)
+            ? parsed.selectedPaidStatus
+            : "",
         };
       } catch {
-        return { selectedYear: "", selectedMonth: "" };
+        return { selectedYear: "", selectedMonth: "", selectedPaidStatus: "" };
       }
     }
 
@@ -413,6 +490,26 @@
     function getSubmissionMonthNumber(submission) {
       const [, month] = String(submission.month || "").split("-");
       return Number(month) || 0;
+    }
+
+    function getSubmissionLabel(submission) {
+      if (!submission) return "this submission";
+      const monthLabel = submission.monthLabel || submission.month || "submission";
+      return submission.employeeName
+        ? `${submission.employeeName} - ${monthLabel}`
+        : "this submission";
+    }
+
+    function formatPaidStatus(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "Paid";
+      }
+      return `Paid ${new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(date)}`;
     }
 
     function trimHours(value) {

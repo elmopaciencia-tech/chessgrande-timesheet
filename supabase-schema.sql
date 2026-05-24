@@ -5,6 +5,7 @@
 --   2) payroll_submissions
 --   3) payroll_entries
 --   4) draft_timesheet_entries
+--   5) quick_add_templates
 -- plus Row Level Security (RLS) policies.
 
 begin;
@@ -118,7 +119,9 @@ create table if not exists public.payroll_submissions (
   hourly_rate numeric(10,2) not null check (hourly_rate >= 0),
   total_hours numeric(10,2) not null check (total_hours >= 0),
   total_pay numeric(12,2) not null check (total_pay >= 0),
-  submitted_at timestamptz not null default now()
+  submitted_at timestamptz not null default now(),
+  paid_at timestamptz,
+  paid_by uuid references public.profiles(id) on delete set null
 );
 
 comment on table public.payroll_submissions is 'Submitted monthly payroll snapshots by employees.';
@@ -129,10 +132,17 @@ create index if not exists payroll_submissions_month_idx
   on public.payroll_submissions (month);
 create index if not exists payroll_submissions_submitted_at_idx
   on public.payroll_submissions (submitted_at desc);
+create index if not exists payroll_submissions_paid_at_idx
+  on public.payroll_submissions (paid_at);
 
 -- For existing projects, safely add newly-added submission fields if missing.
 alter table public.payroll_submissions add column if not exists bank_name text;
 alter table public.payroll_submissions add column if not exists account_type text;
+alter table public.payroll_submissions add column if not exists paid_at timestamptz;
+alter table public.payroll_submissions add column if not exists paid_by uuid references public.profiles(id) on delete set null;
+
+revoke update on public.payroll_submissions from anon, authenticated;
+grant update (paid_at, paid_by) on public.payroll_submissions to authenticated;
 
 -- -------------------------------------------------------------------
 -- 3) Payroll entries table
@@ -150,7 +160,8 @@ create table if not exists public.payroll_entries (
   replacement_name text,
   custom_rate numeric(10,2) check (custom_rate is null or custom_rate >= 0),
   claim_notes text,
-  claim_image_url text
+  claim_image_url text,
+  calendar_color text
 );
 
 comment on table public.payroll_entries is 'Per-entry details for each submitted payroll.';
@@ -160,6 +171,19 @@ create index if not exists payroll_entries_submission_id_idx
   on public.payroll_entries (submission_id);
 create index if not exists payroll_entries_date_idx
   on public.payroll_entries (date);
+
+alter table public.payroll_entries add column if not exists calendar_color text;
+alter table public.payroll_entries drop constraint if exists payroll_entries_calendar_color_check;
+alter table public.payroll_entries
+add constraint payroll_entries_calendar_color_check
+check (
+  calendar_color is null
+  or calendar_color in (
+    '#FFF689', '#F4D35E', '#FFB88A', '#FF9C5B', '#F67B45', '#FBC2C2',
+    '#E39B99', '#CB7876', '#B4CFA4', '#8BA47C', '#62866C', '#A0C5E3',
+    '#81B2D9', '#32769B', '#BBA6DD', '#8C7DA8', '#64557B', '#1E2136'
+  )
+);
 
 -- -------------------------------------------------------------------
 -- 4) Draft timesheet entries table
@@ -192,6 +216,7 @@ create table if not exists public.draft_timesheet_entries (
   claim_image_path text,
   claim_proof_data_url text,
   claim_image_url text,
+  calendar_color text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -213,11 +238,24 @@ alter table public.draft_timesheet_entries add column if not exists claim_proof_
 alter table public.draft_timesheet_entries add column if not exists claim_image_path text;
 alter table public.draft_timesheet_entries add column if not exists claim_proof_data_url text;
 alter table public.draft_timesheet_entries add column if not exists claim_image_url text;
+alter table public.draft_timesheet_entries add column if not exists calendar_color text;
 
 alter table public.draft_timesheet_entries drop constraint if exists draft_timesheet_entries_type_check;
 alter table public.draft_timesheet_entries
 add constraint draft_timesheet_entries_type_check
 check (type in ('School Coaching', 'Replacement', 'Claim', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement', 'claim'));
+
+alter table public.draft_timesheet_entries drop constraint if exists draft_timesheet_entries_calendar_color_check;
+alter table public.draft_timesheet_entries
+add constraint draft_timesheet_entries_calendar_color_check
+check (
+  calendar_color is null
+  or calendar_color in (
+    '#FFF689', '#F4D35E', '#FFB88A', '#FF9C5B', '#F67B45', '#FBC2C2',
+    '#E39B99', '#CB7876', '#B4CFA4', '#8BA47C', '#62866C', '#A0C5E3',
+    '#81B2D9', '#32769B', '#BBA6DD', '#8C7DA8', '#64557B', '#1E2136'
+  )
+);
 
 create index if not exists draft_timesheet_entries_employee_status_date_idx
   on public.draft_timesheet_entries (employee_id, status, date);
@@ -233,15 +271,62 @@ for each row
 execute function public.set_updated_at();
 
 -- -------------------------------------------------------------------
--- 5) Enable RLS
+-- 5) Quick-add templates table
+-- -------------------------------------------------------------------
+-- Employee-owned shortcuts for recurring school coaching sessions.
+create table if not exists public.quick_add_templates (
+  id uuid primary key default gen_random_uuid(),
+  employee_id uuid not null references public.profiles(id) on delete cascade,
+  school_name text not null,
+  weekday integer not null check (weekday between 0 and 6),
+  start_time text not null,
+  hours numeric(10,2) not null check (hours > 0),
+  calendar_color text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+comment on table public.quick_add_templates is 'Employee-owned composer shortcuts for School Coaching draft entries.';
+comment on column public.quick_add_templates.weekday is 'JavaScript weekday number: 0 Sunday through 6 Saturday.';
+
+create index if not exists quick_add_templates_employee_weekday_idx
+  on public.quick_add_templates (employee_id, weekday, start_time);
+create unique index if not exists quick_add_templates_employee_unique_idx
+  on public.quick_add_templates (employee_id, lower(btrim(school_name)), weekday, start_time, hours);
+
+alter table public.quick_add_templates add column if not exists calendar_color text;
+alter table public.quick_add_templates drop constraint if exists quick_add_templates_calendar_color_check;
+alter table public.quick_add_templates
+add constraint quick_add_templates_calendar_color_check
+check (
+  calendar_color is null
+  or calendar_color in (
+    '#FFF689', '#F4D35E', '#FFB88A', '#FF9C5B', '#F67B45', '#FBC2C2',
+    '#E39B99', '#CB7876', '#B4CFA4', '#8BA47C', '#62866C', '#A0C5E3',
+    '#81B2D9', '#32769B', '#BBA6DD', '#8C7DA8', '#64557B', '#1E2136'
+  )
+);
+
+drop trigger if exists quick_add_templates_set_updated_at on public.quick_add_templates;
+create trigger quick_add_templates_set_updated_at
+before update on public.quick_add_templates
+for each row
+execute function public.set_updated_at();
+
+revoke all on public.quick_add_templates from anon, authenticated;
+grant select, insert, delete on public.quick_add_templates to authenticated;
+
+-- -------------------------------------------------------------------
+-- 6) Enable RLS
 -- -------------------------------------------------------------------
 alter table public.profiles enable row level security;
 alter table public.payroll_submissions enable row level security;
 alter table public.payroll_entries enable row level security;
 alter table public.draft_timesheet_entries enable row level security;
+alter table public.quick_add_templates enable row level security;
 
 -- -------------------------------------------------------------------
--- 6) Profiles RLS policies
+-- 7) Profiles RLS policies
 -- -------------------------------------------------------------------
 -- Employees can read their own profile.
 drop policy if exists "profiles_select_own" on public.profiles;
@@ -308,7 +393,7 @@ using (authz.has_app_role(array['webadmin']))
 with check (authz.has_app_role(array['webadmin']));
 
 -- -------------------------------------------------------------------
--- 7) Payroll submissions RLS policies
+-- 8) Payroll submissions RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert their own submissions.
 drop policy if exists "submissions_insert_own" on public.payroll_submissions;
@@ -344,8 +429,22 @@ for delete
 to authenticated
 using (authz.has_app_role(array['manager', 'webadmin']));
 
+-- Managers and webadmins can mark a submission as paid.
+drop policy if exists "submissions_update_paid_admin_all" on public.payroll_submissions;
+drop policy if exists "submissions_update_paid_manager_all" on public.payroll_submissions;
+create policy "submissions_update_paid_admin_all"
+on public.payroll_submissions
+for update
+to authenticated
+using (authz.has_app_role(array['manager', 'webadmin']))
+with check (
+  paid_at is not null
+  and paid_by = auth.uid()
+  and authz.has_app_role(array['manager', 'webadmin'])
+);
+
 -- -------------------------------------------------------------------
--- 8) Payroll entries RLS policies
+-- 9) Payroll entries RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert entries only into their own submissions.
 drop policy if exists "entries_insert_for_own_submission" on public.payroll_entries;
@@ -396,7 +495,7 @@ to authenticated
 using (authz.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
--- 9) Draft timesheet entries RLS policies
+-- 10) Draft timesheet entries RLS policies
 -- -------------------------------------------------------------------
 drop policy if exists "draft_entries_select_own" on public.draft_timesheet_entries;
 create policy "draft_entries_select_own"
@@ -489,6 +588,30 @@ using (
   and type in ('School Coaching', 'Replacement', 'Camp', 'Private', 'Event', 'schoolCoaching', 'replacement')
   and authz.has_app_role(array['manager', 'webadmin'])
 );
+
+-- -------------------------------------------------------------------
+-- 11) Quick-add templates RLS policies
+-- -------------------------------------------------------------------
+drop policy if exists "quick_add_templates_select_own" on public.quick_add_templates;
+create policy "quick_add_templates_select_own"
+on public.quick_add_templates
+for select
+to authenticated
+using (employee_id = (select auth.uid()));
+
+drop policy if exists "quick_add_templates_insert_own" on public.quick_add_templates;
+create policy "quick_add_templates_insert_own"
+on public.quick_add_templates
+for insert
+to authenticated
+with check (employee_id = (select auth.uid()));
+
+drop policy if exists "quick_add_templates_delete_own" on public.quick_add_templates;
+create policy "quick_add_templates_delete_own"
+on public.quick_add_templates
+for delete
+to authenticated
+using (employee_id = (select auth.uid()));
 
 drop function if exists public.is_manager(uuid);
 drop function if exists public.current_user_has_role(text[]);

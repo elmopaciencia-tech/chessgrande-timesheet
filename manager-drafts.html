@@ -416,6 +416,9 @@
       .calendar-chip strong { font-size: 0.68rem; }
     }
   </style>
+  <link rel="stylesheet" href="./theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
+  <script src="./ui-effects.js" defer></script>
 </head>
 <body>
   <header class="app-header">
@@ -540,6 +543,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./calendar-colors.js"></script>
   <script src="./draft-timesheet-store.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
@@ -918,6 +922,7 @@
           chip.className = "calendar-chip";
           if (entry.type === "Claim") chip.classList.add("claim");
           if (window.draftTimesheetStore.isSubmitted(entry)) chip.classList.add("submitted");
+          applyCalendarColorToChip(chip, entry.calendarColor);
           chip.innerHTML = `
             <strong>${escapeHtml(entry.schoolName || "Untitled")}</strong>
             <span>${escapeHtml(formatCalendarEntryMeta(entry))}</span>
@@ -1085,6 +1090,12 @@
         return `Claim${costLabel}`;
       }
       return entry.type || "";
+    }
+
+    function applyCalendarColorToChip(chip, color) {
+      if (window.calendarEntryColors && typeof window.calendarEntryColors.applyToChip === "function") {
+        window.calendarEntryColors.applyToChip(chip, color);
+      }
     }
 
     function formatCalendarEntryMeta(entry) {

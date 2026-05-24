@@ -27,6 +27,32 @@
     "created_at",
     "updated_at",
   ].join(",");
+  const iosColorSelectColumns = [
+    "id",
+    "employee_id",
+    "created_by",
+    "updated_by",
+    "submission_id",
+    "status",
+    "school_name",
+    "date",
+    "type",
+    "start_time",
+    "end_time",
+    "start_time_minutes",
+    "hours",
+    "replacement_name",
+    "custom_rate",
+    "notes",
+    "repeats_weekly",
+    "repeat_until",
+    "claim_amount_cents",
+    "claim_proof_name",
+    "claim_image_url",
+    "calendar_color",
+    "created_at",
+    "updated_at",
+  ].join(",");
   const webSelectColumns = [
     "id",
     "employee_id",
@@ -50,7 +76,52 @@
     "created_at",
     "updated_at",
   ].join(",");
+  const webColorSelectColumns = [
+    "id",
+    "employee_id",
+    "created_by",
+    "updated_by",
+    "submission_id",
+    "status",
+    "school_name",
+    "date",
+    "type",
+    "start_time",
+    "end_time",
+    "hours",
+    "replacement_name",
+    "custom_rate",
+    "claim_notes",
+    "claim_cost",
+    "claim_proof_name",
+    "claim_image_path",
+    "claim_proof_data_url",
+    "calendar_color",
+    "created_at",
+    "updated_at",
+  ].join(",");
   let activeSchema = null;
+  const schemaPriority = ["iosColor", "webColor", "ios", "web"];
+  const fallbackCalendarColors = new Set([
+    "#FFF689",
+    "#F4D35E",
+    "#FFB88A",
+    "#FF9C5B",
+    "#F67B45",
+    "#FBC2C2",
+    "#E39B99",
+    "#CB7876",
+    "#B4CFA4",
+    "#8BA47C",
+    "#62866C",
+    "#A0C5E3",
+    "#81B2D9",
+    "#32769B",
+    "#BBA6DD",
+    "#8C7DA8",
+    "#64557B",
+    "#1E2136",
+  ]);
 
   function getClient() {
     if (!window.supabaseClient) {
@@ -79,6 +150,14 @@
       default:
         return value || "School Coaching";
     }
+  }
+
+  function normalizeCalendarColor(value) {
+    if (window.calendarEntryColors && typeof window.calendarEntryColors.normalizeColor === "function") {
+      return window.calendarEntryColors.normalizeColor(value);
+    }
+    const normalized = String(value || "").trim().toUpperCase();
+    return fallbackCalendarColors.has(normalized) ? normalized : "";
   }
 
   function normalizeNumber(value, fallback = 0) {
@@ -123,11 +202,29 @@
   }
 
   function getSelectColumns(schema) {
-    return schema === "ios" ? iosSelectColumns : webSelectColumns;
+    switch (schema) {
+      case "iosColor":
+        return iosColorSelectColumns;
+      case "webColor":
+        return webColorSelectColumns;
+      case "ios":
+        return iosSelectColumns;
+      default:
+        return webSelectColumns;
+    }
   }
 
-  function getAlternateSchema(schema) {
-    return schema === "ios" ? "web" : "ios";
+  function isIosSchema(schema) {
+    return schema === "ios" || schema === "iosColor";
+  }
+
+  function supportsCalendarColor(schema) {
+    return schema === "iosColor" || schema === "webColor";
+  }
+
+  function getSchemaAttempts() {
+    if (!activeSchema) return schemaPriority;
+    return [activeSchema, ...schemaPriority.filter((schema) => schema !== activeSchema)];
   }
 
   function toEntry(row) {
@@ -160,6 +257,7 @@
       claimProofName: row.claim_proof_name || getFileNameFromPath(claimImageUrl),
       claimImagePath: claimImageUrl,
       claimProofDataUrl: /^https?:|^data:/i.test(claimImageUrl) ? claimImageUrl : "",
+      calendarColor: normalizeCalendarColor(row.calendar_color),
       createdAt: row.created_at || "",
       updatedAt: row.updated_at || "",
     };
@@ -168,8 +266,9 @@
   function toRow(entry, context = {}, schema = activeSchema || "ios") {
     const type = normalizeType(entry.type);
     const isClaim = type === "Claim";
-    if (schema === "ios") {
-      return {
+    const calendarColor = normalizeCalendarColor(entry.calendarColor);
+    if (isIosSchema(schema)) {
+      const row = {
         employee_id: context.employeeId || entry.employeeId,
         created_by: context.createdBy || entry.createdBy || undefined,
         updated_by: context.updatedBy || entry.updatedBy || undefined,
@@ -189,9 +288,13 @@
         claim_proof_name: isClaim ? entry.claimProofName || null : null,
         claim_image_url: isClaim ? entry.claimImagePath || entry.claimProofDataUrl || null : null,
       };
+      if (supportsCalendarColor(schema)) {
+        row.calendar_color = calendarColor || null;
+      }
+      return row;
     }
 
-    return {
+    const row = {
       employee_id: context.employeeId || entry.employeeId,
       created_by: context.createdBy || entry.createdBy || undefined,
       updated_by: context.updatedBy || entry.updatedBy || undefined,
@@ -210,6 +313,10 @@
       claim_image_path: isClaim ? entry.claimImagePath || null : null,
       claim_proof_data_url: isClaim ? entry.claimProofDataUrl || null : null,
     };
+    if (supportsCalendarColor(schema)) {
+      row.calendar_color = calendarColor || null;
+    }
+    return row;
   }
 
   function assertRows(rows, error, fallbackMessage) {
@@ -220,11 +327,11 @@
   }
 
   async function loadEntriesForEmployee(employeeId) {
-    const schemas = activeSchema ? [activeSchema, getAlternateSchema(activeSchema)] : ["ios", "web"];
+    const schemas = getSchemaAttempts();
     let lastError = null;
 
     for (const schema of schemas) {
-      const timeColumn = schema === "ios" ? "start_time_minutes" : "start_time";
+      const timeColumn = isIosSchema(schema) ? "start_time_minutes" : "start_time";
       const { data, error } = await getClient()
         .from(tableName)
         .select(getSelectColumns(schema))
@@ -246,7 +353,7 @@
 
   async function insertEntries(entries, context) {
     if (!entries.length) return [];
-    const schemas = activeSchema ? [activeSchema, getAlternateSchema(activeSchema)] : ["ios", "web"];
+    const schemas = getSchemaAttempts();
     let lastError = null;
 
     for (const schema of schemas) {
@@ -269,7 +376,7 @@
   }
 
   async function updateEntry(id, entry, context) {
-    const schemas = activeSchema ? [activeSchema, getAlternateSchema(activeSchema)] : ["ios", "web"];
+    const schemas = getSchemaAttempts();
     let lastError = null;
 
     for (const schema of schemas) {
@@ -317,7 +424,7 @@
 
   async function markSubmitted(ids, submissionId, userId) {
     if (!ids.length) return [];
-    const schemas = activeSchema ? [activeSchema, getAlternateSchema(activeSchema)] : ["ios", "web"];
+    const schemas = getSchemaAttempts();
     let lastError = null;
 
     for (const schema of schemas) {

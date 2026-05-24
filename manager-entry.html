@@ -241,6 +241,9 @@
 
     .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
   </style>
+  <link rel="stylesheet" href="./theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
+  <script src="./ui-effects.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -314,6 +317,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./calendar-colors.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
@@ -409,7 +413,7 @@
       const id = params.get("id");
 
       if (!id) {
-        document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">Submission not found.</div>`;
+        document.body.innerHTML = `<div style="padding:32px;font-family:Source Sans 3,Aptos,Avenir Next,Segoe UI,sans-serif;color:#17233a;">Submission not found.</div>`;
         return;
       }
 
@@ -424,7 +428,7 @@
         const message = notFound
           ? "Submission not found."
           : `Could not load submission: ${submissionError.message || "unknown error"}`;
-        document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">${escapeHtml(message)}</div>`;
+        document.body.innerHTML = `<div style="padding:32px;font-family:Source Sans 3,Aptos,Avenir Next,Segoe UI,sans-serif;color:#17233a;">${escapeHtml(message)}</div>`;
         return;
       }
 
@@ -434,7 +438,7 @@
         .eq("submission_id", id);
 
       if (entriesError) {
-        document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">${escapeHtml(`Could not load payroll entries: ${entriesError.message || "unknown error"}`)}</div>`;
+        document.body.innerHTML = `<div style="padding:32px;font-family:Source Sans 3,Aptos,Avenir Next,Segoe UI,sans-serif;color:#17233a;">${escapeHtml(`Could not load payroll entries: ${entriesError.message || "unknown error"}`)}</div>`;
         return;
       }
 
@@ -451,6 +455,7 @@
           hours: row.hours,
           replacementName: row.replacement_name || "",
           customRate: row.custom_rate,
+          calendarColor: row.calendar_color || "",
           claimNotes: claimPayload.notes,
           claimCost: claimPayload.cost,
           claimProofDataUrl: resolvedClaimUrl,
@@ -474,7 +479,7 @@
       };
 
       if (!submission) {
-        document.body.innerHTML = `<div style="padding:32px;font-family:Avenir Next,Segoe UI,sans-serif;color:#1d2a2a;">Submission not found.</div>`;
+        document.body.innerHTML = `<div style="padding:32px;font-family:Source Sans 3,Aptos,Avenir Next,Segoe UI,sans-serif;color:#17233a;">Submission not found.</div>`;
         return;
       }
 
@@ -542,12 +547,19 @@
         (groupedByDate[key] || []).forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "chip";
+          applyCalendarColorToChip(chip, entry.calendarColor);
           chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
 
         cell.appendChild(items);
         calendar.appendChild(cell);
+      }
+    }
+
+    function applyCalendarColorToChip(chip, color) {
+      if (window.calendarEntryColors && typeof window.calendarEntryColors.applyToChip === "function") {
+        window.calendarEntryColors.applyToChip(chip, color);
       }
     }
 

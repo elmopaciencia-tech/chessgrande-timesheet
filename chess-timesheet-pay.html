@@ -142,9 +142,10 @@
     html[data-browser-engine="webkit"] #monthPicker { display: none !important; }
     #monthPickerFallback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 160px); gap: 10px; }
     #monthPickerFallback[hidden] { display: none; }
-    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, .8fr)); gap: var(--space-4); }
-    .summary-card { padding: var(--space-4); border-radius: 22px; border: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); }
-    .summary-card.lead { background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); display: grid; gap: var(--space-3); grid-column: 1 / -1; }
+    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, .8fr)); gap: var(--space-4); align-items: stretch; }
+    .summary-card { padding: var(--space-5); border-radius: 22px; border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%); }
+    .summary-card.lead { background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); display: grid; gap: var(--space-3); grid-column: span 1; }
+    .summary-card.lead p { margin: 0; color: var(--muted); font-size: .95rem; line-height: 1.45; }
     .summary-title { margin: 0; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.25; }
     .workspace { display: grid; gap: var(--space-7); }
     .layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(320px, .92fr); gap: var(--space-7); align-items: start; }
@@ -234,21 +235,28 @@
     #fullName[readonly], #bankAccount[readonly], #bankName[readonly], #accountType[readonly] { border: 0; background: transparent; padding: 4px 0 6px; border-radius: 0; color: var(--ink); pointer-events: none; caret-color: transparent; }
     #fullName[readonly]::placeholder, #bankAccount[readonly]::placeholder, #bankName[readonly]::placeholder, #accountType[readonly]::placeholder { color: var(--muted); opacity: 1; }
     #bankAccount[readonly].missing-profile::placeholder, #bankName[readonly].missing-profile::placeholder, #accountType[readonly].missing-profile::placeholder, .missing-profile { color: var(--clay); font-weight: 700; }
-    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 900px) {
       .hero-guidance, .form-grid, .summary, .actions { grid-template-columns: 1fr; }
       .summary-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         justify-content: start;
         gap: 8px;
         align-items: start;
       }
       .summary-card.lead {
-        grid-column: 1 / -1;
+        grid-column: span 1;
+        min-height: 136px;
         padding: 12px;
+        gap: 8px;
+        align-content: center;
+      }
+      .summary-card.lead p {
+        display: none;
       }
       .summary-title { font-size: .8rem; line-height: 1.12; }
       .summary-card.stat {
-        min-height: 0;
+        min-height: 136px;
         padding: 12px;
         display: grid;
         align-content: center;
@@ -259,6 +267,9 @@
         font-size: .66rem;
         letter-spacing: .04em;
         white-space: nowrap;
+      }
+      .summary-card {
+        align-self: start;
       }
       .stat-value { font-size: 1.45rem; }
     }
@@ -287,6 +298,9 @@
 }
 
   </style>
+  <link rel="stylesheet" href="./theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
+  <script src="./ui-effects.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -327,11 +341,11 @@
 
     <section class="summary-strip" aria-label="Month summary">
       <article class="summary-card lead">
-        <p class="panel-eyebrow">Month posture</p>
-        <h2 class="summary-title">Pay review stays tied to the same monthly ledger.</h2>
-        <p>Rate, hours, and calculated pay update against the selected month so nothing drifts away from the original timesheet.</p>
+        <p class="panel-eyebrow">How this page works</p>
+        <h2 class="summary-title">Review the selected month, then submit payroll.</h2>
+        <p>This page pulls entries from the active timesheet month. Confirm your profile details, enter the hourly rate, check the calendar and school ledger, then submit when the calculated pay looks right.</p>
       </article>
-      <article class="summary-card stat"><span class="stat-label">Rate</span><span class="stat-value" id="rateCount">$0.00</span></article><article class="summary-card stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></article><article class="summary-card stat"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="summaryPay">$0.00</span></article>
+      <article class="summary-card stat"><span class="stat-label">Hourly Rate</span><span class="stat-value" id="rateCount">$0.00</span></article><article class="summary-card stat"><span class="stat-label">Total Hours</span><span class="stat-value" id="hoursCount">0</span></article><article class="summary-card stat"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="summaryPay">$0.00</span></article>
     </section>
 
     <div class="workspace">
@@ -377,6 +391,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./calendar-colors.js"></script>
   <script src="./draft-timesheet-store.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
@@ -657,13 +672,12 @@
         hours: Number(entry.hours || 0),
         replacement_name: entry.replacementName || null,
         custom_rate: entry.customRate != null ? Number(entry.customRate) : null,
+        calendar_color: entry.calendarColor || null,
         claim_notes: serializeClaimNotesForStorage(entry),
         claim_image_url: entry.claimImagePath || entry.claimProofDataUrl || null,
       }));
 
-      const { error: entriesError } = await window.supabaseClient
-        .from("payroll_entries")
-        .insert(entryRows);
+      const { error: entriesError } = await insertPayrollEntries(entryRows);
 
       if (entriesError) {
         console.error("Failed to insert payroll entries:", entriesError);
@@ -776,12 +790,42 @@
           if (window.draftTimesheetStore.isSubmitted(entry)) {
             chip.classList.add("submitted");
           }
+          applyCalendarColorToChip(chip, entry.calendarColor);
           chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
 
         cell.appendChild(items);
         calendar.appendChild(cell);
+      }
+    }
+
+    async function insertPayrollEntries(entryRows) {
+      const result = await window.supabaseClient
+        .from("payroll_entries")
+        .insert(entryRows);
+      if (!isMissingColumnError(result.error)) {
+        return result;
+      }
+
+      const fallbackRows = entryRows.map(({ calendar_color, ...row }) => row);
+      return window.supabaseClient
+        .from("payroll_entries")
+        .insert(fallbackRows);
+    }
+
+    function isMissingColumnError(error) {
+      const message = String(error?.message || "");
+      return error?.code === "42703"
+        || error?.code === "PGRST204"
+        || (message.includes("column") && message.includes("does not exist"))
+        || message.includes("Could not find")
+        || message.includes("schema cache");
+    }
+
+    function applyCalendarColorToChip(chip, color) {
+      if (window.calendarEntryColors && typeof window.calendarEntryColors.applyToChip === "function") {
+        window.calendarEntryColors.applyToChip(chip, color);
       }
     }
 

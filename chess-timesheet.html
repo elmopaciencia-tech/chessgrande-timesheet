@@ -98,21 +98,34 @@
 
     .skip-link {
       position: absolute;
-      left: var(--space-5);
-      top: var(--space-4);
-      transform: translateY(-180%);
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
       background: var(--accent);
       color: var(--surface-strong);
-      padding: 10px 14px;
+      padding: 0;
       border-radius: 999px;
       text-decoration: none;
       font-weight: 700;
       z-index: 1000;
-      box-shadow: var(--shadow-md);
+      box-shadow: none;
     }
 
     .skip-link:focus-visible {
-      transform: translateY(0);
+      left: var(--space-5);
+      top: var(--space-4);
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+      clip-path: none;
+      padding: 10px 14px;
+      box-shadow: var(--shadow-md);
     }
 
     .app-header {
@@ -450,7 +463,22 @@
       display: block;
       -webkit-appearance: none;
       appearance: none;
-      padding-right: 44px;
+      background-image: none;
+      padding-right: 16px;
+    }
+
+    #entryDate::-webkit-calendar-picker-indicator,
+    #entryDate::-webkit-inner-spin-button,
+    #entryDate::-webkit-clear-button {
+      display: none;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 0;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .workspace {
@@ -562,7 +590,7 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(132px, 0.62fr) minmax(0, 1.38fr);
       gap: var(--space-4);
     }
 
@@ -577,6 +605,191 @@
 
     .full {
       grid-column: 1 / -1;
+    }
+
+    .school-name-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-3);
+      align-items: end;
+      position: relative;
+    }
+
+    .school-name-field,
+    .entry-type-field,
+    .hours-field {
+      min-width: 0;
+    }
+
+    .quick-add-control {
+      position: relative;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      min-width: 0;
+    }
+
+    .quick-add-toggle {
+      white-space: nowrap;
+      min-width: 128px;
+    }
+
+    .time-fields-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    .hours-quick-add-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-3);
+      align-items: end;
+    }
+
+    .entry-type-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-3);
+      align-items: end;
+      position: relative;
+    }
+
+    .calendar-color-control {
+      position: relative;
+      display: grid;
+      align-items: end;
+      padding-bottom: 4px;
+    }
+
+    .calendar-color-toggle {
+      position: relative;
+      width: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      aspect-ratio: 1;
+      padding: 0;
+      border-radius: 999px;
+      border-color: color-mix(in srgb, var(--line-strong) 66%, white 34%);
+      background:
+        conic-gradient(
+          from 20deg,
+          #fff689,
+          #ff9c5b,
+          #f67b45,
+          #e39b99,
+          #b4cfa4,
+          #62866c,
+          #81b2d9,
+          #32769b,
+          #bba6dd,
+          #64557b,
+          #fff689
+        );
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, white 72%, transparent),
+        var(--shadow-sm);
+    }
+
+    .calendar-color-toggle::before,
+    .calendar-color-toggle::after {
+      position: absolute;
+      right: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(3px);
+      transition: opacity 150ms ease, transform 150ms ease;
+      z-index: 60;
+    }
+
+    .calendar-color-toggle::before {
+      content: attr(data-tooltip);
+      bottom: calc(100% + 10px);
+      width: max-content;
+      max-width: 180px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: var(--surface-strong);
+      box-shadow: var(--shadow-sm);
+      font-size: 0.75rem;
+      line-height: 1;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .calendar-color-toggle::after {
+      content: "";
+      bottom: calc(100% + 3px);
+      border: 7px solid transparent;
+      border-top-color: var(--ink);
+    }
+
+    .calendar-color-toggle:hover::before,
+    .calendar-color-toggle:hover::after,
+    .calendar-color-toggle:focus-visible::before,
+    .calendar-color-toggle:focus-visible::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .calendar-color-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 42;
+      padding: 12px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      box-shadow: var(--shadow-md);
+    }
+
+    .calendar-color-menu[hidden] {
+      display: none;
+    }
+
+    .calendar-color-options {
+      display: grid;
+      grid-template-columns: repeat(5, 32px);
+      gap: 8px;
+    }
+
+    .calendar-color-option {
+      position: relative;
+      display: grid;
+      min-width: 0;
+      aspect-ratio: 1;
+    }
+
+    .calendar-color-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .calendar-color-swatch {
+      border-radius: 999px;
+      border: 2px solid color-mix(in srgb, var(--line-strong) 62%, white 38%);
+      background: var(--swatch-color, var(--surface-strong));
+      cursor: pointer;
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, white 82%, transparent);
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .calendar-color-swatch.neutral {
+      background:
+        linear-gradient(135deg, transparent calc(50% - 1px), var(--clay) 50%, transparent calc(50% + 1px)),
+        var(--surface-strong);
+    }
+
+    .calendar-color-option input:focus-visible + .calendar-color-swatch,
+    .calendar-color-option input:checked + .calendar-color-swatch {
+      border-color: var(--ink);
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, white 82%, transparent),
+        0 0 0 3px color-mix(in srgb, var(--focus) 18%, white 82%);
+      transform: translateY(-1px);
     }
 
     .checkbox-row {
@@ -599,6 +812,119 @@
       color: var(--muted);
       font-size: 0.84rem;
       line-height: 1.45;
+    }
+
+    .quick-add-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 40;
+      width: min(360px, calc(100vw - 48px));
+      display: grid;
+      gap: var(--space-3);
+      padding: 14px;
+      border-radius: 20px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      box-shadow: var(--shadow-md);
+    }
+
+    .quick-add-menu[hidden] {
+      display: none;
+    }
+
+    .quick-add-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .quick-add-copy {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
+    button.quick-add-save {
+      align-self: end;
+      white-space: nowrap;
+      min-height: 52px;
+      padding-inline: 14px;
+      background: var(--success);
+      color: var(--surface-strong);
+      border-color: color-mix(in srgb, var(--success) 78%, black 22%);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quick-add-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .quick-add-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 42px;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .quick-add-apply {
+      min-height: 46px;
+      display: grid;
+      gap: 4px;
+      justify-items: start;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: var(--surface-strong);
+      border-color: color-mix(in srgb, var(--line) 84%, white 16%);
+      color: var(--ink);
+    }
+
+    .quick-add-school {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .quick-add-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.25;
+    }
+
+    .quick-add-remove {
+      min-height: 42px;
+      width: 42px;
+      padding: 0;
+      border-radius: 16px;
+      background: var(--surface-strong);
+      border-color: color-mix(in srgb, var(--line) 84%, white 16%);
+      color: var(--clay);
+    }
+
+    .quick-add-empty {
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-strong) 68%, transparent);
+      border: 1px dashed color-mix(in srgb, var(--line) 78%, white 22%);
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .quick-add-status {
+      min-height: 1.2em;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .quick-add-status.error {
+      color: #9f2f1f;
     }
 
     .actions {
@@ -642,6 +968,13 @@
       background: var(--surface-strong);
       color: var(--accent);
       border-color: color-mix(in srgb, var(--accent) 18%, white 82%);
+    }
+
+    #clearMonth {
+      background: #b42318;
+      color: var(--surface-strong);
+      border-color: #8f1d14;
+      box-shadow: var(--shadow-sm);
     }
 
     .ghost {
@@ -1147,6 +1480,31 @@
       .actions {
         grid-template-columns: 1fr;
       }
+
+      .school-name-row,
+      .hours-quick-add-row {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-add-control {
+        display: grid;
+        justify-content: stretch;
+      }
+
+      .quick-add-menu {
+        position: static;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .quick-add-toggle,
+      .quick-add-save {
+        width: 100%;
+      }
+
+      .calendar-color-menu {
+        right: 0;
+      }
     }
 
     @media (max-width: 760px) {
@@ -1237,12 +1595,15 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="./theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
+  <script src="./ui-effects.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="app-header">
     <div class="app-header-inner">
-      <div class="app-header-title">Chess Grande Monthly Ledger</div>
+      <div class="app-header-title">Chess Grande Monthly Time Sheet</div>
       <div class="menu-wrap">
         <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
         <div class="menu-panel" id="userMenuPanel" hidden>
@@ -1315,9 +1676,9 @@
 
     <section class="summary-strip" aria-label="Month summary">
       <article class="summary-card lead">
-        <p class="panel-eyebrow">Month posture</p>
-        <h2 class="summary-title">One page for review, recording, and payroll readiness.</h2>
-        <p>Counts update as you work, while the month view and school ledger stay aligned to the active month.</p>
+        <p class="panel-eyebrow">How this page works</p>
+        <h2 class="summary-title">Build the selected month before opening payroll.</h2>
+        <p>Choose the active month, record each session or claim, then use the calendar and school ledger to check that everything is complete. The totals update automatically as entries are saved.</p>
       </article>
       <article class="summary-card stat">
         <span class="stat-label">Schools</span>
@@ -1377,24 +1738,45 @@
             </div>
             <form id="entryForm">
               <div class="form-grid">
-                <div class="full">
-                  <label for="schoolName">School Name</label>
-                  <input id="schoolName" name="schoolName" type="text" placeholder="e.g. ACS" required>
+                <div class="full school-name-row">
+                  <div class="school-name-field">
+                    <label for="schoolName">School Name</label>
+                    <input id="schoolName" name="schoolName" type="text" placeholder="e.g. ACS" required>
+                  </div>
+                  <div class="quick-add-control">
+                    <button class="secondary quick-add-toggle" type="button" id="quickAddToggle" aria-expanded="false" aria-controls="quickAddMenu">Quick Add</button>
+                    <div class="quick-add-menu" id="quickAddMenu" role="dialog" aria-labelledby="quickAddTitle" hidden>
+                      <div>
+                        <p class="quick-add-title" id="quickAddTitle">Quick Add</p>
+                        <p class="quick-add-copy">Saved School Coaching slots stay with this account.</p>
+                      </div>
+                      <div class="quick-add-list" id="quickAddList"></div>
+                      <div class="quick-add-status" id="quickAddStatus" role="status" aria-live="polite"></div>
+                    </div>
+                  </div>
                 </div>
-                <div>
+                <div class="date-field">
                   <label for="entryDate">Date</label>
                   <input id="entryDate" name="entryDate" type="date" required>
                 </div>
-                <div>
-                  <label for="entryType">Entry Type</label>
-                  <select id="entryType" name="entryType">
-                    <option value="School Coaching">School Coaching</option>
-                    <option value="Replacement">Replacement</option>
-                    <option value="Camp">Camp</option>
-                    <option value="Private">Private</option>
-                    <option value="Event">Event</option>
-                    <option value="Claim">Claim</option>
-                  </select>
+                <div class="entry-type-row">
+                  <div class="entry-type-field">
+                    <label for="entryType">Entry Type</label>
+                    <select id="entryType" name="entryType">
+                      <option value="School Coaching">School Coaching</option>
+                      <option value="Replacement">Replacement</option>
+                      <option value="Camp">Camp</option>
+                      <option value="Private">Private</option>
+                      <option value="Event">Event</option>
+                      <option value="Claim">Claim</option>
+                    </select>
+                  </div>
+                  <div class="calendar-color-control">
+                    <button class="calendar-color-toggle" type="button" id="calendarColorToggle" aria-label="Select a Colour" aria-expanded="false" aria-controls="calendarColorMenu" data-tooltip="Select a Colour"></button>
+                    <div class="calendar-color-menu" id="calendarColorMenu" hidden>
+                      <div class="calendar-color-options" id="calendarColorOptions"></div>
+                    </div>
+                  </div>
                 </div>
                 <div class="full" id="replacementField" hidden>
                   <label for="replacementName">Replaced Person</label>
@@ -1417,7 +1799,7 @@
 
               <div class="actions">
                 <button class="primary" type="submit" id="addEntry">Save Entry</button>
-                <button class="secondary" type="button" id="clearMonth" disabled>Clear Selected Month</button>
+                <button class="secondary" type="button" id="clearMonth" disabled>Clear Month</button>
               </div>
               <div class="hint">
                 End time is calculated automatically from the start time and hours worked. Claims require notes, cost, and proof before they can be saved.
@@ -1438,7 +1820,7 @@
                 <strong>Before opening the pay view</strong>
                 <p>Confirm the school count, total entries, and monthly hours. Then scan the calendar for missing days and review the grouped ledger for incorrect school or claim labels.</p>
               </div>
-              <a class="nav-button" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Continue To Submit -></a>
+              <a class="nav-button" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Continue To Submit</a>
             </div>
           </section>
         </aside>
@@ -1471,14 +1853,17 @@
   </template>
 
   <template id="timeFieldsTemplate">
-    <div class="form-grid compact" id="timeFields">
-      <div>
+    <div class="time-fields-grid" id="timeFields">
+      <div class="time-field">
         <label for="startTime">Start Time</label>
         <input id="startTime" name="startTime" type="time" required>
       </div>
-      <div>
-        <label for="hoursWorked">Hours Worked</label>
-        <input id="hoursWorked" name="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
+      <div class="hours-quick-add-row">
+        <div class="hours-field">
+          <label for="hoursWorked">Hours Worked</label>
+          <input id="hoursWorked" name="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
+        </div>
+        <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled>Save To Quick Add</button>
       </div>
     </div>
   </template>
@@ -1507,7 +1892,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
+  <script src="./calendar-colors.js"></script>
   <script src="./draft-timesheet-store.js"></script>
+  <script src="./quick-add-store.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
@@ -1528,6 +1915,13 @@
     const addEntryButton = document.getElementById("addEntry");
     const seedDemoButton = document.getElementById("seedDemo");
     const clearMonthButton = document.getElementById("clearMonth");
+    const quickAddToggle = document.getElementById("quickAddToggle");
+    const quickAddMenu = document.getElementById("quickAddMenu");
+    const quickAddList = document.getElementById("quickAddList");
+    const quickAddStatus = document.getElementById("quickAddStatus");
+    const calendarColorToggle = document.getElementById("calendarColorToggle");
+    const calendarColorMenu = document.getElementById("calendarColorMenu");
+    const calendarColorOptions = document.getElementById("calendarColorOptions");
     const payrollLink = document.getElementById("payrollLink");
     const reviewColumn = document.querySelector(".review-column");
     const actionColumn = document.querySelector(".action-column");
@@ -1558,16 +1952,21 @@
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
     const claimProofBucket = "claim-proofs";
+    const defaultCalendarColor = "#B4CFA4";
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December",
     ];
+    const weekdayLabels = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     let entries = [];
+    let quickAddTemplates = [];
     let currentUser = null;
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
     let isHydratingClaimProofUrls = false;
+    let quickAddStatusTimer = 0;
+    let saveQuickAddButton = null;
 
     initApp();
 
@@ -1595,9 +1994,12 @@
       initializeMonth();
       syncPayrollLink();
       ensureTimeFieldsRendered();
+      renderCalendarColorPicker();
+      await loadQuickAddTemplates();
       initImageViewer();
       setupUserMenu();
       render();
+      syncQuickAddSaveButton();
       hydrateHeaderAvatar();
     }
 
@@ -1692,6 +2094,7 @@
       syncFallbackFromMonthValue(monthPicker.value);
       syncDateFieldToMonth();
       syncPayrollLink();
+      syncQuickAddSaveButton();
       render();
     });
 
@@ -1699,11 +2102,40 @@
       event.preventDefault();
       void addEntriesFromForm();
     });
+    form.addEventListener("input", syncQuickAddSaveButton);
+    form.addEventListener("change", syncQuickAddSaveButton);
 
     bindAction(seedDemoButton, seedDemoData);
+    bindAction(quickAddToggle, toggleQuickAddMenu);
+    bindAction(calendarColorToggle, toggleCalendarColorMenu);
+    bindQuickAddSaveButton();
     clearMonthButton.addEventListener("click", clearCurrentMonth);
+    quickAddList.addEventListener("click", onQuickAddListClick);
+    calendarColorOptions.addEventListener("change", () => {
+      syncCalendarColorToggle();
+      closeCalendarColorMenu();
+      syncQuickAddSaveButton();
+    });
     entryTypeSelect.addEventListener("change", syncReplacementField);
     entryTypeSelect.addEventListener("input", syncReplacementField);
+    document.addEventListener("click", (event) => {
+      if (quickAddMenu?.hidden === false && !isQuickAddInteraction(event)) {
+        closeQuickAddMenu();
+      }
+      if (calendarColorMenu?.hidden === false && !isCalendarColorInteraction(event)) {
+        closeCalendarColorMenu();
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && quickAddMenu?.hidden === false) {
+        closeQuickAddMenu();
+        quickAddToggle?.focus();
+      }
+      if (event.key === "Escape" && calendarColorMenu?.hidden === false) {
+        closeCalendarColorMenu();
+        calendarColorToggle?.focus();
+      }
+    });
 
     function bindAction(element, handler) {
       if (!element) return;
@@ -1724,6 +2156,81 @@
           return;
         }
         handler();
+      });
+    }
+
+    function getSaveQuickAddButton() {
+      saveQuickAddButton = document.getElementById("saveQuickAdd");
+      return saveQuickAddButton;
+    }
+
+    function bindQuickAddSaveButton() {
+      const button = getSaveQuickAddButton();
+      if (!button || button.dataset.quickAddBound === "true") return;
+      button.dataset.quickAddBound = "true";
+      bindAction(button, saveQuickAddFromForm);
+    }
+
+    function toggleQuickAddMenu() {
+      if (!quickAddMenu) return;
+      if (quickAddMenu.hidden) {
+        openQuickAddMenu();
+      } else {
+        closeQuickAddMenu();
+      }
+    }
+
+    function openQuickAddMenu() {
+      if (!quickAddMenu) return;
+      closeCalendarColorMenu();
+      quickAddMenu.hidden = false;
+      quickAddToggle?.setAttribute("aria-expanded", "true");
+    }
+
+    function closeQuickAddMenu() {
+      if (!quickAddMenu) return;
+      quickAddMenu.hidden = true;
+      quickAddToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    function isQuickAddInteraction(event) {
+      if (event.target instanceof Element && event.target.closest(".quick-add-control, #saveQuickAdd")) {
+        return true;
+      }
+      return event.composedPath().some((node) => {
+        return node instanceof Element
+          && (node.classList.contains("quick-add-control") || node.id === "saveQuickAdd");
+      });
+    }
+
+    function toggleCalendarColorMenu() {
+      if (!calendarColorMenu) return;
+      if (calendarColorMenu.hidden) {
+        openCalendarColorMenu();
+      } else {
+        closeCalendarColorMenu();
+      }
+    }
+
+    function openCalendarColorMenu() {
+      if (!calendarColorMenu) return;
+      closeQuickAddMenu();
+      calendarColorMenu.hidden = false;
+      calendarColorToggle?.setAttribute("aria-expanded", "true");
+    }
+
+    function closeCalendarColorMenu() {
+      if (!calendarColorMenu) return;
+      calendarColorMenu.hidden = true;
+      calendarColorToggle?.setAttribute("aria-expanded", "false");
+    }
+
+    function isCalendarColorInteraction(event) {
+      if (event.target instanceof Element && event.target.closest(".calendar-color-control")) {
+        return true;
+      }
+      return event.composedPath().some((node) => {
+        return node instanceof Element && node.classList.contains("calendar-color-control");
       });
     }
 
@@ -1768,6 +2275,64 @@
         ensureTimeFieldsRendered();
         unmountClaimFields();
       }
+      syncQuickAddSaveButton();
+    }
+
+    function renderCalendarColorPicker() {
+      if (!calendarColorOptions || calendarColorOptions.children.length) return;
+      const colors = window.calendarEntryColors?.palette || [];
+      const options = ["", ...colors];
+      const defaultColor = window.calendarEntryColors?.normalizeColor(defaultCalendarColor) || defaultCalendarColor;
+
+      options.forEach((color, index) => {
+        const id = color ? `calendarColor${index}` : "calendarColorNeutral";
+        const label = document.createElement("label");
+        label.className = "calendar-color-option";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "calendarColor";
+        input.value = color;
+        input.id = id;
+        input.checked = color === defaultColor;
+        input.defaultChecked = input.checked;
+        input.setAttribute("aria-label", color ? `Calendar colour ${color}` : "No calendar colour");
+
+        const swatch = document.createElement("span");
+        swatch.className = color ? "calendar-color-swatch" : "calendar-color-swatch neutral";
+        swatch.setAttribute("aria-hidden", "true");
+        if (color) {
+          swatch.style.setProperty("--swatch-color", color);
+        }
+
+        label.appendChild(input);
+        label.appendChild(swatch);
+        calendarColorOptions.appendChild(label);
+      });
+      syncCalendarColorToggle();
+    }
+
+    function getSelectedCalendarColor() {
+      const checked = form.querySelector('input[name="calendarColor"]:checked');
+      return window.calendarEntryColors?.normalizeColor(checked?.value) || "";
+    }
+
+    function setSelectedCalendarColor(color) {
+      const normalized = window.calendarEntryColors?.normalizeColor(color) || "";
+      const selector = normalized
+        ? `input[name="calendarColor"][value="${normalized}"]`
+        : 'input[name="calendarColor"][value=""]';
+      const input = form.querySelector(selector);
+      if (input) {
+        input.checked = true;
+      }
+      syncCalendarColorToggle();
+    }
+
+    function syncCalendarColorToggle() {
+      if (!calendarColorToggle) return;
+      calendarColorToggle.setAttribute("aria-label", "Select a Colour");
+      calendarColorToggle.dataset.tooltip = "Select a Colour";
     }
 
     function initializeMonth() {
@@ -1791,6 +2356,225 @@
     async function loadEntries() {
       if (!currentUser) return [];
       return window.draftTimesheetStore.loadEntriesForEmployee(currentUser.id);
+    }
+
+    async function loadQuickAddTemplates() {
+      if (!currentUser || !window.quickAddStore) return;
+      try {
+        quickAddTemplates = await window.quickAddStore.loadTemplatesForEmployee(currentUser.id);
+        renderQuickAdds();
+      } catch (error) {
+        console.warn("Could not load quick-add templates:", error?.message || error);
+        quickAddTemplates = [];
+        renderQuickAdds();
+        setQuickAddStatus("Quick Add could not load. Apply the latest database schema, then reload.", "error", { persist: true });
+      }
+    }
+
+    function renderQuickAdds() {
+      quickAddList.innerHTML = "";
+      if (!quickAddTemplates.length) {
+        const empty = document.createElement("div");
+        empty.className = "quick-add-empty";
+        empty.textContent = "No quick adds saved yet.";
+        quickAddList.appendChild(empty);
+        return;
+      }
+
+      quickAddTemplates.forEach((template) => {
+        const item = document.createElement("div");
+        item.className = "quick-add-item";
+
+        const applyButton = document.createElement("button");
+        applyButton.className = "quick-add-apply";
+        applyButton.type = "button";
+        applyButton.dataset.quickAddId = template.id;
+        applyButton.setAttribute("aria-label", `Apply quick add for ${template.schoolName}`);
+
+        const school = document.createElement("span");
+        school.className = "quick-add-school";
+        school.textContent = template.schoolName;
+        applyButton.appendChild(school);
+
+        const meta = document.createElement("span");
+        meta.className = "quick-add-meta";
+        meta.textContent = formatQuickAddMeta(template);
+        applyButton.appendChild(meta);
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "quick-add-remove";
+        removeButton.type = "button";
+        removeButton.dataset.quickAddRemoveId = template.id;
+        removeButton.setAttribute("aria-label", `Remove quick add for ${template.schoolName}`);
+
+        item.appendChild(applyButton);
+        item.appendChild(removeButton);
+        quickAddList.appendChild(item);
+      });
+    }
+
+    function formatQuickAddMeta(template) {
+      const weekday = weekdayLabels[Number(template.weekday)] || "Weekday";
+      return `${weekday} · ${formatTime(template.startTime)} · ${trimHours(template.hours)} hrs`;
+    }
+
+    function getQuickAddTemplateFromForm() {
+      if (entryTypeSelect.value !== "School Coaching") return null;
+      const schoolName = document.getElementById("schoolName").value.trim();
+      const entryDate = document.getElementById("entryDate").value;
+      const startTimeInput = document.getElementById("startTime");
+      const hoursWorkedInput = document.getElementById("hoursWorked");
+      const startTime = startTimeInput ? startTimeInput.value : "";
+      const hours = hoursWorkedInput ? Number(hoursWorkedInput.value) : 0;
+      const parsedDate = entryDate ? new Date(`${entryDate}T00:00:00`) : null;
+
+      if (!schoolName || !startTime || !Number.isFinite(hours) || hours <= 0 || !parsedDate || Number.isNaN(parsedDate.getTime())) {
+        return null;
+      }
+
+      return {
+        schoolName,
+        weekday: parsedDate.getDay(),
+        startTime,
+        hours,
+        calendarColor: getSelectedCalendarColor(),
+      };
+    }
+
+    function syncQuickAddSaveButton() {
+      const button = getSaveQuickAddButton();
+      if (!button) return;
+      button.disabled = !currentUser || !window.quickAddStore || !getQuickAddTemplateFromForm();
+    }
+
+    async function saveQuickAddFromForm() {
+      const template = getQuickAddTemplateFromForm();
+      if (!template) {
+        openQuickAddMenu();
+        setQuickAddStatus("Complete a School Coaching entry before saving a quick add.", "error");
+        syncQuickAddSaveButton();
+        return;
+      }
+
+      if (quickAddTemplates.some((item) => getQuickAddKey(item) === getQuickAddKey(template))) {
+        openQuickAddMenu();
+        setQuickAddStatus("That quick add is already saved.");
+        return;
+      }
+
+      const button = getSaveQuickAddButton();
+      if (button) {
+        button.disabled = true;
+      }
+      try {
+        const createdTemplate = await window.quickAddStore.createTemplate(template, {
+          employeeId: currentUser.id,
+        });
+        quickAddTemplates = [...quickAddTemplates, createdTemplate].sort(compareQuickAdds);
+        renderQuickAdds();
+        openQuickAddMenu();
+        setQuickAddStatus("Saved to Quick Add.");
+      } catch (error) {
+        const message = String(error?.message || "");
+        const friendlyMessage = /duplicate|unique/i.test(message)
+          ? "That quick add is already saved."
+          : "Could not save this quick add.";
+        openQuickAddMenu();
+        setQuickAddStatus(friendlyMessage, "error");
+      } finally {
+        syncQuickAddSaveButton();
+      }
+    }
+
+    async function onQuickAddListClick(event) {
+      const removeButton = event.target.closest("[data-quick-add-remove-id]");
+      if (removeButton) {
+        await deleteQuickAddTemplate(removeButton.dataset.quickAddRemoveId, removeButton);
+        return;
+      }
+
+      const applyButton = event.target.closest("[data-quick-add-id]");
+      if (!applyButton) return;
+      const template = quickAddTemplates.find((item) => item.id === applyButton.dataset.quickAddId);
+      applyQuickAddTemplate(template);
+    }
+
+    async function deleteQuickAddTemplate(id, button) {
+      const template = quickAddTemplates.find((item) => item.id === id);
+      if (!template || !window.quickAddStore) return;
+
+      button.disabled = true;
+      try {
+        await window.quickAddStore.deleteTemplate(id);
+        quickAddTemplates = quickAddTemplates.filter((item) => item.id !== id);
+        renderQuickAdds();
+        setQuickAddStatus("Quick add removed.");
+      } catch (error) {
+        console.warn("Could not delete quick-add template:", error?.message || error);
+        button.disabled = false;
+        setQuickAddStatus("Could not remove this quick add.", "error");
+      }
+    }
+
+    function applyQuickAddTemplate(template) {
+      if (!template || !window.quickAddStore) return;
+
+      entryTypeSelect.value = "School Coaching";
+      syncReplacementField();
+
+      const nextDate = window.quickAddStore.getNextWeekdayDate(template.weekday);
+      const nextMonth = formatMonthValue(nextDate);
+      const monthChanged = monthPicker.value !== nextMonth;
+      if (monthChanged) {
+        setMonthValue(nextMonth);
+        syncPayrollLink();
+      }
+
+      document.getElementById("schoolName").value = template.schoolName;
+      document.getElementById("entryDate").value = formatDateInput(nextDate);
+      ensureTimeFieldsRendered();
+      document.getElementById("startTime").value = template.startTime;
+      document.getElementById("hoursWorked").value = String(Number(template.hours));
+      document.getElementById("isRecurring").checked = false;
+      setSelectedCalendarColor(template.calendarColor);
+      replacementNameInput.value = "";
+      customRateInput.value = "";
+
+      if (monthChanged) {
+        render();
+      }
+      syncQuickAddSaveButton();
+      setQuickAddStatus("Quick add applied. Review it, then Save Entry.");
+      closeQuickAddMenu();
+    }
+
+    function getQuickAddKey(template) {
+      return [
+        normalizeSchool(template.schoolName || ""),
+        Number(template.weekday),
+        String(template.startTime || "").slice(0, 5),
+        Number(template.hours || 0).toFixed(2),
+      ].join("|");
+    }
+
+    function compareQuickAdds(a, b) {
+      const weekdayCompare = Number(a.weekday) - Number(b.weekday);
+      if (weekdayCompare !== 0) return weekdayCompare;
+      const timeCompare = String(a.startTime).localeCompare(String(b.startTime));
+      if (timeCompare !== 0) return timeCompare;
+      return String(a.schoolName).localeCompare(String(b.schoolName));
+    }
+
+    function setQuickAddStatus(message, type = "", options = {}) {
+      quickAddStatus.textContent = message;
+      quickAddStatus.className = type ? `quick-add-status ${type}` : "quick-add-status";
+      window.clearTimeout(quickAddStatusTimer);
+      if (message && !options.persist) {
+        quickAddStatusTimer = window.setTimeout(() => {
+          quickAddStatus.textContent = "";
+          quickAddStatus.className = "quick-add-status";
+        }, 4200);
+      }
     }
 
     async function addEntriesFromForm() {
@@ -1849,6 +2633,7 @@
         hours: isClaim ? 0 : hoursWorked,
         replacementName: entryType === "Replacement" ? replacementName : "",
         customRate: hasCustomRate && customRateValue > 0 ? customRateValue : null,
+        calendarColor: getSelectedCalendarColor(),
         claimNotes: isClaim ? claimNotes : "",
         claimCost: isClaim ? claimCost : null,
         claimProofName: isClaim ? claimProofFile.name : "",
@@ -1869,8 +2654,10 @@
         });
         entries = await loadEntries();
         form.reset();
+        setSelectedCalendarColor(defaultCalendarColor);
         syncDateFieldToMonth();
         syncReplacementField();
+        syncQuickAddSaveButton();
         render();
       } catch (error) {
         alert(error?.message || "Could not save the draft timesheet entry.");
@@ -1995,12 +2782,19 @@
           if (window.draftTimesheetStore.isSubmitted(entry)) {
             chip.classList.add("submitted");
           }
+          applyCalendarColorToChip(chip, entry.calendarColor);
           chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
 
         cell.appendChild(items);
         calendar.appendChild(cell);
+      }
+    }
+
+    function applyCalendarColorToChip(chip, color) {
+      if (window.calendarEntryColors && typeof window.calendarEntryColors.applyToChip === "function") {
+        window.calendarEntryColors.applyToChip(chip, color);
       }
     }
 
@@ -2173,6 +2967,7 @@
       setMonthValue(`${year}-${month}`);
       syncDateFieldToMonth();
       syncPayrollLink();
+      syncQuickAddSaveButton();
       render();
     }
 
@@ -2322,10 +3117,13 @@
       if (document.getElementById("timeFields")) return;
       timeFieldsMount.innerHTML = "";
       timeFieldsMount.appendChild(timeFieldsTemplate.content.cloneNode(true));
+      bindQuickAddSaveButton();
+      syncQuickAddSaveButton();
     }
 
     function unmountTimeFields() {
       timeFieldsMount.innerHTML = "";
+      saveQuickAddButton = null;
     }
 
     function initImageViewer() {

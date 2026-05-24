@@ -47,6 +47,28 @@ assert.equal("claim_cost" in coachingRow, false);
 assert.equal("claim_image_path" in coachingRow, false);
 assert.equal("claim_proof_data_url" in coachingRow, false);
 
+const coloredCoachingRow = store.toRow(
+  {
+    employeeId: "employee-1",
+    schoolName: "Anchor Green",
+    date: "2026-05-16",
+    type: "School Coaching",
+    startTime: "14:15",
+    endTime: "16:15",
+    hours: 2,
+    status: "active",
+    calendarColor: "#a0c5e3",
+  },
+  {
+    employeeId: "employee-1",
+    createdBy: "employee-1",
+    updatedBy: "employee-1",
+  },
+  "iosColor"
+);
+
+assert.equal(coloredCoachingRow.calendar_color, "#A0C5E3");
+
 const claimRow = store.toRow(
   {
     employeeId: "employee-1",
@@ -89,6 +111,7 @@ const entry = store.toEntry({
   claim_amount_cents: 1450,
   claim_proof_name: "receipt.jpg",
   claim_image_url: "r2/employee-1/2026-05/receipt.jpg",
+  calendar_color: "#BBA6DD",
 });
 
 assert.equal(entry.type, "Claim");
@@ -96,6 +119,7 @@ assert.equal(entry.claimNotes, "Transport");
 assert.equal(entry.claimCost, 14.5);
 assert.equal(entry.claimProofName, "receipt.jpg");
 assert.equal(entry.claimImagePath, "r2/employee-1/2026-05/receipt.jpg");
+assert.equal(entry.calendarColor, "#BBA6DD");
 
 assert.equal(store.isManagerEditable({ type: "Private", status: "active" }), true);
 assert.equal(store.isManagerEditable({ type: "Event", status: "active" }), true);

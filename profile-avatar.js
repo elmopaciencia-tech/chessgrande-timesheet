@@ -212,6 +212,16 @@
 
     var size = (options && options.size) || 40;
     var existingImg = containerEl.querySelector(".header-avatar-img");
+    var menuButton = containerEl.closest ? containerEl.closest("button") : null;
+
+    function setMenuButtonAvatarState(hasAvatar) {
+      if (!menuButton) return;
+      if (hasAvatar) {
+        menuButton.dataset.hasProfileAvatar = "true";
+      } else {
+        delete menuButton.dataset.hasProfileAvatar;
+      }
+    }
 
     if (profile && profile.avatar_r2_key) {
       var url = await resolveAvatarUrl(profile.avatar_r2_key);
@@ -225,18 +235,21 @@
           img.style.cssText = "width:" + size + "px;height:" + size + "px;border-radius:999px;object-fit:cover;vertical-align:middle;margin-right:7px;";
           img.onerror = function () {
             img.style.display = "none";
+            img.removeAttribute("src");
+            setMenuButtonAvatarState(false);
           };
-          img.onerror = function () { img.style.display = "none"; img.removeAttribute("src"); };
           containerEl.prepend(img);
           img.src = url;
         } else {
           existingImg.src = url;
           existingImg.style.display = "";
         }
+        setMenuButtonAvatarState(true);
         return;
       }
     }
 
+    setMenuButtonAvatarState(false);
     if (existingImg) {
       existingImg.style.display = "none";
     }
