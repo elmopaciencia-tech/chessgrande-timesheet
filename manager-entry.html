@@ -97,9 +97,9 @@
     .menu-item:hover { background: var(--accent-soft); }
     .page { width: min(1320px, 100%); margin: var(--space-7) auto 0; display: grid; gap: var(--space-7); }
     .hero {
-      position: relative; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr); gap: var(--space-7);
-      padding: var(--space-8); background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
-      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 32px; box-shadow: var(--shadow-lg); overflow: hidden;
+      position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: var(--space-5); align-items: center;
+      padding: var(--space-6); background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
+      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 28px; box-shadow: var(--shadow-md); overflow: hidden;
     }
     .hero::before {
       content: ""; position: absolute; inset: 0;
@@ -107,31 +107,26 @@
       background-size: 100% 100%, 100% 36px; pointer-events: none; opacity: .34;
     }
     .hero-copy, .hero-month { position: relative; z-index: 1; }
-    .hero-copy { display: grid; gap: var(--space-6); align-content: start; }
-    .hero-copy header { display: grid; gap: var(--space-4); }
+    .hero-copy { display: grid; gap: var(--space-3); align-content: start; }
+    .hero-copy header { display: grid; gap: var(--space-3); }
     .eyebrow { margin: 0; color: var(--clay); font-size: .74rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
     h1 {
-      margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.2rem, 5vw, 4rem); line-height: .93;
-      max-width: 11ch; text-wrap: balance; font-weight: 400;
+      margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.15rem, 4vw, 3.65rem); line-height: .96;
+      max-width: 13ch; text-wrap: balance; font-weight: 400;
     }
-    .hero-intro { margin: 0; max-width: 64ch; color: var(--ink-soft); font-size: 1.05rem; line-height: 1.6; }
-    .hero-guidance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
-    .guidance-item { padding-top: var(--space-4); border-top: 1px solid color-mix(in srgb, var(--line) 78%, white 22%); }
-    .guidance-label { display: block; margin-bottom: var(--space-2); color: var(--ink); font-size: .82rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    .guidance-item p { margin: 0; color: var(--muted); font-size: .95rem; line-height: 1.45; }
     .hero-month {
-      align-self: start; display: grid; gap: var(--space-5); padding: var(--space-6);
+      align-self: stretch; display: grid; gap: var(--space-3); align-content: center; padding: var(--space-4);
       background: color-mix(in srgb, var(--surface-strong) 88%, white 12%);
-      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%); border-radius: 24px; box-shadow: var(--shadow-sm);
+      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%); border-radius: 20px; box-shadow: var(--shadow-sm);
     }
     .month-box, .stat, .pay-card, .school-card, .filter-card {
       background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); border: 1px solid var(--line); border-radius: 22px;
     }
-    .month-box { display: grid; gap: var(--space-4); border-color: transparent; }
+    .month-box { display: grid; gap: 10px; border-color: transparent; }
     .month-box-header { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
     .month-box-header strong { color: var(--ink); font-size: 1rem; font-weight: 700; }
     .month-box-value { color: var(--ink); font-size: clamp(1.3rem, 2.6vw, 1.75rem); font-weight: 700; letter-spacing: .01em; }
-    .month-box-note, .hero p, .panel-copy, .label-note, .calendar-note { margin: 0; color: var(--muted); line-height: 1.5; }
+    .hero p, .panel-copy, .label-note, .calendar-note { margin: 0; color: var(--muted); line-height: 1.5; }
     label { display: block; font-size: .84rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
     input[type="month"], input[type="text"], input[type="number"], input[type="date"], input[type="time"], select {
       width: 100%; min-width: 0; border-radius: 16px; border: 1px solid var(--line); padding: 12px 14px;
@@ -143,10 +138,12 @@
     html[data-browser-engine="webkit"] #monthPicker { display: none !important; }
     #monthPickerFallback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 160px); gap: 10px; }
     #monthPickerFallback[hidden] { display: none; }
-    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, .8fr)); gap: var(--space-4); }
-    .summary-card { padding: var(--space-5); border-radius: 22px; border: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); }
-    .summary-card.lead { background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); display: grid; gap: var(--space-3); }
-    .summary-title { margin: 0; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.25; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .hero-stat {
+      min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%);
+    }
     .workspace { display: grid; gap: var(--space-7); }
     .layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(320px, .92fr); gap: var(--space-7); align-items: start; }
     .review-column, .action-column { display: grid; gap: var(--space-6); align-content: start; }
@@ -162,8 +159,8 @@
     .full { grid-column: 1 / -1; }
     .summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
     .stat { padding: var(--space-5); min-height: 132px; display: grid; align-content: end; }
-    .stat-label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
-    .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .stat-label { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 0; }
+    .stat-value { display: block; font-size: 1.34rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
     .primary, .secondary, .button, .button-secondary, .nav-link, .row-remove-button, .entry-remove {
       border-radius: 999px; padding: 12px 16px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: 46px;
@@ -254,23 +251,18 @@
     #fullName[readonly], #bankAccount[readonly], #bankName[readonly], #accountType[readonly] { border: 0; background: transparent; padding: 4px 0 6px; border-radius: 0; color: var(--ink); pointer-events: none; caret-color: transparent; }
     #fullName[readonly]::placeholder, #bankAccount[readonly]::placeholder, #bankName[readonly]::placeholder, #accountType[readonly]::placeholder { color: var(--muted); opacity: 1; }
     #bankAccount[readonly].missing-profile::placeholder, #bankName[readonly].missing-profile::placeholder, #accountType[readonly].missing-profile::placeholder, .missing-profile { color: var(--clay); font-weight: 700; }
-    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .hero-month { align-self: auto; } }
     @media (max-width: 900px) {
-      .hero-guidance, .form-grid, .summary, .actions { grid-template-columns: 1fr; }
-      .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
-      .summary-card.lead { grid-column: 1 / -1; }
-      .summary-title { font-size: .8rem; line-height: 1.12; }
-      .summary-card.stat { min-height: 128px; padding: 16px; display: grid; align-content: center; gap: 4px; }
-      .summary-card.stat .stat-label { margin-bottom: 0; font-size: .66rem; letter-spacing: .04em; white-space: nowrap; }
-      .stat-value { font-size: 1.45rem; }
+      .form-grid, .summary, .actions { grid-template-columns: 1fr; }
+      .stat-value { font-size: 1.24rem; }
     }
     @media (max-width: 760px) {
       .page { gap: var(--space-5); }
       .app-header-inner { min-height: 66px; padding: 0 var(--space-4); }
-      .hero, .panel { padding: var(--space-6); }
-      h1 { font-size: clamp(2rem, 10vw, 3rem); }
-      .summary-strip { grid-template-columns: 1fr; }
-      .summary-card.lead, .summary-card.stat { min-height: 0; }
+      .hero, .panel { padding: var(--space-5); }
+      .hero { gap: var(--space-4); }
+      .hero-month { padding: var(--space-3); }
+      h1 { font-size: clamp(2rem, 10vw, 3rem); max-width: 12ch; }
       #monthPickerFallback { grid-template-columns: 1fr; }
       .calendar-grid { gap: 4px; }
       .day { min-height: 76px; padding: 7px; }
@@ -318,20 +310,14 @@
         <header>
           <p class="eyebrow">Manager View</p>
           <h1 id="heroTitle">Payroll Entry</h1>
-          <p class="hero-intro">Review a submitted monthly payroll snapshot with the same ledger structure used by employees, but tuned for manager inspection and correction.</p>
         </header>
-        <div class="hero-guidance" aria-label="How to use this page">
-          <div class="guidance-item"><span class="guidance-label">Review</span><p>Scan the calendar first so dense submission days and claim-heavy dates stand out immediately.</p></div>
-          <div class="guidance-item"><span class="guidance-label">Verify</span><p>Use the employee details rail to confirm account, rate, hours, and the final submitted amount together.</p></div>
-          <div class="guidance-item"><span class="guidance-label">Adjust</span><p>Edit or remove incorrect entries from the grouped ledger only when the submission needs a clean correction.</p></div>
-        </div>
       </div>
       <aside class="hero-month">
-        <div class="month-box"><div class="month-box-header"><strong>Submitted month</strong><span class="month-box-value" id="monthValue">-</span></div><p class="month-box-note">This payroll snapshot can be corrected from the grouped ledger while the submitted month stays visible.</p></div>
+        <div class="month-box"><div class="month-box-header"><strong>Submitted month</strong><span class="month-box-value" id="monthValue">-</span></div></div>
+        <div class="hero-stats" aria-label="Submission summary"><div class="hero-stat"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div><div class="hero-stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat"><span class="stat-label">Rate</span><span class="stat-value" id="rateCount">S$0.00</span></div></div>
       </aside>
     </section>
-    <section class="summary-strip" aria-label="Submission summary"><article class="summary-card lead"><p class="panel-eyebrow">Submission posture</p><h2 class="summary-title">Manager review stays tied to the employee’s original month.</h2><p>The same month view, grouped ledger, and submitted totals stay visible together so review decisions are traceable.</p></article><article class="summary-card stat"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></article><article class="summary-card stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></article><article class="summary-card stat"><span class="stat-label">Rate</span><span class="stat-value" id="rateCount">$0</span></article></section>
-    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted ledger</p><h2>Entries By School</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, month, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">$0.00</strong></div></div><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
+    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted ledger</p><h2>Entries By School</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, month, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
   </main>
 
 <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
@@ -1236,10 +1222,12 @@
     }
 
     function formatCurrency(value) {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "SGD",
-      }).format(Number(value || 0));
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}S$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(amount))}`;
     }
 
     function formatEntryType(entry) {

@@ -54,17 +54,17 @@
     .menu-item { width: 100%; border: 0; border-radius: 10px; padding: 11px 12px; text-align: left; cursor: pointer; background: transparent; color: var(--ink); display: block; text-decoration: none; min-height: 44px; }
     .menu-item:hover { background: var(--accent-soft); }
     .page { width: min(1180px, 100%); margin: 28px auto 0; display: grid; gap: 28px; }
-    .hero { position: relative; padding: 32px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 32px; box-shadow: var(--shadow-lg); overflow: hidden; }
+    .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: 20px; align-items: center; padding: 24px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 28px; box-shadow: var(--shadow-md); overflow: hidden; }
     .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)), linear-gradient(180deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)); background-size: 100% 100%, 100% 36px; pointer-events: none; opacity: .34; }
     .hero > * { position: relative; z-index: 1; }
     .eyebrow { margin: 0 0 8px; color: var(--clay); font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
-    h1 { margin: 0 0 10px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.3rem, 5vw, 4rem); line-height: .95; font-weight: 400; }
+    h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.15rem, 4vw, 3.65rem); line-height: .96; font-weight: 400; text-wrap: balance; }
     .hero p, .panel-copy, .status, .modal-status { margin: 0; color: var(--muted); line-height: 1.5; }
-    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, .8fr)); gap: 16px; }
-    .summary-card, .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
-    .summary-card { padding: 20px; }
-    .summary-card.lead { display: grid; gap: 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); }
-    .summary-title { margin: 0; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.25; }
+    .hero-copy, .hero-stats { position: relative; z-index: 1; }
+    .hero-copy { display: grid; gap: 12px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .hero-stat { min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px; border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%); }
+    .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
     .panel { padding: 28px; background: color-mix(in srgb, var(--surface) 90%, white 10%); border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 28px; box-shadow: var(--shadow-md); }
     .panel-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
     .panel h2 { margin: 0; font-size: 1.38rem; line-height: 1.15; letter-spacing: -.02em; }
@@ -124,11 +124,7 @@
     .chat-send:disabled, .chat-input:disabled { opacity: .62; cursor: wait; }
     @media (max-width: 1100px) {
       .toolbar, .stat-row, .filters, .file-item { grid-template-columns: 1fr; }
-      .summary-strip { grid-template-columns: repeat(auto-fit, minmax(120px, 160px)); justify-content: start; gap: 10px; align-items: start; }
-      .summary-card.lead { grid-column: 1 / -1; padding: 14px; }
-      .summary-title { font-size: .8rem; line-height: 1.12; }
-      .summary-card.stat { aspect-ratio: 1 / 1; min-height: 0; padding: 14px; display: grid; align-content: center; gap: 4px; }
-      .summary-card.stat .stat-label { margin-bottom: 0; font-size: .66rem; letter-spacing: .04em; white-space: nowrap; }
+      .hero { grid-template-columns: 1fr; }
       .stat-value { font-size: 1.45rem; }
       .file-item { align-items: start; }
     }
@@ -143,7 +139,7 @@
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
       
-</div></div></div></header><main class="page" id="main-content"><section class="hero"><p class="eyebrow">Webadmin View</p><h1>User Profiles</h1><p>Manage employee, manager, and webadmin profiles from one oversight surface. Search, filter, and edit records without losing role context.</p></section><section class="summary-strip" aria-label="User summary"><article class="summary-card lead"><p class="panel-eyebrow">Directory posture</p><h2 class="summary-title">This is the maintenance layer for the whole payroll portal.</h2><p>The list stays operational and editable, while the search and role filters remain close to the counts they affect.</p></article><article class="summary-card stat"><span class="stat-label">Total Users</span><span class="stat-value" id="totalUsers">0</span></article><article class="summary-card stat"><span class="stat-label">Managers</span><span class="stat-value" id="managerCount">0</span></article><article class="summary-card stat"><span class="stat-label">Webadmins</span><span class="stat-value" id="webadminCount">0</span></article></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Directory controls</p><h2>User Directory</h2><p class="panel-copy">Search by name, username, role, id, phone, or bank details, then open the edit modal only for the record you need to update.</p></div></div><div class="toolbar"><div class="search-wrap toolbar-card"><label for="searchInput">Search Users</label><input id="searchInput" type="text" placeholder="Search by name, username, role, id, phone, bank..."></div><div class="role-filter toolbar-card"><label for="roleFilter">Filter Role</label><select id="roleFilter"><option value="">All Roles</option><option value="employee">Employee</option><option value="manager">Manager</option><option value="webadmin">Webadmin</option></select></div></div><div class="status" id="statusMessage"></div><div id="fileList" class="file-list"></div></section></main>
+</div></div></div></header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Webadmin View</p><h1>User Profiles</h1></div><div class="hero-stats" aria-label="User summary"><div class="hero-stat"><span class="stat-label">Total Users</span><span class="stat-value" id="totalUsers">0</span></div><div class="hero-stat"><span class="stat-label">Managers</span><span class="stat-value" id="managerCount">0</span></div><div class="hero-stat"><span class="stat-label">Webadmins</span><span class="stat-value" id="webadminCount">0</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Directory controls</p><h2>User Directory</h2><p class="panel-copy">Search by name, username, role, id, phone, or bank details, then open the edit modal only for the record you need to update.</p></div></div><div class="toolbar"><div class="search-wrap toolbar-card"><label for="searchInput">Search Users</label><input id="searchInput" type="text" placeholder="Search by name, username, role, id, phone, bank..."></div><div class="role-filter toolbar-card"><label for="roleFilter">Filter Role</label><select id="roleFilter"><option value="">All Roles</option><option value="employee">Employee</option><option value="manager">Manager</option><option value="webadmin">Webadmin</option></select></div></div><div class="status" id="statusMessage"></div><div id="fileList" class="file-list"></div></section></main>
 <div class="modal-overlay" id="editModalOverlay" hidden>
     <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
       <div class="modal-head">

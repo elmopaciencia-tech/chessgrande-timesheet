@@ -39,6 +39,12 @@ assert.ok(
   "updateAvatarInitials(displayNameInput.value || displayNameInput.placeholder);",
   "width: min(560px, 100%);",
   "--profile-avatar-size: clamp(104px, 20vw, 132px);",
+  "padding: 7px 14px 8px;",
+  "min-height: 0;",
+  "height: auto;",
+  ".profile-field input:focus,",
+  "box-shadow: none;",
+  "transform: none;",
 ].forEach((snippet) => {
   assert.ok(source.includes(snippet), `profile modal should include ${snippet}`);
 });

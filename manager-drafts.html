@@ -145,7 +145,9 @@
     }
 
     .hero {
-      padding: 32px;
+      display: grid;
+      gap: var(--space-3);
+      padding: 24px;
       background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
     }
 
@@ -159,11 +161,12 @@
     }
 
     h1 {
-      margin: 0 0 10px;
-      font-size: clamp(2.3rem, 5vw, 4rem);
-      line-height: 0.95;
+      margin: 0;
+      font-size: clamp(2.15rem, 4vw, 3.65rem);
+      line-height: 0.96;
       font-weight: 700;
       letter-spacing: -0.03em;
+      text-wrap: balance;
     }
 
     .hero p, .panel-copy, .status, .empty {
@@ -790,7 +793,6 @@
     <section class="hero">
       <p class="eyebrow">Manager View</p>
       <h1>Draft Timesheets</h1>
-      <p>Prefill employee coaching, replacements, claims, event costs, and calendar colours before payroll submission. Submitted rows remain locked for context.</p>
     </section>
 
     <div class="workspace">
@@ -1952,7 +1954,12 @@
     }
 
     function formatCurrency(value) {
-      return new Intl.NumberFormat(undefined, { style: "currency", currency: "SGD" }).format(Number(value || 0));
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}S$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(amount))}`;
     }
 
     function formatEntryType(entry) {

@@ -131,6 +131,42 @@ a[data-cg-iconified],
   transform: translateY(2px) rotate(225deg);
 }
 
+@media (max-width: 460px) {
+  .menu-button[data-has-profile-avatar="true"] {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 5px;
+    border-radius: 999px;
+    gap: 0;
+  }
+
+  .menu-button[data-has-profile-avatar="true"] #userMenuButtonLabel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+    line-height: 0;
+  }
+
+  .menu-button[data-has-profile-avatar="true"] .header-avatar-img {
+    margin-right: 0 !important;
+  }
+
+  .menu-button[data-has-profile-avatar="true"]::after {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-header-title {
+    max-width: 20ch;
+    white-space: normal;
+    line-height: 1.12;
+  }
+}
+
 .primary,
 .button,
 .secondary,

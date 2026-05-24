@@ -89,15 +89,19 @@
       .profile-field {
         border: 1px solid rgba(29, 42, 42, 0.18);
         border-radius: 10px;
-        padding: 10px 16px 11px;
-        margin: 0 0 10px;
+        padding: 7px 14px 8px;
+        margin: 0 0 8px;
         background: #fff;
+      }
+      .profile-field:focus-within {
+        border-color: rgba(29, 42, 42, 0.34);
+        box-shadow: inset 0 0 0 1px rgba(29, 42, 42, 0.08);
       }
       .profile-field label {
         display: block;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         color: #1b1f1e;
-        margin: 0 0 6px;
+        margin: 0 0 4px;
         font-weight: 500;
       }
       .profile-field input {
@@ -105,12 +109,21 @@
         border: 0;
         border-radius: 0;
         padding: 0;
+        min-height: 0;
+        height: auto;
         outline: none;
         font: inherit;
-        font-size: 1.02rem;
-        line-height: 1.25;
+        font-size: 0.96rem;
+        line-height: 1.18;
         color: #111615;
         background: transparent;
+      }
+      .profile-field input:focus,
+      .profile-field input:focus-visible {
+        border-color: transparent;
+        box-shadow: none;
+        outline: none;
+        transform: none;
       }
       .profile-avatar-section {
         display: grid;
@@ -272,10 +285,10 @@
           margin-bottom: 18px;
         }
         .profile-field {
-          padding: 10px 14px 11px;
+          padding: 7px 12px 8px;
         }
         .profile-field input {
-          font-size: 1rem;
+          font-size: 0.95rem;
         }
         .profile-modal-footer {
           padding-inline: 16px;

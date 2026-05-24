@@ -97,9 +97,9 @@
     .menu-item:hover { background: var(--accent-soft); }
     .page { width: min(1320px, 100%); margin: var(--space-7) auto 0; display: grid; gap: var(--space-7); }
     .hero {
-      position: relative; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr); gap: var(--space-7);
-      padding: var(--space-7); background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
-      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 32px; box-shadow: var(--shadow-lg); overflow: hidden;
+      position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: var(--space-5); align-items: center;
+      padding: var(--space-6); background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
+      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 28px; box-shadow: var(--shadow-md); overflow: hidden;
     }
     .hero::before {
       content: ""; position: absolute; inset: 0;
@@ -107,30 +107,25 @@
       background-size: 100% 100%, 100% 36px; pointer-events: none; opacity: .34;
     }
     .hero-copy, .hero-month { position: relative; z-index: 1; }
-    .hero-copy { display: grid; gap: var(--space-5); align-content: start; }
+    .hero-copy { display: grid; gap: var(--space-3); align-content: start; }
     .hero-copy header { display: grid; gap: var(--space-3); }
     .eyebrow { margin: 0; color: var(--clay); font-size: .74rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
     h1 {
-      margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.2rem, 5vw, 4rem); line-height: .93;
-      max-width: 11ch; text-wrap: balance; font-weight: 400;
+      margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.15rem, 4vw, 3.65rem); line-height: .96;
+      max-width: 13ch; text-wrap: balance; font-weight: 400;
     }
-    .hero-intro { margin: 0; max-width: 64ch; color: var(--ink-soft); font-size: 1rem; line-height: 1.55; }
-    .hero-guidance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
-    .guidance-item { padding-top: var(--space-3); border-top: 1px solid color-mix(in srgb, var(--line) 78%, white 22%); }
-    .guidance-label { display: block; margin-bottom: var(--space-2); color: var(--ink); font-size: .82rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    .guidance-item p { margin: 0; color: var(--muted); font-size: .95rem; line-height: 1.45; }
     .hero-month {
-      align-self: start; display: grid; gap: var(--space-4); padding: var(--space-5);
+      align-self: stretch; display: grid; gap: var(--space-3); align-content: center; padding: var(--space-4);
       background: color-mix(in srgb, var(--surface-strong) 88%, white 12%);
-      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%); border-radius: 24px; box-shadow: var(--shadow-sm);
+      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%); border-radius: 20px; box-shadow: var(--shadow-sm);
     }
     .month-box, .stat, .pay-card, .school-card, .filter-card {
       background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); border: 1px solid var(--line); border-radius: 22px;
     }
-    .month-box { display: grid; gap: var(--space-3); border-color: transparent; }
+    .month-box { display: grid; gap: 10px; border-color: transparent; }
     .month-box-header { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
     .month-box-header strong, .month-box-value { color: var(--ink); font-size: 1rem; font-weight: 700; }
-    .month-box-note, .hero p, .panel-copy, .label-note, .calendar-note { margin: 0; color: var(--muted); line-height: 1.5; }
+    .hero p, .panel-copy, .label-note, .calendar-note { margin: 0; color: var(--muted); line-height: 1.5; }
     label { display: block; font-size: .84rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
     input[type="month"], input[type="text"], input[type="number"], input[type="date"], input[type="time"], select {
       width: 100%; min-width: 0; border-radius: 16px; border: 1px solid var(--line); padding: 10px 12px;
@@ -142,11 +137,12 @@
     html[data-browser-engine="webkit"] #monthPicker { display: none !important; }
     #monthPickerFallback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 160px); gap: 10px; }
     #monthPickerFallback[hidden] { display: none; }
-    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, .8fr)); gap: var(--space-4); align-items: stretch; }
-    .summary-card { padding: var(--space-5); border-radius: 22px; border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%); }
-    .summary-card.lead { background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); display: grid; gap: var(--space-3); grid-column: span 1; }
-    .summary-card.lead p { margin: 0; color: var(--muted); font-size: .95rem; line-height: 1.45; }
-    .summary-title { margin: 0; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.25; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .hero-stat {
+      min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%);
+    }
     .workspace { display: grid; gap: var(--space-7); }
     .layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(320px, .92fr); gap: var(--space-7); align-items: start; }
     .review-column, .action-column { display: grid; gap: var(--space-5); align-content: start; }
@@ -166,8 +162,8 @@
     .full { grid-column: 1 / -1; }
     .summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
     .stat { padding: var(--space-4); min-height: 120px; display: grid; align-content: end; }
-    .stat-label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
-    .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .stat-label { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 0; }
+    .stat-value { display: block; font-size: 1.34rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
     .primary, .secondary, .button, .button-secondary, .nav-link, .row-remove-button, .entry-remove {
       border-radius: 999px; padding: 11px 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
@@ -249,77 +245,59 @@
     .entry-edit-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
     .entry-edit-status { min-height: 1.3em; color: var(--muted); font-size: .9rem; }
     .footer-note, .status-message { color: var(--muted); font-size: .9rem; line-height: 1.45; }
-    .pay-card { padding: 14px; display: grid; gap: 10px; }
-    .pay-card-header { display: grid; gap: 2px; }
-    .pay-card-title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--ink); }
-    .pay-card-copy { margin: 0; color: var(--muted); line-height: 1.35; font-size: .88rem; }
-    .pay-card-section { display: grid; gap: 6px; }
+    .pay-card { padding: 10px 12px; display: grid; gap: 7px; border-radius: 18px; }
+    .pay-card-header { display: grid; gap: 1px; }
+    .pay-card-title { margin: 0; font-size: .96rem; font-weight: 700; color: var(--ink); }
+    .pay-card-copy { margin: 0; color: var(--muted); line-height: 1.25; font-size: .82rem; }
+    .pay-card-section { display: grid; gap: 2px; }
     .pay-card-section + .pay-card-section {
       border-top: 1px solid var(--line);
-      padding-top: 8px;
+      padding-top: 5px;
     }
-    .pay-line { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+    .pay-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line); }
     .pay-line:last-child { border-bottom: 0; }
+    .pay-line > span:first-child { font-size: .88rem; line-height: 1.2; }
     .pay-line span:last-child, .pay-line strong { text-align: right; }
     .pay-line-field {
       display: grid;
-      gap: 2px;
       flex: 1;
       justify-items: end;
       text-align: right;
     }
-    .pay-line-field input { max-width: 180px; text-align: right; }
+    .pay-line-field input {
+      max-width: 172px;
+      min-height: 36px;
+      padding: 6px 9px;
+      border-radius: 12px;
+      font-size: .9rem;
+      text-align: right;
+    }
+    .pay-card .primary,
+    .pay-card .secondary,
+    .pay-card .nav-link {
+      min-height: 40px;
+      padding: 9px 12px;
+    }
     .pay-actions { margin-top: 0; }
     .calendar-actions { display: grid; gap: 12px; margin-top: 18px; }
     .payroll-rail { display: grid; gap: 14px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--line) 78%, white 22%); }
     .payroll-rail strong { display: block; color: var(--ink); font-size: 1rem; }
     .payroll-rail p { margin: 0; color: var(--muted); font-size: .94rem; line-height: 1.45; }
-    #fullName[readonly], #bankAccount[readonly], #bankName[readonly], #accountType[readonly] { border: 0; background: transparent; padding: 4px 0 6px; border-radius: 0; color: var(--ink); pointer-events: none; caret-color: transparent; }
+    #fullName[readonly], #bankAccount[readonly], #bankName[readonly], #accountType[readonly] { min-height: 28px; border: 0; background: transparent; padding: 2px 0; border-radius: 0; color: var(--ink); pointer-events: none; caret-color: transparent; }
     #fullName[readonly]::placeholder, #bankAccount[readonly]::placeholder, #bankName[readonly]::placeholder, #accountType[readonly]::placeholder { color: var(--muted); opacity: 1; }
     #bankAccount[readonly].missing-profile::placeholder, #bankName[readonly].missing-profile::placeholder, #accountType[readonly].missing-profile::placeholder, .missing-profile { color: var(--clay); font-weight: 700; }
-    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .hero-month { align-self: auto; } }
     @media (max-width: 900px) {
-      .hero-guidance, .form-grid, .summary, .actions { grid-template-columns: 1fr; }
-      .summary-strip {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        justify-content: start;
-        gap: 8px;
-        align-items: start;
-      }
-      .summary-card.lead {
-        grid-column: span 1;
-        min-height: 136px;
-        padding: 12px;
-        gap: 8px;
-        align-content: center;
-      }
-      .summary-card.lead p {
-        display: none;
-      }
-      .summary-title { font-size: .8rem; line-height: 1.12; }
-      .summary-card.stat {
-        min-height: 136px;
-        padding: 12px;
-        display: grid;
-        align-content: center;
-        gap: 4px;
-      }
-      .summary-card.stat .stat-label {
-        margin-bottom: 0;
-        font-size: .66rem;
-        letter-spacing: .04em;
-        white-space: nowrap;
-      }
-      .summary-card {
-        align-self: start;
-      }
-      .stat-value { font-size: 1.45rem; }
+      .form-grid, .summary, .actions { grid-template-columns: 1fr; }
+      .stat-value { font-size: 1.24rem; }
     }
     @media (max-width: 760px) {
       .page { gap: var(--space-4); }
       .app-header-inner { min-height: 62px; padding: 0 var(--space-3); }
       .hero, .panel { padding: var(--space-5); }
-      h1 { font-size: clamp(2rem, 10vw, 3rem); }
+      .hero { gap: var(--space-4); }
+      .hero-month { padding: var(--space-3); }
+      h1 { font-size: clamp(2rem, 10vw, 3rem); max-width: 12ch; }
       #monthPickerFallback { grid-template-columns: 1fr; }
       .calendar-grid { gap: 3px; }
       .day { min-height: 68px; padding: 6px; }
@@ -334,17 +312,12 @@
       .entry-edit-card { max-height: 92vh; padding: 18px; border-radius: 22px 22px 0 0; }
       .entry-edit-grid,
       .entry-edit-grid.compact { grid-template-columns: 1fr; }
-      .pay-card { padding: 12px; gap: 8px; }
-      .pay-card-section { gap: 5px; }
-      .pay-card-section + .pay-card-section { padding-top: 7px; }
-      .pay-line { padding: 6px 0; }
+      .pay-card { padding: 9px 10px; gap: 6px; }
+      .pay-card-section { gap: 2px; }
+      .pay-card-section + .pay-card-section { padding-top: 5px; }
+      .pay-line { padding: 4px 0; }
+      .pay-line-field input { max-width: 160px; min-height: 34px; padding: 5px 8px; }
     }
-    @media (max-width: 600px) {
-  .summary-card.lead p {
-    display: none;
-  }
-}
-
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
@@ -376,24 +349,14 @@
         <header>
           <p class="eyebrow">Monthly Payroll View</p>
           <h1>Chess Grande Pay Summary</h1>
-          <p class="hero-intro">Review the same monthly ledger through a payroll lens: confirm profile details, set the effective hourly rate, and cross-check the calendar before submission.</p>
         </header>
-        <div class="hero-guidance" aria-label="How to use this page">
-          <div class="guidance-item"><span class="guidance-label">Confirm</span><p>Make sure your saved bank details and hourly rate are correct before you submit the month.</p></div><div class="guidance-item"><span class="guidance-label">Cross-check</span><p>Use the calendar and school groups to verify that the monthly total reflects the same entries shown in the tracker.</p></div><div class="guidance-item"><span class="guidance-label">Submit</span><p>Treat the payroll action as the final pass, not the place where missing sessions are discovered for the first time.</p></div>
-        </div>
       </div>
       <aside class="hero-month">
-        <div class="month-box"><div class="month-box-header"><strong>Working month</strong><label for="monthPicker">Select month</label></div><input id="monthPicker" type="month"><div id="monthPickerFallback" hidden><select id="monthNameSelect" aria-label="Viewing month name"><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><select id="monthYearSelect" aria-label="Viewing month year"></select></div><p class="month-box-note">This page mirrors the timesheet data for the active month and recalculates the pay summary in place.</p></div>
+        <div class="month-box"><div class="month-box-header"><strong>Working month</strong><label for="monthPicker">Select month</label></div><input id="monthPicker" type="month"><div id="monthPickerFallback" hidden><select id="monthNameSelect" aria-label="Viewing month name"><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><select id="monthYearSelect" aria-label="Viewing month year"></select></div></div>
+        <div class="hero-stats" aria-label="Month summary">
+          <div class="hero-stat"><span class="stat-label">Hourly Rate</span><span class="stat-value" id="rateCount">S$0.00</span></div><div class="hero-stat"><span class="stat-label">Total Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="summaryPay">S$0.00</span></div>
+        </div>
       </aside>
-    </section>
-
-    <section class="summary-strip" aria-label="Month summary">
-      <article class="summary-card lead">
-        <p class="panel-eyebrow">How this page works</p>
-        <h2 class="summary-title">Review the selected month, then submit payroll.</h2>
-        <p>This page pulls entries from the active timesheet month. Confirm your profile details, enter the hourly rate, check the calendar and school ledger, then submit when the calculated pay looks right.</p>
-      </article>
-      <article class="summary-card stat"><span class="stat-label">Hourly Rate</span><span class="stat-value" id="rateCount">$0.00</span></article><article class="summary-card stat"><span class="stat-label">Total Hours</span><span class="stat-value" id="hoursCount">0</span></article><article class="summary-card stat"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="summaryPay">$0.00</span></article>
     </section>
 
     <div class="workspace">
@@ -402,7 +365,7 @@
           <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">School ledger</p><h2>Entries By School</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div></section>
         </div>
         <aside class="action-column">
-          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. The hourly rate is stored automatically on this device.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><div class="pay-line-field"><input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 55" aria-label="Pay per hour" required></div></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
+          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. The hourly rate is stored automatically on this device.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><div class="pay-line-field"><input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 55" aria-label="Pay per hour" required></div></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
         </aside>
       </div>
     </div>
@@ -1362,17 +1325,21 @@
     }
 
     function formatCurrency(value) {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "SGD",
-      }).format(Number(value || 0));
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}S$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(amount))}`;
     }
 
     function formatCompactDollar(value) {
-      return `$${new Intl.NumberFormat(undefined, {
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}S$${new Intl.NumberFormat(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }).format(Number(value || 0))}`;
+      }).format(Math.abs(amount))}`;
     }
 
     function formatEntryType(entry) {

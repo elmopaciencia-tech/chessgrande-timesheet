@@ -53,17 +53,18 @@
     .menu-item { width: 100%; border: 0; border-radius: 10px; padding: 11px 12px; text-align: left; cursor: pointer; background: transparent; color: var(--ink); display: block; text-decoration: none; min-height: 44px; }
     .menu-item:hover { background: var(--accent-soft); }
     .page { width: min(1180px, 100%); margin: 28px auto 0; display: grid; gap: 28px; }
-    .hero { position: relative; padding: 32px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 32px; box-shadow: var(--shadow-lg); overflow: hidden; }
+    .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: 20px; align-items: center; padding: 24px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 28px; box-shadow: var(--shadow-md); overflow: hidden; }
     .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)), linear-gradient(180deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)); background-size: 100% 100%, 100% 36px; pointer-events: none; opacity: .34; }
     .hero > * { position: relative; z-index: 1; }
     .eyebrow { margin: 0 0 8px; color: var(--clay); font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
-    h1 { margin: 0 0 10px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.3rem, 5vw, 4rem); line-height: .95; font-weight: 400; }
+    h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.15rem, 4vw, 3.65rem); line-height: .96; font-weight: 400; text-wrap: balance; }
     .hero p, .panel-copy, .status, .modal-status { margin: 0; color: var(--muted); line-height: 1.5; }
-    .summary-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, .8fr)); gap: 16px; }
-    .summary-card, .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
-    .summary-card { padding: 20px; }
-    .summary-card.lead { display: grid; gap: 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%); }
-    .summary-title { margin: 0; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.25; }
+    .hero-copy, .hero-stats { position: relative; z-index: 1; }
+    .hero-copy { display: grid; gap: 12px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .hero-stat { min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px; border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%); }
+    .hero-stat-wide { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px; }
+    .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
     .panel { padding: 28px; background: color-mix(in srgb, var(--surface) 90%, white 10%); border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 28px; box-shadow: var(--shadow-md); }
     .panel-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
     .panel h2 { margin: 0; font-size: 1.38rem; line-height: 1.15; letter-spacing: -.02em; }
@@ -78,7 +79,7 @@
     .stat { padding: 20px; min-height: 132px; display: grid; align-content: end; }
     .stat-label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
     .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; word-break: break-word; }
-    #totalSubmittedPay { text-wrap: balance; line-height: 1.1; font-size: clamp(1.35rem, 4vw, 1.8rem); }
+    #totalSubmittedPay { min-width: max-content; white-space: nowrap; overflow-wrap: normal; word-break: normal; line-height: 1; font-size: clamp(1.35rem, 3vw, 1.8rem); }
     .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
     .filter-card, .toolbar-card { padding: 16px; }
     .filter-title, .search-wrap label, .role-filter label { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
@@ -110,21 +111,18 @@
     .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
     @media (max-width: 1100px) {
       .toolbar, .stat-row, .filters { grid-template-columns: 1fr; }
-      .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
-      .summary-card.lead { grid-column: 1 / -1; padding: 20px; }
-      .summary-title { font-size: .94rem; line-height: 1.2; }
-      .summary-card.stat { min-height: 132px; padding: 18px; display: grid; align-content: center; gap: 6px; }
-      .summary-card.stat .stat-label { margin-bottom: 0; font-size: .72rem; letter-spacing: .06em; white-space: nowrap; }
-      .stat-value { font-size: 1.6rem; }
+      .hero { grid-template-columns: 1fr; }
+      .stat-value { font-size: 1.45rem; }
+      #totalSubmittedPay { font-size: clamp(1.28rem, 5vw, 1.55rem); }
       .file-item { grid-template-columns: 58px minmax(0, 1fr) minmax(100px, auto) minmax(110px, auto) minmax(120px, auto) auto; align-items: center; }
     }
     @media (max-width: 760px) {
       .hero, .panel, .modal { padding: 20px; }
       .app-header-inner { min-height: 66px; padding: 0 16px; }
       .modal-grid, .modal-actions { grid-template-columns: 1fr; }
-      .summary-strip { grid-template-columns: 1fr; }
-      .summary-card.lead, .summary-card.stat { min-height: 0; }
       .file-item { grid-template-columns: 1fr; align-items: start; }
+      .hero-stats { grid-template-columns: 1fr; }
+      .hero-stat-wide { grid-template-columns: 1fr; align-items: start; }
       .file-item-actions { justify-self: start; }
     }
 
@@ -137,7 +135,7 @@
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
       
-</div></div></div></header><main class="page" id="main-content"><section class="hero"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1><p>Review submitted monthly payroll ledgers in one operational queue. Filter by year, month, and payment status, then open any employee submission for full inspection.</p></section><section class="summary-strip" aria-label="Dashboard summary"><article class="summary-card lead"><p class="panel-eyebrow">Queue posture</p><h2 class="summary-title">This dashboard is for sorting, scanning, and opening submissions quickly.</h2><p>The list stays file-like, but the hierarchy is calmer and more deliberate so totals, filters, and entry access are easier to parse.</p></article><article class="summary-card stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></article><article class="summary-card stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></article><article class="summary-card stat"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></article></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+</div></div></div></header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./claim-proof-storage.js"></script>
@@ -236,7 +234,7 @@
         console.error("Failed to load payroll submissions:", error);
         submissionCount.textContent = "0";
         employeeCount.textContent = "0";
-        totalSubmittedPay.textContent = formatCurrency(0);
+        totalSubmittedPay.textContent = formatSummaryCurrency(0);
         fileList.innerHTML = "";
         const message = document.createElement("div");
         message.className = "empty";
@@ -289,7 +287,7 @@
       employeeCount.textContent = new Set(
         visibleSubmissions.map((item) => item.employeeId || item.employeeName || "")
       ).size;
-      totalSubmittedPay.textContent = formatCurrency(
+      totalSubmittedPay.textContent = formatSummaryCurrency(
         visibleSubmissions.reduce((sum, item) => sum + Number(item.totalPay || 0), 0)
       );
 
@@ -517,10 +515,21 @@
     }
 
     function formatCurrency(value) {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "SGD",
-      }).format(Number(value || 0));
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}S$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(amount))}`;
+    }
+
+    function formatSummaryCurrency(value) {
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(amount))}`;
     }
 
     function escapeHtml(value) {

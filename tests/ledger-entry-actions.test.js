@@ -69,6 +69,36 @@ assert.match(
   /openRequestedEntryForEditing/,
   "employee timesheet should support opening an entry from the pay review edit link"
 );
+assert.match(
+  timesheetHtml,
+  /clearMonthButton\.addEventListener\("click", handleClearMonthButtonClick\)/,
+  "employee composer clear button should route through edit-aware click handling"
+);
+assert.match(
+  timesheetHtml,
+  /function cancelEntryEdit\(\)[\s\S]*resetEntryComposer\(\);[\s\S]*render\(\);/,
+  "employee composer should cancel edits through a shared reset path"
+);
+assert.match(
+  timesheetHtml,
+  /clearMonthButton\.textContent = isEditing \? "Cancel Edit" : "Clear Month"/,
+  "employee composer should relabel Clear Month as Cancel Edit while editing"
+);
+assert.match(
+  timesheetHtml,
+  /clearMonthButton\.classList\.toggle\("is-cancel-edit", isEditing\)/,
+  "employee composer should visually switch the clear button into cancel-edit mode"
+);
+assert.match(
+  timesheetHtml,
+  /event\.key !== "Escape"[\s\S]*cancelEntryEdit\(\)/,
+  "employee composer should cancel active entry edits from the Escape key"
+);
+assert.match(
+  timesheetHtml,
+  /#clearMonth\.is-cancel-edit/,
+  "employee composer cancel edit button should not keep the destructive clear-month styling"
+);
 
 const payHtml = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"), "utf8");
 assert.match(

@@ -229,13 +229,14 @@
     .hero {
       position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
-      gap: var(--space-7);
-      padding: var(--space-8);
+      grid-template-columns: minmax(0, 1fr) minmax(340px, 460px);
+      gap: var(--space-5);
+      align-items: center;
+      padding: var(--space-6);
       background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
       border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
-      border-radius: 32px;
-      box-shadow: var(--shadow-lg);
+      border-radius: 28px;
+      box-shadow: var(--shadow-md);
       overflow: hidden;
     }
 
@@ -259,13 +260,13 @@
 
     .hero-copy {
       display: grid;
-      gap: var(--space-6);
+      gap: var(--space-3);
       align-content: start;
     }
 
     .hero-copy header {
       display: grid;
-      gap: var(--space-4);
+      gap: var(--space-3);
     }
 
     .eyebrow {
@@ -280,58 +281,22 @@
     h1 {
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.4rem, 5vw, 4.45rem);
+      font-size: clamp(2.25rem, 4vw, 3.85rem);
       font-weight: 400;
-      line-height: 0.93;
-      max-width: 11ch;
+      line-height: 0.96;
+      max-width: 13ch;
       text-wrap: balance;
     }
 
-    .hero-intro {
-      margin: 0;
-      max-width: 64ch;
-      color: var(--ink-soft);
-      font-size: 1.05rem;
-      line-height: 1.6;
-    }
-
-    .hero-guidance {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--space-4);
-    }
-
-    .guidance-item {
-      padding-top: var(--space-4);
-      border-top: 1px solid color-mix(in srgb, var(--line) 78%, white 22%);
-    }
-
-    .guidance-label {
-      display: block;
-      margin-bottom: var(--space-2);
-      color: var(--ink);
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .guidance-item p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.45;
-      max-width: 30ch;
-    }
-
     .hero-month {
-      align-self: start;
+      align-self: stretch;
       display: grid;
-      gap: var(--space-5);
-      padding: var(--space-6);
+      gap: var(--space-3);
+      align-content: center;
+      padding: var(--space-4);
       background: color-mix(in srgb, var(--surface-strong) 88%, white 12%);
       border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
-      border-radius: 24px;
+      border-radius: 20px;
       box-shadow: var(--shadow-sm);
     }
 
@@ -346,7 +311,7 @@
 
     .month-box {
       display: grid;
-      gap: var(--space-4);
+      gap: 10px;
       border-color: transparent;
     }
 
@@ -362,13 +327,6 @@
       color: var(--ink);
       font-size: 1rem;
       font-weight: 700;
-    }
-
-    .month-box-note {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.45;
-      margin: 0;
     }
 
     input[type="month"],
@@ -547,40 +505,20 @@
       font-weight: 700;
     }
 
-    .summary-strip {
+    .hero-stats {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 0.8fr));
-      gap: var(--space-4);
-      align-items: stretch;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
     }
 
-    .summary-card {
-      padding: var(--space-5);
-      border-radius: 22px;
+    .hero-stat {
+      min-width: 0;
+      padding: 12px 14px;
+      border-radius: 16px;
       background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%);
       border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
-    }
-
-    .summary-card.lead {
       display: grid;
-      gap: var(--space-3);
-      grid-column: span 1;
-      background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, white 12%) 0%, color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%) 100%);
-    }
-
-    .summary-card.lead p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.45;
-    }
-
-    .summary-title {
-      margin: 0;
-      color: var(--ink);
-      font-size: 1rem;
-      font-weight: 700;
-      line-height: 1.25;
+      gap: 3px;
     }
 
     form {
@@ -1001,6 +939,13 @@
       box-shadow: var(--shadow-sm);
     }
 
+    #clearMonth.is-cancel-edit {
+      background: var(--surface-strong);
+      color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 28%, white 72%);
+      box-shadow: none;
+    }
+
     .ghost {
       background: transparent;
       border: 1px solid var(--line);
@@ -1034,19 +979,20 @@
 
     .stat-label {
       display: block;
-      font-size: 0.78rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 0;
     }
 
     .stat-value {
       display: block;
-      font-size: 1.8rem;
+      font-size: 1.34rem;
       font-weight: 700;
       color: var(--ink);
       font-variant-numeric: tabular-nums;
+      line-height: 1;
     }
 
     .calendar-head {
@@ -1494,8 +1440,8 @@
         position: static;
       }
 
-      .summary-strip {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .hero-month {
+        align-self: auto;
       }
     }
 
@@ -1521,65 +1467,8 @@
         grid-template-columns: 1fr;
       }
 
-      .hero-guidance {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
-      }
-
-      .guidance-item {
-        padding-top: 10px;
-      }
-
-      .guidance-item p {
-        max-width: none;
-        font-size: 0.9rem;
-        line-height: 1.35;
-      }
-
-      .summary-strip {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
-        align-items: start;
-      }
-
-      .summary-card.lead {
-        grid-column: span 1;
-        min-height: 136px;
-        padding: 14px;
-        gap: 8px;
-        align-content: center;
-      }
-
-      .summary-card.lead p {
-        display: none;
-      }
-
-      .summary-title {
-        font-size: 0.8rem;
-        line-height: 1.12;
-      }
-
-      .summary-card.stat {
-        min-height: 136px;
-        padding: 14px;
-        display: grid;
-        align-content: center;
-        gap: 4px;
-      }
-
-      .summary-card {
-        align-self: start;
-      }
-
-      .summary-card.stat .stat-label {
-        margin-bottom: 0;
-        font-size: 0.66rem;
-        letter-spacing: 0.04em;
-        white-space: nowrap;
-      }
-
       .stat-value {
-        font-size: 1.45rem;
+        font-size: 1.24rem;
       }
 
       .actions {
@@ -1632,13 +1521,17 @@
       }
 
       .hero {
-        padding: var(--space-6);
-        gap: var(--space-6);
+        padding: var(--space-5);
+        gap: var(--space-4);
       }
 
       h1 {
         font-size: clamp(2rem, 10vw, 3rem);
-        max-width: 9ch;
+        max-width: 12ch;
+      }
+
+      .hero-month {
+        padding: var(--space-3);
       }
 
       .summary {
@@ -1736,25 +1629,7 @@
         <header>
           <p class="eyebrow">Streamlined Monthly Tracker</p>
           <h1>Chess Grande Timesheet</h1>
-          <p class="hero-intro">
-            Review the month at a glance, add new sessions without losing context, and keep payroll handoff clean.
-            The page is structured like a working ledger: month review on the left, monthly actions on the right.
-          </p>
         </header>
-        <div class="hero-guidance" aria-label="How to use this page">
-          <div class="guidance-item">
-            <span class="guidance-label">Review</span>
-            <p>Use the month view to catch gaps, duplicates, and claim-heavy days before payroll week arrives.</p>
-          </div>
-          <div class="guidance-item">
-            <span class="guidance-label">Record</span>
-            <p>Add teaching blocks, recurring sessions, replacements, private rates, and claims from one composer.</p>
-          </div>
-          <div class="guidance-item">
-            <span class="guidance-label">Finalize</span>
-            <p>Move to the monthly pay view only after the counts and school groups look right for the selected month.</p>
-          </div>
-        </div>
       </div>
       <aside class="hero-month">
         <div class="month-box">
@@ -1780,31 +1655,22 @@
             </select>
             <select id="monthYearSelect" aria-label="Viewing month year"></select>
           </div>
-          <p class="month-box-note">
-            Change the month first, then review the left-side calendar before you add or clear entries.
-          </p>
+        </div>
+        <div class="hero-stats" aria-label="Month summary">
+          <div class="hero-stat">
+            <span class="stat-label">Schools</span>
+            <span class="stat-value" id="schoolCount">0</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-label">Entries</span>
+            <span class="stat-value" id="entryCount">0</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-label">Hours</span>
+            <span class="stat-value" id="hoursCount">0</span>
+          </div>
         </div>
       </aside>
-    </section>
-
-    <section class="summary-strip" aria-label="Month summary">
-      <article class="summary-card lead">
-        <p class="panel-eyebrow">How this page works</p>
-        <h2 class="summary-title">Build the selected month before opening payroll.</h2>
-        <p>Choose the active month, record each session or claim, then use the calendar and school ledger to check that everything is complete. The totals update automatically as entries are saved.</p>
-      </article>
-      <article class="summary-card stat">
-        <span class="stat-label">Schools</span>
-        <span class="stat-value" id="schoolCount">0</span>
-      </article>
-      <article class="summary-card stat">
-        <span class="stat-label">Entries</span>
-        <span class="stat-value" id="entryCount">0</span>
-      </article>
-      <article class="summary-card stat">
-        <span class="stat-label">Hours</span>
-        <span class="stat-value" id="hoursCount">0</span>
-      </article>
     </section>
 
     <div class="workspace">
@@ -2228,7 +2094,7 @@
     bindAction(quickAddToggle, toggleQuickAddMenu);
     bindAction(calendarColorToggle, toggleCalendarColorMenu);
     bindQuickAddSaveButton();
-    clearMonthButton.addEventListener("click", clearCurrentMonth);
+    clearMonthButton.addEventListener("click", handleClearMonthButtonClick);
     quickAddList.addEventListener("click", onQuickAddListClick);
     calendarColorOptions.addEventListener("change", () => {
       syncCalendarColorToggle();
@@ -2246,13 +2112,28 @@
       }
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && quickAddMenu?.hidden === false) {
+      if (event.key !== "Escape") return;
+      if (imageLightbox && !imageLightbox.hidden) return;
+
+      let handledMenu = false;
+      if (quickAddMenu?.hidden === false) {
         closeQuickAddMenu();
         quickAddToggle?.focus();
+        handledMenu = true;
       }
-      if (event.key === "Escape" && calendarColorMenu?.hidden === false) {
+      if (calendarColorMenu?.hidden === false) {
         closeCalendarColorMenu();
         calendarColorToggle?.focus();
+        handledMenu = true;
+      }
+
+      if (handledMenu) {
+        event.preventDefault();
+        return;
+      }
+
+      if (cancelEntryEdit()) {
+        event.preventDefault();
       }
     });
 
@@ -2834,14 +2715,33 @@
     }
 
     function resetEntryComposer() {
-      editingEntryId = "";
-      form.removeAttribute("data-editing-entry");
-      addEntryButton.textContent = "Save Entry";
+      exitEntryEditMode();
       form.reset();
       setSelectedCalendarColor(defaultCalendarColor);
       syncDateFieldToMonth();
       syncReplacementField();
       syncQuickAddSaveButton();
+    }
+
+    function enterEntryEditMode(entryId) {
+      editingEntryId = entryId;
+      form.dataset.editingEntry = entryId;
+      addEntryButton.textContent = "Update Entry";
+      syncClearMonthButton();
+    }
+
+    function exitEntryEditMode() {
+      editingEntryId = "";
+      form.removeAttribute("data-editing-entry");
+      addEntryButton.textContent = "Save Entry";
+      syncClearMonthButton();
+    }
+
+    function cancelEntryEdit() {
+      if (!editingEntryId) return false;
+      resetEntryComposer();
+      render();
+      return true;
     }
 
     function buildWeeklyEntries(baseEntry, monthValue) {
@@ -2890,6 +2790,15 @@
     }
 
     function syncClearMonthButton(activeEntries) {
+      const isEditing = Boolean(editingEntryId);
+      clearMonthButton.textContent = isEditing ? "Cancel Edit" : "Clear Month";
+      clearMonthButton.classList.toggle("is-cancel-edit", isEditing);
+      clearMonthButton.setAttribute("aria-label", isEditing ? "Cancel editing entry" : "Clear month");
+      if (isEditing) {
+        clearMonthButton.disabled = false;
+        return;
+      }
+
       const monthEntries = Array.isArray(activeEntries) ? activeEntries : getEntriesForMonth(monthPicker.value);
       clearMonthButton.disabled = !monthEntries.some((entry) => window.draftTimesheetStore.isActive(entry));
     }
@@ -3067,9 +2976,7 @@
       const entry = entries.find((item) => item.id === id);
       if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
 
-      editingEntryId = id;
-      form.dataset.editingEntry = id;
-      addEntryButton.textContent = "Update Entry";
+      enterEntryEditMode(id);
 
       const entryDateField = document.getElementById("entryDate");
       const entryMonth = (entry.date || "").slice(0, 7);
@@ -3122,6 +3029,11 @@
       } catch (error) {
         alert(error?.message || "Could not delete the draft timesheet entry.");
       }
+    }
+
+    function handleClearMonthButtonClick() {
+      if (cancelEntryEdit()) return;
+      void clearCurrentMonth();
     }
 
     async function clearCurrentMonth() {
@@ -3365,10 +3277,12 @@
     }
 
     function formatCurrency(value) {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: "SGD",
-      }).format(Number(value || 0));
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}S$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(amount))}`;
     }
 
     function escapeHtml(value) {
