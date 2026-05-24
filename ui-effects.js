@@ -78,16 +78,16 @@
 
   function addIcon(element) {
     if (element.matches(SKIP_ICON_SELECTOR)) {
-      return;
+      return false;
     }
 
     if (element.dataset.cgIconified === "true") {
-      return;
+      return false;
     }
 
     const iconName = getIconName(element);
     if (!iconName) {
-      return;
+      return false;
     }
 
     const icon = document.createElement("i");
@@ -102,19 +102,36 @@
 
     element.prepend(icon);
     element.dataset.cgIconified = "true";
+    return true;
+  }
+
+  function hasPendingLucideIcons(root = document) {
+    return Boolean(root.querySelector("i.cg-icon[data-lucide]"));
+  }
+
+  function stripLucideMarkers(root = document) {
+    root.querySelectorAll("svg.cg-icon[data-lucide]").forEach((icon) => {
+      icon.removeAttribute("data-lucide");
+    });
   }
 
   function applyIcons(root = document) {
-    root.querySelectorAll(ACTION_SELECTOR).forEach(addIcon);
-    root.querySelectorAll(".app-header-title").forEach(addIcon);
+    let addedIcon = false;
+    root.querySelectorAll(ACTION_SELECTOR).forEach((element) => {
+      addedIcon = addIcon(element) || addedIcon;
+    });
+    root.querySelectorAll(".app-header-title").forEach((element) => {
+      addedIcon = addIcon(element) || addedIcon;
+    });
 
-    if (window.lucide) {
+    if (window.lucide && (addedIcon || hasPendingLucideIcons(root))) {
       window.lucide.createIcons({
         attrs: {
           "aria-hidden": "true",
           focusable: "false"
         }
       });
+      stripLucideMarkers(document);
     }
   }
 

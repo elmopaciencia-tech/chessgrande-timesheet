@@ -89,5 +89,15 @@ assert.match(
   /\.entry-action-button/,
   "global icon pass should skip ledger action buttons"
 );
+assert.match(
+  uiEffects,
+  /hasPendingLucideIcons/,
+  "global icon pass should only call Lucide when new icon placeholders are waiting"
+);
+assert.match(
+  uiEffects,
+  /removeAttribute\("data-lucide"\)/,
+  "rendered Lucide SVGs should not keep data-lucide markers that trigger reprocessing"
+);
 
 console.log("ledger entry action checks passed");
