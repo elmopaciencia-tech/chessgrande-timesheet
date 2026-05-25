@@ -121,7 +121,7 @@ const compactPageExpectations = [
       'id="monthValue"',
       'id="entryCount"',
       'id="hoursCount"',
-      'id="rateCount"',
+      'id="totalPayCount"',
       "S$0.00",
     ],
     removed: [
@@ -195,6 +195,48 @@ assert.match(
   managerDashboard,
   /#totalSubmittedPay\s*\{[^}]*white-space:\s*nowrap;[^}]*word-break:\s*normal;/is,
   "manager dashboard totalSubmittedPay should stay on one line"
+);
+
+const managerEntry = fs.readFileSync(path.join(process.cwd(), "manager-entry.html"), "utf8");
+assert.match(
+  managerEntry,
+  /<span class="stat-label">Total Pay<\/span><span class="stat-value" id="totalPayCount"/,
+  "manager entry hero should show total pay instead of hourly rate"
+);
+assert.doesNotMatch(
+  managerEntry,
+  /id="rateCount"/,
+  "manager entry hero should no longer render a rate stat"
+);
+assert.match(
+  managerEntry,
+  /class="hero-stat hero-stat-wide"><span class="stat-label">Total Pay<\/span><span class="stat-value" id="totalPayCount"/,
+  "manager entry total pay should use the wide hero stat card"
+);
+assert.match(
+  managerEntry,
+  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/is,
+  "manager entry hero stats should place total pay below two count cards"
+);
+assert.match(
+  managerEntry,
+  /#totalPayCount\s*\{[^}]*white-space:\s*nowrap;/is,
+  "manager entry totalPayCount should stay on one line"
+);
+assert.match(
+  managerEntry,
+  /<span>Rate<\/span><span id="payRate">S\$0\.00<\/span>/,
+  "manager entry payroll snapshot should include the submitted hourly rate"
+);
+assert.match(
+  managerEntry,
+  /const payRate = document\.getElementById\("payRate"\)/,
+  "manager entry script should bind the pay card rate element"
+);
+assert.match(
+  managerEntry,
+  /payRate\.textContent = formatCurrency\(submission\.hourlyRate \|\| 0\)/,
+  "manager entry script should render the submitted rate in the pay card"
 );
 
 [

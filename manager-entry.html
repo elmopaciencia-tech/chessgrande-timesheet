@@ -138,12 +138,13 @@
     html[data-browser-engine="webkit"] #monthPicker { display: none !important; }
     #monthPickerFallback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 160px); gap: 10px; }
     #monthPickerFallback[hidden] { display: none; }
-    .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .hero-stat {
       min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px;
       border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
       background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%);
     }
+    .hero-stat-wide { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px; }
     .workspace { display: grid; gap: var(--space-7); }
     .layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(320px, .92fr); gap: var(--space-7); align-items: start; }
     .review-column, .action-column { display: grid; gap: var(--space-6); align-content: start; }
@@ -161,6 +162,7 @@
     .stat { padding: var(--space-5); min-height: 132px; display: grid; align-content: end; }
     .stat-label { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 0; }
     .stat-value { display: block; font-size: 1.34rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+    #totalPayCount { min-width: max-content; white-space: nowrap; font-size: clamp(1.28rem, 3vw, 1.55rem); }
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
     .primary, .secondary, .button, .button-secondary, .nav-link, .row-remove-button, .entry-remove {
       border-radius: 999px; padding: 12px 16px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: 46px;
@@ -177,6 +179,21 @@
     .day-items { display: grid; gap: 4px; align-content: start; }
     .chip { font-size: .72rem; line-height: 1.2; background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); border: 1px solid color-mix(in srgb, var(--accent) 12%, white 88%); color: var(--accent); padding: 5px 6px; border-radius: 10px; overflow: hidden; }
     .chip strong { color: var(--ink); }
+    .chip.has-calendar-color { cursor: context-menu; }
+    .chip-context-menu { position: fixed; z-index: 1450; display: grid; gap: 4px; min-width: 164px; padding: 6px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); background: color-mix(in srgb, var(--surface-strong) 96%, white 4%); box-shadow: 0 18px 44px rgba(31,41,35,.18); }
+    .chip-context-menu[hidden] { display: none; }
+    .chip-context-menu button { width: 100%; min-height: 36px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); display: flex; align-items: center; justify-content: flex-start; text-align: left; font-size: .9rem; font-weight: 700; cursor: pointer; transition: background 140ms ease, color 140ms ease, transform 140ms ease; }
+    .chip-context-menu button[data-cg-iconified] { justify-content: flex-start; gap: 0; }
+    .chip-context-menu .cg-icon { display: none; }
+    .chip-context-menu button:hover, .chip-context-menu button:focus-visible { background: var(--accent-soft); transform: translateX(1px); }
+    .chip-context-menu button[data-chip-action="remove"] { color: #b42318; }
+    .chip-context-menu button:disabled { cursor: not-allowed; opacity: .45; transform: none; }
+    .chip-context-actions, .chip-context-confirm { display: grid; gap: 4px; text-align: left; }
+    .chip-context-confirm[hidden] { display: none; }
+    .chip-context-confirm p { margin: 0; padding: 8px 10px 4px; color: var(--ink); font-size: .88rem; font-weight: 800; line-height: 1.2; text-align: left; }
+    .chip-context-confirm-actions { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding-top: 2px; }
+    .chip-context-confirm-actions button { width: auto; min-width: 74px; }
+    .chip-context-confirm-actions button[data-chip-confirm="remove"] { background: #c73832; color: white; }
     .groups { display: grid; gap: var(--space-5); }
     .school-card { position: relative; overflow: hidden; transform: translateY(0); padding: 20px; transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; will-change: transform; }
     #schoolGroups .school-card:hover, #schoolGroups .school-card:focus-within { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 30%, var(--line) 70%); background: color-mix(in srgb, var(--surface-strong) 96%, white 4%); box-shadow: 0 18px 42px rgba(31,41,35,.12); }
@@ -207,6 +224,12 @@
     .entry-action-button[data-tooltip]::before { content: attr(data-tooltip); bottom: calc(100% + 9px); transform: translate(-50%, 4px); padding: 6px 8px; border-radius: 8px; background: var(--ink); color: white; font-size: .74rem; font-weight: 700; white-space: nowrap; box-shadow: 0 8px 22px rgba(0,0,0,.18); }
     .entry-action-button[data-tooltip]::after { content: ""; bottom: calc(100% + 4px); transform: translate(-50%, 4px); border: 5px solid transparent; border-top-color: var(--ink); }
     .entry-action-button[data-tooltip]:hover::before, .entry-action-button[data-tooltip]:hover::after, .entry-action-button[data-tooltip]:focus-visible::before, .entry-action-button[data-tooltip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+    tr.is-entry-target-highlight td { animation: entry-target-highlight 1050ms ease-out both; }
+    @keyframes entry-target-highlight {
+      0% { background: color-mix(in srgb, var(--accent-soft) 74%, white 26%); box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 12%, transparent); }
+      55% { background: color-mix(in srgb, var(--accent-soft) 44%, white 56%); box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 6%, transparent); }
+      100% { background: transparent; box-shadow: inset 0 0 0 999px transparent; }
+    }
     .entry-edit-modal { position: fixed; inset: 0; z-index: 1300; display: grid; place-items: center; padding: 24px; background: rgba(23,26,25,.54); backdrop-filter: blur(10px); }
     .entry-edit-modal[hidden] { display: none; }
     .entry-edit-card { width: min(760px, 100%); max-height: min(88vh, 860px); overflow: auto; padding: 22px; border-radius: 26px; background: color-mix(in srgb, var(--surface) 94%, white 6%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); box-shadow: 0 28px 80px rgba(23,26,25,.24); }
@@ -262,6 +285,7 @@
       .hero, .panel { padding: var(--space-5); }
       .hero { gap: var(--space-4); }
       .hero-month { padding: var(--space-3); }
+      .hero-stat-wide { grid-template-columns: 1fr; align-items: start; }
       h1 { font-size: clamp(2rem, 10vw, 3rem); max-width: 12ch; }
       #monthPickerFallback { grid-template-columns: 1fr; }
       .calendar-grid { gap: 4px; }
@@ -314,11 +338,26 @@
       </div>
       <aside class="hero-month">
         <div class="month-box"><div class="month-box-header"><strong>Submitted month</strong><span class="month-box-value" id="monthValue">-</span></div></div>
-        <div class="hero-stats" aria-label="Submission summary"><div class="hero-stat"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div><div class="hero-stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat"><span class="stat-label">Rate</span><span class="stat-value" id="rateCount">S$0.00</span></div></div>
+        <div class="hero-stats" aria-label="Submission summary"><div class="hero-stat"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div><div class="hero-stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Pay</span><span class="stat-value" id="totalPayCount">S$0.00</span></div></div>
       </aside>
     </section>
-    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted ledger</p><h2>Entries By School</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, month, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
+    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted ledger</p><h2>Entries By School</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, month, rate, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Rate</span><span id="payRate">S$0.00</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
   </main>
+
+  <div class="chip-context-menu" id="chipContextMenu" role="menu" hidden>
+    <div class="chip-context-actions" data-chip-menu-panel="actions">
+      <button type="button" role="menuitem" data-chip-action="go">Go To Entry</button>
+      <button type="button" role="menuitem" data-chip-action="edit">Edit Entry</button>
+      <button type="button" role="menuitem" data-chip-action="remove">Remove Entry</button>
+    </div>
+    <div class="chip-context-confirm" data-chip-menu-panel="confirm" hidden>
+      <p>Remove this entry?</p>
+      <div class="chip-context-confirm-actions">
+        <button type="button" data-chip-confirm="cancel">Cancel</button>
+        <button type="button" data-chip-confirm="remove">Remove</button>
+      </div>
+    </div>
+  </div>
 
 <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
     <div class="lightbox-content" id="imageLightboxContent" tabindex="-1">
@@ -443,17 +482,19 @@
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
     const schoolGroups = document.getElementById("schoolGroups");
+    const chipContextMenu = document.getElementById("chipContextMenu");
     const schoolTemplate = document.getElementById("schoolTemplate");
     const heroTitle = document.getElementById("heroTitle");
     const monthValue = document.getElementById("monthValue");
     const entryCount = document.getElementById("entryCount");
     const hoursCount = document.getElementById("hoursCount");
-    const rateCount = document.getElementById("rateCount");
+    const totalPayCount = document.getElementById("totalPayCount");
     const payName = document.getElementById("payName");
     const payBankName = document.getElementById("payBankName");
     const payAccountType = document.getElementById("payAccountType");
     const payBank = document.getElementById("payBank");
     const payMonth = document.getElementById("payMonth");
+    const payRate = document.getElementById("payRate");
     const payHours = document.getElementById("payHours");
     const payTotal = document.getElementById("payTotal");
     const logoutButton = document.getElementById("logoutButton");
@@ -504,6 +545,7 @@
     let editingSubmissionId = "";
     let editingEntryId = "";
     let editingPayrollRow = null;
+    let chipContextMenuTrigger = null;
 
     initApp();
 
@@ -513,6 +555,7 @@
       const profile = await getCurrentProfile();
       webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
       setupEntryEditModal();
+      setupChipContextMenu();
       setupUserMenu();
       initImageViewer();
       await render();
@@ -561,6 +604,7 @@
     }
 
     async function render() {
+      closeChipContextMenu();
       const params = new URLSearchParams(window.location.search);
       const id = params.get("id");
 
@@ -646,7 +690,7 @@
       monthValue.textContent = submission.monthLabel || formatMonthLabel(submission.month || "");
       entryCount.textContent = entries.length;
       hoursCount.textContent = trimHours(submission.totalHours || 0);
-      rateCount.textContent = formatCurrency(submission.hourlyRate || 0);
+      totalPayCount.textContent = formatCurrency(submission.totalPay || 0);
       payName.textContent = submission.employeeName || "-";
       payBankName.textContent = submission.bankName || "Please Setup in Profile";
       payAccountType.textContent = submission.accountType || "Please Setup in Profile";
@@ -654,6 +698,7 @@
       payBankName.classList.toggle("missing-profile", !submission.bankName);
       payAccountType.classList.toggle("missing-profile", !submission.accountType);
       payMonth.textContent = submission.monthLabel || formatMonthLabel(submission.month || "");
+      payRate.textContent = formatCurrency(submission.hourlyRate || 0);
       payHours.textContent = trimHours(submission.totalHours || 0);
       payTotal.textContent = formatCurrency(submission.totalPay || 0);
 
@@ -700,7 +745,13 @@
         (groupedByDate[key] || []).forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "chip";
+          chip.dataset.entryId = entry.id || "";
           applyCalendarColorToChip(chip, entry.calendarColor);
+          if (chip.classList.contains("has-calendar-color") && chip.dataset.entryId) {
+            chip.tabIndex = 0;
+            chip.setAttribute("aria-haspopup", "menu");
+            chip.setAttribute("aria-label", `${entry.schoolName || "Entry"} actions`);
+          }
           chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
@@ -714,6 +765,195 @@
       if (window.calendarEntryColors && typeof window.calendarEntryColors.applyToChip === "function") {
         window.calendarEntryColors.applyToChip(chip, color);
       }
+    }
+
+    function setupChipContextMenu() {
+      calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
+      calendar.addEventListener("keydown", onCalendarChipKeydown);
+      chipContextMenu.addEventListener("click", onChipContextMenuClick);
+      document.addEventListener("click", (event) => {
+        if (chipContextMenu?.hidden === false && !isChipContextMenuInteraction(event)) {
+          closeChipContextMenu();
+        }
+      });
+      document.addEventListener("contextmenu", (event) => {
+        if (getCalendarContextChip(event.target) || isChipContextMenuInteraction(event)) return;
+        closeChipContextMenu();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || chipContextMenu?.hidden !== false) return;
+        event.preventDefault();
+        closeChipContextMenu({ restoreFocus: true });
+      });
+      window.addEventListener("resize", () => closeChipContextMenu());
+      window.addEventListener("scroll", () => closeChipContextMenu(), true);
+    }
+
+    function isChipContextMenuInteraction(event) {
+      if (event.target instanceof Element && event.target.closest("#chipContextMenu")) {
+        return true;
+      }
+      return event.composedPath().some((node) => node === chipContextMenu);
+    }
+
+    function getCalendarContextChip(target) {
+      if (!(target instanceof Element)) return null;
+      const chip = target.closest(".chip.has-calendar-color[data-entry-id]");
+      return chip && calendar.contains(chip) ? chip : null;
+    }
+
+    function onCalendarChipContextMenu(event) {
+      const chip = getCalendarContextChip(event.target);
+      if (!chip) return;
+      openChipContextMenu(event, chip);
+    }
+
+    function onCalendarChipKeydown(event) {
+      if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
+      const chip = getCalendarContextChip(event.target);
+      if (!chip) return;
+      const rect = chip.getBoundingClientRect();
+      openChipContextMenu(event, chip, {
+        x: rect.left + 12,
+        y: rect.bottom + 8,
+        focusMenu: true,
+      });
+    }
+
+    function openChipContextMenu(event, chip, options = {}) {
+      const entryId = chip.dataset.entryId || "";
+      if (!entryId) return;
+
+      event.preventDefault();
+      closeEntryEditColorMenu();
+      resetChipContextMenuConfirmation();
+
+      chipContextMenuTrigger = chip;
+      chipContextMenu.dataset.entryId = entryId;
+      syncChipContextMenuActions(entryId);
+      positionChipContextMenu(options.x ?? event.clientX, options.y ?? event.clientY);
+
+      if (options.focusMenu) {
+        chipContextMenu.querySelector("button:not(:disabled)")?.focus({ preventScroll: true });
+      }
+    }
+
+    function positionChipContextMenu(x, y) {
+      chipContextMenu.style.visibility = "hidden";
+      chipContextMenu.hidden = false;
+      const rect = chipContextMenu.getBoundingClientRect();
+      const margin = 8;
+      const left = Math.max(margin, Math.min(x, window.innerWidth - rect.width - margin));
+      const top = Math.max(margin, Math.min(y, window.innerHeight - rect.height - margin));
+      chipContextMenu.style.left = `${left}px`;
+      chipContextMenu.style.top = `${top}px`;
+      chipContextMenu.style.visibility = "";
+    }
+
+    function syncChipContextMenuActions(entryId) {
+      const canEdit = Boolean(getLedgerActionButton("edit", entryId));
+      const canRemove = Boolean(getLedgerActionButton("remove", entryId));
+      setChipContextActionState("edit", canEdit);
+      setChipContextActionState("remove", canRemove);
+    }
+
+    function setChipContextActionState(action, enabled) {
+      const button = chipContextMenu.querySelector(`[data-chip-action="${action}"]`);
+      if (!button) return;
+      button.disabled = !enabled;
+      button.setAttribute("aria-disabled", String(!enabled));
+    }
+
+    function onChipContextMenuClick(event) {
+      const confirmButton = event.target instanceof Element ? event.target.closest("[data-chip-confirm]") : null;
+      if (confirmButton) {
+        const entryId = chipContextMenu.dataset.entryId || "";
+        if (confirmButton.dataset.chipConfirm === "remove") {
+          closeChipContextMenu();
+          triggerLedgerEntryAction("remove", entryId);
+        } else {
+          resetChipContextMenuConfirmation();
+          chipContextMenu.querySelector('[data-chip-action="remove"]')?.focus({ preventScroll: true });
+        }
+        return;
+      }
+
+      const button = event.target instanceof Element ? event.target.closest("[data-chip-action]") : null;
+      if (!button || button.disabled) return;
+      const action = button.dataset.chipAction;
+      const entryId = chipContextMenu.dataset.entryId || "";
+
+      if (action === "remove") {
+        showChipRemoveConfirmation();
+        return;
+      }
+
+      closeChipContextMenu();
+
+      if (action === "go") {
+        scrollToLedgerEntry(entryId);
+      } else if (action === "edit") {
+        triggerLedgerEntryAction(action, entryId);
+      }
+    }
+
+    function showChipRemoveConfirmation() {
+      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
+      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
+      if (!actionsPanel || !confirmPanel) return;
+      actionsPanel.hidden = true;
+      confirmPanel.hidden = false;
+      chipContextMenu.querySelector('[data-chip-confirm="cancel"]')?.focus({ preventScroll: true });
+      const rect = chipContextMenu.getBoundingClientRect();
+      positionChipContextMenu(rect.left, rect.top);
+    }
+
+    function resetChipContextMenuConfirmation() {
+      if (!chipContextMenu) return;
+      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
+      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
+      if (actionsPanel) actionsPanel.hidden = false;
+      if (confirmPanel) confirmPanel.hidden = true;
+    }
+
+    function closeChipContextMenu(options = {}) {
+      if (!chipContextMenu || chipContextMenu.hidden) return;
+      resetChipContextMenuConfirmation();
+      chipContextMenu.hidden = true;
+      chipContextMenu.removeAttribute("data-entry-id");
+      if (options.restoreFocus) {
+        chipContextMenuTrigger?.focus?.({ preventScroll: true });
+      }
+      chipContextMenuTrigger = null;
+    }
+
+    function getLedgerActionButton(action, entryId) {
+      const selector = action === "edit" ? "[data-edit-id]" : "[data-remove-id]";
+      const key = action === "edit" ? "editId" : "removeId";
+      return Array.from(schoolGroups.querySelectorAll(selector))
+        .find((button) => button.dataset[key] === entryId) || null;
+    }
+
+    function triggerLedgerEntryAction(action, entryId) {
+      const button = getLedgerActionButton(action, entryId);
+      if (button) {
+        button.click();
+      }
+    }
+
+    function scrollToLedgerEntry(entryId) {
+      const row = Array.from(schoolGroups.querySelectorAll("[data-ledger-entry-id]"))
+        .find((item) => item.dataset.ledgerEntryId === entryId);
+      if (!row) return;
+
+      row.classList.remove("is-entry-target-highlight");
+      void row.offsetWidth;
+      row.classList.add("is-entry-target-highlight");
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      row.focus({ preventScroll: true });
+      row.addEventListener("animationend", () => {
+        row.classList.remove("is-entry-target-highlight");
+      }, { once: true });
     }
 
     function setupEntryEditModal() {
@@ -952,6 +1192,8 @@
         const body = fragment.querySelector("tbody");
         schoolEntries.forEach((entry) => {
           const row = document.createElement("tr");
+          row.dataset.ledgerEntryId = entry.id || "";
+          row.tabIndex = -1;
           const actionCell = renderEntryActions(entry);
           if (isCostEntry(entry) && isCostOnlyGroup && hasClaimRows) {
             row.innerHTML = `
@@ -1063,17 +1305,30 @@
 
       editEntrySaveDisabled(true);
       entryEditStatus.textContent = "Saving changes...";
-      const { error: updateError } = await window.supabaseClient
+      const { data: updatedRow, error: updateError } = await window.supabaseClient
         .from("payroll_entries")
         .update(updates)
-        .eq("id", editingEntryId);
+        .eq("id", editingEntryId)
+        .select("id")
+        .maybeSingle();
       if (updateError) {
         entryEditStatus.textContent = `Could not update entry: ${updateError.message || "unknown error"}`;
         editEntrySaveDisabled(false);
         return;
       }
+      if (!updatedRow) {
+        entryEditStatus.textContent = "Supabase did not update this row. Check the manager/webadmin update policy for payroll entries.";
+        editEntrySaveDisabled(false);
+        return;
+      }
 
-      await refreshSubmissionTotals(editingSubmissionId);
+      try {
+        await refreshSubmissionTotals(editingSubmissionId);
+      } catch (error) {
+        entryEditStatus.textContent = error?.message || "The entry was saved, but the submission totals could not be refreshed.";
+        editEntrySaveDisabled(false);
+        return;
+      }
       closeEntryEditModal();
       await render();
     }
@@ -1104,7 +1359,11 @@
         return;
       }
 
-      await refreshSubmissionTotals(submissionId);
+      try {
+        await refreshSubmissionTotals(submissionId);
+      } catch (error) {
+        alert(error?.message || "The entry was removed, but the submission totals could not be refreshed.");
+      }
       await render();
     }
 
@@ -1113,19 +1372,36 @@
         .from("payroll_entries")
         .select("type, hours, custom_rate, claim_notes")
         .eq("submission_id", submissionId);
-      if (!remainingError) {
-        const { data: submissionRow } = await window.supabaseClient
-          .from("payroll_submissions")
-          .select("hourly_rate")
-          .eq("id", submissionId)
-          .maybeSingle();
-        const fallbackRate = Number(submissionRow?.hourly_rate || 0);
-        const totalHours = (remainingEntries || []).reduce((sum, item) => sum + Number(item.hours || 0), 0);
-        const totalPay = (remainingEntries || []).reduce((sum, item) => sum + calculateStoredEntryPay(item, fallbackRate), 0);
-        await window.supabaseClient
-          .from("payroll_submissions")
-          .update({ total_hours: totalHours, total_pay: totalPay })
-          .eq("id", submissionId);
+      if (remainingError) {
+        throw new Error(`Could not reload submitted entries for totals: ${remainingError.message || "unknown error"}`);
+      }
+
+      const { data: submissionRow, error: submissionError } = await window.supabaseClient
+        .from("payroll_submissions")
+        .select("hourly_rate")
+        .eq("id", submissionId)
+        .maybeSingle();
+      if (submissionError) {
+        throw new Error(`Could not reload submitted payroll rate: ${submissionError.message || "unknown error"}`);
+      }
+      if (!submissionRow) {
+        throw new Error("Could not find the submitted payroll row while refreshing totals.");
+      }
+
+      const fallbackRate = Number(submissionRow.hourly_rate || 0);
+      const totalHours = (remainingEntries || []).reduce((sum, item) => sum + Number(item.hours || 0), 0);
+      const totalPay = (remainingEntries || []).reduce((sum, item) => sum + calculateStoredEntryPay(item, fallbackRate), 0);
+      const { data: updatedSubmission, error: totalsError } = await window.supabaseClient
+        .from("payroll_submissions")
+        .update({ total_hours: totalHours, total_pay: totalPay })
+        .eq("id", submissionId)
+        .select("id")
+        .maybeSingle();
+      if (totalsError) {
+        throw new Error(`Could not refresh submission totals: ${totalsError.message || "unknown error"}`);
+      }
+      if (!updatedSubmission) {
+        throw new Error("Supabase did not update submission totals. Check the manager/webadmin update policy for payroll submissions.");
       }
     }
 

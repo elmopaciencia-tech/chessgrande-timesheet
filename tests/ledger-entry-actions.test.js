@@ -52,6 +52,81 @@ for (const [label, fileName] of pages) {
   );
   assert.match(
     html,
+    /id="chipContextMenu"[\s\S]*data-chip-action="go"[\s\S]*data-chip-action="edit"[\s\S]*data-chip-action="remove"/,
+    `${label} coloured calendar chips should expose a context menu with go, edit, and remove actions`
+  );
+  assert.match(
+    html,
+    /data-chip-menu-panel="confirm"[\s\S]*Remove this entry\?[\s\S]*data-chip-confirm="cancel"[\s\S]*data-chip-confirm="remove"/,
+    `${label} chip remove action should ask for confirmation inside the menu`
+  );
+  assert.match(
+    html,
+    /\.chip-context-menu\s*\{[^}]*position:\s*fixed;[^}]*z-index:\s*1450;/is,
+    `${label} chip context menu should float above the calendar`
+  );
+  assert.match(
+    html,
+    /\.chip-context-menu button\s*\{[^}]*justify-content:\s*flex-start;[^}]*text-align:\s*left;/is,
+    `${label} chip context menu items should align their text to the left`
+  );
+  assert.match(
+    html,
+    /\.chip-context-menu \.cg-icon\s*\{[^}]*display:\s*none;/is,
+    `${label} chip context menu should hide any globally injected icons`
+  );
+  assert.match(
+    html,
+    /calendar\.addEventListener\("contextmenu", onCalendarChipContextMenu\)/,
+    `${label} calendar should open the chip menu on right click`
+  );
+  assert.match(
+    html,
+    /calendar\.addEventListener\("keydown", onCalendarChipKeydown\)/,
+    `${label} calendar should support keyboard context menu access`
+  );
+  assert.match(
+    html,
+    /const chip = target\.closest\("\.chip\.has-calendar-color\[data-entry-id\]"\)/,
+    `${label} context menu should target coloured calendar chips with entry ids`
+  );
+  assert.match(
+    html,
+    /chip\.dataset\.entryId = entry\.id \|\| ""/,
+    `${label} calendar chips should carry their entry id`
+  );
+  assert.match(
+    html,
+    /row\.dataset\.ledgerEntryId = entry\.id \|\| ""/,
+    `${label} ledger rows should carry their entry id for chip navigation`
+  );
+  assert.match(
+    html,
+    /function triggerLedgerEntryAction\(action, entryId\)[\s\S]*button\.click\(\)/,
+    `${label} chip edit/remove actions should route through existing ledger buttons`
+  );
+  assert.match(
+    html,
+    /function onChipContextMenuClick\(event\)[\s\S]*data-chip-confirm[\s\S]*triggerLedgerEntryAction\("remove", entryId\)/,
+    `${label} confirmed chip remove should route through the existing remove button`
+  );
+  assert.match(
+    html,
+    /function showChipRemoveConfirmation\(\)[\s\S]*data-chip-menu-panel="actions"[\s\S]*data-chip-menu-panel="confirm"/,
+    `${label} remove confirmation should swap the menu into a confirmation state`
+  );
+  assert.match(
+    html,
+    /function scrollToLedgerEntry\(entryId\)[\s\S]*scrollIntoView\(\{ behavior: "smooth", block: "center" \}\)[\s\S]*is-entry-target-highlight/,
+    `${label} chip go-to action should scroll to and highlight the matching ledger row`
+  );
+  assert.match(
+    html,
+    /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-target-highlight/,
+    `${label} ledger rows should animate when highlighted from a chip`
+  );
+  assert.match(
+    html,
     /trashEntryIconSvg/,
     `${label} remove button should use the shared trash icon markup`
   );
@@ -91,6 +166,31 @@ assert.match(
 );
 assert.match(
   timesheetHtml,
+  /id="entryComposerTitle">Add Or Update A Session<\/h2>/,
+  "employee composer should expose a title that can switch in edit mode"
+);
+assert.match(
+  timesheetHtml,
+  /const entryComposerEditTitle = "Edit an Entry"/,
+  "employee composer should use the edit-specific title while editing"
+);
+assert.match(
+  timesheetHtml,
+  /const entryComposerEditCopy = "Update the selected ledger entry here\./,
+  "employee composer should use edit-specific helper copy while editing"
+);
+assert.match(
+  timesheetHtml,
+  /function syncEntryComposerMode\(\)[\s\S]*entryComposerPanel\?\.classList\.toggle\("is-editing-entry", isEditing\)[\s\S]*entryComposerTitle\.textContent = isEditing \? entryComposerEditTitle : entryComposerDefaultTitle[\s\S]*entryComposerCopy\.textContent = isEditing \? entryComposerEditCopy : entryComposerDefaultCopy/,
+  "employee composer should sync title, copy, and highlight from edit state"
+);
+assert.match(
+  timesheetHtml,
+  /#entryComposerPanel\.is-editing-entry::before[\s\S]*animation: composer-edit-aura/,
+  "employee composer should show an emanating highlight while editing"
+);
+assert.match(
+  timesheetHtml,
   /event\.key !== "Escape"[\s\S]*cancelEntryEdit\(\)/,
   "employee composer should cancel active entry edits from the Escape key"
 );
@@ -98,6 +198,86 @@ assert.match(
   timesheetHtml,
   /#clearMonth\.is-cancel-edit/,
   "employee composer cancel edit button should not keep the destructive clear-month styling"
+);
+assert.match(
+  timesheetHtml,
+  /const entryDateInput = document\.getElementById\("entryDate"\)/,
+  "employee composer should bind the entry date field once"
+);
+assert.match(
+  timesheetHtml,
+  /entryDateInput\.addEventListener\("pointerdown", openEntryDatePicker\)/,
+  "employee composer date field should open its picker on pointer interaction"
+);
+assert.match(
+  timesheetHtml,
+  /entryDateInput\.addEventListener\("click", openEntryDatePicker\)/,
+  "employee composer date field should open its picker on click"
+);
+assert.match(
+  timesheetHtml,
+  /\["Enter", " ", "ArrowDown"\]\.includes\(event\.key\)[\s\S]*openEntryDatePicker\(event\)/,
+  "employee composer date field should support keyboard picker opening"
+);
+assert.match(
+  timesheetHtml,
+  /function openEntryDatePicker\(event\)[\s\S]*entryDateInput\.showPicker\(\)/,
+  "employee composer should use the browser date picker when available"
+);
+assert.match(
+  timesheetHtml,
+  /function openEntryDatePicker\(event\)[\s\S]*closeQuickAddMenu\(\);[\s\S]*closeCalendarColorMenu\(\);/,
+  "employee composer date picker should close other composer popovers first"
+);
+assert.match(
+  timesheetHtml,
+  /id="chipContextMenu"[\s\S]*data-chip-action="go"[\s\S]*data-chip-action="edit"[\s\S]*data-chip-action="remove"/,
+  "employee calendar chips should expose a context menu with go, edit, and remove actions"
+);
+assert.match(
+  timesheetHtml,
+  /\.chip-context-menu\s*\{[^}]*position:\s*fixed;[^}]*z-index:\s*1450;/is,
+  "employee chip context menu should float above the calendar"
+);
+assert.match(
+  timesheetHtml,
+  /calendar\.addEventListener\("contextmenu", onCalendarChipContextMenu\)/,
+  "employee calendar should open the chip menu on right click"
+);
+assert.match(
+  timesheetHtml,
+  /calendar\.addEventListener\("keydown", onCalendarChipKeydown\)/,
+  "employee calendar should support keyboard context menu access"
+);
+assert.match(
+  timesheetHtml,
+  /const chip = target\.closest\("\.chip\.has-calendar-color\[data-entry-id\]"\)/,
+  "employee context menu should target coloured calendar chips with entry ids"
+);
+assert.match(
+  timesheetHtml,
+  /chip\.dataset\.entryId = entry\.id \|\| ""/,
+  "employee calendar chips should carry their entry id"
+);
+assert.match(
+  timesheetHtml,
+  /row\.dataset\.ledgerEntryId = entry\.id \|\| ""/,
+  "employee ledger rows should carry their entry id for chip navigation"
+);
+assert.match(
+  timesheetHtml,
+  /function triggerLedgerEntryAction\(action, entryId\)[\s\S]*button\.click\(\)/,
+  "employee chip edit/remove actions should route through existing ledger buttons"
+);
+assert.match(
+  timesheetHtml,
+  /function scrollToLedgerEntry\(entryId\)[\s\S]*scrollIntoView\(\{ behavior: "smooth", block: "center" \}\)[\s\S]*is-entry-target-highlight/,
+  "employee chip go-to action should scroll to and highlight the matching ledger row"
+);
+assert.match(
+  timesheetHtml,
+  /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-target-highlight/,
+  "employee ledger rows should animate when highlighted from a chip"
 );
 
 const payHtml = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"), "utf8");
@@ -163,6 +343,21 @@ assert.match(
   /saveEditedSubmittedEntry/,
   "manager entry modal should update submitted payroll rows"
 );
+assert.match(
+  managerHtml,
+  /\.update\(updates\)[\s\S]*\.eq\("id", editingEntryId\)[\s\S]*\.select\("id"\)[\s\S]*\.maybeSingle\(\)/,
+  "manager entry save should require Supabase to return the updated payroll entry"
+);
+assert.match(
+  managerHtml,
+  /Supabase did not update this row/,
+  "manager entry save should show a clear message when RLS filters out an update"
+);
+assert.match(
+  managerHtml,
+  /\.update\(\{ total_hours: totalHours, total_pay: totalPay \}\)[\s\S]*\.select\("id"\)[\s\S]*\.maybeSingle\(\)/,
+  "manager entry totals refresh should verify the payroll submission update"
+);
 assert.doesNotMatch(
   managerHtml,
   /prompt\(/,
@@ -189,6 +384,11 @@ assert.match(
   uiEffects,
   /SKIP_ICON_SELECTOR[\s\S]*\.entry-edit-close/,
   "entry edit modal close buttons should not receive automatic pencil icons"
+);
+assert.match(
+  uiEffects,
+  /SKIP_ICON_SELECTOR[\s\S]*\.chip-context-menu button/,
+  "chip context menu buttons should not receive automatic text-based icons"
 );
 assert.match(
   theme,

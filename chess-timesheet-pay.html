@@ -181,6 +181,21 @@
     .chip { font-size: .7rem; line-height: 1.2; background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); border: 1px solid color-mix(in srgb, var(--accent) 12%, white 88%); color: var(--accent); padding: 4px 5px; border-radius: 10px; overflow: hidden; }
     .chip strong { color: var(--ink); }
     .chip.submitted { opacity: .72; border-style: dashed; color: var(--muted); }
+    .chip.has-calendar-color { cursor: context-menu; }
+    .chip-context-menu { position: fixed; z-index: 1450; display: grid; gap: 4px; min-width: 164px; padding: 6px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); background: color-mix(in srgb, var(--surface-strong) 96%, white 4%); box-shadow: 0 18px 44px rgba(31,41,35,.18); }
+    .chip-context-menu[hidden] { display: none; }
+    .chip-context-menu button { width: 100%; min-height: 36px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); display: flex; align-items: center; justify-content: flex-start; text-align: left; font-size: .9rem; font-weight: 700; cursor: pointer; transition: background 140ms ease, color 140ms ease, transform 140ms ease; }
+    .chip-context-menu button[data-cg-iconified] { justify-content: flex-start; gap: 0; }
+    .chip-context-menu .cg-icon { display: none; }
+    .chip-context-menu button:hover, .chip-context-menu button:focus-visible { background: var(--accent-soft); transform: translateX(1px); }
+    .chip-context-menu button[data-chip-action="remove"] { color: #b42318; }
+    .chip-context-menu button:disabled { cursor: not-allowed; opacity: .45; transform: none; }
+    .chip-context-actions, .chip-context-confirm { display: grid; gap: 4px; text-align: left; }
+    .chip-context-confirm[hidden] { display: none; }
+    .chip-context-confirm p { margin: 0; padding: 8px 10px 4px; color: var(--ink); font-size: .88rem; font-weight: 800; line-height: 1.2; text-align: left; }
+    .chip-context-confirm-actions { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding-top: 2px; }
+    .chip-context-confirm-actions button { width: auto; min-width: 74px; }
+    .chip-context-confirm-actions button[data-chip-confirm="remove"] { background: #c73832; color: white; }
     .groups { display: grid; gap: var(--space-4); }
     .school-card { position: relative; overflow: hidden; transform: translateY(0); padding: 18px; transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; will-change: transform; }
     #schoolGroups .school-card:hover, #schoolGroups .school-card:focus-within { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 30%, var(--line) 70%); background: color-mix(in srgb, var(--surface-strong) 96%, white 4%); box-shadow: 0 18px 42px rgba(31,41,35,.12); }
@@ -212,6 +227,12 @@
     .entry-action-button[data-tooltip]::after { content: ""; bottom: calc(100% + 4px); transform: translate(-50%, 4px); border: 5px solid transparent; border-top-color: var(--ink); }
     .entry-action-button[data-tooltip]:hover::before, .entry-action-button[data-tooltip]:hover::after, .entry-action-button[data-tooltip]:focus-visible::before, .entry-action-button[data-tooltip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
     .entry-actions .locked { display: inline-flex; width: auto; min-height: 34px; align-items: center; justify-content: center; padding: 0 12px; border-radius: 999px; background: color-mix(in srgb, var(--surface-muted) 78%, white 22%); color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    tr.is-entry-target-highlight td { animation: entry-target-highlight 1050ms ease-out both; }
+    @keyframes entry-target-highlight {
+      0% { background: color-mix(in srgb, var(--accent-soft) 74%, white 26%); box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 12%, transparent); }
+      55% { background: color-mix(in srgb, var(--accent-soft) 44%, white 56%); box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 6%, transparent); }
+      100% { background: transparent; box-shadow: inset 0 0 0 999px transparent; }
+    }
     .entry-edit-modal { position: fixed; inset: 0; z-index: 1300; display: grid; place-items: center; padding: 24px; background: rgba(23,26,25,.54); backdrop-filter: blur(10px); }
     .entry-edit-modal[hidden] { display: none; }
     .entry-edit-card { width: min(760px, 100%); max-height: min(88vh, 860px); overflow: auto; padding: 22px; border-radius: 26px; background: color-mix(in srgb, var(--surface) 94%, white 6%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); box-shadow: 0 28px 80px rgba(23,26,25,.24); }
@@ -371,6 +392,21 @@
     </div>
   </main>
 
+  <div class="chip-context-menu" id="chipContextMenu" role="menu" hidden>
+    <div class="chip-context-actions" data-chip-menu-panel="actions">
+      <button type="button" role="menuitem" data-chip-action="go">Go To Entry</button>
+      <button type="button" role="menuitem" data-chip-action="edit">Edit Entry</button>
+      <button type="button" role="menuitem" data-chip-action="remove">Remove Entry</button>
+    </div>
+    <div class="chip-context-confirm" data-chip-menu-panel="confirm" hidden>
+      <p>Remove this entry?</p>
+      <div class="chip-context-confirm-actions">
+        <button type="button" data-chip-confirm="cancel">Cancel</button>
+        <button type="button" data-chip-confirm="remove">Remove</button>
+      </div>
+    </div>
+  </div>
+
 <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
     <div class="lightbox-content" id="imageLightboxContent" tabindex="-1">
       <button class="lightbox-close" id="imageLightboxClose" type="button" aria-label="Close image viewer">×</button>
@@ -501,6 +537,7 @@
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
     const schoolGroups = document.getElementById("schoolGroups");
+    const chipContextMenu = document.getElementById("chipContextMenu");
     const schoolTemplate = document.getElementById("schoolTemplate");
     const fullNameInput = document.getElementById("fullName");
     const bankAccountInput = document.getElementById("bankAccount");
@@ -571,6 +608,7 @@
     let lightboxPreviousOverflow = "";
     let editModalLastFocus = null;
     let editingEntryId = "";
+    let chipContextMenuTrigger = null;
     let isSubmitting = false;
     let isHydratingClaimProofUrls = false;
 
@@ -595,6 +633,7 @@
       initializeMonth();
       await loadProfileIntoForm();
       setupEntryEditModal();
+      setupChipContextMenu();
       initImageViewer();
       setupUserMenu();
       render();
@@ -842,6 +881,7 @@
     }
 
     function render() {
+      closeChipContextMenu();
       const profile = loadProfile();
       const monthEntries = getEntriesForMonth(monthPicker.value);
       const activeEntries = monthEntries.filter((entry) => window.draftTimesheetStore.isActive(entry));
@@ -914,10 +954,16 @@
         (groupedByDate[key] || []).forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "chip";
+          chip.dataset.entryId = entry.id || "";
           if (window.draftTimesheetStore.isSubmitted(entry)) {
             chip.classList.add("submitted");
           }
           applyCalendarColorToChip(chip, entry.calendarColor);
+          if (chip.classList.contains("has-calendar-color") && chip.dataset.entryId) {
+            chip.tabIndex = 0;
+            chip.setAttribute("aria-haspopup", "menu");
+            chip.setAttribute("aria-label", `${entry.schoolName || "Entry"} actions`);
+          }
           chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
@@ -954,6 +1000,195 @@
       if (window.calendarEntryColors && typeof window.calendarEntryColors.applyToChip === "function") {
         window.calendarEntryColors.applyToChip(chip, color);
       }
+    }
+
+    function setupChipContextMenu() {
+      calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
+      calendar.addEventListener("keydown", onCalendarChipKeydown);
+      chipContextMenu.addEventListener("click", onChipContextMenuClick);
+      document.addEventListener("click", (event) => {
+        if (chipContextMenu?.hidden === false && !isChipContextMenuInteraction(event)) {
+          closeChipContextMenu();
+        }
+      });
+      document.addEventListener("contextmenu", (event) => {
+        if (getCalendarContextChip(event.target) || isChipContextMenuInteraction(event)) return;
+        closeChipContextMenu();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || chipContextMenu?.hidden !== false) return;
+        event.preventDefault();
+        closeChipContextMenu({ restoreFocus: true });
+      });
+      window.addEventListener("resize", () => closeChipContextMenu());
+      window.addEventListener("scroll", () => closeChipContextMenu(), true);
+    }
+
+    function isChipContextMenuInteraction(event) {
+      if (event.target instanceof Element && event.target.closest("#chipContextMenu")) {
+        return true;
+      }
+      return event.composedPath().some((node) => node === chipContextMenu);
+    }
+
+    function getCalendarContextChip(target) {
+      if (!(target instanceof Element)) return null;
+      const chip = target.closest(".chip.has-calendar-color[data-entry-id]");
+      return chip && calendar.contains(chip) ? chip : null;
+    }
+
+    function onCalendarChipContextMenu(event) {
+      const chip = getCalendarContextChip(event.target);
+      if (!chip) return;
+      openChipContextMenu(event, chip);
+    }
+
+    function onCalendarChipKeydown(event) {
+      if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
+      const chip = getCalendarContextChip(event.target);
+      if (!chip) return;
+      const rect = chip.getBoundingClientRect();
+      openChipContextMenu(event, chip, {
+        x: rect.left + 12,
+        y: rect.bottom + 8,
+        focusMenu: true,
+      });
+    }
+
+    function openChipContextMenu(event, chip, options = {}) {
+      const entryId = chip.dataset.entryId || "";
+      if (!entryId) return;
+
+      event.preventDefault();
+      closeEntryEditColorMenu();
+      resetChipContextMenuConfirmation();
+
+      chipContextMenuTrigger = chip;
+      chipContextMenu.dataset.entryId = entryId;
+      syncChipContextMenuActions(entryId);
+      positionChipContextMenu(options.x ?? event.clientX, options.y ?? event.clientY);
+
+      if (options.focusMenu) {
+        chipContextMenu.querySelector("button:not(:disabled)")?.focus({ preventScroll: true });
+      }
+    }
+
+    function positionChipContextMenu(x, y) {
+      chipContextMenu.style.visibility = "hidden";
+      chipContextMenu.hidden = false;
+      const rect = chipContextMenu.getBoundingClientRect();
+      const margin = 8;
+      const left = Math.max(margin, Math.min(x, window.innerWidth - rect.width - margin));
+      const top = Math.max(margin, Math.min(y, window.innerHeight - rect.height - margin));
+      chipContextMenu.style.left = `${left}px`;
+      chipContextMenu.style.top = `${top}px`;
+      chipContextMenu.style.visibility = "";
+    }
+
+    function syncChipContextMenuActions(entryId) {
+      const canEdit = Boolean(getLedgerActionButton("edit", entryId));
+      const canRemove = Boolean(getLedgerActionButton("remove", entryId));
+      setChipContextActionState("edit", canEdit);
+      setChipContextActionState("remove", canRemove);
+    }
+
+    function setChipContextActionState(action, enabled) {
+      const button = chipContextMenu.querySelector(`[data-chip-action="${action}"]`);
+      if (!button) return;
+      button.disabled = !enabled;
+      button.setAttribute("aria-disabled", String(!enabled));
+    }
+
+    function onChipContextMenuClick(event) {
+      const confirmButton = event.target instanceof Element ? event.target.closest("[data-chip-confirm]") : null;
+      if (confirmButton) {
+        const entryId = chipContextMenu.dataset.entryId || "";
+        if (confirmButton.dataset.chipConfirm === "remove") {
+          closeChipContextMenu();
+          triggerLedgerEntryAction("remove", entryId);
+        } else {
+          resetChipContextMenuConfirmation();
+          chipContextMenu.querySelector('[data-chip-action="remove"]')?.focus({ preventScroll: true });
+        }
+        return;
+      }
+
+      const button = event.target instanceof Element ? event.target.closest("[data-chip-action]") : null;
+      if (!button || button.disabled) return;
+      const action = button.dataset.chipAction;
+      const entryId = chipContextMenu.dataset.entryId || "";
+
+      if (action === "remove") {
+        showChipRemoveConfirmation();
+        return;
+      }
+
+      closeChipContextMenu();
+
+      if (action === "go") {
+        scrollToLedgerEntry(entryId);
+      } else if (action === "edit") {
+        triggerLedgerEntryAction(action, entryId);
+      }
+    }
+
+    function showChipRemoveConfirmation() {
+      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
+      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
+      if (!actionsPanel || !confirmPanel) return;
+      actionsPanel.hidden = true;
+      confirmPanel.hidden = false;
+      chipContextMenu.querySelector('[data-chip-confirm="cancel"]')?.focus({ preventScroll: true });
+      const rect = chipContextMenu.getBoundingClientRect();
+      positionChipContextMenu(rect.left, rect.top);
+    }
+
+    function resetChipContextMenuConfirmation() {
+      if (!chipContextMenu) return;
+      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
+      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
+      if (actionsPanel) actionsPanel.hidden = false;
+      if (confirmPanel) confirmPanel.hidden = true;
+    }
+
+    function closeChipContextMenu(options = {}) {
+      if (!chipContextMenu || chipContextMenu.hidden) return;
+      resetChipContextMenuConfirmation();
+      chipContextMenu.hidden = true;
+      chipContextMenu.removeAttribute("data-entry-id");
+      if (options.restoreFocus) {
+        chipContextMenuTrigger?.focus?.({ preventScroll: true });
+      }
+      chipContextMenuTrigger = null;
+    }
+
+    function getLedgerActionButton(action, entryId) {
+      const selector = action === "edit" ? "[data-edit-id]" : "[data-remove-id]";
+      const key = action === "edit" ? "editId" : "removeId";
+      return Array.from(schoolGroups.querySelectorAll(selector))
+        .find((button) => button.dataset[key] === entryId) || null;
+    }
+
+    function triggerLedgerEntryAction(action, entryId) {
+      const button = getLedgerActionButton(action, entryId);
+      if (button) {
+        button.click();
+      }
+    }
+
+    function scrollToLedgerEntry(entryId) {
+      const row = Array.from(schoolGroups.querySelectorAll("[data-ledger-entry-id]"))
+        .find((item) => item.dataset.ledgerEntryId === entryId);
+      if (!row) return;
+
+      row.classList.remove("is-entry-target-highlight");
+      void row.offsetWidth;
+      row.classList.add("is-entry-target-highlight");
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      row.focus({ preventScroll: true });
+      row.addEventListener("animationend", () => {
+        row.classList.remove("is-entry-target-highlight");
+      }, { once: true });
     }
 
     function setupEntryEditModal() {
@@ -1191,6 +1426,8 @@
         const body = fragment.querySelector("tbody");
         schoolEntries.forEach((entry) => {
           const row = document.createElement("tr");
+          row.dataset.ledgerEntryId = entry.id || "";
+          row.tabIndex = -1;
           const actionCell = renderEntryActions(entry);
           if (isCostEntry(entry) && isCostOnlyGroup && hasClaimRows) {
             row.innerHTML = `
