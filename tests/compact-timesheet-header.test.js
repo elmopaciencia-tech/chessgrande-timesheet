@@ -161,6 +161,26 @@ compactPageExpectations.forEach(({ fileName, required, removed }) => {
 const payPage = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"), "utf8");
 assert.match(
   payPage,
+  /class="hero-stat hero-stat-wide"><span class="stat-label">Calculated Pay<\/span><span class="stat-value" id="summaryPay"/,
+  "pay page calculated pay should use the wide hero stat card"
+);
+assert.match(
+  payPage,
+  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/is,
+  "pay page hero stats should place calculated pay below rate and hours"
+);
+assert.match(
+  payPage,
+  /\.hero-stat-wide\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/is,
+  "pay page calculated pay card should span the stats grid as a rectangle"
+);
+assert.match(
+  payPage,
+  /#summaryPay\s*\{[^}]*white-space:\s*nowrap;[^}]*word-break:\s*normal;/is,
+  "pay page summaryPay should stay on one line"
+);
+assert.match(
+  payPage,
   /\.pay-card\s*\{\s*padding:\s*10px 12px;[^}]*gap:\s*7px;[^}]*border-radius:\s*18px;/is,
   "pay card should use tighter outer spacing"
 );

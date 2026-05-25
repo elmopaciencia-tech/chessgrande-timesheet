@@ -137,12 +137,14 @@
     html[data-browser-engine="webkit"] #monthPicker { display: none !important; }
     #monthPickerFallback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 160px); gap: 10px; }
     #monthPickerFallback[hidden] { display: none; }
-    .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .hero-stat {
       min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px;
       border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
       background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%);
     }
+    .hero-stat-wide { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 14px; }
+    #summaryPay { white-space: nowrap; word-break: normal; }
     .workspace { display: grid; gap: var(--space-7); }
     .layout { display: grid; grid-template-columns: minmax(0, 1.24fr) minmax(320px, .92fr); gap: var(--space-7); align-items: start; }
     .review-column, .action-column { display: grid; gap: var(--space-5); align-content: start; }
@@ -375,7 +377,7 @@
       <aside class="hero-month">
         <div class="month-box"><div class="month-box-header"><strong>Working month</strong><label for="monthPicker">Select month</label></div><input id="monthPicker" type="month"><div id="monthPickerFallback" hidden><select id="monthNameSelect" aria-label="Viewing month name"><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><select id="monthYearSelect" aria-label="Viewing month year"></select></div></div>
         <div class="hero-stats" aria-label="Month summary">
-          <div class="hero-stat"><span class="stat-label">Hourly Rate</span><span class="stat-value" id="rateCount">S$0.00</span></div><div class="hero-stat"><span class="stat-label">Total Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="summaryPay">S$0.00</span></div>
+          <div class="hero-stat"><span class="stat-label">Hourly Rate</span><span class="stat-value" id="rateCount">S$0.00</span></div><div class="hero-stat"><span class="stat-label">Total Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="summaryPay">S$0.00</span></div>
         </div>
       </aside>
     </section>
