@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/draft-timesheet-store.test.js && node tests/quick-add-store.test.js && node tests/schema-calendar-colors.test.js && node tests/manager-drafts-composer.test.js && node tests/profile-ui-modal.test.js && node tests/quick-add-menu-ui.test.js && node tests/manager-drafts-calendar-sort.test.js && node tests/compact-timesheet-header.test.js && node tests/ledger-entry-actions.test.js",
+    "test": "node tests/draft-timesheet-store.test.js && node tests/quick-add-store.test.js && node tests/employee-notice-store.test.js && node tests/schema-calendar-colors.test.js && node tests/schema-notices.test.js && node tests/employee-dashboard.test.js && node tests/manager-dashboard-notices.test.js && node tests/manager-drafts-composer.test.js && node tests/profile-ui-modal.test.js && node tests/quick-add-menu-ui.test.js && node tests/manager-drafts-calendar-sort.test.js && node tests/compact-timesheet-header.test.js && node tests/ledger-entry-actions.test.js",
     "worker:dev": "wrangler dev --config cloudflare-worker/wrangler.toml",
     "worker:dry-run": "wrangler deploy --dry-run --config cloudflare-worker/wrangler.toml",
     "worker:deploy": "wrangler deploy --config cloudflare-worker/wrangler.toml"

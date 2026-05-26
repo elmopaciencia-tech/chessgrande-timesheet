@@ -152,14 +152,14 @@
     const passwordInput = document.getElementById("password");
     const statusMessage = document.getElementById("statusMessage");
     const nextParam = new URLSearchParams(window.location.search).get("next");
-    const nextUrl = getSafeNextUrl(nextParam);
+    const requestedNextUrl = getSafeNextUrl(nextParam);
 
     init();
 
     async function init() {
       const { data } = await window.supabaseClient.auth.getUser();
       if (data.user) {
-        window.location.href = nextUrl;
+        window.location.href = await resolvePostLoginUrl();
       }
     }
 
@@ -174,18 +174,41 @@
         return;
       }
       statusMessage.textContent = "Logged in. Redirecting...";
-      window.location.href = nextUrl;
+      window.location.href = await resolvePostLoginUrl();
     });
 
     function getSafeNextUrl(value) {
       const raw = String(value || "").trim();
       if (!raw || /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(raw)) {
-        return "./chess-timesheet.html";
+        return "";
       }
       if (raw.includes("login.html") || raw.includes("signup.html")) {
-        return "./chess-timesheet.html";
+        return "";
       }
       return raw.startsWith("./") ? raw : `./${raw.replace(/^\/+/, "")}`;
+    }
+
+    async function resolvePostLoginUrl() {
+      if (requestedNextUrl) return requestedNextUrl;
+      const profile = await loadCurrentProfile();
+      if (profile && profile.role === "webadmin") return "./webadmin-dashboard.html";
+      if (profile && profile.role === "manager") return "./manager-dashboard.html";
+      return "./employee-dashboard.html";
+    }
+
+    async function loadCurrentProfile() {
+      const { data: userData, error: userError } = await window.supabaseClient.auth.getUser();
+      if (userError || !userData.user) return null;
+      const { data, error } = await window.supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+      if (error) {
+        console.warn("Could not load role for login redirect:", error.message);
+        return null;
+      }
+      return data || null;
     }
 
   </script>

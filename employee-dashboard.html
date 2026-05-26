@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Employee Dashboard | Chess Grande Payroll</title>
+  <style>
+    :root {
+      --bg: oklch(95.6% 0.015 96);
+      --bg-soft: oklch(97.3% 0.01 96);
+      --surface: oklch(98.5% 0.008 96);
+      --surface-strong: oklch(99.1% 0.006 96);
+      --surface-muted: oklch(96.8% 0.012 96);
+      --surface-accent: oklch(94.6% 0.022 174);
+      --ink: oklch(25.6% 0.028 178);
+      --ink-soft: oklch(39.8% 0.02 178);
+      --muted: oklch(52.4% 0.018 178);
+      --line: oklch(84.8% 0.012 178);
+      --line-strong: oklch(76.8% 0.018 178);
+      --accent: oklch(43.5% 0.076 177);
+      --accent-soft: oklch(91.4% 0.028 175);
+      --clay: oklch(57.5% 0.108 44);
+      --clay-soft: oklch(92.6% 0.03 44);
+      --gold: oklch(92.6% 0.049 88);
+      --gold-deep: oklch(77.1% 0.09 83);
+      --purple: oklch(49.2% 0.096 304);
+      --purple-soft: oklch(92.4% 0.028 304);
+      --focus: oklch(66% 0.104 44);
+      --shadow-lg: 0 24px 56px rgba(61, 52, 36, 0.10);
+      --shadow-md: 0 14px 32px rgba(61, 52, 36, 0.08);
+      --shadow-sm: 0 8px 18px rgba(61, 52, 36, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: env(safe-area-inset-top) max(18px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(191, 114, 71, 0.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(49, 99, 92, 0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 58%, oklch(94.8% 0.014 96) 100%);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    button, a { touch-action: manipulation; }
+    :focus { outline: none; }
+    :focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 72%, white 28%); outline-offset: 3px; }
+
+    .skip-link {
+      position: absolute;
+      left: 20px;
+      top: 16px;
+      transform: translateY(-180%);
+      background: var(--accent);
+      color: var(--surface-strong);
+      padding: 10px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      z-index: 1000;
+    }
+    .skip-link:focus-visible { transform: translateY(0); }
+
+    .app-header {
+      position: sticky;
+      top: env(safe-area-inset-top);
+      z-index: 40;
+      background: color-mix(in srgb, var(--surface) 90%, white 10%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      border-radius: 24px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+    }
+    .app-header-inner {
+      width: min(1180px, 100%);
+      min-height: 72px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 24px;
+    }
+    .app-header-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: var(--ink-soft);
+    }
+    .menu-wrap { position: relative; }
+    .menu-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--surface-strong);
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+    }
+    .menu-button:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+    .menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 10px);
+      min-width: 230px;
+      padding: 8px;
+      background: var(--surface-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow-md);
+      z-index: 80;
+    }
+    .menu-panel[hidden] { display: none; }
+    .menu-item {
+      width: 100%;
+      min-height: 44px;
+      display: block;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 12px;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .menu-item:hover { background: var(--accent-soft); }
+    .menu-profile-name {
+      font-weight: 700;
+      color: var(--ink);
+      cursor: default;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      margin-bottom: 4px;
+    }
+
+    .page {
+      width: min(1180px, 100%);
+      margin: 28px auto 0;
+      display: grid;
+      gap: 20px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+      gap: 18px;
+      align-items: stretch;
+      padding: 24px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
+      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
+      border-radius: 28px;
+      box-shadow: var(--shadow-md);
+    }
+    .hero-copy { display: grid; align-content: center; gap: 10px; }
+    .eyebrow {
+      margin: 0;
+      color: var(--clay);
+      font-size: 0.74rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.15rem, 4vw, 3.65rem);
+      line-height: 0.96;
+      font-weight: 400;
+      text-wrap: balance;
+    }
+    .hero-copy p:last-child {
+      max-width: 58ch;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .snapshot-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
+      border-radius: 20px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      box-shadow: var(--shadow-sm);
+    }
+    .snapshot-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .snapshot-icon svg { width: 24px; height: 24px; }
+    .snapshot-label {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .snapshot-title { margin: 0; font-weight: 800; color: var(--ink); }
+    .snapshot-meta { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; line-height: 1.35; }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.85fr);
+      gap: 20px;
+      align-items: start;
+    }
+    .column { display: grid; gap: 20px; }
+    .panel {
+      padding: 22px;
+      background: color-mix(in srgb, var(--surface) 90%, white 10%);
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
+      border-radius: 24px;
+      box-shadow: var(--shadow-md);
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .panel-copy, .status {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .status { min-height: 22px; font-weight: 700; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .badge.is-muted { background: var(--surface-muted); color: var(--muted); }
+    .badge.is-paid { background: var(--accent-soft); color: var(--accent); }
+    .badge.is-due { background: var(--clay-soft); color: var(--clay); }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .stat-chip {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+      padding: 13px 14px;
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .schedule-list, .notice-list, .history-list, .quick-links {
+      display: grid;
+      gap: 10px;
+    }
+    .schedule-item, .notice-item, .history-item, .quick-link {
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+    }
+    .schedule-item, .history-item {
+      display: grid;
+      grid-template-columns: minmax(90px, 0.35fr) minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 14px;
+    }
+    .item-kicker {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+    .item-title { margin: 0; font-weight: 800; }
+    .item-meta { margin: 3px 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.35; }
+    .notice-item {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-color: color-mix(in srgb, var(--accent) 18%, var(--line) 82%);
+    }
+    .notice-item.is-read {
+      border-color: color-mix(in srgb, var(--line) 82%, white 18%);
+      background: color-mix(in srgb, var(--surface-muted) 58%, white 42%);
+    }
+    .notice-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .notice-title { margin: 0; font-weight: 800; }
+    .notice-body { margin: 4px 0 0; color: var(--ink-soft); line-height: 1.45; }
+    .notice-meta { color: var(--muted); font-size: 0.82rem; font-weight: 700; }
+    .notice-actions { display: flex; justify-content: flex-end; }
+    .notice-read-button, .primary-link, .secondary-button {
+      min-height: 40px;
+      border-radius: 999px;
+      padding: 9px 13px;
+      border: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .notice-read-button, .primary-link { background: var(--accent); color: var(--surface-strong); }
+    .secondary-button { background: var(--clay-soft); color: var(--clay); }
+    .quick-link {
+      width: 100%;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      color: inherit;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+      appearance: none;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+    .quick-link:hover {
+      transform: translateY(-2px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-sm);
+    }
+    .quick-link-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--purple-soft);
+      color: var(--purple);
+    }
+    .quick-link-icon svg { width: 20px; height: 20px; }
+    .quick-link-text,
+    .quick-link-text strong,
+    .quick-link-text .item-meta {
+      display: block;
+      min-width: 0;
+    }
+    .quick-link-arrow {
+      color: var(--muted);
+      font-weight: 900;
+      align-self: center;
+    }
+    .submission-panel .panel-header {
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .submission-panel .quick-link {
+      border-color: color-mix(in srgb, var(--accent) 18%, var(--line) 82%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 96%, var(--accent-soft) 4%) 0%, color-mix(in srgb, var(--surface-muted) 82%, var(--accent-soft) 18%) 100%);
+    }
+    .empty {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px dashed color-mix(in srgb, var(--line) 82%, white 18%);
+      background: color-mix(in srgb, var(--surface-muted) 74%, white 26%);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 960px) {
+      .hero, .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      body { padding-left: 12px; padding-right: 12px; }
+      .app-header-inner { min-height: 66px; padding: 0 16px; }
+      .hero, .panel { padding: 18px; border-radius: 22px; }
+      .stat-grid { grid-template-columns: 1fr; }
+      .schedule-item, .history-item { grid-template-columns: 1fr; align-items: start; }
+      .notice-top { display: grid; }
+      .notice-actions { justify-content: flex-start; }
+    }
+    @media (max-width: 460px) {
+      .menu-button[data-has-profile-avatar="true"] #userMenuButtonLabel { display: none; }
+      .menu-button[data-has-profile-avatar="true"] { padding: 6px; width: 46px; height: 46px; justify-content: center; }
+    }
+    @media (max-width: 400px) {
+      .app-header-title { white-space: normal; max-width: 150px; line-height: 1.25; }
+    }
+  </style>
+  <link rel="stylesheet" href="./theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
+  <script src="./ui-effects.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-header-title">Chess Grande Employee Desk</div>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
+          <a class="menu-item" href="./chess-timesheet.html">Timesheet</a>
+          <a class="menu-item" href="./chess-timesheet-pay.html">Submission View</a>
+          <a class="menu-item" id="managerDashboardLink" href="./manager-dashboard.html" hidden>Manager Dashboard</a>
+          <a class="menu-item" id="webAdminDashboardLink" href="./webadmin-dashboard.html" hidden>Webadmin Dashboard</a>
+          <button class="menu-item" id="profileButton" type="button">Profile</button>
+          <button class="menu-item" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page" id="main-content">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Workday Snapshot</p>
+        <h1 id="dashboardGreeting">Employee Dashboard</h1>
+        <p>Check what is coming up, keep this month tidy, and catch payroll updates from one place.</p>
+      </div>
+      <aside class="snapshot-card" aria-label="Next class">
+        <span class="snapshot-icon" data-lucide="calendar-clock" aria-hidden="true"></span>
+        <div>
+          <p class="snapshot-label">Next Class</p>
+          <p class="snapshot-title" id="nextClassTitle">Loading...</p>
+          <p class="snapshot-meta" id="nextClassMeta"></p>
+        </div>
+      </aside>
+    </section>
+
+    <div class="dashboard-grid">
+      <div class="column">
+        <section class="panel" aria-labelledby="weekTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="weekTitle">This Week</h2>
+              <p class="panel-copy">Upcoming active sessions from your timesheet drafts.</p>
+            </div>
+            <span class="badge" id="weekCount">0 classes</span>
+          </div>
+          <div class="schedule-list" id="weeklySchedule"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="progressTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="progressTitle">Month Progress</h2>
+              <p class="panel-copy" id="monthProgressLabel">Current month</p>
+            </div>
+            <a class="primary-link" href="./chess-timesheet.html">Open Timesheet</a>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-chip"><span class="stat-label">Schools</span><span class="stat-value" id="schoolCount">0</span></div>
+            <div class="stat-chip"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div>
+            <div class="stat-chip"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div>
+          </div>
+        </section>
+
+        <section class="panel submission-panel" aria-labelledby="submissionTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="submissionTitle">Submission Status</h2>
+              <p class="panel-copy" id="submissionStatusCopy">Checking payroll handoff...</p>
+            </div>
+            <span class="badge is-muted" id="submissionStatusBadge">Loading</span>
+          </div>
+          <div class="quick-links">
+            <a class="quick-link" href="./chess-timesheet-pay.html">
+              <span class="quick-link-icon" data-lucide="receipt-text" aria-hidden="true"></span>
+              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Review monthly pay and submit payroll.</span></span>
+              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="column">
+        <section class="panel" aria-labelledby="noticeTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="noticeTitle">Notices</h2>
+              <p class="panel-copy">Manager updates and paid confirmations.</p>
+            </div>
+            <span class="badge is-due" id="unreadNoticeCount">0 unread</span>
+          </div>
+          <div class="notice-list" id="noticeList"></div>
+          <div class="status" id="noticeStatus"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="historyTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="historyTitle">Payment History</h2>
+              <p class="panel-copy">Recent submitted payroll months.</p>
+            </div>
+          </div>
+          <div class="history-list" id="paymentHistory"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="linksTitle">
+          <div class="panel-header">
+            <div>
+              <h2 id="linksTitle">Quick Links</h2>
+            </div>
+          </div>
+          <div class="quick-links">
+            <a class="quick-link" href="./chess-timesheet.html">
+              <span class="quick-link-icon" data-lucide="calendar-plus" aria-hidden="true"></span>
+              <span class="quick-link-text"><strong>Timesheet</strong><span class="item-meta">Add sessions, claims, and event costs.</span></span>
+              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+            </a>
+            <a class="quick-link" href="./chess-timesheet-pay.html">
+              <span class="quick-link-icon" data-lucide="wallet-cards" aria-hidden="true"></span>
+              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Submit the month when the ledger is ready.</span></span>
+              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+            </a>
+            <button class="quick-link" id="profileQuickLink" type="button">
+              <span class="quick-link-icon" data-lucide="user-round-cog" aria-hidden="true"></span>
+              <span class="quick-link-text"><strong>Profile</strong><span class="item-meta">Update your photo and payroll details.</span></span>
+              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+            </button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <script src="./claim-proof-storage.js"></script>
+  <script src="./profile-avatar.js"></script>
+  <script src="./auth.js"></script>
+  <script src="./profile-ui.js"></script>
+  <script src="./draft-timesheet-store.js"></script>
+  <script src="./employee-notice-store.js"></script>
+  <script>
+    const dashboardGreeting = document.getElementById("dashboardGreeting");
+    const nextClassTitle = document.getElementById("nextClassTitle");
+    const nextClassMeta = document.getElementById("nextClassMeta");
+    const weekCount = document.getElementById("weekCount");
+    const weeklySchedule = document.getElementById("weeklySchedule");
+    const monthProgressLabel = document.getElementById("monthProgressLabel");
+    const schoolCount = document.getElementById("schoolCount");
+    const entryCount = document.getElementById("entryCount");
+    const hoursCount = document.getElementById("hoursCount");
+    const submissionStatusCopy = document.getElementById("submissionStatusCopy");
+    const submissionStatusBadge = document.getElementById("submissionStatusBadge");
+    const unreadNoticeCount = document.getElementById("unreadNoticeCount");
+    const noticeList = document.getElementById("noticeList");
+    const noticeStatus = document.getElementById("noticeStatus");
+    const paymentHistory = document.getElementById("paymentHistory");
+    const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
+    const profileQuickLink = document.getElementById("profileQuickLink");
+    const menuProfileName = document.getElementById("menuProfileName");
+    const managerDashboardLink = document.getElementById("managerDashboardLink");
+    const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
+    const userMenuButton = document.getElementById("userMenuButton");
+    const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
+    const userMenuPanel = document.getElementById("userMenuPanel");
+    const classEntryTypes = new Set(["School Coaching", "Replacement", "Camp", "Private"]);
+
+    let currentUserId = "";
+    let cachedNotices = [];
+
+    initApp();
+
+    async function initApp() {
+      const user = await requireLogin();
+      if (!user) return;
+      currentUserId = user.id;
+
+      const profileReady = await requireProfileSetup();
+      if (!profileReady) return;
+
+      const profile = await getCurrentProfile();
+      setupUserMenu();
+      updateRoleLinks(profile);
+      updateGreeting(profile);
+      hydrateHeaderAvatar();
+      renderIcons();
+
+      await loadDashboardData(user.id);
+    }
+
+    function setupUserMenu() {
+      logoutButton.addEventListener("click", logout);
+      profileQuickLink.addEventListener("click", () => profileButton.click());
+
+      if (typeof window.attachProfileMenu === "function") {
+        window.attachProfileMenu({
+          profileButton,
+          menuPanel: userMenuPanel,
+          menuButton: userMenuButton,
+          displayNameEl: menuProfileName,
+        });
+      } else {
+        profileButton.disabled = true;
+      }
+
+      const syncMenuButtonLabel = () => {
+        const name = (menuProfileName.textContent || "").trim();
+        userMenuButtonLabel.textContent = name || "Profile";
+      };
+      syncMenuButtonLabel();
+      new MutationObserver(syncMenuButtonLabel).observe(menuProfileName, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+      });
+
+      userMenuButton.addEventListener("click", () => {
+        const nextState = !userMenuPanel.hidden;
+        userMenuPanel.hidden = nextState;
+        userMenuButton.setAttribute("aria-expanded", String(!nextState));
+      });
+      document.addEventListener("click", (event) => {
+        if (!userMenuPanel.hidden && !event.target.closest(".menu-wrap")) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !userMenuPanel.hidden) {
+          userMenuPanel.hidden = true;
+          userMenuButton.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+
+    function updateRoleLinks(profile) {
+      const role = profile && profile.role;
+      managerDashboardLink.hidden = !(role === "manager" || role === "webadmin");
+      webAdminDashboardLink.hidden = role !== "webadmin";
+    }
+
+    function updateGreeting(profile) {
+      const name = String(profile?.full_name || "").trim();
+      dashboardGreeting.textContent = name ? `Hello, ${name}` : "Employee Dashboard";
+    }
+
+    async function loadDashboardData(employeeId) {
+      setLoadingState();
+      const [draftResult, submissionResult, noticeResult] = await Promise.all([
+        loadDraftEntries(employeeId),
+        loadSubmissions(employeeId),
+        loadNotices(employeeId),
+      ]);
+
+      const entries = draftResult.data;
+      const submissions = submissionResult.data;
+      cachedNotices = noticeResult.data;
+
+      if (draftResult.error) {
+        renderScheduleError(draftResult.error);
+      } else {
+        renderNextClass(entries);
+        renderWeeklySchedule(entries);
+        renderMonthProgress(entries);
+      }
+
+      if (submissionResult.error) {
+        renderSubmissionError(submissionResult.error);
+      } else {
+        renderSubmissionStatus(submissions);
+        renderPaymentHistory(submissions);
+      }
+
+      renderNotices(cachedNotices, noticeResult.error);
+      renderIcons();
+    }
+
+    function setLoadingState() {
+      nextClassTitle.textContent = "Loading...";
+      weeklySchedule.innerHTML = '<div class="empty">Loading this week...</div>';
+      noticeList.innerHTML = '<div class="empty">Loading notices...</div>';
+      paymentHistory.innerHTML = '<div class="empty">Loading payments...</div>';
+    }
+
+    async function loadDraftEntries(employeeId) {
+      try {
+        const data = await window.draftTimesheetStore.loadEntriesForEmployee(employeeId);
+        return { data: data || [], error: null };
+      } catch (error) {
+        return { data: [], error };
+      }
+    }
+
+    async function loadSubmissions(employeeId) {
+      const { data, error } = await window.supabaseClient
+        .from("payroll_submissions")
+        .select("id,employee_id,employee_name,month,month_label,hourly_rate,total_hours,total_pay,submitted_at,paid_at,paid_by")
+        .eq("employee_id", employeeId)
+        .order("submitted_at", { ascending: false });
+      return { data: data || [], error };
+    }
+
+    async function loadNotices(employeeId) {
+      try {
+        const data = await window.employeeNoticeStore.loadNoticesForEmployee(employeeId, { limit: 8 });
+        return { data, error: null };
+      } catch (error) {
+        return { data: [], error };
+      }
+    }
+
+    function renderNextClass(entries) {
+      const nextClass = getUpcomingClassEntries(entries, new Date(), 60)[0];
+      if (!nextClass) {
+        nextClassTitle.textContent = "No upcoming class";
+        nextClassMeta.textContent = "Add confirmed sessions to your timesheet when they are ready.";
+        return;
+      }
+      nextClassTitle.textContent = nextClass.schoolName || nextClass.type || "Class";
+      nextClassMeta.textContent = `${formatDateLong(nextClass.date)} · ${formatTimeRange(nextClass)} · ${nextClass.type}`;
+    }
+
+    function renderWeeklySchedule(entries) {
+      const upcoming = getUpcomingClassEntries(entries, new Date(), 7);
+      weekCount.textContent = `${upcoming.length} ${upcoming.length === 1 ? "class" : "classes"}`;
+      weeklySchedule.innerHTML = "";
+      if (!upcoming.length) {
+        weeklySchedule.innerHTML = '<div class="empty">No upcoming classes in the next 7 days.</div>';
+        return;
+      }
+      upcoming.slice(0, 8).forEach((entry) => {
+        const item = document.createElement("article");
+        item.className = "schedule-item";
+        item.innerHTML = `
+          <div class="item-kicker">${escapeHtml(formatDateShort(entry.date))}</div>
+          <div>
+            <p class="item-title">${escapeHtml(entry.schoolName || entry.type || "Class")}</p>
+            <p class="item-meta">${escapeHtml(formatTimeRange(entry))} · ${escapeHtml(entry.type || "")}</p>
+          </div>
+          <span class="badge is-muted">${escapeHtml(formatHours(entry.hours))}</span>
+        `;
+        weeklySchedule.appendChild(item);
+      });
+    }
+
+    function renderMonthProgress(entries) {
+      const today = new Date();
+      const monthKey = formatMonthKey(today);
+      const stats = getCurrentMonthStats(entries, monthKey);
+      monthProgressLabel.textContent = new Intl.DateTimeFormat(undefined, {
+        month: "long",
+        year: "numeric",
+      }).format(today);
+      schoolCount.textContent = stats.schoolCount;
+      entryCount.textContent = stats.entryCount;
+      hoursCount.textContent = trimHours(stats.hours);
+    }
+
+    function renderSubmissionStatus(submissions) {
+      const currentMonth = formatMonthKey(new Date());
+      const submission = getLatestSubmissionForMonth(submissions, currentMonth);
+      if (!submission) {
+        submissionStatusBadge.textContent = "Not Submitted";
+        submissionStatusBadge.className = "badge is-due";
+        submissionStatusCopy.textContent = "This month has not been submitted yet. Open the submission view when your timesheet is ready.";
+        return;
+      }
+
+      if (submission.paid_at) {
+        submissionStatusBadge.textContent = "Paid";
+        submissionStatusBadge.className = "badge is-paid";
+        submissionStatusCopy.textContent = `${submission.month_label || submission.month} was paid ${formatDateLong(submission.paid_at)} for ${formatCurrency(submission.total_pay)}.`;
+        return;
+      }
+
+      submissionStatusBadge.textContent = "Submitted";
+      submissionStatusBadge.className = "badge";
+      submissionStatusCopy.textContent = `${submission.month_label || submission.month} was submitted ${formatDateLong(submission.submitted_at)} and is waiting for manager review.`;
+    }
+
+    function renderPaymentHistory(submissions) {
+      paymentHistory.innerHTML = "";
+      if (!submissions.length) {
+        paymentHistory.innerHTML = '<div class="empty">No submitted payroll months yet.</div>';
+        return;
+      }
+      submissions.slice(0, 4).forEach((submission) => {
+        const item = document.createElement("article");
+        item.className = "history-item";
+        const status = submission.paid_at ? "Paid" : "Submitted";
+        item.innerHTML = `
+          <div class="item-kicker">${escapeHtml(submission.month_label || submission.month || "Month")}</div>
+          <div>
+            <p class="item-title">${escapeHtml(formatCurrency(submission.total_pay))}</p>
+            <p class="item-meta">${escapeHtml(trimHours(submission.total_hours))} hours · ${escapeHtml(formatDateLong(submission.submitted_at))}</p>
+          </div>
+          <span class="badge ${submission.paid_at ? "is-paid" : ""}">${status}</span>
+        `;
+        paymentHistory.appendChild(item);
+      });
+    }
+
+    function renderNotices(notices, error = null) {
+      const unreadCount = notices.filter((notice) => !notice.isRead).length;
+      unreadNoticeCount.textContent = `${unreadCount} unread`;
+      unreadNoticeCount.className = unreadCount ? "badge is-due" : "badge is-muted";
+      noticeList.innerHTML = "";
+      noticeStatus.textContent = error ? `Could not load notices: ${error.message || "unknown error"}` : "";
+
+      if (!notices.length) {
+        noticeList.innerHTML = '<div class="empty">No notices yet.</div>';
+        return;
+      }
+
+      notices.forEach((notice) => {
+        const item = document.createElement("article");
+        item.className = `notice-item${notice.isRead ? " is-read" : ""}`;
+        item.innerHTML = `
+          <div class="notice-top">
+            <div>
+              <p class="notice-title">${escapeHtml(notice.title)}</p>
+              <p class="notice-body">${escapeHtml(notice.body)}</p>
+            </div>
+            <span class="badge ${notice.noticeType === "payment" ? "is-paid" : notice.isRead ? "is-muted" : ""}">${escapeHtml(formatNoticeType(notice.noticeType))}</span>
+          </div>
+          <div class="notice-meta">${escapeHtml(formatDateLong(notice.createdAt))}${notice.isRead ? " · Read" : ""}</div>
+          ${notice.isRead ? "" : '<div class="notice-actions"><button class="notice-read-button" type="button" data-notice-id="' + escapeHtml(notice.noticeId || notice.id) + '">Mark Read</button></div>'}
+        `;
+        noticeList.appendChild(item);
+      });
+
+      noticeList.querySelectorAll("[data-notice-id]").forEach((button) => {
+        button.addEventListener("click", async () => markNoticeRead(button.dataset.noticeId));
+      });
+    }
+
+    async function markNoticeRead(noticeId) {
+      noticeStatus.textContent = "Marking notice read...";
+      try {
+        const readAt = await window.employeeNoticeStore.markNoticeRead(noticeId, { employeeId: currentUserId });
+        cachedNotices = cachedNotices.map((notice) => (
+          (notice.noticeId || notice.id) === noticeId
+            ? { ...notice, readAt, isRead: true }
+            : notice
+        ));
+        renderNotices(cachedNotices);
+        noticeStatus.textContent = "";
+      } catch (error) {
+        noticeStatus.textContent = error.message || "Could not mark notice as read.";
+      }
+    }
+
+    function renderScheduleError(error) {
+      nextClassTitle.textContent = "Could not load schedule";
+      nextClassMeta.textContent = error.message || "unknown error";
+      weeklySchedule.innerHTML = `<div class="empty">Could not load this week: ${escapeHtml(error.message || "unknown error")}</div>`;
+    }
+
+    function renderSubmissionError(error) {
+      submissionStatusBadge.textContent = "Unavailable";
+      submissionStatusBadge.className = "badge is-due";
+      submissionStatusCopy.textContent = `Could not load submissions: ${error.message || "unknown error"}`;
+      paymentHistory.innerHTML = '<div class="empty">Payment history is unavailable.</div>';
+    }
+
+    function getUpcomingClassEntries(entries, fromDate = new Date(), daysAhead = 7) {
+      const start = startOfDay(fromDate);
+      const end = addDays(start, daysAhead);
+      return (entries || [])
+        .filter((entry) => {
+          if (String(entry.status || "active").toLowerCase() === "submitted") return false;
+          if (!classEntryTypes.has(entry.type)) return false;
+          const date = parseDateInput(entry.date);
+          return date && date >= start && date < end;
+        })
+        .sort((a, b) => {
+          const dateCompare = String(a.date || "").localeCompare(String(b.date || ""));
+          if (dateCompare !== 0) return dateCompare;
+          const timeCompare = String(a.startTime || "").localeCompare(String(b.startTime || ""));
+          if (timeCompare !== 0) return timeCompare;
+          return String(a.schoolName || "").localeCompare(String(b.schoolName || ""));
+        });
+    }
+
+    function getCurrentMonthStats(entries, monthKey) {
+      const activeEntries = (entries || []).filter((entry) => {
+        if (String(entry.status || "active").toLowerCase() === "submitted") return false;
+        return String(entry.date || "").startsWith(monthKey);
+      });
+      const schools = new Set(
+        activeEntries
+          .map((entry) => String(entry.schoolName || "").trim())
+          .filter((school) => school && school !== "Claims")
+      );
+      return {
+        schoolCount: schools.size,
+        entryCount: activeEntries.length,
+        hours: activeEntries.reduce((sum, entry) => sum + Number(entry.hours || 0), 0),
+      };
+    }
+
+    function getLatestSubmissionForMonth(submissions, monthKey) {
+      return (submissions || [])
+        .filter((submission) => submission.month === monthKey)
+        .sort((a, b) => String(b.submitted_at || "").localeCompare(String(a.submitted_at || "")))[0] || null;
+    }
+
+    function parseDateInput(value) {
+      const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!match) return null;
+      return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    }
+
+    function startOfDay(value) {
+      const date = new Date(value);
+      date.setHours(0, 0, 0, 0);
+      return date;
+    }
+
+    function addDays(value, days) {
+      const date = new Date(value);
+      date.setDate(date.getDate() + Number(days || 0));
+      return date;
+    }
+
+    function formatMonthKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function formatDateLong(value) {
+      const date = parseDateInput(value) || new Date(value);
+      if (!value || Number.isNaN(date.getTime())) return "-";
+      return new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(date);
+    }
+
+    function formatDateShort(value) {
+      const date = parseDateInput(value);
+      if (!date || Number.isNaN(date.getTime())) return "-";
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      }).format(date);
+    }
+
+    function formatTimeRange(entry) {
+      const start = String(entry.startTime || "").slice(0, 5);
+      const end = String(entry.endTime || "").slice(0, 5);
+      if (start && end) return `${start}-${end}`;
+      return start || "Time not set";
+    }
+
+    function trimHours(value) {
+      return Number(value || 0).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+    }
+
+    function formatHours(value) {
+      const hours = trimHours(value);
+      return `${hours} ${hours === "1" ? "hr" : "hrs"}`;
+    }
+
+    function formatCurrency(value) {
+      const amount = Number(value || 0);
+      const sign = amount < 0 ? "-" : "";
+      return `${sign}S$${new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(amount))}`;
+    }
+
+    function formatNoticeType(value) {
+      if (value === "payment") return "Payment";
+      if (value === "system") return "System";
+      return "Notice";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function renderIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+      }
+    }
+
+    function hydrateHeaderAvatar() {
+      if (window.profileAvatar && typeof window.profileAvatar.hydrateHeaderAvatar === "function") {
+        window.profileAvatar.hydrateHeaderAvatar(userMenuButtonLabel, { size: 32 });
+      }
+    }
+  </script>
+</body>
+</html>

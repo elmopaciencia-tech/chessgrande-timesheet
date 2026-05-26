@@ -6,6 +6,7 @@
 --   3) payroll_entries
 --   4) draft_timesheet_entries
 --   5) quick_add_templates
+--   6) employee_notices / employee_notice_recipients
 -- plus Row Level Security (RLS) policies.
 
 begin;
@@ -332,16 +333,57 @@ revoke all on public.quick_add_templates from anon, authenticated;
 grant select, insert, delete on public.quick_add_templates to authenticated;
 
 -- -------------------------------------------------------------------
--- 6) Enable RLS
+-- 6) Employee notices tables
+-- -------------------------------------------------------------------
+-- Read-only in-app notices sent by managers/webadmins to employees.
+create table if not exists public.employee_notices (
+  id uuid primary key default gen_random_uuid(),
+  created_by uuid references public.profiles(id) on delete set null,
+  title text not null,
+  body text not null,
+  notice_type text not null default 'manual' check (notice_type in ('manual', 'payment', 'system')),
+  related_submission_id uuid references public.payroll_submissions(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+comment on table public.employee_notices is 'Manager and system notices delivered inside the employee dashboard.';
+comment on column public.employee_notices.notice_type is 'Allowed values: manual, payment, system.';
+
+create table if not exists public.employee_notice_recipients (
+  notice_id uuid not null references public.employee_notices(id) on delete cascade,
+  employee_id uuid not null references public.profiles(id) on delete cascade,
+  read_at timestamptz,
+  primary key (notice_id, employee_id)
+);
+
+comment on table public.employee_notice_recipients is 'Delivery and read status for employee dashboard notices.';
+
+create index if not exists employee_notices_created_at_idx
+  on public.employee_notices (created_at desc);
+create index if not exists employee_notices_related_submission_id_idx
+  on public.employee_notices (related_submission_id);
+create index if not exists employee_notice_recipients_employee_read_idx
+  on public.employee_notice_recipients (employee_id, read_at, notice_id);
+
+revoke all on public.employee_notices from anon, authenticated;
+revoke all on public.employee_notice_recipients from anon, authenticated;
+grant select, insert on public.employee_notices to authenticated;
+grant select, insert on public.employee_notice_recipients to authenticated;
+grant update (read_at) on public.employee_notice_recipients to authenticated;
+
+-- -------------------------------------------------------------------
+-- 7) Enable RLS
 -- -------------------------------------------------------------------
 alter table public.profiles enable row level security;
 alter table public.payroll_submissions enable row level security;
 alter table public.payroll_entries enable row level security;
 alter table public.draft_timesheet_entries enable row level security;
 alter table public.quick_add_templates enable row level security;
+alter table public.employee_notices enable row level security;
+alter table public.employee_notice_recipients enable row level security;
 
 -- -------------------------------------------------------------------
--- 7) Profiles RLS policies
+-- 8) Profiles RLS policies
 -- -------------------------------------------------------------------
 -- Employees can read their own profile.
 drop policy if exists "profiles_select_own" on public.profiles;
@@ -408,7 +450,7 @@ using (authz.has_app_role(array['webadmin']))
 with check (authz.has_app_role(array['webadmin']));
 
 -- -------------------------------------------------------------------
--- 8) Payroll submissions RLS policies
+-- 9) Payroll submissions RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert their own submissions.
 drop policy if exists "submissions_insert_own" on public.payroll_submissions;
@@ -469,7 +511,7 @@ using (authz.has_app_role(array['manager', 'webadmin']))
 with check (authz.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
--- 9) Payroll entries RLS policies
+-- 10) Payroll entries RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert entries only into their own submissions.
 drop policy if exists "entries_insert_for_own_submission" on public.payroll_entries;
@@ -530,7 +572,7 @@ using (authz.has_app_role(array['manager', 'webadmin']))
 with check (authz.has_app_role(array['manager', 'webadmin']));
 
 -- -------------------------------------------------------------------
--- 10) Draft timesheet entries RLS policies
+-- 11) Draft timesheet entries RLS policies
 -- -------------------------------------------------------------------
 drop policy if exists "draft_entries_select_own" on public.draft_timesheet_entries;
 create policy "draft_entries_select_own"
@@ -625,7 +667,7 @@ using (
 );
 
 -- -------------------------------------------------------------------
--- 11) Quick-add templates RLS policies
+-- 12) Quick-add templates RLS policies
 -- -------------------------------------------------------------------
 drop policy if exists "quick_add_templates_select_own" on public.quick_add_templates;
 create policy "quick_add_templates_select_own"
@@ -647,6 +689,59 @@ on public.quick_add_templates
 for delete
 to authenticated
 using (employee_id = (select auth.uid()));
+
+-- -------------------------------------------------------------------
+-- 13) Employee notices RLS policies
+-- -------------------------------------------------------------------
+drop policy if exists "employee_notices_select_recipient" on public.employee_notices;
+create policy "employee_notices_select_recipient"
+on public.employee_notices
+for select
+to authenticated
+using (
+  authz.has_app_role(array['manager', 'webadmin'])
+  or exists (
+    select 1
+    from public.employee_notice_recipients r
+    where r.notice_id = employee_notices.id
+      and r.employee_id = auth.uid()
+  )
+);
+
+drop policy if exists "employee_notices_insert_admin" on public.employee_notices;
+create policy "employee_notices_insert_admin"
+on public.employee_notices
+for insert
+to authenticated
+with check (
+  created_by = auth.uid()
+  and authz.has_app_role(array['manager', 'webadmin'])
+);
+
+drop policy if exists "employee_notice_recipients_select_own_or_admin" on public.employee_notice_recipients;
+create policy "employee_notice_recipients_select_own_or_admin"
+on public.employee_notice_recipients
+for select
+to authenticated
+using (
+  employee_id = auth.uid()
+  or authz.has_app_role(array['manager', 'webadmin'])
+);
+
+drop policy if exists "employee_notice_recipients_insert_admin" on public.employee_notice_recipients;
+create policy "employee_notice_recipients_insert_admin"
+on public.employee_notice_recipients
+for insert
+to authenticated
+with check (authz.has_app_role(array['manager', 'webadmin']));
+
+drop policy if exists "employee_notice_recipients_update_own_read_at" on public.employee_notice_recipients;
+create policy "employee_notice_recipients_update_own_read_at"
+on public.employee_notice_recipients
+for update
+to authenticated
+using (employee_id = auth.uid())
+with check (employee_id = auth.uid());
 
 drop function if exists public.is_manager(uuid);
 drop function if exists public.current_user_has_role(text[]);

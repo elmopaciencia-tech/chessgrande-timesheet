@@ -201,7 +201,7 @@
     const avatarUploadBtn = document.getElementById("avatarUploadBtn");
     const avatarInput = document.getElementById("avatarInput");
 
-    let nextUrl = "./chess-timesheet.html";
+    let nextUrl = "./employee-dashboard.html";
 
     init();
 
@@ -302,10 +302,10 @@
     function getSafeNextUrl(value) {
       const raw = String(value || "").trim();
       if (!raw || /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(raw)) {
-        return "./chess-timesheet.html";
+        return "./employee-dashboard.html";
       }
       if (raw.includes("login.html") || raw.includes("signup.html") || raw.includes("profile-setup.html")) {
-        return "./chess-timesheet.html";
+        return "./employee-dashboard.html";
       }
       return raw.startsWith("./") ? raw : `./${raw.replace(/^\/+/, "")}`;
     }

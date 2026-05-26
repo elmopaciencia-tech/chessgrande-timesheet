@@ -68,7 +68,7 @@
       <div style="padding:32px;font-family:Source Sans 3,Aptos,Avenir Next,Segoe UI,sans-serif;color:#17233a;">
         <h1 style="margin:0 0 8px;">Access denied</h1>
         <p style="margin:0 0 16px;">This page is available to ${roleLabel} accounts only.</p>
-        <a href="./chess-timesheet.html" style="color:#245a52;text-decoration:underline;">Go to employee timesheet</a>
+        <a href="./employee-dashboard.html" style="color:#245a52;text-decoration:underline;">Go to employee dashboard</a>
       </div>
     `;
   }

@@ -58,7 +58,7 @@
   ];
 
   const ICON_ONLY_SELECTOR = ".chat-send, .chat-close, .icon-close, .lightbox-close, .chat-launcher";
-  const SKIP_ICON_SELECTOR = ".quick-add-apply, .profile-avatar-button, .entry-action-button, .entry-edit-close, .chip-context-menu button";
+  const SKIP_ICON_SELECTOR = ".quick-add-apply, .quick-link, .profile-avatar-button, .entry-action-button, .entry-edit-close, .chip-context-menu button";
 
   function getText(element) {
     return `${element.textContent || ""} ${element.getAttribute("aria-label") || ""}`.trim();

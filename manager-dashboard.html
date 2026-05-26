@@ -67,6 +67,7 @@
     .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
     .panel { padding: 28px; background: color-mix(in srgb, var(--surface) 90%, white 10%); border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 28px; box-shadow: var(--shadow-md); }
     .panel-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .panel-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
     .panel h2 { margin: 0; font-size: 1.38rem; line-height: 1.15; letter-spacing: -.02em; }
     .panel-eyebrow { margin: 0 0 8px; color: var(--clay); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
     .toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; margin-bottom: 18px; }
@@ -86,7 +87,7 @@
     .filter-select, .search-wrap input, .role-filter select { width: 100%; border-radius: 16px; border: 1px solid var(--line); padding: 11px 12px; background: var(--surface-strong); color: var(--ink); min-height: 52px; font-size: 1rem; box-sizing: border-box; }
     .filter-select:focus-visible, .search-wrap input:focus-visible, .role-filter select:focus-visible { border-color: color-mix(in srgb, var(--focus) 60%, white 40%); box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%); }
     .file-list { display: grid; gap: 14px; }
-    .file-item { display: grid; grid-template-columns: 58px minmax(0, 1.2fr) minmax(120px, .9fr) minmax(120px, .8fr) minmax(130px, .9fr) auto; gap: 14px; align-items: center; padding: 18px; color: inherit; text-decoration: none; }
+    .file-item { display: grid; grid-template-columns: 58px minmax(0, 1.2fr) minmax(120px, .9fr) minmax(120px, .8fr) minmax(130px, .9fr) auto; gap: 14px; align-items: center; padding: 18px; color: inherit; text-decoration: none; cursor: pointer; }
     .file-item-actions { justify-self: end; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
     .file-item.is-paid { border-color: color-mix(in srgb, var(--brand) 34%, var(--line) 66%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 94%, var(--surface-accent) 6%) 0%, color-mix(in srgb, var(--surface-muted) 72%, var(--surface-accent) 28%) 100%); }
     .folder-icon { width: 58px; height: 44px; border-radius: 12px; background: linear-gradient(180deg, var(--gold) 0%, color-mix(in srgb, var(--gold-deep) 72%, white 28%) 100%); position: relative; box-shadow: inset 0 0 0 1px rgba(113,85,12,.12); }
@@ -107,7 +108,17 @@
     .icon-close { width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); cursor: pointer; }
     .modal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .field.full { grid-column: 1 / -1; }
-    .modal-grid input, .modal-grid select { width: 100%; border-radius: 16px; border: 1px solid var(--line); padding: 12px 14px; background: var(--surface-strong); min-height: 52px; }
+    .modal-grid input, .modal-grid select, .modal-grid textarea { width: 100%; border-radius: 16px; border: 1px solid var(--line); padding: 12px 14px; background: var(--surface-strong); min-height: 52px; color: var(--ink); }
+    .modal-grid textarea { min-height: 112px; resize: vertical; line-height: 1.45; }
+    .notice-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 10px; }
+    .notice-search { width: min(320px, 100%); border-radius: 999px; border: 1px solid var(--line); padding: 10px 14px; background: var(--surface-strong); color: var(--ink); }
+    .recipient-list { display: grid; gap: 8px; max-height: 240px; overflow: auto; padding: 8px; border: 1px solid var(--line); border-radius: 18px; background: color-mix(in srgb, var(--surface-muted) 58%, white 42%); }
+    .recipient-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--surface-strong); border: 1px solid color-mix(in srgb, var(--line) 84%, white 16%); cursor: pointer; }
+    .recipient-row input { width: auto; min-height: auto; }
+    .recipient-name { display: block; font-weight: 800; color: var(--ink); }
+    .recipient-meta { display: block; color: var(--muted); font-size: .86rem; margin-top: 1px; }
+    .text-button { border: 0; background: transparent; color: var(--accent); font-weight: 800; cursor: pointer; padding: 8px 10px; border-radius: 999px; }
+    .text-button:hover { background: var(--accent-soft); }
     .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
     @media (max-width: 1100px) {
       .toolbar, .stat-row, .filters { grid-template-columns: 1fr; }
@@ -128,6 +139,7 @@
 
 </style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
 <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
+          <a class="menu-item" href="./employee-dashboard.html">Employee Dashboard</a>
           <a class="menu-item" href="./chess-timesheet.html">Employee Timesheet</a>
           <a class="menu-item" href="./manager-drafts.html">Draft Timesheets</a>
           <a class="menu-item" id="webAdminDashboardLink" href="./webadmin-dashboard.html" hidden>Webadmin Dashboard</a>
@@ -135,13 +147,47 @@
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
       
-</div></div></div></header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+</div></div></div></header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><div class="panel-actions"><button class="button" id="sendNoticeButton" type="button">Send Notice</button><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+  <div class="modal-overlay" id="noticeModalOverlay" role="dialog" aria-modal="true" aria-labelledby="noticeModalTitle" hidden>
+    <section class="modal notice-modal">
+      <div class="modal-head">
+        <div>
+          <p class="panel-eyebrow">Team message</p>
+          <h2 id="noticeModalTitle">Send Notice</h2>
+          <p class="modal-status">Users can read this on their dashboard. Replies are not enabled.</p>
+        </div>
+        <button class="icon-close" id="noticeModalClose" type="button" aria-label="Close notice composer">x</button>
+      </div>
+      <div class="modal-grid">
+        <label class="field full">Title
+          <input id="noticeTitleInput" type="text" maxlength="120" placeholder="e.g. May payroll update">
+        </label>
+        <label class="field full">Message
+          <textarea id="noticeBodyInput" maxlength="1200" placeholder="Write the update users should see."></textarea>
+        </label>
+        <div class="field full">
+          <div class="notice-toolbar">
+            <label for="noticeEmployeeSearch">Recipients</label>
+            <button class="text-button" id="selectAllNoticeEmployees" type="button">Select All Visible</button>
+          </div>
+          <input class="notice-search" id="noticeEmployeeSearch" type="search" placeholder="Search users">
+          <div class="recipient-list" id="noticeRecipientList"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="delete-button" id="noticeCancelButton" type="button">Cancel</button>
+        <button class="edit-button" id="noticeSendButton" type="button">Send Notice</button>
+      </div>
+      <div class="status" id="noticeModalStatus"></div>
+    </section>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js"></script>
+  <script src="./employee-notice-store.js"></script>
   <script>
     const filterStorageKey = "chessGrandeManagerDashboardFilters";
     const fileList = document.getElementById("fileList");
@@ -158,7 +204,20 @@
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
+    const sendNoticeButton = document.getElementById("sendNoticeButton");
+    const noticeModalOverlay = document.getElementById("noticeModalOverlay");
+    const noticeModalClose = document.getElementById("noticeModalClose");
+    const noticeCancelButton = document.getElementById("noticeCancelButton");
+    const noticeTitleInput = document.getElementById("noticeTitleInput");
+    const noticeBodyInput = document.getElementById("noticeBodyInput");
+    const noticeEmployeeSearch = document.getElementById("noticeEmployeeSearch");
+    const noticeRecipientList = document.getElementById("noticeRecipientList");
+    const selectAllNoticeEmployees = document.getElementById("selectAllNoticeEmployees");
+    const noticeSendButton = document.getElementById("noticeSendButton");
+    const noticeModalStatus = document.getElementById("noticeModalStatus");
     let currentManagerId = null;
+    let noticeUsers = [];
+    let selectedNoticeUserIds = new Set();
 
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
@@ -174,6 +233,7 @@
       const profile = await getCurrentProfile();
       webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
       setupUserMenu();
+      setupNoticeModal();
       await render();
       hydrateHeaderAvatar();
     }
@@ -217,6 +277,145 @@
           userMenuButton.setAttribute("aria-expanded", "false");
         }
       });
+    }
+
+    function setupNoticeModal() {
+      sendNoticeButton.addEventListener("click", openNoticeModal);
+      noticeModalClose.addEventListener("click", closeNoticeModal);
+      noticeCancelButton.addEventListener("click", closeNoticeModal);
+      noticeModalOverlay.addEventListener("click", (event) => {
+        if (event.target === noticeModalOverlay) closeNoticeModal();
+      });
+      noticeEmployeeSearch.addEventListener("input", renderNoticeRecipientList);
+      selectAllNoticeEmployees.addEventListener("click", selectVisibleNoticeEmployees);
+      noticeSendButton.addEventListener("click", sendEmployeeNotice);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !noticeModalOverlay.hidden) {
+          closeNoticeModal();
+        }
+      });
+    }
+
+    async function openNoticeModal() {
+      noticeTitleInput.value = "";
+      noticeBodyInput.value = "";
+      noticeEmployeeSearch.value = "";
+      selectedNoticeUserIds = new Set();
+      noticeModalStatus.textContent = "Loading users...";
+      noticeRecipientList.innerHTML = '<div class="empty">Loading users...</div>';
+      noticeModalOverlay.hidden = false;
+      noticeTitleInput.focus();
+      await loadNoticeUsers();
+    }
+
+    function closeNoticeModal() {
+      noticeModalOverlay.hidden = true;
+      noticeModalStatus.textContent = "";
+    }
+
+    async function loadNoticeUsers() {
+      const { data, error } = await window.supabaseClient
+        .from("profiles")
+        .select("id, full_name, username, role")
+        .order("full_name", { ascending: true });
+
+      if (error) {
+        console.error("Failed to load notice recipients:", error);
+        noticeUsers = [];
+        noticeRecipientList.innerHTML = `<div class="empty">Could not load users: ${escapeHtml(error.message || "unknown error")}</div>`;
+        noticeModalStatus.textContent = "";
+        return;
+      }
+
+      noticeUsers = (data || [])
+        .map((user) => ({
+          id: user.id,
+          name: user.full_name || user.username || "Unnamed User",
+          username: user.username || "",
+          role: user.role || "employee",
+        }))
+        .sort((a, b) => {
+          const roleCompare = formatRoleLabel(a.role).localeCompare(formatRoleLabel(b.role));
+          if (roleCompare !== 0) return roleCompare;
+          return a.name.localeCompare(b.name);
+        });
+      noticeModalStatus.textContent = "";
+      renderNoticeRecipientList();
+    }
+
+    function renderNoticeRecipientList() {
+      const query = noticeEmployeeSearch.value.trim().toLowerCase();
+      const visibleUsers = noticeUsers.filter((user) => {
+        const haystack = `${user.name} ${user.username} ${formatRoleLabel(user.role)}`.toLowerCase();
+        return !query || haystack.includes(query);
+      });
+
+      noticeRecipientList.innerHTML = "";
+      if (!visibleUsers.length) {
+        noticeRecipientList.innerHTML = '<div class="empty">No users match that search.</div>';
+        return;
+      }
+
+      visibleUsers.forEach((user) => {
+        const row = document.createElement("label");
+        row.className = "recipient-row";
+        row.innerHTML = `
+          <input type="checkbox" value="${escapeHtml(user.id)}" ${selectedNoticeUserIds.has(user.id) ? "checked" : ""}>
+          <span>
+            <span class="recipient-name">${escapeHtml(user.name)}</span>
+            <span class="recipient-meta">${escapeHtml(`${formatRoleLabel(user.role)} · ${user.username || user.id}`)}</span>
+          </span>
+        `;
+        noticeRecipientList.appendChild(row);
+      });
+      noticeRecipientList.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.addEventListener("change", () => {
+          if (input.checked) {
+            selectedNoticeUserIds.add(input.value);
+          } else {
+            selectedNoticeUserIds.delete(input.value);
+          }
+        });
+      });
+    }
+
+    function getSelectedNoticeRecipientIds() {
+      return [...selectedNoticeUserIds].filter(Boolean);
+    }
+
+    function selectVisibleNoticeEmployees() {
+      noticeRecipientList.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = true;
+        selectedNoticeUserIds.add(input.value);
+      });
+    }
+
+    async function sendEmployeeNotice() {
+      const title = noticeTitleInput.value.trim();
+      const body = noticeBodyInput.value.trim();
+      const recipientIds = getSelectedNoticeRecipientIds();
+      if (!title || !body || !recipientIds.length) {
+        noticeModalStatus.textContent = "Add a title, message, and at least one user.";
+        return;
+      }
+
+      noticeSendButton.disabled = true;
+      noticeModalStatus.textContent = "Sending notice...";
+      try {
+        const notice = await window.employeeNoticeStore.createNotice({
+          title,
+          body,
+          noticeType: "manual",
+          recipientIds,
+        }, { createdBy: currentManagerId });
+        noticeModalStatus.textContent = `Notice sent to ${notice.recipientCount} ${notice.recipientCount === 1 ? "user" : "users"}.`;
+        setTimeout(closeNoticeModal, 650);
+      } catch (error) {
+        console.error("Failed to send notice:", error);
+        noticeModalStatus.textContent = error.message || "Could not send notice.";
+      } finally {
+        noticeSendButton.disabled = false;
+      }
     }
 
     async function loadSubmissions() {
@@ -304,10 +503,13 @@
       }
 
       visibleSubmissions.forEach((submission) => {
-        const link = document.createElement("a");
+        const link = document.createElement("article");
         link.className = `file-item${submission.paidAt ? " is-paid" : ""}`;
-        link.href = `./manager-entry.html?id=${encodeURIComponent(submission.id)}`;
+        link.tabIndex = 0;
+        link.setAttribute("role", "link");
+        link.dataset.href = `./manager-entry.html?id=${encodeURIComponent(submission.id)}`;
         const submissionLabel = getSubmissionLabel(submission);
+        link.setAttribute("aria-label", `Open ${submissionLabel}`);
         const paidStatus = submission.paidAt ? formatPaidStatus(submission.paidAt) : "";
         const paidButtonAttrs = submission.paidAt
           ? `disabled aria-label="${escapeHtml(`${submissionLabel} is already marked paid`)}" title="${escapeHtml(paidStatus)}"`
@@ -328,6 +530,17 @@
             <button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}">Delete</button>
           </div>
         `;
+        link.addEventListener("click", (event) => {
+          if (event.target.closest("button")) return;
+          window.location.href = link.dataset.href;
+        });
+        link.addEventListener("keydown", (event) => {
+          if (event.target.closest("button")) return;
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            window.location.href = link.dataset.href;
+          }
+        });
         fileList.appendChild(link);
       });
 
@@ -370,6 +583,16 @@
 
           if (!updatedSubmission) {
             alert("This submission was already marked paid or is no longer available.");
+          } else if (window.employeeNoticeStore && typeof window.employeeNoticeStore.createPaymentNotice === "function") {
+            try {
+              await window.employeeNoticeStore.createPaymentNotice({
+                ...submission,
+                paidAt: updatedSubmission.paid_at || new Date().toISOString(),
+              }, { createdBy: currentManagerId });
+            } catch (noticeError) {
+              console.error("Failed to create payment notice:", noticeError);
+              alert(`Marked as paid, but the employee notice was not sent: ${noticeError.message || "unknown error"}`);
+            }
           }
 
           await render();
@@ -532,6 +755,13 @@
       }).format(Math.abs(amount))}`;
     }
 
+    function formatRoleLabel(value) {
+      const role = String(value || "employee").trim().toLowerCase();
+      if (role === "webadmin") return "Webadmin";
+      if (role === "manager") return "Manager";
+      return "Employee";
+    }
+
     function escapeHtml(value) {
       return String(value)
         .replaceAll("&", "&amp;")
@@ -551,7 +781,7 @@
       if (!window.profileAvatar || typeof window.profileAvatar.hydrateAvatarsForItems !== "function") return;
       if (!submissions || !submissions.length) return;
       window.profileAvatar.hydrateAvatarsForItems(submissions, function (item) {
-        var linkEl = document.querySelector('a.file-item[href*="' + encodeURIComponent(item.id) + '"]');
+        var linkEl = document.querySelector('.file-item[data-href*="' + encodeURIComponent(item.id) + '"]');
         return linkEl && linkEl.querySelector(".file-avatar-img");
       });
     }
