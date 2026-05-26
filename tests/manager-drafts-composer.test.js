@@ -17,6 +17,9 @@ assert.match(html, /\.action-column\s*\{[^}]*position:\s*sticky/is, "right-side 
 assert.match(html, /id="draftList" class="groups"/, "draft rows should use the grouped school ledger layout");
 assert.match(html, /card\.className = "school-card"/, "draft groups should render as school cards");
 assert.match(html, /#draftList\s+\.school-card:hover/, "draft school cards should keep the ledger hover animation");
+assert.match(html, /id="chipContextMenu"[\s\S]*data-chip-action="go"[\s\S]*data-chip-action="edit"[\s\S]*data-chip-action="remove"/, "manager draft calendar chips should expose the context menu actions");
+assert.match(html, /id="chipRemoveModal"[\s\S]*role="dialog"[\s\S]*Remove this entry\?[\s\S]*data-chip-remove-confirm="cancel"[\s\S]*data-chip-remove-confirm="remove"/, "manager draft chip remove should confirm in a popup dialog");
+assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-target-highlight/, "manager draft ledger rows should animate when a chip jumps to them");
 
 [
   '<option value="School Coaching">School Coaching</option>',
@@ -46,6 +49,8 @@ assert.match(html, /#draftList\s+\.school-card:hover/, "draft school cards shoul
   'id="isRepeating"',
   'id="repeatDayCount"',
   'id="repeatWeeks"',
+  'id="chipContextMenu"',
+  'id="chipRemoveModal"',
   '<option value="1">1 day</option>',
   '<option value="5">5 weekdays</option>',
   '<option value="2">2 weekend days</option>',
@@ -77,6 +82,15 @@ assert.match(html, /#draftList\s+\.school-card:hover/, "draft school cards shoul
   "class=\"entry-action-button entry-remove-button\"",
   "data-delete-id=\"${entryId}\"",
   "function formatImageCell(entry)",
+  "draftCalendar.addEventListener(\"contextmenu\", onCalendarChipContextMenu);",
+  "draftCalendar.addEventListener(\"keydown\", onCalendarChipKeydown);",
+  "chip.dataset.entryId = entry.id || \"\";",
+  "const chip = target.closest(\".calendar-chip.has-calendar-color[data-entry-id]\");",
+  "function openChipRemoveModal(entryId)",
+  "async function confirmChipRemoveModal()",
+  "await deleteDraft(entryId, { skipConfirm: true });",
+  "function scrollToLedgerEntry(entryId)",
+  "row.scrollIntoView({ behavior: \"smooth\", block: \"center\" });",
 ].forEach((requiredCode) => {
   assert.ok(html.includes(requiredCode), `manager composer should include ${requiredCode}`);
 });

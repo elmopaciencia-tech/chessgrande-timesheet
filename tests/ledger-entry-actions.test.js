@@ -55,11 +55,24 @@ for (const [label, fileName] of pages) {
     /id="chipContextMenu"[\s\S]*data-chip-action="go"[\s\S]*data-chip-action="edit"[\s\S]*data-chip-action="remove"/,
     `${label} coloured calendar chips should expose a context menu with go, edit, and remove actions`
   );
-  assert.match(
-    html,
-    /data-chip-menu-panel="confirm"[\s\S]*Remove this entry\?[\s\S]*data-chip-confirm="cancel"[\s\S]*data-chip-confirm="remove"/,
-    `${label} chip remove action should ask for confirmation inside the menu`
-  );
+  if (fileName === "chess-timesheet.html") {
+    assert.match(
+      html,
+      /id="chipRemoveModal"[\s\S]*role="dialog"[\s\S]*Remove this entry\?[\s\S]*data-chip-remove-confirm="cancel"[\s\S]*data-chip-remove-confirm="remove"/,
+      `${label} chip remove action should ask for confirmation in a popup dialog`
+    );
+    assert.doesNotMatch(
+      html,
+      /data-chip-menu-panel="confirm"|data-chip-confirm/,
+      `${label} chip remove confirmation should not render inside the context menu`
+    );
+  } else {
+    assert.match(
+      html,
+      /data-chip-menu-panel="confirm"[\s\S]*Remove this entry\?[\s\S]*data-chip-confirm="cancel"[\s\S]*data-chip-confirm="remove"/,
+      `${label} chip remove action should ask for confirmation inside the menu`
+    );
+  }
   assert.match(
     html,
     /\.chip-context-menu\s*\{[^}]*position:\s*fixed;[^}]*z-index:\s*1450;/is,
@@ -105,16 +118,34 @@ for (const [label, fileName] of pages) {
     /function triggerLedgerEntryAction\(action, entryId\)[\s\S]*button\.click\(\)/,
     `${label} chip edit/remove actions should route through existing ledger buttons`
   );
-  assert.match(
-    html,
-    /function onChipContextMenuClick\(event\)[\s\S]*data-chip-confirm[\s\S]*triggerLedgerEntryAction\("remove", entryId\)/,
-    `${label} confirmed chip remove should route through the existing remove button`
-  );
-  assert.match(
-    html,
-    /function showChipRemoveConfirmation\(\)[\s\S]*data-chip-menu-panel="actions"[\s\S]*data-chip-menu-panel="confirm"/,
-    `${label} remove confirmation should swap the menu into a confirmation state`
-  );
+  if (fileName === "chess-timesheet.html") {
+    assert.match(
+      html,
+      /function onChipContextMenuClick\(event\)[\s\S]*openChipRemoveModal\(entryId\)/,
+      `${label} chip remove action should open the confirmation popup`
+    );
+    assert.match(
+      html,
+      /function confirmChipRemoveModal\(\)[\s\S]*triggerLedgerEntryAction\("remove", entryId\)/,
+      `${label} confirmed chip remove popup should route through the existing remove button`
+    );
+    assert.match(
+      html,
+      /function closeChipRemoveModal\(options = \{\}\)[\s\S]*restoreFocus/,
+      `${label} chip remove popup should close cleanly and restore focus when cancelled`
+    );
+  } else {
+    assert.match(
+      html,
+      /function onChipContextMenuClick\(event\)[\s\S]*data-chip-confirm[\s\S]*triggerLedgerEntryAction\("remove", entryId\)/,
+      `${label} confirmed chip remove should route through the existing remove button`
+    );
+    assert.match(
+      html,
+      /function showChipRemoveConfirmation\(\)[\s\S]*data-chip-menu-panel="actions"[\s\S]*data-chip-menu-panel="confirm"/,
+      `${label} remove confirmation should swap the menu into a confirmation state`
+    );
+  }
   assert.match(
     html,
     /function scrollToLedgerEntry\(entryId\)[\s\S]*scrollIntoView\(\{ behavior: "smooth", block: "center" \}\)[\s\S]*is-entry-target-highlight/,

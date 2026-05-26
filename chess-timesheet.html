@@ -1241,43 +1241,75 @@
       transform: none;
     }
 
-    .chip-context-actions,
-    .chip-context-confirm {
+    .chip-context-actions { display: grid; gap: 4px; text-align: left; }
+
+    .chip-remove-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1600;
       display: grid;
-      gap: 4px;
-      text-align: left;
+      place-items: center;
+      padding: 24px;
+      background: rgba(23, 26, 25, 0.54);
+      backdrop-filter: blur(10px);
     }
 
-    .chip-context-confirm[hidden] {
-      display: none;
+    .chip-remove-modal[hidden] { display: none; }
+
+    .chip-remove-modal:not([hidden]) {
+      animation: cg-overlay-fade 180ms var(--motion-ease, ease) both;
     }
 
-    .chip-context-confirm p {
+    .chip-remove-modal:not([hidden]) .chip-remove-card {
+      animation: cg-modal-pop 280ms var(--motion-ease, ease) both;
+      transform-origin: center;
+    }
+
+    .chip-remove-card {
+      width: min(420px, 100%);
+      display: grid;
+      gap: 14px;
+      padding: 22px;
+      border-radius: 24px;
+      border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
+      background: color-mix(in srgb, var(--surface) 94%, white 6%);
+      box-shadow: 0 28px 80px rgba(23, 26, 25, 0.24);
+    }
+
+    .chip-remove-card h2 {
       margin: 0;
-      padding: 8px 10px 4px;
-      color: var(--ink);
-      font-size: 0.88rem;
-      font-weight: 800;
-      line-height: 1.2;
-      text-align: left;
+      font-size: 1.35rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
     }
 
-    .chip-context-confirm-actions {
+    .chip-remove-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .chip-remove-entry {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      background: color-mix(in srgb, var(--surface-muted) 74%, white 26%);
+      color: var(--ink) !important;
+      font-weight: 700;
+    }
+
+    .chip-remove-actions {
       display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 6px;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
       padding-top: 2px;
     }
 
-    .chip-context-confirm-actions button {
-      width: auto;
-      min-width: 74px;
-    }
-
-    .chip-context-confirm-actions button[data-chip-confirm="remove"] {
+    #chipRemoveConfirm {
       background: #c73832;
       color: white;
+      border-color: #a6312c;
     }
 
     .groups {
@@ -1981,15 +2013,20 @@
         <button type="button" role="menuitem" data-chip-action="edit">Edit Entry</button>
         <button type="button" role="menuitem" data-chip-action="remove">Remove Entry</button>
       </div>
-      <div class="chip-context-confirm" data-chip-menu-panel="confirm" hidden>
-        <p>Remove this entry?</p>
-        <div class="chip-context-confirm-actions">
-          <button type="button" data-chip-confirm="cancel">Cancel</button>
-          <button type="button" data-chip-confirm="remove">Remove</button>
-        </div>
-      </div>
     </div>
   </main>
+
+  <div class="chip-remove-modal" id="chipRemoveModal" hidden role="dialog" aria-modal="true" aria-labelledby="chipRemoveTitle" aria-describedby="chipRemoveCopy">
+    <div class="chip-remove-card" id="chipRemoveCard" tabindex="-1">
+      <h2 id="chipRemoveTitle">Remove this entry?</h2>
+      <p id="chipRemoveCopy">This removes the draft row from your monthly timesheet. Submitted payroll rows are not affected here.</p>
+      <p class="chip-remove-entry" id="chipRemoveEntry"></p>
+      <div class="chip-remove-actions">
+        <button class="secondary" id="chipRemoveCancel" type="button" data-chip-remove-confirm="cancel">Cancel</button>
+        <button id="chipRemoveConfirm" type="button" data-chip-remove-confirm="remove">Remove</button>
+      </div>
+    </div>
+  </div>
 
   <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
     <div class="lightbox-content" id="imageLightboxContent" tabindex="-1">
@@ -2075,6 +2112,11 @@
     const calendarTitle = document.getElementById("calendarTitle");
     const entryDateInput = document.getElementById("entryDate");
     const chipContextMenu = document.getElementById("chipContextMenu");
+    const chipRemoveModal = document.getElementById("chipRemoveModal");
+    const chipRemoveCard = document.getElementById("chipRemoveCard");
+    const chipRemoveEntry = document.getElementById("chipRemoveEntry");
+    const chipRemoveCancel = document.getElementById("chipRemoveCancel");
+    const chipRemoveConfirm = document.getElementById("chipRemoveConfirm");
     const schoolTemplate = document.getElementById("schoolTemplate");
     const schoolCount = document.getElementById("schoolCount");
     const entryCount = document.getElementById("entryCount");
@@ -2145,6 +2187,8 @@
     let saveQuickAddButton = null;
     let entryDatePickerOpenedAt = 0;
     let chipContextMenuTrigger = null;
+    let chipRemoveModalLastFocus = null;
+    let chipRemoveModalPreviousOverflow = "";
 
     initApp();
 
@@ -2305,6 +2349,13 @@
     calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
     chipContextMenu.addEventListener("click", onChipContextMenuClick);
+    chipRemoveCancel.addEventListener("click", () => closeChipRemoveModal({ restoreFocus: true }));
+    chipRemoveConfirm.addEventListener("click", confirmChipRemoveModal);
+    chipRemoveModal.addEventListener("click", (event) => {
+      if (event.target === chipRemoveModal) {
+        closeChipRemoveModal({ restoreFocus: true });
+      }
+    });
     entryTypeSelect.addEventListener("change", syncReplacementField);
     entryTypeSelect.addEventListener("input", syncReplacementField);
     document.addEventListener("click", (event) => {
@@ -2327,6 +2378,10 @@
       if (imageLightbox && !imageLightbox.hidden) return;
 
       let handledMenu = false;
+      if (chipRemoveModal?.hidden === false) {
+        closeChipRemoveModal({ restoreFocus: true });
+        handledMenu = true;
+      }
       if (chipContextMenu?.hidden === false) {
         closeChipContextMenu({ restoreFocus: true });
         handledMenu = true;
@@ -2490,7 +2545,6 @@
       event.preventDefault();
       closeQuickAddMenu();
       closeCalendarColorMenu();
-      resetChipContextMenuConfirmation();
 
       chipContextMenuTrigger = chip;
       chipContextMenu.dataset.entryId = entryId;
@@ -2529,26 +2583,13 @@
     }
 
     function onChipContextMenuClick(event) {
-      const confirmButton = event.target instanceof Element ? event.target.closest("[data-chip-confirm]") : null;
-      if (confirmButton) {
-        const entryId = chipContextMenu.dataset.entryId || "";
-        if (confirmButton.dataset.chipConfirm === "remove") {
-          closeChipContextMenu();
-          triggerLedgerEntryAction("remove", entryId);
-        } else {
-          resetChipContextMenuConfirmation();
-          chipContextMenu.querySelector('[data-chip-action="remove"]')?.focus({ preventScroll: true });
-        }
-        return;
-      }
-
       const button = event.target instanceof Element ? event.target.closest("[data-chip-action]") : null;
       if (!button || button.disabled) return;
       const action = button.dataset.chipAction;
       const entryId = chipContextMenu.dataset.entryId || "";
 
       if (action === "remove") {
-        showChipRemoveConfirmation();
+        openChipRemoveModal(entryId);
         return;
       }
 
@@ -2561,28 +2602,47 @@
       }
     }
 
-    function showChipRemoveConfirmation() {
-      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
-      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
-      if (!actionsPanel || !confirmPanel) return;
-      actionsPanel.hidden = true;
-      confirmPanel.hidden = false;
-      chipContextMenu.querySelector('[data-chip-confirm="cancel"]')?.focus({ preventScroll: true });
-      const rect = chipContextMenu.getBoundingClientRect();
-      positionChipContextMenu(rect.left, rect.top);
+    function openChipRemoveModal(entryId) {
+      const entry = entries.find((item) => item.id === entryId);
+      if (!entry) return;
+
+      chipRemoveModalLastFocus = chipContextMenuTrigger || document.activeElement;
+      closeChipContextMenu();
+      chipRemoveModal.dataset.entryId = entryId;
+      chipRemoveEntry.textContent = getChipRemoveEntryLabel(entry);
+      chipRemoveModalPreviousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      chipRemoveModal.hidden = false;
+      chipRemoveCard.focus({ preventScroll: true });
     }
 
-    function resetChipContextMenuConfirmation() {
-      if (!chipContextMenu) return;
-      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
-      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
-      if (actionsPanel) actionsPanel.hidden = false;
-      if (confirmPanel) confirmPanel.hidden = true;
+    function closeChipRemoveModal(options = {}) {
+      if (!chipRemoveModal || chipRemoveModal.hidden) return;
+      chipRemoveModal.hidden = true;
+      chipRemoveModal.removeAttribute("data-entry-id");
+      chipRemoveEntry.textContent = "";
+      document.body.style.overflow = chipRemoveModalPreviousOverflow;
+      if (options.restoreFocus && chipRemoveModalLastFocus && typeof chipRemoveModalLastFocus.focus === "function") {
+        chipRemoveModalLastFocus.focus({ preventScroll: true });
+      }
+      chipRemoveModalLastFocus = null;
+    }
+
+    function confirmChipRemoveModal() {
+      const entryId = chipRemoveModal.dataset.entryId || "";
+      closeChipRemoveModal();
+      triggerLedgerEntryAction("remove", entryId);
+    }
+
+    function getChipRemoveEntryLabel(entry) {
+      const name = entry.schoolName || (entry.type === "Claim" ? "Claim" : "Untitled entry");
+      const date = entry.date ? formatLongDate(entry.date) : "No date";
+      const type = formatEntryType(entry) || "Entry";
+      return `${name} · ${date} · ${type}`;
     }
 
     function closeChipContextMenu(options = {}) {
       if (!chipContextMenu || chipContextMenu.hidden) return;
-      resetChipContextMenuConfirmation();
       chipContextMenu.hidden = true;
       chipContextMenu.removeAttribute("data-entry-id");
       if (options.restoreFocus) {

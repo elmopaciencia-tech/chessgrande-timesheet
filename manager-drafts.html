@@ -707,6 +707,123 @@
       color: var(--muted);
       background: color-mix(in srgb, var(--surface-muted) 72%, white 28%);
     }
+    .calendar-chip.has-calendar-color {
+      cursor: context-menu;
+    }
+    .chip-context-menu {
+      position: fixed;
+      z-index: 1450;
+      display: grid;
+      gap: 4px;
+      min-width: 164px;
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
+      background: color-mix(in srgb, var(--surface-strong) 96%, white 4%);
+      box-shadow: 0 18px 44px rgba(31, 41, 35, 0.18);
+    }
+    .chip-context-menu[hidden] { display: none; }
+    .chip-context-actions {
+      display: grid;
+      gap: 4px;
+      text-align: left;
+    }
+    .chip-context-menu button {
+      width: 100%;
+      min-height: 36px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+    }
+    .chip-context-menu button[data-cg-iconified] {
+      justify-content: flex-start;
+      gap: 0;
+    }
+    .chip-context-menu .cg-icon {
+      display: none;
+    }
+    .chip-context-menu button:hover,
+    .chip-context-menu button:focus-visible {
+      background: var(--accent-soft);
+      transform: translateX(1px);
+    }
+    .chip-context-menu button[data-chip-action="remove"] {
+      color: #b42318;
+    }
+    .chip-context-menu button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
+    }
+    .chip-remove-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1600;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(23, 26, 25, 0.54);
+      backdrop-filter: blur(10px);
+    }
+    .chip-remove-modal[hidden] { display: none; }
+    .chip-remove-modal:not([hidden]) {
+      animation: cg-overlay-fade 180ms var(--motion-ease, ease) both;
+    }
+    .chip-remove-modal:not([hidden]) .chip-remove-card {
+      animation: cg-modal-pop 280ms var(--motion-ease, ease) both;
+      transform-origin: center;
+    }
+    .chip-remove-card {
+      width: min(420px, 100%);
+      display: grid;
+      gap: 14px;
+      padding: 22px;
+      border-radius: 24px;
+      border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
+      background: color-mix(in srgb, var(--surface) 94%, white 6%);
+      box-shadow: 0 28px 80px rgba(23, 26, 25, 0.24);
+    }
+    .chip-remove-card h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+    .chip-remove-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .chip-remove-entry {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      background: color-mix(in srgb, var(--surface-muted) 74%, white 26%);
+      color: var(--ink) !important;
+      font-weight: 700;
+    }
+    .chip-remove-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-top: 2px;
+    }
+    #chipRemoveConfirm {
+      background: #c73832;
+      color: white;
+      border-color: #a6312c;
+    }
     .more-count {
       color: var(--muted);
       font-size: 0.7rem;
@@ -848,6 +965,23 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       white-space: nowrap;
+    }
+    tr.is-entry-target-highlight td {
+      animation: entry-target-highlight 1050ms ease-out both;
+    }
+    @keyframes entry-target-highlight {
+      0% {
+        background: color-mix(in srgb, var(--accent-soft) 74%, white 26%);
+        box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 12%, transparent);
+      }
+      55% {
+        background: color-mix(in srgb, var(--accent-soft) 44%, white 56%);
+        box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 6%, transparent);
+      }
+      100% {
+        background: transparent;
+        box-shadow: inset 0 0 0 999px transparent;
+      }
     }
     .empty {
       padding: 28px;
@@ -1072,6 +1206,26 @@
     </div>
   </main>
 
+  <div class="chip-context-menu" id="chipContextMenu" role="menu" hidden>
+    <div class="chip-context-actions" data-chip-menu-panel="actions">
+      <button type="button" role="menuitem" data-chip-action="go">Go To Entry</button>
+      <button type="button" role="menuitem" data-chip-action="edit">Edit Entry</button>
+      <button type="button" role="menuitem" data-chip-action="remove">Remove Entry</button>
+    </div>
+  </div>
+
+  <div class="chip-remove-modal" id="chipRemoveModal" hidden role="dialog" aria-modal="true" aria-labelledby="chipRemoveTitle" aria-describedby="chipRemoveCopy">
+    <div class="chip-remove-card" id="chipRemoveCard" tabindex="-1">
+      <h2 id="chipRemoveTitle">Remove this entry?</h2>
+      <p id="chipRemoveCopy">This removes the draft row for the selected employee. Submitted rows are not affected here.</p>
+      <p class="chip-remove-entry" id="chipRemoveEntry"></p>
+      <div class="chip-remove-actions">
+        <button class="secondary" id="chipRemoveCancel" type="button" data-chip-remove-confirm="cancel">Cancel</button>
+        <button id="chipRemoveConfirm" type="button" data-chip-remove-confirm="remove">Remove</button>
+      </div>
+    </div>
+  </div>
+
   <template id="claimFieldsTemplate">
     <div class="form-grid" id="claimFields">
       <div class="full">
@@ -1121,6 +1275,12 @@
     const draftCalendar = document.getElementById("draftCalendar");
     const calendarTitle = document.getElementById("calendarTitle");
     const calendarMeta = document.getElementById("calendarMeta");
+    const chipContextMenu = document.getElementById("chipContextMenu");
+    const chipRemoveModal = document.getElementById("chipRemoveModal");
+    const chipRemoveCard = document.getElementById("chipRemoveCard");
+    const chipRemoveEntry = document.getElementById("chipRemoveEntry");
+    const chipRemoveCancel = document.getElementById("chipRemoveCancel");
+    const chipRemoveConfirm = document.getElementById("chipRemoveConfirm");
     const draftList = document.getElementById("draftList");
     const draftForm = document.getElementById("draftForm");
     const formTitle = document.getElementById("formTitle");
@@ -1170,6 +1330,9 @@
     let quickAddTemplates = [];
     let quickAddStatusTimer = 0;
     let editingEntryId = "";
+    let chipContextMenuTrigger = null;
+    let chipRemoveModalLastFocus = null;
+    let chipRemoveModalPreviousOverflow = "";
 
     initApp();
 
@@ -1286,6 +1449,18 @@
           await deleteDraft(deleteButton.dataset.deleteId);
         }
       });
+      draftCalendar.addEventListener("contextmenu", onCalendarChipContextMenu);
+      draftCalendar.addEventListener("keydown", onCalendarChipKeydown);
+      chipContextMenu.addEventListener("click", onChipContextMenuClick);
+      chipRemoveCancel.addEventListener("click", () => closeChipRemoveModal({ restoreFocus: true }));
+      chipRemoveConfirm.addEventListener("click", () => {
+        void confirmChipRemoveModal();
+      });
+      chipRemoveModal.addEventListener("click", (event) => {
+        if (event.target === chipRemoveModal) {
+          closeChipRemoveModal({ restoreFocus: true });
+        }
+      });
       document.addEventListener("click", (event) => {
         if (calendarColorMenu?.hidden === false && !isCalendarColorInteraction(event)) {
           closeCalendarColorMenu();
@@ -1293,17 +1468,41 @@
         if (quickAddMenu?.hidden === false && !isQuickAddInteraction(event)) {
           closeQuickAddMenu();
         }
+        if (chipContextMenu?.hidden === false && !isChipContextMenuInteraction(event)) {
+          closeChipContextMenu();
+        }
+      });
+      document.addEventListener("contextmenu", (event) => {
+        if (getCalendarContextChip(event.target) || isChipContextMenuInteraction(event)) return;
+        closeChipContextMenu();
       });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && calendarColorMenu?.hidden === false) {
+        if (event.key !== "Escape") return;
+        let handledMenu = false;
+        if (chipRemoveModal?.hidden === false) {
+          closeChipRemoveModal({ restoreFocus: true });
+          handledMenu = true;
+        }
+        if (chipContextMenu?.hidden === false) {
+          closeChipContextMenu({ restoreFocus: true });
+          handledMenu = true;
+        }
+        if (calendarColorMenu?.hidden === false) {
           closeCalendarColorMenu();
           calendarColorToggle?.focus();
+          handledMenu = true;
         }
-        if (event.key === "Escape" && quickAddMenu?.hidden === false) {
+        if (quickAddMenu?.hidden === false) {
           closeQuickAddMenu();
           quickAddToggle?.focus();
+          handledMenu = true;
+        }
+        if (handledMenu) {
+          event.preventDefault();
         }
       });
+      window.addEventListener("resize", closeChipContextMenu);
+      window.addEventListener("scroll", closeChipContextMenu, true);
       syncReplacementField();
     }
 
@@ -1335,6 +1534,180 @@
       return event.composedPath().some((node) => {
         return node instanceof Element && node.classList.contains("calendar-color-control");
       });
+    }
+
+    function isChipContextMenuInteraction(event) {
+      if (event.target instanceof Element && event.target.closest("#chipContextMenu")) {
+        return true;
+      }
+      return event.composedPath().some((node) => node === chipContextMenu);
+    }
+
+    function getCalendarContextChip(target) {
+      if (!(target instanceof Element)) return null;
+      const chip = target.closest(".calendar-chip.has-calendar-color[data-entry-id]");
+      return chip && draftCalendar.contains(chip) ? chip : null;
+    }
+
+    function onCalendarChipContextMenu(event) {
+      const chip = getCalendarContextChip(event.target);
+      if (!chip) return;
+      openChipContextMenu(event, chip);
+    }
+
+    function onCalendarChipKeydown(event) {
+      if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) return;
+      const chip = getCalendarContextChip(event.target);
+      if (!chip) return;
+      const rect = chip.getBoundingClientRect();
+      openChipContextMenu(event, chip, {
+        x: rect.left + 12,
+        y: rect.bottom + 8,
+        focusMenu: true,
+      });
+    }
+
+    function openChipContextMenu(event, chip, options = {}) {
+      const entryId = chip.dataset.entryId || "";
+      const entry = entries.find((item) => item.id === entryId);
+      if (!entry) return;
+
+      event.preventDefault();
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+
+      chipContextMenuTrigger = chip;
+      chipContextMenu.dataset.entryId = entryId;
+      syncChipContextMenuActions(entryId);
+      positionChipContextMenu(options.x ?? event.clientX, options.y ?? event.clientY);
+
+      if (options.focusMenu) {
+        chipContextMenu.querySelector("button:not(:disabled)")?.focus({ preventScroll: true });
+      }
+    }
+
+    function positionChipContextMenu(x, y) {
+      chipContextMenu.style.visibility = "hidden";
+      chipContextMenu.hidden = false;
+      const rect = chipContextMenu.getBoundingClientRect();
+      const margin = 8;
+      const left = Math.max(margin, Math.min(x, window.innerWidth - rect.width - margin));
+      const top = Math.max(margin, Math.min(y, window.innerHeight - rect.height - margin));
+      chipContextMenu.style.left = `${left}px`;
+      chipContextMenu.style.top = `${top}px`;
+      chipContextMenu.style.visibility = "";
+    }
+
+    function syncChipContextMenuActions(entryId) {
+      const canEdit = Boolean(getLedgerActionButton("edit", entryId));
+      const canRemove = Boolean(getLedgerActionButton("remove", entryId));
+      setChipContextActionState("edit", canEdit);
+      setChipContextActionState("remove", canRemove);
+    }
+
+    function setChipContextActionState(action, enabled) {
+      const button = chipContextMenu.querySelector(`[data-chip-action="${action}"]`);
+      if (!button) return;
+      button.disabled = !enabled;
+      button.setAttribute("aria-disabled", String(!enabled));
+    }
+
+    function onChipContextMenuClick(event) {
+      const button = event.target instanceof Element ? event.target.closest("[data-chip-action]") : null;
+      if (!button || button.disabled) return;
+      const action = button.dataset.chipAction;
+      const entryId = chipContextMenu.dataset.entryId || "";
+
+      if (action === "remove") {
+        openChipRemoveModal(entryId);
+        return;
+      }
+
+      closeChipContextMenu();
+
+      if (action === "go") {
+        scrollToLedgerEntry(entryId);
+      } else if (action === "edit") {
+        triggerLedgerEntryAction(action, entryId);
+      }
+    }
+
+    function openChipRemoveModal(entryId) {
+      const entry = entries.find((item) => item.id === entryId);
+      if (!entry) return;
+
+      chipRemoveModalLastFocus = chipContextMenuTrigger || document.activeElement;
+      closeChipContextMenu();
+      chipRemoveModal.dataset.entryId = entryId;
+      chipRemoveEntry.textContent = getChipRemoveEntryLabel(entry);
+      chipRemoveModalPreviousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      chipRemoveModal.hidden = false;
+      chipRemoveCard.focus({ preventScroll: true });
+    }
+
+    function closeChipRemoveModal(options = {}) {
+      if (!chipRemoveModal || chipRemoveModal.hidden) return;
+      chipRemoveModal.hidden = true;
+      chipRemoveModal.removeAttribute("data-entry-id");
+      chipRemoveEntry.textContent = "";
+      document.body.style.overflow = chipRemoveModalPreviousOverflow;
+      if (options.restoreFocus && chipRemoveModalLastFocus && typeof chipRemoveModalLastFocus.focus === "function") {
+        chipRemoveModalLastFocus.focus({ preventScroll: true });
+      }
+      chipRemoveModalLastFocus = null;
+    }
+
+    async function confirmChipRemoveModal() {
+      const entryId = chipRemoveModal.dataset.entryId || "";
+      closeChipRemoveModal();
+      await deleteDraft(entryId, { skipConfirm: true });
+    }
+
+    function getChipRemoveEntryLabel(entry) {
+      const name = entry.schoolName || (entry.type === "Claim" ? "Claim" : "Untitled entry");
+      const date = entry.date ? formatLongDate(entry.date) : "No date";
+      const type = formatEntryType(entry) || "Entry";
+      return `${name} · ${date} · ${type}`;
+    }
+
+    function closeChipContextMenu(options = {}) {
+      if (!chipContextMenu || chipContextMenu.hidden) return;
+      chipContextMenu.hidden = true;
+      chipContextMenu.removeAttribute("data-entry-id");
+      if (options.restoreFocus) {
+        chipContextMenuTrigger?.focus?.({ preventScroll: true });
+      }
+      chipContextMenuTrigger = null;
+    }
+
+    function getLedgerActionButton(action, entryId) {
+      const selector = action === "edit" ? "[data-edit-id]" : "[data-delete-id]";
+      const key = action === "edit" ? "editId" : "deleteId";
+      return Array.from(draftList.querySelectorAll(selector))
+        .find((button) => button.dataset[key] === entryId) || null;
+    }
+
+    function triggerLedgerEntryAction(action, entryId) {
+      const button = getLedgerActionButton(action, entryId);
+      if (button) {
+        button.click();
+      }
+    }
+
+    function scrollToLedgerEntry(entryId) {
+      const row = Array.from(draftList.querySelectorAll("[data-ledger-entry-id]"))
+        .find((item) => item.dataset.ledgerEntryId === entryId);
+      if (!row) return;
+
+      row.classList.remove("is-entry-target-highlight");
+      void row.offsetWidth;
+      row.classList.add("is-entry-target-highlight");
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      row.focus({ preventScroll: true });
+      row.addEventListener("animationend", () => {
+        row.classList.remove("is-entry-target-highlight");
+      }, { once: true });
     }
 
     function renderCalendarColorPicker() {
@@ -1855,15 +2228,17 @@
       schoolNameInput.focus();
     }
 
-    async function deleteDraft(id) {
+    async function deleteDraft(id, options = {}) {
       const entry = entries.find((item) => item.id === id);
       if (!window.draftTimesheetStore.isManagerEditable(entry)) {
         statusMessage.textContent = "Claims, event costs, and submitted rows are read-only here.";
         return;
       }
 
-      const confirmed = confirm(`Delete ${entry.schoolName || "this draft"} on ${formatLongDate(entry.date)}?`);
-      if (!confirmed) return;
+      if (!options.skipConfirm) {
+        const confirmed = confirm(`Delete ${entry.schoolName || "this draft"} on ${formatLongDate(entry.date)}?`);
+        if (!confirmed) return;
+      }
 
       statusMessage.textContent = "Deleting draft...";
       try {
@@ -2026,9 +2401,15 @@
         dayEntries.slice(0, 3).forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "calendar-chip";
+          chip.dataset.entryId = entry.id || "";
           if (entry.type === "Claim") chip.classList.add("claim");
           if (window.draftTimesheetStore.isSubmitted(entry)) chip.classList.add("submitted");
           applyCalendarColorToChip(chip, entry.calendarColor);
+          if (chip.classList.contains("has-calendar-color")) {
+            chip.tabIndex = 0;
+            chip.setAttribute("aria-haspopup", "menu");
+            chip.setAttribute("aria-label", `${entry.schoolName || "Entry"} actions`);
+          }
           chip.innerHTML = `
             <strong>${escapeHtml(entry.schoolName || "Untitled")}</strong>
             <span>${escapeHtml(formatCalendarEntryMeta(entry))}</span>
