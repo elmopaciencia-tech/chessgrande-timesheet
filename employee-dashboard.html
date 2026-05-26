@@ -124,6 +124,7 @@
       z-index: 80;
     }
     .menu-panel[hidden] { display: none; }
+    .menu-item[hidden] { display: none; }
     .menu-item {
       width: 100%;
       min-height: 44px;
@@ -676,10 +677,22 @@
       });
     }
 
+    function getProfileRole(profile) {
+      return String(profile?.role || "employee").trim().toLowerCase();
+    }
+
+    function canSeeManagerDashboard(profile) {
+      const role = getProfileRole(profile);
+      return role === "manager" || role === "webadmin";
+    }
+
+    function canSeeWebAdminDashboard(profile) {
+      return getProfileRole(profile) === "webadmin";
+    }
+
     function updateRoleLinks(profile) {
-      const role = profile && profile.role;
-      managerDashboardLink.hidden = !(role === "manager" || role === "webadmin");
-      webAdminDashboardLink.hidden = role !== "webadmin";
+      managerDashboardLink.hidden = !canSeeManagerDashboard(profile);
+      webAdminDashboardLink.hidden = !canSeeWebAdminDashboard(profile);
     }
 
     function updateGreeting(profile) {

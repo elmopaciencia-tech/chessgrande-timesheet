@@ -37,6 +37,7 @@ const uiEffectsSource = fs.readFileSync(
   "href=\"./chess-timesheet-pay.html\"",
   "src=\"./draft-timesheet-store.js\"",
   "src=\"./employee-notice-store.js\"",
+  ".menu-item[hidden] { display: none; }",
 ].forEach((requiredMarkup) => {
   assert.ok(html.includes(requiredMarkup), `employee dashboard should include ${requiredMarkup}`);
 });
@@ -48,6 +49,8 @@ const uiEffectsSource = fs.readFileSync(
   "getUpcomingClassEntries(entries, new Date(), 7)",
   "getCurrentMonthStats(entries, monthKey)",
   "getLatestSubmissionForMonth(submissions, currentMonth)",
+  "canSeeManagerDashboard(profile)",
+  "canSeeWebAdminDashboard(profile)",
 ].forEach((requiredCode) => {
   assert.ok(html.includes(requiredCode), `employee dashboard should include ${requiredCode}`);
 });
@@ -82,6 +85,9 @@ function extractFunction(source, name) {
 }
 
 const dashboardHelpers = [
+  "getProfileRole",
+  "canSeeManagerDashboard",
+  "canSeeWebAdminDashboard",
   "startOfDay",
   "addDays",
   "parseDateInput",
@@ -93,13 +99,29 @@ const dashboardHelpers = [
 const helperFactory = Function(`
   const classEntryTypes = new Set(["School Coaching", "Replacement", "Camp", "Private"]);
   ${dashboardHelpers}
-  return { getUpcomingClassEntries, getCurrentMonthStats, getLatestSubmissionForMonth };
+  return {
+    canSeeManagerDashboard,
+    canSeeWebAdminDashboard,
+    getUpcomingClassEntries,
+    getCurrentMonthStats,
+    getLatestSubmissionForMonth
+  };
 `);
 const {
+  canSeeManagerDashboard,
+  canSeeWebAdminDashboard,
   getUpcomingClassEntries,
   getCurrentMonthStats,
   getLatestSubmissionForMonth,
 } = helperFactory();
+
+assert.equal(canSeeManagerDashboard({ role: "employee" }), false, "employees should not see manager dashboard links");
+assert.equal(canSeeWebAdminDashboard({ role: "employee" }), false, "employees should not see webadmin dashboard links");
+assert.equal(canSeeManagerDashboard({ role: "manager" }), true, "managers should see manager dashboard links");
+assert.equal(canSeeWebAdminDashboard({ role: "manager" }), false, "managers should not see webadmin dashboard links");
+assert.equal(canSeeManagerDashboard({ role: "webadmin" }), true, "webadmins should see manager dashboard links");
+assert.equal(canSeeWebAdminDashboard({ role: "webadmin" }), true, "webadmins should see webadmin dashboard links");
+assert.equal(canSeeManagerDashboard({ role: " WebAdmin " }), true, "role checks should ignore case and whitespace");
 
 const entries = [
   { id: "1", status: "active", type: "School Coaching", schoolName: "Bishop School", date: "2026-05-26", startTime: "14:00", hours: 2 },
