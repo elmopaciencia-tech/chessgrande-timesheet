@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex">
-  <title>Login | Chess Grande Payroll</title>
+  <title>Login | Chess Grande Timesheet</title>
   <style>
     :root {
       --bg: oklch(95.6% 0.015 96);
@@ -19,129 +19,514 @@
       --line: oklch(84.8% 0.012 178);
       --line-strong: oklch(76.8% 0.018 178);
       --accent: oklch(43.5% 0.076 177);
+      --accent-deep: oklch(36.8% 0.066 177);
       --accent-soft: oklch(91.4% 0.028 175);
       --clay: oklch(57.5% 0.108 44);
       --clay-soft: oklch(92.6% 0.03 44);
       --focus: oklch(66% 0.104 44);
       --shadow-lg: 0 24px 56px rgba(61, 52, 36, 0.10);
+      --shadow-md: 0 14px 32px rgba(61, 52, 36, 0.08);
       --shadow-sm: 0 8px 18px rgba(61, 52, 36, 0.06);
     }
+
     * { box-sizing: border-box; }
-    body {
+
+    body.login-page {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at top left, rgba(191, 114, 71, 0.12), transparent 26%),
-        radial-gradient(circle at top right, rgba(49, 99, 92, 0.10), transparent 24%),
-        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 58%, oklch(94.8% 0.014 96) 100%);
       color: var(--ink);
       font-family: "Avenir Next", "Segoe UI", sans-serif;
-      padding: 18px;
+      background:
+        linear-gradient(rgba(49, 58, 52, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49, 58, 52, 0.05) 1px, transparent 1px),
+        radial-gradient(circle at 12% 8%, rgba(191, 114, 71, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(49, 99, 92, 0.10), transparent 28%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 60%, oklch(94.8% 0.014 96) 100%);
+      background-size: 44px 44px, 44px 44px, 100% 100%, 100% 100%, 100% 100%;
     }
+
+    a { color: inherit; }
+    button, input { font: inherit; }
+    button, a { touch-action: manipulation; }
     :focus { outline: none; }
-    :focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 72%, white 28%); outline-offset: 3px; }
-    .card {
-      width: min(520px, 100%);
-      background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
-      border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
-      border-radius: 32px;
-      box-shadow: var(--shadow-lg);
-      padding: 32px;
+    :focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--focus) 72%, white 28%);
+      outline-offset: 3px;
     }
-    h1 {
-      margin: 0 0 10px;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.15rem, 8vw, 3.4rem);
-      line-height: .95;
-      font-weight: 400;
-      text-wrap: balance;
+
+    .login-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(420px, 0.86fr);
     }
-    p { margin: 0 0 18px; color: var(--muted); }
-    label { display: block; margin-bottom: 6px; color: var(--muted); font-size: .84rem; font-weight: 600; }
-    input {
-      width: 100%;
-      border: 1px solid var(--line);
+
+    .login-form-panel {
+      min-width: 0;
+      display: grid;
+      place-items: center;
+      padding: max(24px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+    }
+
+    .login-form-wrap {
+      width: min(448px, 100%);
+      display: grid;
+      gap: 24px;
+    }
+
+    .form-header {
+      display: grid;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      margin: 0 auto 4px;
       border-radius: 16px;
-      padding: 12px 14px;
-      font: inherit;
-      margin-bottom: 14px;
-      min-height: 52px;
-      background: color-mix(in srgb, var(--surface-strong) 90%, white 10%);
+      display: grid;
+      place-items: center;
+      background: color-mix(in srgb, var(--accent) 14%, white 86%);
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-mark svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.05rem, 6vw, 3rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+      font-weight: 760;
       color: var(--ink);
     }
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 4px;
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
     }
-    button {
+
+    .login-card {
+      width: 100%;
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      box-shadow: var(--shadow-lg);
+      padding: clamp(22px, 5vw, 32px);
+      display: grid;
+      gap: 22px;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      display: block;
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .field-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    input {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--surface-strong) 92%, white 8%);
+      color: var(--ink);
+      padding: 12px 14px 12px 44px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+      transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
+    }
+
+    input::placeholder {
+      color: color-mix(in srgb, var(--muted) 72%, white 28%);
+    }
+
+    input:focus {
+      border-color: color-mix(in srgb, var(--focus) 64%, white 36%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 15%, white 85%);
+      transform: translateY(-1px);
+    }
+
+    .password-input {
+      padding-right: 46px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      width: 34px;
+      height: 34px;
+      min-height: 34px;
+      padding: 0;
       border: 0;
       border-radius: 999px;
-      padding: 12px 16px;
-      font: inherit;
-      font-weight: 700;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      color: var(--muted);
       cursor: pointer;
-      min-height: 46px;
+      transform: translateY(-50%);
+      transition: color 180ms ease, background 180ms ease;
     }
-    .primary { background: var(--accent); color: var(--surface-strong); }
-    .secondary { background: var(--clay-soft); color: var(--clay); }
+
+    .password-toggle:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .password-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 22px;
+    }
+
+    .support-link,
+    .login-footer a {
+      color: var(--accent);
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .support-link:hover,
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .submit-button,
+    .oauth-button {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .submit-button {
+      border: 0;
+      background: var(--accent);
+      color: var(--surface-strong);
+      box-shadow: 0 12px 26px rgba(42, 94, 87, 0.22);
+    }
+
+    .submit-button:hover,
+    .oauth-button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .submit-button:disabled,
+    .oauth-button:disabled {
+      cursor: wait;
+      opacity: 0.72;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .divider {
+      position: relative;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .divider::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 1px solid var(--line);
+    }
+
+    .divider span {
+      position: relative;
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      padding: 0 12px;
+    }
+
+    .oauth-button {
+      border: 1px solid color-mix(in srgb, var(--line-strong) 72%, white 28%);
+      background: color-mix(in srgb, white 92%, var(--surface-muted) 8%);
+      color: var(--ink);
+      box-shadow: 0 8px 18px rgba(61, 52, 36, 0.05);
+    }
+
+    .google-icon {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+    }
+
     .status {
-      margin-top: 12px;
       min-height: 22px;
       color: var(--clay);
-      font-weight: 600;
-    }
-    .notice {
-      margin: 0 0 14px;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: color-mix(in srgb, var(--surface-accent) 26%, var(--surface-strong) 74%);
-      color: var(--ink-soft);
-      font-size: 0.95rem;
-    }
-    .footnote {
-      margin: 14px 0 0;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-    .footnote a {
-      color: var(--accent);
-    }
-    .signup-link {
-      font-size: 1.15rem;
       font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .login-footer {
+      display: grid;
+      gap: 10px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .privacy-copy {
+      font-size: 0.84rem;
+    }
+
+    .hero-panel {
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding: clamp(32px, 7vw, 72px);
+      background:
+        linear-gradient(rgba(49, 99, 92, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49, 99, 92, 0.08) 1px, transparent 1px),
+        linear-gradient(135deg, color-mix(in srgb, var(--surface-strong) 76%, var(--accent-soft) 24%) 0%, color-mix(in srgb, var(--surface-muted) 80%, white 20%) 100%);
+      background-size: 36px 36px, 36px 36px, 100% 100%;
+      border-left: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
+    }
+
+    .hero-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.82), transparent 46%),
+        linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.52) 100%);
+      pointer-events: none;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      width: min(440px, 100%);
+      display: grid;
+      gap: 22px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
       color: var(--accent);
-      text-decoration: underline;
+      background: color-mix(in srgb, white 74%, var(--accent-soft) 26%);
+      border: 1px solid color-mix(in srgb, var(--accent) 15%, white 85%);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero-badge svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .hero-copy h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(2.15rem, 4vw, 3.45rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+      font-weight: 780;
+      text-wrap: balance;
+    }
+
+    .hero-copy p {
+      font-size: 1.04rem;
+      color: var(--ink-soft);
+    }
+
+    .trust-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .trust-dot {
+      min-width: 0;
+      height: 8px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 22%, white 78%);
+    }
+
+    .trust-dot:nth-child(2) {
+      background: color-mix(in srgb, var(--clay) 22%, white 78%);
+    }
+
+    .trust-dot:nth-child(3) {
+      background: color-mix(in srgb, var(--line-strong) 66%, white 34%);
+    }
+
+    @media (max-width: 920px) {
+      .login-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-panel {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .login-form-panel {
+        align-items: start;
+        padding-top: max(18px, env(safe-area-inset-top));
+      }
+
+      .login-form-wrap {
+        gap: 18px;
+      }
+
+      .login-card {
+        border-radius: 16px;
+        padding: 20px;
+      }
     }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
   <script src="./ui-effects.js" defer></script>
 </head>
-<body>
-  <main class="card">
-    <h1>Chess Grande Payroll Portal</h1>
-    <p>Secure sign-in for authorized Chess Grande employees and managers.</p>
-    <p class="notice">Private payroll system: do not enter credentials anywhere else.</p>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-form-panel" aria-labelledby="loginTitle">
+      <div class="login-form-wrap">
+        <header class="form-header">
+          <div class="brand-mark" aria-hidden="true">
+            <i data-lucide="landmark"></i>
+          </div>
+          <h1 id="loginTitle">Welcome back</h1>
+          <p>Sign in to Chess Grande Timesheet.</p>
+        </header>
 
-    <form id="loginForm">
-      <label for="email">Email</label>
-      <input id="email" type="email" autocomplete="email" required>
+        <section class="login-card card" aria-label="Timesheet login">
+          <form class="login-form" id="loginForm">
+            <div class="field">
+              <label for="email">Email</label>
+              <div class="input-wrap">
+                <i class="field-icon" data-lucide="mail" aria-hidden="true"></i>
+                <input id="email" type="email" autocomplete="email" placeholder="name@example.com" required>
+              </div>
+            </div>
 
-      <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="current-password" required>
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="input-wrap">
+                <i class="field-icon" data-lucide="lock" aria-hidden="true"></i>
+                <input class="password-input" id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+                <button class="password-toggle" id="passwordToggle" type="button" aria-label="Show password" aria-pressed="false">
+                  <i class="password-eye" data-lucide="eye" aria-hidden="true"></i>
+                  <i class="password-eye-off is-hidden" data-lucide="eye-off" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
 
-      <div class="actions">
-        <button class="primary" type="submit" id="loginButton">Log In</button>
+            <div class="form-row">
+              <span></span>
+              <a class="support-link" href="./privacy.html">Privacy notice</a>
+            </div>
+
+            <button class="submit-button primary" type="submit" id="loginButton">Sign in</button>
+
+            <div class="divider" aria-hidden="true"><span>Or continue with</span></div>
+
+            <button class="oauth-button" type="button" id="googleLoginButton" data-cg-iconified="true">
+              <svg class="google-icon" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
+
+            <div class="status" id="statusMessage" role="status" aria-live="polite"></div>
+          </form>
+
+          <footer class="login-footer">
+            <p>Do not have an account? <a href="./signup.html">Create one</a></p>
+            <p class="privacy-copy">Private timesheet system for authorized Chess Grande employees and managers.</p>
+          </footer>
+        </section>
       </div>
-      <div class="status" id="statusMessage"></div>
-    </form>
-    <p class="footnote"><a class="signup-link" href="./signup.html">Create a new account</a></p>
-    <p class="footnote">By signing in, you agree to payroll data handling described in <a href="./privacy.html">Privacy & Security Notice</a>.</p>
+    </section>
+
+    <aside class="hero-panel" aria-label="Chess Grande Timesheet">
+      <div class="hero-copy">
+        <div class="hero-badge" aria-hidden="true">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <h2>Timesheet access, tightened.</h2>
+        <p>Timesheets, submissions, and manager review stay behind authenticated employee access.</p>
+        <div class="trust-row" aria-hidden="true">
+          <span class="trust-dot"></span>
+          <span class="trust-dot"></span>
+          <span class="trust-dot"></span>
+        </div>
+      </div>
+    </aside>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -150,39 +535,118 @@
     const loginForm = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
+    const passwordToggle = document.getElementById("passwordToggle");
+    const loginButton = document.getElementById("loginButton");
+    const googleLoginButton = document.getElementById("googleLoginButton");
     const statusMessage = document.getElementById("statusMessage");
     const nextParam = new URLSearchParams(window.location.search).get("next");
     const requestedNextUrl = getSafeNextUrl(nextParam);
 
+    window.addEventListener("DOMContentLoaded", renderLucideIcons);
+    window.addEventListener("load", renderLucideIcons);
+
+    passwordToggle.addEventListener("click", togglePasswordVisibility);
+    googleLoginButton.addEventListener("click", signInWithGoogle);
+
     init();
 
     async function init() {
+      const authError = getOAuthErrorMessage();
+      if (authError) {
+        statusMessage.textContent = authError;
+        clearOAuthErrorParams();
+        return;
+      }
+
       const { data } = await window.supabaseClient.auth.getUser();
       if (data.user) {
+        const profileReady = await ensureCurrentUserProfile(data.user);
+        if (!profileReady) {
+          statusMessage.textContent = "Signed in, but profile setup could not be prepared. Please contact a manager.";
+          return;
+        }
         window.location.href = await resolvePostLoginUrl();
       }
     }
 
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      statusMessage.textContent = "Logging in...";
+      setAuthBusy(true, "Signing in...");
+
       const email = emailInput.value.trim();
       const password = passwordInput.value;
-      const { error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+
       if (error) {
-        statusMessage.textContent = error.message || "Login failed.";
+        setAuthBusy(false, error.message || "Login failed.");
         return;
       }
-      statusMessage.textContent = "Logged in. Redirecting...";
+
+      const user = data.user || (await window.supabaseClient.auth.getUser()).data.user;
+      if (user) {
+        const profileReady = await ensureCurrentUserProfile(user);
+        if (!profileReady) {
+          setAuthBusy(false, "Signed in, but profile setup could not be prepared. Please contact a manager.");
+          return;
+        }
+      }
+
+      statusMessage.textContent = "Signed in. Redirecting...";
       window.location.href = await resolvePostLoginUrl();
     });
 
+    async function signInWithGoogle() {
+      if (window.location.protocol === "file:") {
+        statusMessage.textContent = "Google sign-in needs the app served from http://localhost or your production URL.";
+        return;
+      }
+
+      setAuthBusy(true, "Opening Google sign-in...");
+      const { error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: buildOAuthRedirectUrl(),
+        },
+      });
+
+      if (error) {
+        setAuthBusy(false, error.message || "Google sign-in failed.");
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const shouldShow = passwordInput.type === "password";
+      passwordInput.type = shouldShow ? "text" : "password";
+      passwordToggle.setAttribute("aria-label", shouldShow ? "Hide password" : "Show password");
+      passwordToggle.setAttribute("aria-pressed", String(shouldShow));
+      const passwordEye = passwordToggle.querySelector(".password-eye");
+      const passwordEyeOff = passwordToggle.querySelector(".password-eye-off");
+      if (passwordEye) passwordEye.classList.toggle("is-hidden", shouldShow);
+      if (passwordEyeOff) passwordEyeOff.classList.toggle("is-hidden", !shouldShow);
+    }
+
+    function setAuthBusy(isBusy, message) {
+      loginButton.disabled = isBusy;
+      googleLoginButton.disabled = isBusy;
+      statusMessage.textContent = message || "";
+    }
+
+    function buildOAuthRedirectUrl() {
+      const redirectUrl = new URL(window.location.href);
+      redirectUrl.hash = "";
+      redirectUrl.search = "";
+      if (requestedNextUrl) {
+        redirectUrl.searchParams.set("next", requestedNextUrl);
+      }
+      return redirectUrl.toString();
+    }
+
     function getSafeNextUrl(value) {
       const raw = String(value || "").trim();
-      if (!raw || /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(raw)) {
+      if (!raw || /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(raw) || /[\r\n\\]/.test(raw)) {
         return "";
       }
-      if (raw.includes("login.html") || raw.includes("signup.html")) {
+      if (raw.includes("login.html") || raw.includes("signup.html") || raw.includes("profile-setup.html")) {
         return "";
       }
       return raw.startsWith("./") ? raw : `./${raw.replace(/^\/+/, "")}`;
@@ -190,9 +654,6 @@
 
     async function resolvePostLoginUrl() {
       if (requestedNextUrl) return requestedNextUrl;
-      const profile = await loadCurrentProfile();
-      if (profile && profile.role === "webadmin") return "./webadmin-dashboard.html";
-      if (profile && profile.role === "manager") return "./manager-dashboard.html";
       return "./employee-dashboard.html";
     }
 
@@ -211,6 +672,78 @@
       return data || null;
     }
 
+    async function ensureCurrentUserProfile(user) {
+      const { data: existingProfile, error: selectError } = await window.supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (selectError) {
+        console.warn("Could not check current profile:", selectError.message);
+        return false;
+      }
+      if (existingProfile) return true;
+
+      const fullName = getUserDisplayName(user);
+      const { error: insertError } = await window.supabaseClient
+        .from("profiles")
+        .insert({
+          id: user.id,
+          full_name: fullName,
+          role: "employee",
+        });
+
+      if (insertError) {
+        console.warn("Could not create OAuth profile:", insertError.message);
+        return false;
+      }
+      return true;
+    }
+
+    function getUserDisplayName(user) {
+      const metadata = user.user_metadata || {};
+      return String(
+        metadata.full_name ||
+        metadata.name ||
+        metadata.user_name ||
+        user.email ||
+        ""
+      ).trim();
+    }
+
+    function getOAuthErrorMessage() {
+      const hashParams = new URLSearchParams(window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "");
+      const queryParams = new URLSearchParams(window.location.search.startsWith("?") ? window.location.search.slice(1) : "");
+      const error = hashParams.get("error") || queryParams.get("error");
+      if (!error) return "";
+      return (
+        hashParams.get("error_description") ||
+        queryParams.get("error_description") ||
+        hashParams.get("error_code") ||
+        queryParams.get("error_code") ||
+        "OAuth sign-in failed."
+      );
+    }
+
+    function clearOAuthErrorParams() {
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.hash = "";
+      cleanUrl.searchParams.delete("error");
+      cleanUrl.searchParams.delete("error_code");
+      cleanUrl.searchParams.delete("error_description");
+      window.history.replaceState(null, document.title, `${cleanUrl.pathname}${cleanUrl.search}`);
+    }
+
+    function renderLucideIcons() {
+      if (!window.lucide) return;
+      window.lucide.createIcons({
+        attrs: {
+          "aria-hidden": "true",
+          focusable: "false",
+        },
+      });
+    }
   </script>
 </body>
 </html>
