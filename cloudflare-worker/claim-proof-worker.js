@@ -32,8 +32,10 @@ const MAX_CHAT_MESSAGE_CHARS = 1800;
 const MAX_RAG_FILES = 40;
 const MAX_RAG_FILE_CHARS = 24000;
 const MAX_RAG_CONTEXT_CHARS = 9000;
+const MAX_IMPORT_WORKBOOK_TEXT_CHARS = 52000;
 const DEFAULT_RAG_DOCS_PREFIX = "rag-docs/";
 const DEFAULT_OPENROUTER_MODEL = "openai/gpt-4.1-mini";
+const OPENROUTER_SETTINGS_KEY = "admin-settings/openrouter.json";
 
 export default {
   async fetch(request, env) {
@@ -59,6 +61,15 @@ export default {
       }
       if (request.method === "POST" && pathname === "/api/webadmin-chat") {
         return withCors(await handleWebadminChat(request, env));
+      }
+      if (request.method === "GET" && pathname === "/api/openrouter-settings") {
+        return withCors(await handleGetOpenRouterSettings(request, env));
+      }
+      if (request.method === "POST" && pathname === "/api/openrouter-settings") {
+        return withCors(await handleSaveOpenRouterSettings(request, env));
+      }
+      if (request.method === "POST" && pathname === "/api/timesheet-xlsx-parse") {
+        return withCors(await handleTimesheetXlsxParse(request, env));
       }
 
       return withCors(jsonResponse(404, { error: "Not found" }));
@@ -231,11 +242,7 @@ async function handleRead(request, env) {
 }
 
 async function handleWebadminChat(request, env) {
-  const user = await requireAuthUser(request, env);
-  const profile = await getProfileForUser(user.id, env);
-  if (String(profile?.role || "").toLowerCase() !== "webadmin") {
-    throw new ErrorResponse(403, "This chat is available to webadmin accounts only.");
-  }
+  await requireWebadminProfile(request, env);
   if (!env.OPENROUTER_API_KEY) {
     throw new ErrorResponse(500, "OPENROUTER_API_KEY is not configured.");
   }
@@ -250,7 +257,7 @@ async function handleWebadminChat(request, env) {
   const retrieved = await retrieveRagDocuments(question, env);
   const context = formatRagContext(retrieved);
   const history = formatChatHistory(messages.slice(0, -1));
-  const chain = buildWebadminChatChain(env);
+  const chain = await buildWebadminChatChain(env);
   const answer = await chain.invoke({
     question,
     history,
@@ -265,6 +272,176 @@ async function handleWebadminChat(request, env) {
       score: doc.score,
     })),
   });
+}
+
+async function handleGetOpenRouterSettings(request, env) {
+  await requireWebadminProfile(request, env);
+  const settings = await getOpenRouterSettings(env);
+  return jsonResponse(200, formatOpenRouterSettingsResponse(settings, env));
+}
+
+async function handleSaveOpenRouterSettings(request, env) {
+  await requireWebadminProfile(request, env);
+  const body = await request.json().catch(() => ({}));
+  const settings = {
+    chatModel: normalizeOpenRouterModel(body?.chatModel, "chatModel"),
+    importModel: normalizeOpenRouterModel(body?.importModel, "importModel"),
+  };
+  await saveOpenRouterSettings(env, settings);
+  return jsonResponse(200, formatOpenRouterSettingsResponse(settings, env));
+}
+
+async function handleTimesheetXlsxParse(request, env) {
+  const user = await requireAuthUser(request, env);
+  const profile = await getProfileForUser(user.id, env);
+  if (!isRoleAllowed(profile?.role)) {
+    throw new ErrorResponse(403, "This import is available to employee, manager, and webadmin accounts only.");
+  }
+  if (!env.OPENROUTER_API_KEY) {
+    throw new ErrorResponse(500, "OPENROUTER_API_KEY is not configured.");
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const fileName = String(body?.fileName || "uploaded.xlsx").trim();
+  const selectedMonth = String(body?.selectedMonth || "").trim();
+  const workbookText = String(body?.workbookText || "");
+
+  if (!workbookText.trim()) {
+    throw new ErrorResponse(400, "workbookText is required.");
+  }
+  if (workbookText.length > MAX_IMPORT_WORKBOOK_TEXT_CHARS) {
+    throw new ErrorResponse(413, "workbookText is too large.");
+  }
+
+  const prompt = buildTimesheetXlsxImportPrompt({ fileName, selectedMonth, workbookText });
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "X-Title": "Chess Grande Timesheet XLSX Import",
+      ...(env.OPENROUTER_SITE_URL || env.PUBLIC_WORKER_BASE_URL
+        ? { "HTTP-Referer": env.OPENROUTER_SITE_URL || env.PUBLIC_WORKER_BASE_URL }
+        : {}),
+    },
+    body: JSON.stringify({
+      model: await resolveOpenRouterImportModel(env),
+      temperature: 0.05,
+      max_tokens: 7000,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new ErrorResponse(response.status, `OpenRouter ${response.status}: ${text.slice(0, 260)}`);
+  }
+
+  const payload = await response.json();
+  const content = payload?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new ErrorResponse(502, "OpenRouter returned an empty response.");
+  }
+
+  return jsonResponse(200, { content });
+}
+
+function buildTimesheetXlsxImportPrompt({ fileName, workbookText, selectedMonth }) {
+  return [
+    "You are parsing a Chess Grande timesheet XLSX into draft timesheet entries.",
+    "Return valid JSON only. Do not include markdown, prose, or comments.",
+    "",
+    "Top-level schema:",
+    "{",
+    '  "month": "YYYY-MM",',
+    '  "entries": [],',
+    '  "warnings": [],',
+    '  "payCalculation": {',
+    '    "standardRate": number,',
+    '    "schoolHours": number,',
+    '    "schoolPay": number,',
+    '    "importableClaimTotal": number,',
+    '    "importableTotal": number,',
+    '    "warningClaimTotal": number,',
+    '    "workbookClaimTotal": number,',
+    '    "workbookGrandTotal": number',
+    "  }",
+    "}",
+    "",
+    "Every entry MUST include this exact full shape:",
+    "{",
+    '  "date": "YYYY-MM-DD",',
+    '  "type": "School Coaching" | "Replacement" | "Claim" | "Camp" | "Private" | "Event",',
+    '  "schoolName": string,',
+    '  "startTime": "HH:MM" | "",',
+    '  "endTime": "HH:MM" | "",',
+    '  "hours": number,',
+    '  "replacementName": string,',
+    '  "customRate": number | null,',
+    '  "claimNotes": string,',
+    '  "claimCost": number | null,',
+    '  "calendarColor": "#B4CFA4"',
+    "}",
+    "",
+    "Parsing rules:",
+    "- Use the INTERPRETED TIMESHEET ROWS section first; raw rows are backup evidence.",
+    "- Do not invent missing dates, times, names, hours, or costs.",
+    '- School/location rows become type "School Coaching" unless an explicit separate type section says otherwise.',
+    "- If one row has multiple date cells, create one entry per date.",
+    '- Convert times like 0930 to "09:30".',
+    "- Convert Excel date serials and day/month cells to ISO dates for the selected month.",
+    "- Convert day numbers in the selected month to ISO dates.",
+    "- The duration from startTime to endTime must match hours.",
+    "- If workbook end time conflicts with hours, calculate endTime from startTime + hours and add a warning.",
+    '- Any interpreted row with WARNING=timeHoursMismatch must produce a warning with type "TimeHoursMismatch", sourceRow, reason, and the correction used.',
+    "- Keep replacement-looking names as schoolName unless a separate replacement person is explicitly shown.",
+    '- For non-claim coaching entries, set claimNotes "" and claimCost null.',
+    '- For Claim entries, set schoolName "Claims", startTime "", endTime "", hours 0, replacementName "", customRate null.',
+    "- Claim rows become executable entries only when item, amount, and date are present.",
+    "- Claim rows with item and amount but no date MUST become Claim entries dated on the first day of the selected month.",
+    "- Interpreted claim rows with dateDefaultedToMonthStart=true are valid executable Claim entries, not warnings.",
+    "- Private Lessons rows must contribute to importableTotal using their rate column when present.",
+    "- importableTotal must include every executable non-claim paid row plus executable claims.",
+    "",
+    "Warning schema:",
+    "{",
+    '  "sourceRow": number,',
+    '  "type": string,',
+    '  "reason": string,',
+    '  "claimNotes": string,',
+    '  "claimCost": number',
+    "}",
+    "",
+    "Pay calculation rules:",
+    "- standardRate comes from the workbook standard coaching rate.",
+    "- schoolHours is the sum of all executable non-claim paid hours across Schools, CG Weekly, Private, Camp, and coaching rows.",
+    "- schoolPay is the sum of pay for all executable non-claim paid rows; use row-specific Private/custom rates when present, otherwise use standardRate.",
+    "- importableClaimTotal is the sum of executable claim costs.",
+    "- importableTotal = schoolPay + importableClaimTotal.",
+    "- warningClaimTotal is the sum of claim costs that were not executable because of warnings.",
+    "- workbookClaimTotal is the claim total shown in the workbook, if present.",
+    "- workbookGrandTotal is the final total shown in the workbook, if present.",
+    "- payCalculation must never be empty. Use 0 only when a value truly cannot be found.",
+    "",
+    "Validation requirement:",
+    "- every entry has all required keys;",
+    '- every Claim entry has schoolName "Claims", hours 0, blank times, claimNotes, and claimCost;',
+    "- every non-claim time entry has a time range whose duration matches hours;",
+    "- every warning has sourceRow and reason;",
+    "- payCalculation has all required numeric fields.",
+    "",
+    `Selected month: ${selectedMonth || "not selected"}`,
+    `File name: ${fileName || "uploaded.xlsx"}`,
+    "",
+    "Workbook text:",
+    workbookText,
+  ].join("\n");
 }
 
 async function requireAuthUser(request, env) {
@@ -292,10 +469,93 @@ async function requireAuthUser(request, env) {
   return user;
 }
 
-function buildWebadminChatChain(env) {
+async function requireWebadminProfile(request, env) {
+  const user = await requireAuthUser(request, env);
+  const profile = await getProfileForUser(user.id, env);
+  if (String(profile?.role || "").toLowerCase() !== "webadmin") {
+    throw new ErrorResponse(403, "This action is available to webadmin accounts only.");
+  }
+  return { user, profile };
+}
+
+async function getOpenRouterSettings(env) {
+  if (!env.RAG_DOCS_BUCKET) {
+    return {};
+  }
+  const stored = await env.RAG_DOCS_BUCKET.get(OPENROUTER_SETTINGS_KEY);
+  if (!stored) {
+    return {};
+  }
+  const parsed = JSON.parse(await stored.text());
+  return {
+    chatModel: normalizeOpenRouterModel(parsed?.chatModel, "chatModel"),
+    importModel: normalizeOpenRouterModel(parsed?.importModel, "importModel"),
+  };
+}
+
+async function saveOpenRouterSettings(env, settings) {
+  if (!env.RAG_DOCS_BUCKET) {
+    throw new ErrorResponse(500, "RAG_DOCS_BUCKET is not configured.");
+  }
+  await env.RAG_DOCS_BUCKET.put(OPENROUTER_SETTINGS_KEY, JSON.stringify({
+    chatModel: settings.chatModel || "",
+    importModel: settings.importModel || "",
+    updatedAt: new Date().toISOString(),
+  }), {
+    httpMetadata: {
+      contentType: "application/json",
+    },
+  });
+}
+
+function normalizeOpenRouterModel(value, fieldName = "model") {
+  const model = String(value || "").trim();
+  if (!model) {
+    return "";
+  }
+  if (model.length > 140 || !/^[a-z0-9][a-z0-9._:/-]*$/i.test(model)) {
+    throw new ErrorResponse(400, `${fieldName} is not a valid OpenRouter model id.`);
+  }
+  return model;
+}
+
+function getDefaultOpenRouterChatModel(env) {
+  return env.OPENROUTER_MODEL || DEFAULT_OPENROUTER_MODEL;
+}
+
+function getDefaultOpenRouterImportModel(env) {
+  return env.OPENROUTER_IMPORT_MODEL || env.OPENROUTER_MODEL || DEFAULT_OPENROUTER_MODEL;
+}
+
+async function resolveOpenRouterChatModel(env) {
+  const settings = await getOpenRouterSettings(env);
+  return settings.chatModel || getDefaultOpenRouterChatModel(env);
+}
+
+async function resolveOpenRouterImportModel(env) {
+  const settings = await getOpenRouterSettings(env);
+  return settings.importModel || getDefaultOpenRouterImportModel(env);
+}
+
+function formatOpenRouterSettingsResponse(settings, env) {
+  const defaultChatModel = getDefaultOpenRouterChatModel(env);
+  const defaultImportModel = getDefaultOpenRouterImportModel(env);
+  return {
+    chatModel: settings.chatModel || "",
+    importModel: settings.importModel || "",
+    effectiveChatModel: settings.chatModel || defaultChatModel,
+    effectiveImportModel: settings.importModel || defaultImportModel,
+    defaults: {
+      chatModel: defaultChatModel,
+      importModel: defaultImportModel,
+    },
+  };
+}
+
+async function buildWebadminChatChain(env) {
   const model = new ChatOpenRouter({
     apiKey: env.OPENROUTER_API_KEY,
-    model: env.OPENROUTER_MODEL || DEFAULT_OPENROUTER_MODEL,
+    model: await resolveOpenRouterChatModel(env),
     temperature: Number(env.OPENROUTER_TEMPERATURE || 0.2),
     maxTokens: Number(env.OPENROUTER_MAX_TOKENS || 900),
     siteUrl: env.OPENROUTER_SITE_URL || env.PUBLIC_WORKER_BASE_URL || undefined,

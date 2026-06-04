@@ -17,5 +17,6 @@ bucket_name = "chessgrande-admin-rag"
 [vars]
 PUBLIC_WORKER_BASE_URL = "https://claim-proof-worker.elmopaciencia.workers.dev"
 OPENROUTER_MODEL = "openai/gpt-4.1-mini"
+OPENROUTER_IMPORT_MODEL = "openai/gpt-5-mini"
 OPENROUTER_SITE_NAME = "Chess Grande Payroll Admin"
 RAG_DOCS_PREFIX = "rag-docs/"

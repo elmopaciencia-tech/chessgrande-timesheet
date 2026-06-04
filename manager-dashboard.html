@@ -61,9 +61,9 @@
     .hero p, .panel-copy, .status, .modal-status { margin: 0; color: var(--muted); line-height: 1.5; }
     .hero-copy, .hero-stats { position: relative; z-index: 1; }
     .hero-copy { display: grid; gap: 12px; }
-    .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     .hero-stat { min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px; border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%); }
-    .hero-stat-wide { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px; }
+    .hero-stat-wide { grid-column: auto; grid-template-columns: 1fr; align-items: start; gap: 3px; }
     .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
     .panel { padding: 28px; background: color-mix(in srgb, var(--surface) 90%, white 10%); border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 28px; box-shadow: var(--shadow-md); }
     .panel-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -80,7 +80,7 @@
     .stat { padding: 20px; min-height: 132px; display: grid; align-content: end; }
     .stat-label { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
     .stat-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; word-break: break-word; }
-    #totalSubmittedPay { min-width: max-content; white-space: nowrap; overflow-wrap: normal; word-break: normal; line-height: 1; font-size: clamp(1.35rem, 3vw, 1.8rem); }
+    #totalSubmittedPay { max-width: 100%; min-width: 0; white-space: nowrap; overflow-wrap: normal; word-break: normal; line-height: 1; font-size: clamp(1rem, 2.2vw, 1.8rem); }
     .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
     .filter-card, .toolbar-card { padding: 16px; }
     .filter-title, .search-wrap label, .role-filter label { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
@@ -98,6 +98,7 @@
     .file-paid-status { color: color-mix(in srgb, var(--brand) 62%, black 38%); font-size: .82rem; font-weight: 700; margin-top: 4px; }
     .file-role { font-weight: 700; text-transform: capitalize; color: var(--accent); }
     .file-pay { font-weight: 700; color: var(--ink); }
+    .file-action-label { display: inline; }
     .status { min-height: 1.2rem; font-size: .92rem; margin-bottom: 14px; }
     .empty { padding: 28px; border-radius: 24px; background: color-mix(in srgb, var(--surface-muted) 74%, white 26%); border: 1px dashed color-mix(in srgb, var(--line) 82%, white 18%); text-align: center; }
     .modal-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(23,26,25,.5); z-index: 1100; }
@@ -124,30 +125,172 @@
       .toolbar, .stat-row, .filters { grid-template-columns: 1fr; }
       .hero { grid-template-columns: 1fr; }
       .stat-value { font-size: 1.45rem; }
-      #totalSubmittedPay { font-size: clamp(1.28rem, 5vw, 1.55rem); }
+      #totalSubmittedPay { font-size: clamp(1rem, 4vw, 1.45rem); }
       .file-item { grid-template-columns: 58px minmax(0, 1fr) minmax(100px, auto) minmax(110px, auto) minmax(120px, auto) auto; align-items: center; }
+    }
+    @media (min-width: 561px) and (max-width: 760px) {
+      .filters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .filter-card {
+        min-width: 0;
+        padding: 12px;
+        border-radius: 18px;
+      }
+      .filter-title {
+        min-height: 2.1em;
+        margin-bottom: 8px;
+        font-size: .66rem;
+        letter-spacing: .06em;
+        line-height: 1.05;
+      }
+      .filter-select {
+        min-height: 46px;
+        padding: 9px 10px;
+        border-radius: 14px;
+        font-size: .9rem;
+      }
+      .file-item {
+        grid-template-columns: 48px minmax(110px, 1.15fr) minmax(68px, .55fr) minmax(88px, .72fr) minmax(94px, .78fr);
+        grid-template-areas:
+          "avatar identity hours rate pay"
+          "avatar identity actions actions actions";
+        gap: 10px 12px;
+        align-items: center;
+        padding: 14px;
+      }
+      .file-avatar-img,
+      .folder-icon {
+        grid-area: avatar;
+        width: 44px;
+        height: 44px;
+      }
+      .file-identity { grid-area: identity; min-width: 0; }
+      .file-hours { grid-area: hours; }
+      .file-rate { grid-area: rate; }
+      .file-pay { grid-area: pay; white-space: nowrap; font-size: 1rem; }
+      .file-name,
+      .file-sub,
+      .file-meta,
+      .file-pay {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .file-name,
+      .file-sub {
+        white-space: nowrap;
+      }
+      .file-meta {
+        white-space: nowrap;
+        font-size: .82rem;
+      }
+      .file-paid-status { display: none; }
+      .file-item-actions {
+        grid-area: actions;
+        justify-self: end;
+        flex-wrap: nowrap;
+      }
+      .file-item-actions .paid-button,
+      .file-item-actions .delete-button {
+        min-height: 38px;
+        padding: 9px 12px;
+      }
     }
     @media (max-width: 760px) {
       .hero, .panel, .modal { padding: 20px; }
       .app-header-inner { min-height: 66px; padding: 0 16px; }
       .modal-grid, .modal-actions { grid-template-columns: 1fr; }
-      .file-item { grid-template-columns: 1fr; align-items: start; }
-      .hero-stats { grid-template-columns: 1fr; }
+      .file-item-actions .paid-button,
+      .file-item-actions .delete-button {
+        width: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        gap: 0;
+      }
+      .file-item-actions .file-action-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .hero-stat { padding: 10px 9px; }
       .hero-stat-wide { grid-template-columns: 1fr; align-items: start; }
+      .hero-stats .stat-label { font-size: .66rem; letter-spacing: .06em; }
+      #totalSubmittedPay { font-size: clamp(.88rem, 4.2vw, 1.2rem); }
+    }
+    @media (max-width: 560px) {
+      .panel-header { display: grid; grid-template-columns: 1fr; }
+      .panel-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .panel-actions .button {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        padding: 10px 8px;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.1;
+        font-size: clamp(.76rem, 3.3vw, .9rem);
+      }
+      .panel-actions .button[data-cg-iconified] {
+        gap: .35rem;
+      }
+      .filters { grid-template-columns: 1fr; }
+      .file-item { grid-template-columns: 1fr; align-items: start; }
       .file-item-actions { justify-self: start; }
     }
 
-</style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
-<div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
-          <a class="menu-item" href="./employee-dashboard.html">Employee Dashboard</a>
-          <a class="menu-item" href="./chess-timesheet.html">Employee Timesheet</a>
-          <a class="menu-item" href="./manager-drafts.html">Draft Timesheets</a>
-          <a class="menu-item" id="webAdminDashboardLink" href="./webadmin-dashboard.html" hidden>Webadmin Dashboard</a>
+</style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="app-header">
+    <div class="app-header-inner cg-navbar">
+      <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
+        <img src="./assets/cg-nav-logo.png" alt="" width="46" height="46">
+        <span class="sr-only">Chess Grande</span>
+      </a>
+      <nav class="cg-nav" aria-label="Primary navigation">
+        <ul class="cg-nav-list">
+          <li class="cg-nav-item" data-nav-section="overview">
+            <a class="cg-nav-link" href="./employee-dashboard.html">Overview</a>
+          </li>
+          <li class="cg-nav-item" data-nav-section="timesheet">
+            <button class="cg-nav-trigger" id="timesheetNavTrigger" type="button" aria-expanded="false" aria-controls="timesheetNavDropdown">Timesheet</button>
+            <div class="cg-nav-dropdown" id="timesheetNavDropdown" role="menu" hidden>
+              <a class="cg-nav-dropdown-link" href="./chess-timesheet.html" role="menuitem">Timesheet</a>
+              <a class="cg-nav-dropdown-link" href="./chess-timesheet-pay.html" role="menuitem">Submissions</a>
+            </div>
+          </li>
+          <li class="cg-nav-item" id="managerNavItem" data-nav-section="manager" hidden>
+            <button class="cg-nav-trigger" id="managerNavTrigger" type="button" aria-expanded="false" aria-controls="managerNavDropdown">Manager</button>
+            <div class="cg-nav-dropdown" id="managerNavDropdown" role="menu" hidden>
+              <a class="cg-nav-dropdown-link" href="./manager-dashboard.html" role="menuitem">Manager-Dashboard</a>
+              <a class="cg-nav-dropdown-link" href="./manager-drafts.html" role="menuitem">Draft Timesheet for Employee</a>
+            </div>
+          </li>
+          <li class="cg-nav-item" id="webAdminNavItem" data-nav-section="webadmin" hidden>
+            <a class="cg-nav-link" href="./webadmin-dashboard.html">Webadmin</a>
+          </li>
+        </ul>
+      </nav>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
           <button class="menu-item" id="profileButton" type="button">Profile</button>
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
-      
-</div></div></div></header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><div class="panel-actions"><button class="button" id="sendNoticeButton" type="button">Send Notice</button><a class="button" href="./manager-drafts.html">Open Draft Timesheets</a><a class="button" href="./chess-timesheet.html">Open Employee Timesheet</a></div></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+      </div>
+    </div>
+  </header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><div class="panel-actions"><button class="button" id="sendNoticeButton" type="button">Send Notice to Employee</button><a class="button" href="./manager-drafts.html">Draft Timesheet for Employee</a></div></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
   <div class="modal-overlay" id="noticeModalOverlay" role="dialog" aria-modal="true" aria-labelledby="noticeModalTitle" hidden>
     <section class="modal notice-modal">
       <div class="modal-head">
@@ -200,7 +343,8 @@
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
-    const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
+    const managerNavItem = document.getElementById("managerNavItem");
+    const webAdminNavItem = document.getElementById("webAdminNavItem");
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
@@ -231,7 +375,8 @@
       if (!user) return;
       currentManagerId = user.id;
       const profile = await getCurrentProfile();
-      webAdminDashboardLink.hidden = !(profile && profile.role === "webadmin");
+      managerNavItem.hidden = !(profile && (profile.role === "manager" || profile.role === "webadmin"));
+      webAdminNavItem.hidden = !(profile && profile.role === "webadmin");
       setupUserMenu();
       setupNoticeModal();
       await render();
@@ -517,17 +662,17 @@
         link.innerHTML = `
           <img class="file-avatar-img" src="" alt="" width="44" height="44" style="display:none;width:44px;height:44px;border-radius:999px;object-fit:cover;flex-shrink:0;">
           <div class="folder-icon" aria-hidden="true"></div>
-          <div>
+          <div class="file-identity">
             <div class="file-name">${escapeHtml(submission.employeeName || "Unnamed Employee")}</div>
             <div class="file-sub">${escapeHtml(submission.monthLabel || submission.month || "")}</div>
             ${paidStatus ? `<div class="file-paid-status">${escapeHtml(paidStatus)}</div>` : ""}
           </div>
-          <div class="file-meta">${trimHours(submission.totalHours || 0)} hrs</div>
-          <div class="file-meta">${formatCurrency(submission.hourlyRate || 0)}/hr</div>
+          <div class="file-meta file-hours">${trimHours(submission.totalHours || 0)} hrs</div>
+          <div class="file-meta file-rate">${formatCurrency(submission.hourlyRate || 0)}/hr</div>
           <div class="file-pay">${formatCurrency(submission.totalPay || 0)}</div>
           <div class="file-item-actions">
-            <button class="paid-button" type="button" ${paidButtonAttrs}>Paid</button>
-            <button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}">Delete</button>
+            <button class="paid-button" type="button" ${paidButtonAttrs}><span class="file-action-label">Paid</span></button>
+            <button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}" aria-label="${escapeHtml(`Delete ${submissionLabel}`)}"><span class="file-action-label">Delete</span></button>
           </div>
         `;
         link.addEventListener("click", (event) => {
@@ -560,7 +705,8 @@
           }
 
           button.disabled = true;
-          button.textContent = "Saving...";
+          const paidButtonLabel = button.querySelector(".file-action-label");
+          if (paidButtonLabel) paidButtonLabel.textContent = "Saving...";
 
           const { data: updatedSubmission, error: updateError } = await window.supabaseClient
             .from("payroll_submissions")
@@ -577,7 +723,7 @@
             console.error("Failed to mark submission as paid:", updateError);
             alert(`Could not mark submission as paid: ${updateError.message || "unknown error"}`);
             button.disabled = false;
-            button.textContent = "Paid";
+            if (paidButtonLabel) paidButtonLabel.textContent = "Paid";
             return;
           }
 

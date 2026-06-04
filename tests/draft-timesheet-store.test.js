@@ -180,4 +180,69 @@ assert.equal(store.isManagerEditable({ type: "Camp", status: "active" }), true);
 assert.equal(store.isManagerEditable({ type: "Claim", status: "active" }), true);
 assert.equal(store.isManagerEditable({ type: "Private", status: "submitted" }), false);
 
+let insertCallCount = 0;
+context.window.supabaseClient = {
+  from() {
+    return {
+      insert(rows) {
+        insertCallCount += 1;
+        return {
+          select() {
+            if (rows.length > 1) {
+              return Promise.resolve({
+                data: null,
+                error: { message: 'new row violates row-level security policy for table "draft_timesheet_entries"' },
+              });
+            }
+            if (rows[0].type === "Claim") {
+              return Promise.resolve({
+                data: null,
+                error: { message: "claims are blocked by current RLS policy" },
+              });
+            }
+            return Promise.resolve({
+              data: rows.map((row, index) => ({ ...row, id: `saved-${index}` })),
+              error: null,
+            });
+          },
+        };
+      },
+    };
+  },
+};
+
+const diagnosticResult = await store.insertEntriesWithDiagnostics(
+  [
+    {
+      employeeId: "employee-1",
+      schoolName: "Anchor Green",
+      date: "2026-05-16",
+      type: "School Coaching",
+      startTime: "14:15",
+      endTime: "16:15",
+      hours: 2,
+      status: "active",
+    },
+    {
+      employeeId: "employee-1",
+      schoolName: "Claims",
+      date: "2026-05-16",
+      type: "Claim",
+      claimNotes: "Transport",
+      claimCost: 14.5,
+      status: "active",
+    },
+  ],
+  {
+    employeeId: "employee-1",
+    createdBy: "manager-1",
+    updatedBy: "manager-1",
+  }
+);
+
+assert.equal(insertCallCount, 3, "diagnostic insert should try bulk once and each row after bulk failure");
+assert.equal(diagnosticResult.saved.length, 1, "diagnostic insert should keep rows that pass RLS");
+assert.equal(diagnosticResult.failed.length, 1, "diagnostic insert should report blocked rows");
+assert.match(diagnosticResult.failed[0].error, /claims are blocked/, "diagnostic insert should preserve row failure messages");
+
 console.log("draft-timesheet-store contract tests passed");

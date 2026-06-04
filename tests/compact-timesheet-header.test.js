@@ -96,23 +96,6 @@ const compactPageExpectations = [
     ],
   },
   {
-    fileName: "webadmin-dashboard.html",
-    required: [
-      "Webadmin View",
-      "<h1>User Profiles</h1>",
-      'class="hero-stats"',
-      'id="totalUsers"',
-      'id="managerCount"',
-      'id="webadminCount"',
-    ],
-    removed: [
-      "Directory posture",
-      "This is the maintenance layer",
-      "summary-strip",
-      "summary-card",
-    ],
-  },
-  {
     fileName: "manager-entry.html",
     required: [
       "Manager View",
@@ -158,6 +141,23 @@ compactPageExpectations.forEach(({ fileName, required, removed }) => {
   });
 });
 
+const webadminDashboard = fs.readFileSync(path.join(process.cwd(), "webadmin-dashboard.html"), "utf8");
+[
+  'class="admin-shell"',
+  'class="admin-sidebar"',
+  'class="member-board"',
+  'class="member-table-head"',
+  'id="totalUsers"',
+  'id="managerCount"',
+  'id="webadminCount"',
+].forEach((snippet) => {
+  assert.ok(webadminDashboard.includes(snippet), `webadmin dashboard compact directory should include ${snippet}`);
+});
+assert.ok(
+  !webadminDashboard.includes('<section class="hero">'),
+  "webadmin dashboard should use the compact member directory instead of the old hero"
+);
+
 const payPage = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"), "utf8");
 assert.match(
   payPage,
@@ -199,21 +199,21 @@ const managerDashboard = fs.readFileSync(path.join(process.cwd(), "manager-dashb
 assert.match(
   managerDashboard,
   /class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay<\/span><span class="stat-value" id="totalSubmittedPay"/,
-  "manager dashboard total submitted pay should use the wide hero stat card"
+  "manager dashboard total submitted pay should keep the pay stat marker"
 );
 assert.match(
   managerDashboard,
-  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/is,
-  "manager dashboard hero stats should place the pay total below two count cards"
+  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/is,
+  "manager dashboard hero stats should keep submissions, employees, and pay in one row"
 );
 assert.match(
   managerDashboard,
-  /\.hero-stat-wide\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/is,
-  "manager dashboard pay total card should span the stats grid as a rectangle"
+  /\.hero-stat-wide\s*\{[^}]*grid-column:\s*auto;[^}]*grid-template-columns:\s*1fr;/is,
+  "manager dashboard pay total card should no longer span the stats grid"
 );
 assert.match(
   managerDashboard,
-  /#totalSubmittedPay\s*\{[^}]*white-space:\s*nowrap;[^}]*word-break:\s*normal;/is,
+  /#totalSubmittedPay\s*\{[^}]*white-space:\s*nowrap;[^}]*overflow-wrap:\s*normal;[^}]*word-break:\s*normal;/is,
   "manager dashboard totalSubmittedPay should stay on one line"
 );
 

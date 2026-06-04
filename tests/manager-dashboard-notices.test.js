@@ -50,6 +50,56 @@ assert.ok(
   "notice search should make it clear managers can message any user"
 );
 assert.ok(
+  html.includes("Send Notice to Employee"),
+  "manager dashboard action should use the requested notice button text"
+);
+assert.ok(
+  html.includes("Draft Timesheet for Employee"),
+  "manager dashboard action should use the requested draft timesheet text"
+);
+assert.ok(
+  !html.includes("Open Employee Timesheet"),
+  "manager dashboard should not show the employee timesheet shortcut in the submission actions"
+);
+[
+  "@media (min-width: 561px) and (max-width: 760px)",
+  ".filters {\n        grid-template-columns: repeat(3, minmax(0, 1fr));",
+  ".filter-card {\n        min-width: 0;",
+  ".filter-select {\n        min-height: 46px;",
+  "grid-template-areas:",
+  '"avatar identity hours rate pay"',
+  '"avatar identity actions actions actions"',
+  'class="file-identity"',
+  'class="file-meta file-hours"',
+  'class="file-meta file-rate"',
+].forEach((snippet) => {
+  assert.ok(html.includes(snippet), `manager dashboard tablet submission row should include ${snippet}`);
+});
+[
+  ".file-item-actions .file-action-label",
+  "clip: rect(0 0 0 0);",
+  "<span class=\"file-action-label\">Paid</span>",
+  "<span class=\"file-action-label\">Delete</span>",
+  "const paidButtonLabel = button.querySelector(\".file-action-label\");",
+].forEach((snippet) => {
+  assert.ok(html.includes(snippet), `manager dashboard compact file actions should include ${snippet}`);
+});
+assert.match(
+  html,
+  /@media \(max-width: 560px\)[\s\S]*\.file-item\s*\{\s*grid-template-columns:\s*1fr;[^}]*align-items:\s*start;/,
+  "manager dashboard should keep the fully stacked submission card for phone widths only"
+);
+assert.match(
+  html,
+  /@media \(max-width: 560px\)[\s\S]*\.panel-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/,
+  "manager dashboard should keep the two primary panel actions in one row on narrow screens"
+);
+assert.match(
+  html,
+  /@media \(max-width: 560px\)[\s\S]*\.filters\s*\{\s*grid-template-columns:\s*1fr;/,
+  "manager dashboard should keep filters stacked for phone widths only"
+);
+assert.ok(
   html.includes("Add a title, message, and at least one user."),
   "notice validation should refer to users instead of employees"
 );

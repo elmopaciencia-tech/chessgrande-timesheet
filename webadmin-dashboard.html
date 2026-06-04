@@ -54,6 +54,56 @@
     .menu-item { width: 100%; border: 0; border-radius: 10px; padding: 11px 12px; text-align: left; cursor: pointer; background: transparent; color: var(--ink); display: block; text-decoration: none; min-height: 44px; }
     .menu-item:hover { background: var(--accent-soft); }
     .page { width: min(1180px, 100%); margin: 28px auto 0; display: grid; gap: 28px; }
+    .admin-shell { width: min(1280px, 100%); margin: 24px auto 0; display: grid; grid-template-columns: 248px minmax(0, 1fr); gap: 18px; align-items: start; }
+    .admin-sidebar { min-height: calc(100vh - 136px); position: sticky; top: calc(env(safe-area-inset-top) + 96px); border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); border-radius: 18px; background: color-mix(in srgb, var(--surface-strong) 90%, white 10%); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .sidebar-head { padding: 18px; border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); }
+    .sidebar-kicker { margin: 0 0 7px; color: var(--clay); font-size: .72rem; text-transform: uppercase; font-weight: 800; letter-spacing: .12em; }
+    .sidebar-title { margin: 0; font-size: 1.05rem; line-height: 1.2; font-weight: 800; }
+    .sidebar-copy { margin: 6px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.4; }
+    .sidebar-nav { display: grid; gap: 4px; padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); }
+    .sidebar-link { min-height: 38px; display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 10px; color: var(--ink-soft); text-decoration: none; font-size: .92rem; font-weight: 700; }
+    .sidebar-link:hover, .sidebar-link.is-active { background: var(--accent-soft); color: var(--accent); }
+    .sidebar-metrics { display: grid; padding: 10px; gap: 8px; }
+    .sidebar-metric { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 46px; padding: 10px; border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 12px; background: color-mix(in srgb, var(--surface) 82%, white 18%); }
+    .sidebar-metric-label { color: var(--muted); font-size: .78rem; text-transform: uppercase; font-weight: 800; letter-spacing: .06em; }
+    .sidebar-metric-value { color: var(--ink); font-size: 1.1rem; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .openrouter-settings { display: grid; gap: 10px; padding: 14px 10px 16px; border-top: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); }
+    .openrouter-settings h2 { margin: -4px 0 2px; font-size: .95rem; line-height: 1.2; }
+    .openrouter-field { display: grid; gap: 6px; }
+    .openrouter-field label { color: var(--muted); font-size: .76rem; text-transform: uppercase; font-weight: 800; letter-spacing: .06em; }
+    .openrouter-field input { width: 100%; min-height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); padding: 8px 10px; font-size: .86rem; }
+    .openrouter-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .openrouter-actions .button { min-height: 38px; padding: 8px 10px; border-radius: 10px; font-size: .82rem; }
+    .openrouter-status { min-height: 1rem; color: var(--muted); font-size: .78rem; line-height: 1.35; overflow-wrap: anywhere; }
+    .member-board { min-width: 0; border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); border-radius: 18px; background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); box-shadow: var(--shadow-md); overflow: hidden; }
+    .board-toolbar { min-height: 86px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 0.72fr); gap: 16px; align-items: center; padding: 18px 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); background: color-mix(in srgb, var(--surface-strong) 88%, white 12%); }
+    .board-kicker { margin: 0 0 6px; color: var(--clay); font-size: .72rem; text-transform: uppercase; font-weight: 800; letter-spacing: .12em; }
+    .board-title { margin: 0; font-size: 1.45rem; line-height: 1.15; font-weight: 850; color: var(--ink); }
+    .board-copy { margin: 5px 0 0; color: var(--muted); font-size: .92rem; line-height: 1.4; }
+    .board-controls { display: grid; grid-template-columns: minmax(0, 1fr) 158px; gap: 10px; align-items: end; }
+    .board-controls label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .board-controls input, .board-controls select { width: 100%; min-height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); padding: 9px 11px; font-size: .94rem; }
+    .directory-status { min-height: 0; margin: 0; padding: 0 22px; color: var(--muted); font-size: .9rem; }
+    .member-table { width: 100%; min-width: 0; }
+    .member-table-head { display: grid; grid-template-columns: minmax(260px, 1.6fr) 132px 128px minmax(190px, 1fr) 84px; gap: 16px; align-items: center; padding: 8px 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); color: var(--muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; background: color-mix(in srgb, var(--surface-muted) 54%, white 46%); position: sticky; top: calc(env(safe-area-inset-top) + 72px); z-index: 3; }
+    .member-list { display: grid; }
+    .member-line { min-width: 0; display: grid; grid-template-columns: minmax(260px, 1.6fr) 132px 128px minmax(190px, 1fr) 84px; gap: 16px; align-items: center; padding: 13px 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, white 30%); background: transparent; color: inherit; text-decoration: none; }
+    .member-line:last-child { border-bottom: 0; }
+    .member-line:hover { background: color-mix(in srgb, var(--accent-soft) 38%, white 62%); }
+    .member-primary { min-width: 0; display: flex; align-items: center; gap: 11px; }
+    .member-avatar { position: relative; width: 34px; height: 34px; min-width: 34px; border-radius: 999px; display: grid; place-items: center; color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 70%, white 30%); border: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%); font-size: .78rem; font-weight: 850; text-transform: uppercase; }
+    .member-presence { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border: 2px solid var(--surface-strong); border-radius: 999px; background: var(--line-strong); }
+    .member-presence.role-webadmin { background: #8b5cf6; }
+    .member-presence.role-manager { background: #22c55e; }
+    .member-presence.role-employee { background: #0ea5e9; }
+    .member-name { min-width: 0; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .member-sub { min-width: 0; color: var(--muted); font-size: .82rem; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .role-pill { width: max-content; max-width: 100%; display: inline-flex; align-items: center; min-height: 24px; padding: 3px 9px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%); color: var(--ink-soft); background: color-mix(in srgb, var(--surface-muted) 68%, white 32%); font-size: .78rem; font-weight: 800; text-transform: capitalize; }
+    .role-pill.role-webadmin { color: #5b21b6; background: #ede9fe; border-color: #ddd6fe; }
+    .role-pill.role-manager { color: #166534; background: #dcfce7; border-color: #bbf7d0; }
+    .member-joined, .member-contact { min-width: 0; color: var(--muted); font-size: .84rem; line-height: 1.35; overflow-wrap: anywhere; }
+    .member-actions { display: flex; justify-content: flex-end; }
+    .member-actions .edit-button { min-height: 34px; padding: 7px 12px; border-radius: 9px; font-size: .84rem; box-shadow: none; }
     .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: 20px; align-items: center; padding: 24px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 28px; box-shadow: var(--shadow-md); overflow: hidden; }
     .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)), linear-gradient(180deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)); background-size: 100% 100%, 100% 36px; pointer-events: none; opacity: .34; }
     .hero > * { position: relative; z-index: 1; }
@@ -93,6 +143,7 @@
     .file-role { font-weight: 700; text-transform: capitalize; color: var(--accent); }
     .file-pay { font-weight: 700; color: var(--ink); }
     .status { min-height: 1.2rem; font-size: .92rem; margin-bottom: 14px; }
+    .status.directory-status { min-height: 0; margin: 0; padding: 0 22px; color: var(--muted); }
     .empty { padding: 28px; border-radius: 24px; background: color-mix(in srgb, var(--surface-muted) 74%, white 26%); border: 1px dashed color-mix(in srgb, var(--line) 82%, white 18%); text-align: center; }
     .modal-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(23,26,25,.5); z-index: 1100; }
     .modal-overlay[hidden] { display: none; }
@@ -127,19 +178,70 @@
       .hero { grid-template-columns: 1fr; }
       .stat-value { font-size: 1.45rem; }
       .file-item { align-items: start; }
+      .admin-shell { grid-template-columns: 1fr; }
+      .admin-sidebar { position: static; min-height: 0; }
+      .sidebar-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .board-toolbar { grid-template-columns: 1fr; }
     }
-    @media (max-width: 760px) { .hero, .panel, .modal { padding: 20px; } .app-header-inner { min-height: 66px; padding: 0 16px; } .modal-grid, .modal-actions { grid-template-columns: 1fr; } .chat-popup { right: 16px; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 74px); max-height: calc(100vh - 118px); } .chat-launcher { right: 18px; bottom: max(18px, env(safe-area-inset-bottom)); } }
+    @media (max-width: 760px) { .hero, .panel, .modal { padding: 20px; } .app-header-inner { min-height: 66px; padding: 0 16px; } .modal-grid, .modal-actions { grid-template-columns: 1fr; } .chat-popup { right: 16px; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 74px); max-height: calc(100vh - 118px); } .chat-launcher { right: 18px; bottom: max(18px, env(safe-area-inset-bottom)); } .admin-shell { margin-top: 18px; gap: 14px; } .sidebar-metrics { grid-template-columns: 1fr; } .board-toolbar { padding: 16px; } .board-controls { grid-template-columns: 1fr; } .member-table-head { display: none; } .member-line { grid-template-columns: 1fr; gap: 8px; padding: 14px 16px; } .member-actions { justify-content: flex-start; } }
 
-</style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header class="app-header"><div class="app-header-inner"><div class="app-header-title">Chess Grande Oversight Desk</div><div class="menu-wrap"><button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button><div class="menu-panel" id="userMenuPanel" hidden>
-<div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
-          <a class="menu-item" href="./chess-timesheet.html">Employee Timesheet</a>
-          <a class="menu-item" href="./manager-dashboard.html">Manager Dashboard</a>
-          <a class="menu-item" href="./manager-drafts.html">Draft Timesheets</a>
+</style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="app-header">
+    <div class="app-header-inner cg-navbar">
+      <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
+        <img src="./assets/cg-nav-logo.png" alt="" width="46" height="46">
+        <span class="sr-only">Chess Grande</span>
+      </a>
+      <nav class="cg-nav" aria-label="Primary navigation">
+        <ul class="cg-nav-list">
+          <li class="cg-nav-item" data-nav-section="overview">
+            <a class="cg-nav-link" href="./employee-dashboard.html">Overview</a>
+          </li>
+          <li class="cg-nav-item" data-nav-section="timesheet">
+            <button class="cg-nav-trigger" id="timesheetNavTrigger" type="button" aria-expanded="false" aria-controls="timesheetNavDropdown">Timesheet</button>
+            <div class="cg-nav-dropdown" id="timesheetNavDropdown" role="menu" hidden>
+              <a class="cg-nav-dropdown-link" href="./chess-timesheet.html" role="menuitem">Timesheet</a>
+              <a class="cg-nav-dropdown-link" href="./chess-timesheet-pay.html" role="menuitem">Submissions</a>
+            </div>
+          </li>
+          <li class="cg-nav-item" id="managerNavItem" data-nav-section="manager" hidden>
+            <button class="cg-nav-trigger" id="managerNavTrigger" type="button" aria-expanded="false" aria-controls="managerNavDropdown">Manager</button>
+            <div class="cg-nav-dropdown" id="managerNavDropdown" role="menu" hidden>
+              <a class="cg-nav-dropdown-link" href="./manager-dashboard.html" role="menuitem">Manager-Dashboard</a>
+              <a class="cg-nav-dropdown-link" href="./manager-drafts.html" role="menuitem">Draft Timesheet for Employee</a>
+            </div>
+          </li>
+          <li class="cg-nav-item" id="webAdminNavItem" data-nav-section="webadmin" hidden>
+            <a class="cg-nav-link" href="./webadmin-dashboard.html">Webadmin</a>
+          </li>
+        </ul>
+      </nav>
+      <div class="menu-wrap">
+        <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
+        <div class="menu-panel" id="userMenuPanel" hidden>
+          <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
           <button class="menu-item" id="profileButton" type="button">Profile</button>
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
-      
-</div></div></div></header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Webadmin View</p><h1>User Profiles</h1></div><div class="hero-stats" aria-label="User summary"><div class="hero-stat"><span class="stat-label">Total Users</span><span class="stat-value" id="totalUsers">0</span></div><div class="hero-stat"><span class="stat-label">Managers</span><span class="stat-value" id="managerCount">0</span></div><div class="hero-stat"><span class="stat-label">Webadmins</span><span class="stat-value" id="webadminCount">0</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Directory controls</p><h2>User Directory</h2><p class="panel-copy">Search by name, username, role, id, phone, or bank details, then open the edit modal only for the record you need to update.</p></div></div><div class="toolbar"><div class="search-wrap toolbar-card"><label for="searchInput">Search Users</label><input id="searchInput" type="text" placeholder="Search by name, username, role, id, phone, bank..."></div><div class="role-filter toolbar-card"><label for="roleFilter">Filter Role</label><select id="roleFilter"><option value="">All Roles</option><option value="employee">Employee</option><option value="manager">Manager</option><option value="webadmin">Webadmin</option></select></div></div><div class="status" id="statusMessage"></div><div id="fileList" class="file-list"></div></section></main>
+      </div>
+    </div>
+  </header><main class="admin-shell" id="main-content"><aside class="admin-sidebar" aria-label="Directory navigation"><div class="sidebar-head"><p class="sidebar-kicker">Webadmin View</p><h1 class="sidebar-title">User Profiles</h1><p class="sidebar-copy">Maintain roles and timesheet identity details from one directory.</p></div><nav class="sidebar-nav" aria-label="Webadmin sections"><a class="sidebar-link is-active" href="./webadmin-dashboard.html">User Directory</a><a class="sidebar-link" href="./manager-dashboard.html">Manager Dashboard</a><a class="sidebar-link" href="./manager-drafts.html">Draft Timesheets</a><a class="sidebar-link" href="./chess-timesheet.html">Employee Timesheet</a></nav><div class="sidebar-metrics" aria-label="User summary"><div class="sidebar-metric"><span class="sidebar-metric-label">Total Users</span><span class="sidebar-metric-value" id="totalUsers">0</span></div><div class="sidebar-metric"><span class="sidebar-metric-label">Managers</span><span class="sidebar-metric-value" id="managerCount">0</span></div><div class="sidebar-metric"><span class="sidebar-metric-label">Webadmins</span><span class="sidebar-metric-value" id="webadminCount">0</span></div></div><form class="openrouter-settings" id="openRouterSettingsPanel">
+  <p class="sidebar-kicker">OpenRouter</p>
+  <h2>Model Settings</h2>
+  <div class="openrouter-field">
+    <label for="openRouterChatModelInput">Chat Model</label>
+    <input id="openRouterChatModelInput" type="text" autocomplete="off" spellcheck="false" placeholder="openai/gpt-4.1-mini">
+  </div>
+  <div class="openrouter-field">
+    <label for="openRouterImportModelInput">Excel Import Model</label>
+    <input id="openRouterImportModelInput" type="text" autocomplete="off" spellcheck="false" placeholder="openai/gpt-5-mini">
+  </div>
+  <div class="openrouter-actions">
+    <button class="button primary" type="submit" id="saveOpenRouterSettingsButton">Save</button>
+    <button class="button secondary" type="button" id="resetOpenRouterSettingsButton">Use Defaults</button>
+  </div>
+  <div class="openrouter-status" id="openRouterSettingsStatus" role="status" aria-live="polite"></div>
+</form></aside><section class="member-board" aria-labelledby="directoryTitle"><div class="board-toolbar"><div><p class="board-kicker">Directory controls</p><h2 class="board-title" id="directoryTitle">Members</h2><p class="board-copy">Search, filter, and edit only the profile you need.</p></div><div class="board-controls"><div><label for="searchInput">Search Users</label><input id="searchInput" type="text" placeholder="Search name, username, role, id, phone, bank..."></div><div><label for="roleFilter">Filter Role</label><select id="roleFilter"><option value="">All Roles</option><option value="employee">Employee</option><option value="manager">Manager</option><option value="webadmin">Webadmin</option></select></div></div></div><div class="status directory-status" id="statusMessage"></div><div class="member-table" aria-label="User directory"><div class="member-table-head" aria-hidden="true"><div>Name</div><div>Role</div><div>Joined</div><div>Contact</div><div></div></div><div id="fileList" class="member-list"></div></div></section></main>
 <div class="modal-overlay" id="editModalOverlay" hidden>
     <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
       <div class="modal-head">
@@ -228,6 +330,8 @@
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
+    const managerNavItem = document.getElementById("managerNavItem");
+    const webAdminNavItem = document.getElementById("webAdminNavItem");
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
@@ -246,6 +350,12 @@
     const editBankAccountNumber = document.getElementById("editBankAccountNumber");
     const editBankName = document.getElementById("editBankName");
     const editAccountType = document.getElementById("editAccountType");
+    const openRouterSettingsPanel = document.getElementById("openRouterSettingsPanel");
+    const openRouterChatModelInput = document.getElementById("openRouterChatModelInput");
+    const openRouterImportModelInput = document.getElementById("openRouterImportModelInput");
+    const openRouterSettingsStatus = document.getElementById("openRouterSettingsStatus");
+    const saveOpenRouterSettingsButton = document.getElementById("saveOpenRouterSettingsButton");
+    const resetOpenRouterSettingsButton = document.getElementById("resetOpenRouterSettingsButton");
     const webadminChatLauncher = document.getElementById("webadminChatLauncher");
     const webadminChatPopup = document.getElementById("webadminChatPopup");
     const webadminChatClose = document.getElementById("webadminChatClose");
@@ -260,14 +370,18 @@
     let isSaving = false;
     let chatMessages = [];
     let isChatSending = false;
+    let isSavingOpenRouterSettings = false;
 
     initApp();
 
     async function initApp() {
       const user = await requireWebAdmin();
       if (!user) return;
+      managerNavItem.hidden = false;
+      webAdminNavItem.hidden = false;
       setupUserMenu();
       bindEvents();
+      await loadOpenRouterSettings();
       await render();
       hydrateHeaderAvatar();
     }
@@ -322,6 +436,8 @@
       webadminChatClose.addEventListener("click", closeChat);
       webadminChatForm.addEventListener("submit", onSendChatMessage);
       webadminChatInput.addEventListener("keydown", onChatInputKeydown);
+      openRouterSettingsPanel.addEventListener("submit", saveOpenRouterSettings);
+      resetOpenRouterSettingsButton.addEventListener("click", resetOpenRouterSettings);
       editModalOverlay.addEventListener("mousedown", (event) => {
         if (event.target === editModalOverlay && !isSaving) {
           closeModal();
@@ -391,21 +507,27 @@
 
       visibleProfiles.forEach((profile) => {
         const item = document.createElement("article");
-        item.className = "file-item";
+        const role = profile.role || "employee";
+        const displayName = profile.full_name || profile.username || "Unnamed user";
+        item.className = "member-line";
         item.innerHTML = `
-          <div class="folder-icon" aria-hidden="true"></div>
-          <div>
-            <div class="file-name">${escapeHtml(profile.full_name || "(No display name)")}</div>
-            <div class="file-sub">${escapeHtml(profile.username || profile.id || "")}</div>
+          <div class="member-primary">
+            <div class="member-avatar" aria-hidden="true">
+              ${escapeHtml(getInitials(displayName))}
+              <span class="member-presence role-${escapeHtml(role)}"></span>
+            </div>
+            <div class="member-identity">
+              <div class="member-name">${escapeHtml(displayName)}</div>
+              <div class="member-sub">${escapeHtml(profile.username || profile.id || "")}</div>
+            </div>
           </div>
-          <div class="file-meta">
-            Phone: ${escapeHtml(profile.phone_number || "-")}<br>
-            Bank: ${escapeHtml(profile.bank_name || "-")} • ${escapeHtml(profile.account_type || "-")}<br>
-            Account: ${escapeHtml(profile.bank_account_number || "-")}<br>
-            Created: ${escapeHtml(formatDateTime(profile.created_at))}
+          <div><span class="role-pill role-${escapeHtml(role)}">${escapeHtml(formatRoleLabel(role))}</span></div>
+          <div class="member-joined">${escapeHtml(formatJoinedDate(profile.created_at))}</div>
+          <div class="member-contact">
+            ${escapeHtml(profile.phone_number || "No phone")}<br>
+            ${escapeHtml(profile.bank_name || "No bank")} · ${escapeHtml(profile.account_type || "-")}
           </div>
-          <div class="file-role">${escapeHtml(profile.role || "employee")}</div>
-          <div><button class="edit-button" type="button" data-id="${escapeHtml(profile.id)}">Edit</button></div>
+          <div class="member-actions"><button class="edit-button" type="button" data-id="${escapeHtml(profile.id)}" aria-label="Edit ${escapeHtml(displayName)}">Edit</button></div>
         `;
         fileList.appendChild(item);
       });
@@ -519,7 +641,7 @@
       webadminChatPopup.hidden = false;
       webadminChatLauncher.setAttribute("aria-expanded", "true");
       if (!chatMessages.length) {
-        renderChatNotice("Ask questions about policies, payroll operations, or webadmin procedures after adding RAG docs.");
+        renderChatNotice("Ask questions about policies, timesheet operations, or webadmin procedures after adding RAG docs.");
       }
       requestAnimationFrame(() => webadminChatInput.focus());
     }
@@ -594,6 +716,86 @@
       return payload;
     }
 
+    async function loadOpenRouterSettings() {
+      setOpenRouterSettingsStatus("Loading model settings...");
+      try {
+        const settings = await requestOpenRouterSettings("GET");
+        applyOpenRouterSettings(settings);
+      } catch (error) {
+        setOpenRouterSettingsStatus(`Could not load model settings: ${error.message || "unknown error"}`, true);
+      }
+    }
+
+    async function saveOpenRouterSettings(event) {
+      if (event) event.preventDefault();
+      if (isSavingOpenRouterSettings) return;
+      isSavingOpenRouterSettings = true;
+      saveOpenRouterSettingsButton.disabled = true;
+      resetOpenRouterSettingsButton.disabled = true;
+      setOpenRouterSettingsStatus("Saving model settings...");
+
+      try {
+        const settings = await requestOpenRouterSettings("POST", {
+          chatModel: openRouterChatModelInput.value.trim(),
+          importModel: openRouterImportModelInput.value.trim(),
+        });
+        applyOpenRouterSettings(settings);
+        setOpenRouterSettingsStatus(formatOpenRouterSettingsStatus(settings, "Saved"));
+      } catch (error) {
+        setOpenRouterSettingsStatus(`Could not save model settings: ${error.message || "unknown error"}`, true);
+      } finally {
+        isSavingOpenRouterSettings = false;
+        saveOpenRouterSettingsButton.disabled = false;
+        resetOpenRouterSettingsButton.disabled = false;
+      }
+    }
+
+    async function resetOpenRouterSettings() {
+      openRouterChatModelInput.value = "";
+      openRouterImportModelInput.value = "";
+      await saveOpenRouterSettings();
+    }
+
+    async function requestOpenRouterSettings(method, body) {
+      if (!window.claimProofStorage || typeof window.claimProofStorage.getWorkerBaseUrl !== "function") {
+        throw new Error("Cloudflare Worker URL helper is not available.");
+      }
+      if (!window.claimProofStorage.hasWorkerUrl()) {
+        throw new Error("Cloudflare Worker URL is not configured in claim-proof-storage.js.");
+      }
+      const token = await window.claimProofStorage.getAccessToken();
+      const response = await fetch(`${window.claimProofStorage.getWorkerBaseUrl()}/api/openrouter-settings`, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        ...(body ? { body: JSON.stringify(body) } : {}),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload?.error || payload?.message || `Request failed (${response.status})`);
+      }
+      return payload;
+    }
+
+    function applyOpenRouterSettings(settings) {
+      openRouterChatModelInput.value = settings.chatModel || "";
+      openRouterImportModelInput.value = settings.importModel || "";
+      openRouterChatModelInput.placeholder = settings.defaults?.chatModel || "openai/gpt-4.1-mini";
+      openRouterImportModelInput.placeholder = settings.defaults?.importModel || "openai/gpt-5-mini";
+      setOpenRouterSettingsStatus(formatOpenRouterSettingsStatus(settings, "Active"));
+    }
+
+    function formatOpenRouterSettingsStatus(settings, prefix) {
+      return `${prefix}: chat ${settings.effectiveChatModel || "-"}; import ${settings.effectiveImportModel || "-"}`;
+    }
+
+    function setOpenRouterSettingsStatus(message, isError = false) {
+      openRouterSettingsStatus.textContent = message;
+      openRouterSettingsStatus.style.color = isError ? "var(--danger)" : "var(--muted)";
+    }
+
     function renderChat() {
       webadminChatLog.innerHTML = "";
       if (!chatMessages.length) {
@@ -628,6 +830,32 @@
       webadminChatInput.disabled = isLoading;
       webadminChatSend.disabled = isLoading;
       webadminChatSend.textContent = isLoading ? "..." : ">";
+    }
+
+    function formatJoinedDate(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleString(undefined, {
+        month: "short",
+        year: "numeric",
+      });
+    }
+
+    function formatRoleLabel(value) {
+      const role = String(value || "employee").trim().toLowerCase();
+      if (role === "webadmin") return "Webadmin";
+      return role.charAt(0).toUpperCase() + role.slice(1);
+    }
+
+    function getInitials(value) {
+      const parts = String(value || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      if (!parts.length) return "U";
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
     }
 
     function formatDateTime(value) {

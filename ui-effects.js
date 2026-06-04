@@ -152,6 +152,102 @@
   function enhance(root = document) {
     applyIcons(root);
     applyReveals(root);
+    setupGlobalNavbar(root);
+  }
+
+  const ACTIVE_NAV_BY_FILE = {
+    "employee-dashboard.html": "overview",
+    "chess-timesheet.html": "timesheet",
+    "chess-timesheet-pay.html": "timesheet",
+    "manager-dashboard.html": "manager",
+    "manager-drafts.html": "manager",
+    "manager-entry.html": "manager",
+    "webadmin-dashboard.html": "webadmin"
+  };
+
+  function getCurrentFileName() {
+    const path = window.location.pathname || "";
+    return path.split("/").pop() || "employee-dashboard.html";
+  }
+
+  function closeAllGlobalNavDropdowns(exceptItem = null) {
+    document.querySelectorAll(".cg-nav-trigger[aria-controls]").forEach((trigger) => {
+      const item = trigger.closest(".cg-nav-item");
+      if (exceptItem && item === exceptItem) {
+        return;
+      }
+
+      const dropdown = document.getElementById(trigger.getAttribute("aria-controls"));
+      trigger.setAttribute("aria-expanded", "false");
+      if (dropdown) {
+        dropdown.hidden = true;
+      }
+    });
+  }
+
+  function syncGlobalNavActive(root = document) {
+    const fileName = getCurrentFileName();
+    const activeSection = document.body?.dataset.activeNav || ACTIVE_NAV_BY_FILE[fileName] || "";
+
+    root.querySelectorAll(".cg-nav-item[data-nav-section]").forEach((item) => {
+      item.classList.toggle("is-active", item.dataset.navSection === activeSection);
+    });
+
+    root.querySelectorAll(".cg-nav-dropdown-link").forEach((link) => {
+      const href = link.getAttribute("href") || "";
+      const linkFileName = href.split("#")[0].split("?")[0].split("/").pop();
+      link.classList.toggle("is-active", linkFileName === fileName);
+    });
+  }
+
+  function setupGlobalNavbar(root = document) {
+    const triggers = Array.from(root.querySelectorAll(".cg-nav-trigger"));
+    if (!triggers.length) {
+      return;
+    }
+
+    triggers.forEach((trigger) => {
+      if (trigger.dataset.cgNavReady === "true") {
+        return;
+      }
+
+      const dropdown = document.getElementById(trigger.getAttribute("aria-controls"));
+      if (!dropdown) {
+        return;
+      }
+
+      trigger.addEventListener("click", () => {
+        const navItem = trigger.closest(".cg-nav-item");
+        const willOpen = trigger.getAttribute("aria-expanded") !== "true";
+        closeAllGlobalNavDropdowns(navItem);
+        trigger.setAttribute("aria-expanded", String(willOpen));
+        dropdown.hidden = !willOpen;
+      });
+
+      dropdown.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => closeAllGlobalNavDropdowns());
+      });
+
+      trigger.dataset.cgNavReady = "true";
+    });
+
+    syncGlobalNavActive(root);
+
+    if (document.documentElement.dataset.cgNavGlobalReady !== "true") {
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".cg-nav-item")) {
+          closeAllGlobalNavDropdowns();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeAllGlobalNavDropdowns();
+        }
+      });
+
+      document.documentElement.dataset.cgNavGlobalReady = "true";
+    }
   }
 
   function scheduleEnhance() {
@@ -173,4 +269,6 @@
       subtree: true
     });
   });
+
+  window.setupGlobalNavbar = setupGlobalNavbar;
 })();

@@ -443,16 +443,39 @@
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="app-header">
-    <div class="app-header-inner">
-      <div class="app-header-title">Chess Grande Employee Desk</div>
+    <div class="app-header-inner cg-navbar">
+      <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
+        <img src="./assets/cg-nav-logo.png" alt="" width="46" height="46">
+        <span class="sr-only">Chess Grande</span>
+      </a>
+      <nav class="cg-nav" aria-label="Primary navigation">
+        <ul class="cg-nav-list">
+          <li class="cg-nav-item" data-nav-section="overview">
+            <a class="cg-nav-link" href="./employee-dashboard.html">Overview</a>
+          </li>
+          <li class="cg-nav-item" data-nav-section="timesheet">
+            <button class="cg-nav-trigger" id="timesheetNavTrigger" type="button" aria-expanded="false" aria-controls="timesheetNavDropdown">Timesheet</button>
+            <div class="cg-nav-dropdown" id="timesheetNavDropdown" role="menu" hidden>
+              <a class="cg-nav-dropdown-link" href="./chess-timesheet.html" role="menuitem">Timesheet</a>
+              <a class="cg-nav-dropdown-link" href="./chess-timesheet-pay.html" role="menuitem">Submissions</a>
+            </div>
+          </li>
+          <li class="cg-nav-item" id="managerNavItem" data-nav-section="manager" hidden>
+            <button class="cg-nav-trigger" id="managerNavTrigger" type="button" aria-expanded="false" aria-controls="managerNavDropdown">Manager</button>
+            <div class="cg-nav-dropdown" id="managerNavDropdown" role="menu" hidden>
+              <a class="cg-nav-dropdown-link" href="./manager-dashboard.html" role="menuitem">Manager-Dashboard</a>
+              <a class="cg-nav-dropdown-link" href="./manager-drafts.html" role="menuitem">Draft Timesheet for Employee</a>
+            </div>
+          </li>
+          <li class="cg-nav-item" id="webAdminNavItem" data-nav-section="webadmin" hidden>
+            <a class="cg-nav-link" href="./webadmin-dashboard.html">Webadmin</a>
+          </li>
+        </ul>
+      </nav>
       <div class="menu-wrap">
         <button class="menu-button" id="userMenuButton" type="button" aria-haspopup="true" aria-expanded="false"><span id="userMenuButtonLabel">Profile</span></button>
         <div class="menu-panel" id="userMenuPanel" hidden>
           <div class="menu-item menu-profile-name" id="menuProfileName">Profile</div>
-          <a class="menu-item" href="./chess-timesheet.html">Timesheet</a>
-          <a class="menu-item" href="./chess-timesheet-pay.html">Submission View</a>
-          <a class="menu-item" id="managerDashboardLink" href="./manager-dashboard.html" hidden>Manager Dashboard</a>
-          <a class="menu-item" id="webAdminDashboardLink" href="./webadmin-dashboard.html" hidden>Webadmin Dashboard</a>
           <button class="menu-item" id="profileButton" type="button">Profile</button>
           <button class="menu-item" id="logoutButton" type="button">Log Out</button>
         </div>
@@ -602,8 +625,8 @@
     const profileButton = document.getElementById("profileButton");
     const profileQuickLink = document.getElementById("profileQuickLink");
     const menuProfileName = document.getElementById("menuProfileName");
-    const managerDashboardLink = document.getElementById("managerDashboardLink");
-    const webAdminDashboardLink = document.getElementById("webAdminDashboardLink");
+    const managerNavItem = document.getElementById("managerNavItem");
+    const webAdminNavItem = document.getElementById("webAdminNavItem");
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
@@ -691,8 +714,8 @@
     }
 
     function updateRoleLinks(profile) {
-      managerDashboardLink.hidden = !canSeeManagerDashboard(profile);
-      webAdminDashboardLink.hidden = !canSeeWebAdminDashboard(profile);
+      managerNavItem.hidden = !canSeeManagerDashboard(profile);
+      webAdminNavItem.hidden = !canSeeWebAdminDashboard(profile);
     }
 
     function updateGreeting(profile) {

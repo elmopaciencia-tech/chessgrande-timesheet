@@ -396,6 +396,43 @@
     return assertRows(null, lastError, "Could not save draft timesheet entries.");
   }
 
+  async function insertEntriesWithDiagnostics(entries, context) {
+    try {
+      return {
+        saved: await insertEntries(entries, context),
+        failed: [],
+        bulkError: "",
+      };
+    } catch (bulkError) {
+      const saved = [];
+      const failed = [];
+      for (const entry of entries) {
+        try {
+          const inserted = await insertEntries([entry], context);
+          saved.push(...inserted);
+        } catch (error) {
+          failed.push({
+            entry,
+            error: error?.message || "Could not save this draft row.",
+          });
+        }
+      }
+      if (!saved.length && failed.length) {
+        const firstFailure = failed[0];
+        throw new Error(`Import failed. First blocked row: ${describeEntryForError(firstFailure.entry)}. ${firstFailure.error}`);
+      }
+      return {
+        saved,
+        failed,
+        bulkError: bulkError?.message || "Bulk import failed.",
+      };
+    }
+  }
+
+  function describeEntryForError(entry) {
+    return [entry.date, entry.type, entry.schoolName || entry.claimNotes || "Untitled"].filter(Boolean).join(" · ");
+  }
+
   async function updateEntry(id, entry, context) {
     const schemas = getSchemaAttempts();
     let lastError = null;
@@ -487,6 +524,7 @@
   window.draftTimesheetStore = {
     loadEntriesForEmployee,
     insertEntries,
+    insertEntriesWithDiagnostics,
     updateEntry,
     deleteEntry,
     deleteEntries,
