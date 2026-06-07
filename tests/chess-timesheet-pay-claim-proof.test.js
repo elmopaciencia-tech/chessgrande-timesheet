@@ -20,4 +20,102 @@ assert.match(
   "claim proof validation should run after active-entry validation and before submission insert"
 );
 
-console.log("pay claim proof submission checks passed");
+[
+  'id="exportSubmissionButton"',
+  "Export Submission",
+  'id="removeSubmissionButton"',
+  "Remove Submission",
+  'id="exportStatus"',
+  'id="submissionExportView"',
+  "Payroll Submission",
+  "Submitted Payroll Snapshot",
+  "Entries By School",
+  'id="exportPayRate"',
+  'id="exportPayHours"',
+  'id="exportPayTotal"',
+  'id="exportPayBankName"',
+  'id="exportPayAccountType"',
+  'id="exportPayBank"',
+  "submission-export-details",
+  "submission-export-detail-row",
+  "function parseClaimNotePayload(rawValue)",
+  "function resolveClaimImageUrl(storedValue)",
+  "function getClaimProofName(storedValue)",
+  "function formatHoursCell(entry)",
+  "function formatDateLong(value)",
+].forEach((snippet) => {
+  assert.ok(html.includes(snippet), `pay export should include ${snippet}`);
+});
+
+assert.match(
+  html,
+  /function exportSubmittedPayrollPdf\(\)[\s\S]*loadLatestSubmittedPayrollForMonth\(user\.id, selectedMonth\)/,
+  "export should use the shared latest submitted payroll lookup"
+);
+assert.match(
+  html,
+  /async function loadLatestSubmittedPayrollForMonth\(userId, selectedMonth\)[\s\S]*\.from\("payroll_submissions"\)[\s\S]*\.eq\("employee_id", userId\)[\s\S]*\.eq\("month", selectedMonth\)[\s\S]*\.order\("submitted_at", \{ ascending: false \}\)[\s\S]*\.limit\(1\)/,
+  "pay page actions should share the latest submitted payroll lookup"
+);
+assert.match(
+  html,
+  /async function removeSubmittedPayroll\(\)[\s\S]*loadLatestSubmittedPayrollForMonth\(user\.id, selectedMonth\)[\s\S]*No submitted payroll found for this month\./,
+  "remove should show a clear message when the selected month has no submission"
+);
+assert.match(
+  html,
+  /async function removeSubmittedPayroll\(\)[\s\S]*submissionRow\.paid_at[\s\S]*This submission has already been marked paid\. Contact a manager if it needs changes\./,
+  "remove should block paid submissions"
+);
+assert.match(
+  html,
+  /async function removeSubmittedPayroll\(\)[\s\S]*window\.draftTimesheetStore\.unlockSubmittedBySubmission\(submissionRow\.id, user\.id\)[\s\S]*\.from\("payroll_submissions"\)[\s\S]*\.delete\(\)[\s\S]*\.eq\("id", submissionRow\.id\)[\s\S]*\.eq\("employee_id", user\.id\)[\s\S]*\.is\("paid_at", null\)/,
+  "remove should unlock linked source drafts before deleting the unpaid submission"
+);
+assert.match(
+  html,
+  /async function removeSubmittedPayroll\(\)[\s\S]*const unlockedRows = await window\.draftTimesheetStore\.unlockSubmittedBySubmission\(submissionRow\.id, user\.id\)[\s\S]*if \(deleteError\) \{[\s\S]*relockSubmissionDrafts\(unlockedRows, submissionRow\.id, user\.id\)[\s\S]*if \(!deletedRows\?\.length\) \{[\s\S]*relockSubmissionDrafts\(unlockedRows, submissionRow\.id, user\.id\)[\s\S]*async function relockSubmissionDrafts\(unlockedRows, submissionId, userId\)[\s\S]*window\.draftTimesheetStore\.markSubmitted\(ids, submissionId, userId\)/,
+  "remove should relock source drafts if the final submission delete does not complete"
+);
+assert.match(
+  html,
+  /async function removeSubmittedPayroll\(\)[\s\S]*entries = await loadEntries\(\)[\s\S]*render\(\)[\s\S]*Your timesheet rows are editable again\./,
+  "remove should reload and rerender after success"
+);
+assert.match(
+  html,
+  /function loadSubmittedPayrollEntries\(submissionId\)[\s\S]*\.from\("payroll_entries"\)[\s\S]*\.eq\("submission_id", submissionId\)/,
+  "export should load payroll entries for the selected submission"
+);
+assert.match(
+  html,
+  /function exportSubmittedPayrollPdf\(\)[\s\S]*renderSubmissionExportView\([\s\S]*window\.print\(\)/,
+  "export should render the print view before opening the browser print dialog"
+);
+assert.match(
+  html,
+  /window\.addEventListener\("afterprint", cleanupSubmissionExportView\)/,
+  "export should clean up print-only state after printing"
+);
+assert.match(
+  html,
+  /Submit payroll for this month before exporting a PDF\./,
+  "export should show a clear message when the month has no submitted payroll"
+);
+assert.match(
+  html,
+  /@media print[\s\S]*\.app-header[\s\S]*display: none[\s\S]*#submissionExportView[\s\S]*display: block/s,
+  "print CSS should hide app chrome and show the dedicated export view"
+);
+assert.match(
+  html,
+  /@page\s*\{[\s\S]*margin:\s*6mm;[\s\S]*\.submission-export\s*\{[\s\S]*width:\s*100%;[\s\S]*font-size:\s*7pt;[\s\S]*\.submission-export-layout\s*\{[\s\S]*grid-template-columns:\s*132mm minmax\(0, 54mm\);[\s\S]*\.submission-export-main\s*\{[\s\S]*display:\s*contents;[\s\S]*\.submission-export-main \.submission-export-section:nth-child\(2\)\s*\{[\s\S]*grid-column:\s*1 \/ -1;[\s\S]*\.submission-export \.groups\s*\{[\s\S]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);[\s\S]*\.submission-export table\s*\{[\s\S]*display:\s*table !important;[\s\S]*\.submission-export td::before\s*\{[\s\S]*content:\s*none !important;/s,
+  "print export should use a compact one-page-oriented layout"
+);
+assert.match(
+  html,
+  /\.submission-export \.submission-export-detail-row\s*\{[\s\S]*font-size:\s*7\.5pt;[\s\S]*line-height:\s*1\.16;/s,
+  "print employee details should stay readable"
+);
+
+console.log("pay claim proof and export submission checks passed");

@@ -508,6 +508,36 @@
     return assertRows(null, lastError, "Could not lock submitted draft entries.");
   }
 
+  async function unlockSubmittedBySubmission(submissionId, userId) {
+    if (!submissionId || !userId) return [];
+    const schemas = getSchemaAttempts();
+    let lastError = null;
+
+    for (const schema of schemas) {
+      const { data, error } = await getClient()
+        .from(tableName)
+        .update({
+          status: "active",
+          submission_id: null,
+          updated_by: userId,
+        })
+        .eq("employee_id", userId)
+        .eq("submission_id", submissionId)
+        .eq("status", "submitted")
+        .select(getSelectColumns(schema));
+
+      if (!error) {
+        activeSchema = schema;
+        return assertRows(data, error, "Could not unlock submitted draft entries.").map((row) => toEntry(row, schema));
+      }
+
+      lastError = error;
+      if (!isMissingColumnError(error)) break;
+    }
+
+    return assertRows(null, lastError, "Could not unlock submitted draft entries.");
+  }
+
   function isSubmitted(entry) {
     return String(entry?.status || "active").toLowerCase() === "submitted";
   }
@@ -529,6 +559,7 @@
     deleteEntry,
     deleteEntries,
     markSubmitted,
+    unlockSubmittedBySubmission,
     toEntry,
     toRow,
     isSubmitted,

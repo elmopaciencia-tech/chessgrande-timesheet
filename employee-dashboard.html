@@ -199,11 +199,21 @@
       box-shadow: var(--shadow-sm);
     }
     .snapshot-icon {
-      width: 48px;
-      height: 48px;
+      width: 46px;
+      height: 46px;
       display: grid;
       place-items: center;
-      border-radius: 16px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%);
+    }
+    .snapshot-icon.is-empty {
+      background: var(--clay-soft);
+      color: var(--clay);
+      border-color: color-mix(in srgb, var(--clay) 18%, white 82%);
+    }
+    .snapshot-icon.is-active {
       background: var(--accent-soft);
       color: var(--accent);
     }
@@ -246,6 +256,38 @@
       line-height: 1.15;
       letter-spacing: 0;
     }
+    .panel-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-title-icon {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
+    }
+    .panel-title-icon.is-due {
+      background: var(--clay-soft);
+      color: var(--clay);
+      border-color: color-mix(in srgb, var(--clay) 18%, white 82%);
+    }
+    .panel-title-icon.is-submitted {
+      background: var(--purple-soft);
+      color: var(--purple);
+      border-color: color-mix(in srgb, var(--purple) 18%, white 82%);
+    }
+    .panel-title-icon.is-paid {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 18%, white 82%);
+    }
+    .panel-title-icon svg { width: 18px; height: 18px; }
     .panel-copy, .status {
       margin: 6px 0 0;
       color: var(--muted);
@@ -306,13 +348,42 @@
       border-radius: 16px;
       background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
     }
-    .schedule-item, .history-item {
+    .schedule-item {
       display: grid;
       grid-template-columns: minmax(90px, 0.35fr) minmax(0, 1fr) auto;
       gap: 12px;
       align-items: center;
       padding: 13px 14px;
     }
+    .history-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 14px;
+    }
+    .history-icon {
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
+    }
+    .history-icon.is-submitted {
+      background: var(--purple-soft);
+      color: var(--purple);
+      border-color: color-mix(in srgb, var(--purple) 18%, white 82%);
+    }
+    .history-icon.is-paid {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 18%, white 82%);
+    }
+    .history-icon svg { width: 19px; height: 19px; }
     .item-kicker {
       color: var(--muted);
       font-size: 0.78rem;
@@ -323,14 +394,45 @@
     .item-title { margin: 0; font-weight: 800; }
     .item-meta { margin: 3px 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.35; }
     .notice-item {
+      position: relative;
       display: grid;
-      gap: 10px;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
       padding: 14px;
-      border-color: color-mix(in srgb, var(--accent) 18%, var(--line) 82%);
+      border-radius: 14px;
+      border-color: color-mix(in srgb, var(--line) 88%, white 12%);
+      background: color-mix(in srgb, var(--surface-strong) 96%, white 4%);
+      box-shadow: 0 1px 6px rgba(61, 52, 36, 0.02);
     }
     .notice-item.is-read {
       border-color: color-mix(in srgb, var(--line) 82%, white 18%);
-      background: color-mix(in srgb, var(--surface-muted) 58%, white 42%);
+      background: color-mix(in srgb, var(--surface-muted) 34%, white 66%);
+    }
+    .notice-avatar {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%);
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+    .notice-avatar::after {
+      content: "";
+      position: absolute;
+      right: 1px;
+      bottom: 1px;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--success, #22c55e);
+      border: 2px solid var(--surface-strong);
     }
     .notice-top {
       display: flex;
@@ -339,9 +441,40 @@
       align-items: flex-start;
     }
     .notice-title { margin: 0; font-weight: 800; }
-    .notice-body { margin: 4px 0 0; color: var(--ink-soft); line-height: 1.45; }
-    .notice-meta { color: var(--muted); font-size: 0.82rem; font-weight: 700; }
-    .notice-actions { display: flex; justify-content: flex-end; }
+    .notice-body { margin: 3px 0 0; color: var(--ink-soft); line-height: 1.4; font-size: 0.92rem; }
+    .notice-meta { margin-top: 5px; color: var(--muted); font-size: 0.78rem; font-weight: 700; }
+    .notice-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+    }
+    .notice-action-button {
+      width: 32px;
+      height: 32px;
+      min-height: 32px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 10px;
+      padding: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease;
+    }
+    .notice-action-button:hover {
+      background: color-mix(in srgb, var(--clay-soft) 70%, white 30%);
+      color: var(--clay);
+    }
+    .notice-action-button.is-read-action:hover {
+      background: color-mix(in srgb, var(--accent-soft) 76%, white 24%);
+      color: var(--accent);
+    }
+    .notice-action-button svg {
+      width: 17px;
+      height: 17px;
+    }
     .notice-read-button, .primary-link, .secondary-button {
       min-height: 40px;
       border-radius: 999px;
@@ -383,10 +516,14 @@
       height: 38px;
       display: grid;
       place-items: center;
-      border-radius: 14px;
-      background: var(--purple-soft);
-      color: var(--purple);
+      border-radius: 13px;
+      background: var(--surface-muted);
+      color: var(--muted);
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
     }
+    .quick-link-icon.is-timesheet { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 18%, white 82%); }
+    .quick-link-icon.is-submission { background: var(--gold); color: color-mix(in srgb, var(--gold-deep) 72%, var(--ink) 28%); border-color: color-mix(in srgb, var(--gold-deep) 32%, white 68%); }
+    .quick-link-icon.is-profile { background: var(--purple-soft); color: var(--purple); border-color: color-mix(in srgb, var(--purple) 18%, white 82%); }
     .quick-link-icon svg { width: 20px; height: 20px; }
     .quick-link-text,
     .quick-link-text strong,
@@ -395,17 +532,31 @@
       min-width: 0;
     }
     .quick-link-arrow {
-      color: var(--muted);
-      font-weight: 900;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      color: var(--ink-soft);
+      background: color-mix(in srgb, var(--surface-muted) 70%, white 30%);
+      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
       align-self: center;
     }
+    .quick-link-arrow svg { width: 16px; height: 16px; }
     .submission-panel .panel-header {
       align-items: center;
       margin-bottom: 12px;
     }
     .submission-panel .quick-link {
-      border-color: color-mix(in srgb, var(--accent) 18%, var(--line) 82%);
-      background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 96%, var(--accent-soft) 4%) 0%, color-mix(in srgb, var(--surface-muted) 82%, var(--accent-soft) 18%) 100%);
+      border-color: color-mix(in srgb, var(--line) 86%, white 14%);
+      background: color-mix(in srgb, var(--surface-strong) 96%, white 4%);
+      box-shadow: none;
+    }
+    .submission-panel .quick-link:hover {
+      transform: none;
+      border-color: var(--line-strong);
+      background: color-mix(in srgb, var(--surface-muted) 38%, white 62%);
+      box-shadow: none;
     }
     .empty {
       padding: 18px;
@@ -425,8 +576,11 @@
       .hero, .panel { padding: 18px; border-radius: 22px; }
       .stat-grid { grid-template-columns: 1fr; }
       .schedule-item, .history-item { grid-template-columns: 1fr; align-items: start; }
-      .notice-top { display: grid; }
-      .notice-actions { justify-content: flex-start; }
+      .notice-item { grid-template-columns: auto minmax(0, 1fr); }
+      .notice-actions {
+        grid-column: 2;
+        justify-content: flex-start;
+      }
     }
     @media (max-width: 460px) {
       .menu-button[data-has-profile-avatar="true"] #userMenuButtonLabel { display: none; }
@@ -438,7 +592,7 @@
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
-  <script src="./ui-effects.js" defer></script>
+  <script src="./ui-effects.js?v=20260606-nav" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -491,7 +645,7 @@
         <p>Check what is coming up, keep this month tidy, and catch payroll updates from one place.</p>
       </div>
       <aside class="snapshot-card" aria-label="Next class">
-        <span class="snapshot-icon" data-lucide="calendar-clock" aria-hidden="true"></span>
+        <span class="snapshot-icon is-empty" id="nextClassIcon" aria-hidden="true"><i data-lucide="calendar-x-2"></i></span>
         <div>
           <p class="snapshot-label">Next Class</p>
           <p class="snapshot-title" id="nextClassTitle">Loading...</p>
@@ -531,16 +685,19 @@
         <section class="panel submission-panel" aria-labelledby="submissionTitle">
           <div class="panel-header">
             <div>
-              <h2 id="submissionTitle">Submission Status</h2>
+              <div class="panel-title-row">
+                <span class="panel-title-icon is-due" id="submissionStatusIcon" aria-hidden="true"><i data-lucide="send"></i></span>
+                <h2 id="submissionTitle">Submission Status</h2>
+              </div>
               <p class="panel-copy" id="submissionStatusCopy">Checking payroll handoff...</p>
             </div>
             <span class="badge is-muted" id="submissionStatusBadge">Loading</span>
           </div>
           <div class="quick-links">
             <a class="quick-link" href="./chess-timesheet-pay.html">
-              <span class="quick-link-icon" data-lucide="receipt-text" aria-hidden="true"></span>
+              <span class="quick-link-icon is-submission" aria-hidden="true"><i data-lucide="receipt-text"></i></span>
               <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Review monthly pay and submit payroll.</span></span>
-              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+              <span class="quick-link-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
             </a>
           </div>
         </section>
@@ -577,19 +734,19 @@
           </div>
           <div class="quick-links">
             <a class="quick-link" href="./chess-timesheet.html">
-              <span class="quick-link-icon" data-lucide="calendar-plus" aria-hidden="true"></span>
+              <span class="quick-link-icon is-timesheet" aria-hidden="true"><i data-lucide="calendar-days"></i></span>
               <span class="quick-link-text"><strong>Timesheet</strong><span class="item-meta">Add sessions, claims, and event costs.</span></span>
-              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+              <span class="quick-link-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
             </a>
             <a class="quick-link" href="./chess-timesheet-pay.html">
-              <span class="quick-link-icon" data-lucide="wallet-cards" aria-hidden="true"></span>
+              <span class="quick-link-icon is-submission" aria-hidden="true"><i data-lucide="wallet-cards"></i></span>
               <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Submit the month when the ledger is ready.</span></span>
-              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+              <span class="quick-link-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
             </a>
             <button class="quick-link" id="profileQuickLink" type="button">
-              <span class="quick-link-icon" data-lucide="user-round-cog" aria-hidden="true"></span>
+              <span class="quick-link-icon is-profile" aria-hidden="true"><i data-lucide="circle-user-round"></i></span>
               <span class="quick-link-text"><strong>Profile</strong><span class="item-meta">Update your photo and payroll details.</span></span>
-              <span class="quick-link-arrow" aria-hidden="true">-&gt;</span>
+              <span class="quick-link-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
             </button>
           </div>
         </section>
@@ -607,6 +764,7 @@
   <script src="./employee-notice-store.js"></script>
   <script>
     const dashboardGreeting = document.getElementById("dashboardGreeting");
+    const nextClassIcon = document.getElementById("nextClassIcon");
     const nextClassTitle = document.getElementById("nextClassTitle");
     const nextClassMeta = document.getElementById("nextClassMeta");
     const weekCount = document.getElementById("weekCount");
@@ -617,6 +775,7 @@
     const hoursCount = document.getElementById("hoursCount");
     const submissionStatusCopy = document.getElementById("submissionStatusCopy");
     const submissionStatusBadge = document.getElementById("submissionStatusBadge");
+    const submissionStatusIcon = document.getElementById("submissionStatusIcon");
     const unreadNoticeCount = document.getElementById("unreadNoticeCount");
     const noticeList = document.getElementById("noticeList");
     const noticeStatus = document.getElementById("noticeStatus");
@@ -631,6 +790,7 @@
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
     const classEntryTypes = new Set(["School Coaching", "Replacement", "Camp", "Private"]);
+    const dismissedNoticeStoragePrefix = "cgDismissedNotices:";
 
     let currentUserId = "";
     let cachedNotices = [];
@@ -791,10 +951,12 @@
     function renderNextClass(entries) {
       const nextClass = getUpcomingClassEntries(entries, new Date(), 60)[0];
       if (!nextClass) {
+        setSnapshotIcon("calendar-x-2", "is-empty");
         nextClassTitle.textContent = "No upcoming class";
         nextClassMeta.textContent = "Add confirmed sessions to your timesheet when they are ready.";
         return;
       }
+      setSnapshotIcon("calendar-clock", "is-active");
       nextClassTitle.textContent = nextClass.schoolName || nextClass.type || "Class";
       nextClassMeta.textContent = `${formatDateLong(nextClass.date)} · ${formatTimeRange(nextClass)} · ${nextClass.type}`;
     }
@@ -839,6 +1001,7 @@
       const currentMonth = formatMonthKey(new Date());
       const submission = getLatestSubmissionForMonth(submissions, currentMonth);
       if (!submission) {
+        setSubmissionStatusIcon("send", "is-due");
         submissionStatusBadge.textContent = "Not Submitted";
         submissionStatusBadge.className = "badge is-due";
         submissionStatusCopy.textContent = "This month has not been submitted yet. Open the submission view when your timesheet is ready.";
@@ -846,12 +1009,14 @@
       }
 
       if (submission.paid_at) {
+        setSubmissionStatusIcon("circle-dollar-sign", "is-paid");
         submissionStatusBadge.textContent = "Paid";
         submissionStatusBadge.className = "badge is-paid";
         submissionStatusCopy.textContent = `${submission.month_label || submission.month} was paid ${formatDateLong(submission.paid_at)} for ${formatCurrency(submission.total_pay)}.`;
         return;
       }
 
+      setSubmissionStatusIcon("badge-check", "is-submitted");
       submissionStatusBadge.textContent = "Submitted";
       submissionStatusBadge.className = "badge";
       submissionStatusCopy.textContent = `${submission.month_label || submission.month} was submitted ${formatDateLong(submission.submitted_at)} and is waiting for manager review.`;
@@ -867,9 +1032,12 @@
         const item = document.createElement("article");
         item.className = "history-item";
         const status = submission.paid_at ? "Paid" : "Submitted";
+        const iconName = submission.paid_at ? "circle-dollar-sign" : "badge-check";
+        const iconState = submission.paid_at ? "is-paid" : "is-submitted";
         item.innerHTML = `
-          <div class="item-kicker">${escapeHtml(submission.month_label || submission.month || "Month")}</div>
+          <span class="history-icon ${iconState}" aria-hidden="true"><i data-lucide="${iconName}"></i></span>
           <div>
+            <div class="item-kicker">${escapeHtml(submission.month_label || submission.month || "Month")}</div>
             <p class="item-title">${escapeHtml(formatCurrency(submission.total_pay))}</p>
             <p class="item-meta">${escapeHtml(trimHours(submission.total_hours))} hours · ${escapeHtml(formatDateLong(submission.submitted_at))}</p>
           </div>
@@ -880,30 +1048,34 @@
     }
 
     function renderNotices(notices, error = null) {
-      const unreadCount = notices.filter((notice) => !notice.isRead).length;
+      const dismissedNoticeIds = loadDismissedNoticeIds();
+      const visibleNotices = notices.filter((notice) => !dismissedNoticeIds.has(getNoticeKey(notice)));
+      const unreadCount = visibleNotices.filter((notice) => !notice.isRead).length;
       unreadNoticeCount.textContent = `${unreadCount} unread`;
       unreadNoticeCount.className = unreadCount ? "badge is-due" : "badge is-muted";
       noticeList.innerHTML = "";
       noticeStatus.textContent = error ? `Could not load notices: ${error.message || "unknown error"}` : "";
 
-      if (!notices.length) {
+      if (!visibleNotices.length) {
         noticeList.innerHTML = '<div class="empty">No notices yet.</div>';
         return;
       }
 
-      notices.forEach((notice) => {
+      visibleNotices.forEach((notice) => {
+        const noticeId = getNoticeKey(notice);
         const item = document.createElement("article");
         item.className = `notice-item${notice.isRead ? " is-read" : ""}`;
         item.innerHTML = `
-          <div class="notice-top">
-            <div>
-              <p class="notice-title">${escapeHtml(notice.title)}</p>
-              <p class="notice-body">${escapeHtml(notice.body)}</p>
-            </div>
-            <span class="badge ${notice.noticeType === "payment" ? "is-paid" : notice.isRead ? "is-muted" : ""}">${escapeHtml(formatNoticeType(notice.noticeType))}</span>
+          <span class="notice-avatar" aria-hidden="true">${escapeHtml(getNoticeInitial(notice))}</span>
+          <div class="notice-content">
+            <p class="notice-title">${escapeHtml(notice.title)}</p>
+            <p class="notice-body">${escapeHtml(notice.body)}</p>
+            <div class="notice-meta">${escapeHtml(formatDateLong(notice.createdAt))}${notice.isRead ? " · Read" : ""}</div>
           </div>
-          <div class="notice-meta">${escapeHtml(formatDateLong(notice.createdAt))}${notice.isRead ? " · Read" : ""}</div>
-          ${notice.isRead ? "" : '<div class="notice-actions"><button class="notice-read-button" type="button" data-notice-id="' + escapeHtml(notice.noticeId || notice.id) + '">Mark Read</button></div>'}
+          <div class="notice-actions" aria-label="Notice actions">
+            <button class="notice-action-button is-dismiss-action" type="button" data-dismiss-notice-id="${escapeHtml(noticeId)}" aria-label="Dismiss notice"><i data-lucide="x" aria-hidden="true"></i></button>
+            ${notice.isRead ? "" : '<button class="notice-action-button is-read-action" type="button" data-notice-id="' + escapeHtml(noticeId) + '" aria-label="Mark notice read"><i data-lucide="check" aria-hidden="true"></i></button>'}
+          </div>
         `;
         noticeList.appendChild(item);
       });
@@ -911,6 +1083,10 @@
       noticeList.querySelectorAll("[data-notice-id]").forEach((button) => {
         button.addEventListener("click", async () => markNoticeRead(button.dataset.noticeId));
       });
+      noticeList.querySelectorAll("[data-dismiss-notice-id]").forEach((button) => {
+        button.addEventListener("click", () => dismissNotice(button.dataset.dismissNoticeId));
+      });
+      renderIcons();
     }
 
     async function markNoticeRead(noticeId) {
@@ -929,17 +1105,73 @@
       }
     }
 
+    function dismissNotice(noticeId) {
+      const dismissedNoticeIds = loadDismissedNoticeIds();
+      dismissedNoticeIds.add(noticeId);
+      saveDismissedNoticeIds(dismissedNoticeIds);
+      renderNotices(cachedNotices);
+      noticeStatus.textContent = "Notice dismissed.";
+      window.setTimeout(() => {
+        if (noticeStatus.textContent === "Notice dismissed.") {
+          noticeStatus.textContent = "";
+        }
+      }, 2200);
+    }
+
+    function getDismissedNoticeStorageKey() {
+      return `${dismissedNoticeStoragePrefix}${currentUserId || "guest"}`;
+    }
+
+    function loadDismissedNoticeIds() {
+      try {
+        return new Set(JSON.parse(window.localStorage.getItem(getDismissedNoticeStorageKey()) || "[]"));
+      } catch (_) {
+        return new Set();
+      }
+    }
+
+    function saveDismissedNoticeIds(noticeIds) {
+      try {
+        window.localStorage.setItem(getDismissedNoticeStorageKey(), JSON.stringify([...noticeIds].filter(Boolean)));
+      } catch (_) {
+        // Dismissal is a convenience state; ignore storage failures.
+      }
+    }
+
+    function getNoticeKey(notice) {
+      return String(notice?.noticeId || notice?.id || "");
+    }
+
+    function getNoticeInitial(notice) {
+      const source = String(notice?.title || notice?.body || "N").trim();
+      return source ? source.slice(0, 1) : "N";
+    }
+
     function renderScheduleError(error) {
+      setSnapshotIcon("triangle-alert", "is-empty");
       nextClassTitle.textContent = "Could not load schedule";
       nextClassMeta.textContent = error.message || "unknown error";
       weeklySchedule.innerHTML = `<div class="empty">Could not load this week: ${escapeHtml(error.message || "unknown error")}</div>`;
     }
 
     function renderSubmissionError(error) {
+      setSubmissionStatusIcon("triangle-alert", "is-due");
       submissionStatusBadge.textContent = "Unavailable";
       submissionStatusBadge.className = "badge is-due";
       submissionStatusCopy.textContent = `Could not load submissions: ${error.message || "unknown error"}`;
       paymentHistory.innerHTML = '<div class="empty">Payment history is unavailable.</div>';
+    }
+
+    function setSnapshotIcon(iconName, stateClass) {
+      nextClassIcon.className = `snapshot-icon ${stateClass || ""}`.trim();
+      nextClassIcon.innerHTML = `<i data-lucide="${escapeHtml(iconName)}"></i>`;
+      renderIcons();
+    }
+
+    function setSubmissionStatusIcon(iconName, stateClass) {
+      submissionStatusIcon.className = `panel-title-icon ${stateClass || ""}`.trim();
+      submissionStatusIcon.innerHTML = `<i data-lucide="${escapeHtml(iconName)}"></i>`;
+      renderIcons();
     }
 
     function getUpcomingClassEntries(entries, fromDate = new Date(), daysAhead = 7) {

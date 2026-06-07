@@ -167,11 +167,12 @@
     .stat-label { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 0; }
     .stat-value { display: block; font-size: 1.34rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
     .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-    .primary, .secondary, .button, .button-secondary, .nav-link, .row-remove-button, .entry-remove {
+    .primary, .secondary, .danger, .button, .button-secondary, .nav-link, .row-remove-button, .entry-remove {
       border-radius: 999px; padding: 11px 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
     }
     .primary, .button { border: 0; background: var(--accent); color: var(--surface-strong); }
     .secondary, .button-secondary, .nav-link { border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%); background: var(--surface-strong); color: var(--accent); }
+    .danger { border: 1px solid color-mix(in srgb, #c73832 30%, white 70%); background: color-mix(in srgb, #c73832 8%, var(--surface-strong) 92%); color: #a12b26; }
     .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
     .weekday, .day { border-radius: 18px; }
     .weekday { padding: 6px 0; text-align: center; color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
@@ -296,12 +297,122 @@
       text-align: right;
     }
     .pay-card .primary,
+    .pay-card .danger,
     .pay-card .secondary,
     .pay-card .nav-link {
       min-height: 40px;
       padding: 9px 12px;
     }
     .pay-actions { margin-top: 0; }
+    .export-status { min-height: 1.3em; }
+    #submissionExportView { display: none; }
+    .submission-export {
+      color: var(--ink);
+      background: white;
+    }
+    .submission-export-header {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .submission-export-title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      flex-wrap: wrap;
+    }
+    .submission-export h1 {
+      max-width: none;
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .submission-export-subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .submission-export-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .submission-export-stat,
+    .submission-export-snapshot,
+    .submission-export-section {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: white;
+    }
+    .submission-export-stat {
+      padding: 12px;
+    }
+    .submission-export-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+    .submission-export-main {
+      display: grid;
+      gap: 16px;
+    }
+    .submission-export-section,
+    .submission-export-snapshot {
+      padding: 16px;
+    }
+    .submission-export-section h2,
+    .submission-export-snapshot h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+    .submission-export .calendar-grid {
+      gap: 4px;
+    }
+    .submission-export .weekday,
+    .submission-export .day {
+      border-radius: 10px;
+    }
+    .submission-export .day {
+      min-height: 78px;
+      padding: 7px;
+    }
+    .submission-export .school-card {
+      box-shadow: none;
+      transform: none;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .submission-export .entry-image-button {
+      pointer-events: none;
+    }
+    .submission-export-details {
+      display: grid;
+      gap: 4px;
+      margin: 8px 0 0;
+    }
+    .submission-export-detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 0;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .submission-export-detail-row dt {
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .submission-export-detail-row dd {
+      margin: 0;
+      text-align: right;
+      font-weight: 700;
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
     .calendar-actions { display: grid; gap: 12px; margin-top: 18px; }
     .payroll-rail { display: grid; gap: 14px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--line) 78%, white 22%); }
     .payroll-rail strong { display: block; color: var(--ink); font-size: 1rem; }
@@ -341,10 +452,236 @@
       .pay-line { padding: 4px 0; }
       .pay-line-field input { max-width: 160px; min-height: 34px; padding: 5px 8px; }
     }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 6mm;
+      }
+      * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
+      html,
+      body {
+        background: white !important;
+        color: #111827 !important;
+        padding: 0 !important;
+      }
+      .app-header,
+      .skip-link,
+      main.page,
+      .chip-context-menu,
+      .lightbox,
+      .entry-edit-modal {
+        display: none !important;
+      }
+      body.is-exporting-submission #submissionExportView {
+        display: block !important;
+      }
+      #submissionExportView {
+        display: block;
+        width: 100%;
+      }
+      .submission-export {
+        display: block;
+        width: 100%;
+        font-size: 7pt;
+        line-height: 1.14;
+      }
+      .submission-export h1 {
+        font-size: 15pt;
+      }
+      .submission-export-header {
+        gap: 4px;
+        margin-bottom: 7px;
+        padding-bottom: 6px;
+      }
+      .submission-export-title-row {
+        gap: 8px;
+      }
+      .submission-export-layout {
+        grid-template-columns: 132mm minmax(0, 54mm);
+        gap: 3mm;
+      }
+      .submission-export-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        margin: 7px 0;
+      }
+      .submission-export-stat {
+        padding: 6px 8px;
+        border-radius: 10px;
+      }
+      .submission-export-main {
+        display: contents;
+      }
+      .submission-export-main .submission-export-section:first-child {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .submission-export-main .submission-export-section:nth-child(2) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+      .submission-export-snapshot {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      .submission-export-section,
+      .submission-export-snapshot {
+        padding: 6px;
+        border-radius: 10px;
+      }
+      .submission-export-section h2,
+      .submission-export-snapshot h2 {
+        margin-bottom: 5px;
+        font-size: 9.2pt;
+      }
+      .submission-export .panel-eyebrow {
+        margin-bottom: 2px;
+        font-size: 6.4pt;
+        letter-spacing: .1em;
+      }
+      .submission-export .stat-value {
+        font-size: 11pt;
+      }
+      .submission-export .submission-export-details {
+        gap: 1px;
+        margin-top: 4px;
+      }
+      .submission-export .submission-export-detail-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin: 0;
+        padding: 2.5px 0;
+        gap: 4px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 7.5pt;
+        line-height: 1.16;
+      }
+      .submission-export .submission-export-detail-row dt {
+        color: #4b5563 !important;
+        font-weight: 700;
+      }
+      .submission-export .submission-export-detail-row dd {
+        margin: 0;
+        color: #111827 !important;
+        font-weight: 700;
+        text-align: right;
+        max-width: 31mm;
+        overflow-wrap: anywhere;
+      }
+      .submission-export .calendar-grid {
+        gap: 2px;
+      }
+      .submission-export .weekday {
+        padding: 2px 0;
+        font-size: 5.8pt;
+      }
+      .submission-export .day {
+        min-height: 30px;
+        padding: 3px;
+        gap: 2px;
+        border-radius: 5px;
+      }
+      .submission-export .day-number {
+        font-size: 6.2pt;
+      }
+      .submission-export .day-items {
+        gap: 1px;
+      }
+      .submission-export .chip {
+        padding: 1px 2px;
+        border-radius: 4px;
+        font-size: 5.6pt;
+        line-height: 1.05;
+      }
+      .submission-export .groups {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+        align-items: start;
+      }
+      .submission-export .school-card {
+        padding: 7px;
+        border-radius: 9px;
+      }
+      .submission-export .school-head {
+        margin-bottom: 4px;
+        gap: 5px;
+      }
+      .submission-export .school-head h3 {
+        font-size: 8.6pt;
+      }
+      .submission-export .school-meta {
+        font-size: 7pt;
+      }
+      .submission-export table {
+        display: table !important;
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 7.2pt;
+      }
+      .submission-export thead {
+        display: table-header-group !important;
+      }
+      .submission-export tbody {
+        display: table-row-group !important;
+      }
+      .submission-export tr {
+        display: table-row !important;
+      }
+      .submission-export th,
+      .submission-export td {
+        display: table-cell !important;
+      }
+      .submission-export td::before {
+        content: none !important;
+      }
+      .submission-export th,
+      .submission-export td {
+        padding: 1px 2px;
+      }
+      .submission-export .entry-image,
+      .submission-export .entry-image-placeholder {
+        width: 22px;
+        height: 22px;
+        border-radius: 5px;
+      }
+      .submission-export-section,
+      .submission-export-snapshot,
+      .submission-export-stat,
+      .school-card {
+        border-color: #d1d5db !important;
+        background: white !important;
+      }
+      .submission-export .panel-eyebrow,
+      .submission-export .stat-label,
+      .submission-export .school-meta,
+      .submission-export-subtitle {
+        color: #4b5563 !important;
+      }
+      .submission-export .school-card,
+      .submission-export tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .submission-export th,
+      .submission-export td {
+        border-color: #d1d5db !important;
+      }
+      .submission-export .entry-actions,
+      .submission-export .entry-actions-inner,
+      .submission-export .entry-action-button {
+        display: none !important;
+      }
+    }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
-  <script src="./ui-effects.js" defer></script>
+  <script src="./ui-effects.js?v=20260606-nav" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -410,11 +747,57 @@
           <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">School ledger</p><h2>Entries By School</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div></section>
         </div>
         <aside class="action-column">
-          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. The hourly rate is stored automatically on this device.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><div class="pay-line-field"><input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 55" aria-label="Pay per hour" required></div></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
+          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. The hourly rate is stored automatically on this device.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><div class="pay-line-field"><input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 55" aria-label="Pay per hour" required></div></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Remove Submission</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></form></section>
         </aside>
       </div>
     </div>
   </main>
+
+  <section class="submission-export" id="submissionExportView" aria-label="Payroll Submission" hidden>
+    <header class="submission-export-header">
+      <div class="submission-export-title-row">
+        <div>
+          <p class="panel-eyebrow">Payroll Submission</p>
+          <h1 id="exportHeroTitle">Payroll Submission</h1>
+          <p class="submission-export-subtitle" id="exportSubmissionMeta">Submitted payroll snapshot</p>
+        </div>
+        <div class="submission-export-subtitle" id="exportSubmittedAt">Submitted date</div>
+      </div>
+      <div class="submission-export-stats" aria-label="Submission summary">
+        <div class="submission-export-stat"><span class="stat-label">Entries</span><span class="stat-value" id="exportEntryCount">0</span></div>
+        <div class="submission-export-stat"><span class="stat-label">Total Hours</span><span class="stat-value" id="exportHoursCount">0</span></div>
+        <div class="submission-export-stat"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="exportTotalPayCount">S$0.00</span></div>
+      </div>
+    </header>
+    <div class="submission-export-layout">
+      <div class="submission-export-main">
+        <section class="submission-export-section">
+          <p class="panel-eyebrow">Submission review</p>
+          <h2 id="exportCalendarTitle">Month View</h2>
+          <div id="exportCalendar" class="calendar-grid"></div>
+        </section>
+        <section class="submission-export-section">
+          <p class="panel-eyebrow">Submitted ledger</p>
+          <h2>Entries By School</h2>
+          <div id="exportSchoolGroups" class="groups"></div>
+        </section>
+      </div>
+      <aside class="submission-export-snapshot">
+        <p class="panel-eyebrow">Employee details</p>
+        <h2>Submitted Payroll Snapshot</h2>
+        <dl class="submission-export-details">
+          <div class="submission-export-detail-row"><dt>Name</dt><dd id="exportPayName">-</dd></div>
+          <div class="submission-export-detail-row"><dt>Bank</dt><dd id="exportPayBankName">-</dd></div>
+          <div class="submission-export-detail-row"><dt>Account Type</dt><dd id="exportPayAccountType">-</dd></div>
+          <div class="submission-export-detail-row"><dt>Bank Account</dt><dd id="exportPayBank">-</dd></div>
+          <div class="submission-export-detail-row"><dt>Month</dt><dd id="exportPayMonth">-</dd></div>
+          <div class="submission-export-detail-row"><dt>Rate</dt><dd id="exportPayRate">S$0.00</dd></div>
+          <div class="submission-export-detail-row"><dt>Total Hours</dt><dd id="exportPayHours">0</dd></div>
+          <div class="submission-export-detail-row"><dt>Calculated Pay</dt><dd id="exportPayTotal">S$0.00</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </section>
 
   <div class="chip-context-menu" id="chipContextMenu" role="menu" hidden>
     <div class="chip-context-actions" data-chip-menu-panel="actions">
@@ -569,6 +952,8 @@
     const accountTypeInput = document.getElementById("accountType");
     const hourlyRateInput = document.getElementById("hourlyRate");
     const submitToServerButton = document.getElementById("submitToServer");
+    const exportSubmissionButton = document.getElementById("exportSubmissionButton");
+    const removeSubmissionButton = document.getElementById("removeSubmissionButton");
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
@@ -578,6 +963,7 @@
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
     const submitStatus = document.getElementById("submitStatus");
+    const exportStatus = document.getElementById("exportStatus");
     const summaryPay = document.getElementById("summaryPay");
     const hoursCount = document.getElementById("hoursCount");
     const rateCount = document.getElementById("rateCount");
@@ -616,6 +1002,24 @@
     const entryEditColorToggle = document.getElementById("entryEditColorToggle");
     const entryEditColorMenu = document.getElementById("entryEditColorMenu");
     const entryEditColorOptions = document.getElementById("entryEditColorOptions");
+    const submissionExportView = document.getElementById("submissionExportView");
+    const exportHeroTitle = document.getElementById("exportHeroTitle");
+    const exportSubmissionMeta = document.getElementById("exportSubmissionMeta");
+    const exportSubmittedAt = document.getElementById("exportSubmittedAt");
+    const exportEntryCount = document.getElementById("exportEntryCount");
+    const exportHoursCount = document.getElementById("exportHoursCount");
+    const exportTotalPayCount = document.getElementById("exportTotalPayCount");
+    const exportCalendarTitle = document.getElementById("exportCalendarTitle");
+    const exportCalendar = document.getElementById("exportCalendar");
+    const exportSchoolGroups = document.getElementById("exportSchoolGroups");
+    const exportPayName = document.getElementById("exportPayName");
+    const exportPayBankName = document.getElementById("exportPayBankName");
+    const exportPayAccountType = document.getElementById("exportPayAccountType");
+    const exportPayBank = document.getElementById("exportPayBank");
+    const exportPayMonth = document.getElementById("exportPayMonth");
+    const exportPayRate = document.getElementById("exportPayRate");
+    const exportPayHours = document.getElementById("exportPayHours");
+    const exportPayTotal = document.getElementById("exportPayTotal");
     const claimProofBucket = "claim-proofs";
     const storageBackends = getStorageBackends();
     const monthNames = [
@@ -634,6 +1038,8 @@
     let editingEntryId = "";
     let chipContextMenuTrigger = null;
     let isSubmitting = false;
+    let isExportingSubmission = false;
+    let isRemovingSubmission = false;
     let isHydratingClaimProofUrls = false;
 
     initApp();
@@ -726,6 +1132,13 @@
       if (isSubmitting) return;
       await submitPayrollToSupabase();
     });
+    exportSubmissionButton.addEventListener("click", () => {
+      void exportSubmittedPayrollPdf();
+    });
+    removeSubmissionButton.addEventListener("click", () => {
+      void removeSubmittedPayroll();
+    });
+    window.addEventListener("afterprint", cleanupSubmissionExportView);
 
     function initializeMonth() {
       const params = new URLSearchParams(window.location.search);
@@ -908,6 +1321,340 @@
         isSubmitting = false;
         submitToServerButton.disabled = false;
       }
+    }
+
+    async function loadLatestSubmittedPayrollForMonth(userId, selectedMonth) {
+      const { data: submissions, error: submissionError } = await window.supabaseClient
+        .from("payroll_submissions")
+        .select("*")
+        .eq("employee_id", userId)
+        .eq("month", selectedMonth)
+        .order("submitted_at", { ascending: false })
+        .limit(1);
+
+      if (submissionError) {
+        throw new Error(submissionError.message || "Could not load submitted payroll.");
+      }
+
+      return submissions?.[0] || null;
+    }
+
+    async function removeSubmittedPayroll() {
+      if (isRemovingSubmission) return;
+      isRemovingSubmission = true;
+      removeSubmissionButton.disabled = true;
+      exportStatus.textContent = "Checking submitted payroll...";
+
+      try {
+        const user = currentUser || await getCurrentUser();
+        if (!user) {
+          exportStatus.textContent = "Please log in again before removing a submission.";
+          return;
+        }
+
+        const selectedMonth = monthPicker.value;
+        const monthLabel = formatMonthLabel(selectedMonth);
+        const submissionRow = await loadLatestSubmittedPayrollForMonth(user.id, selectedMonth);
+
+        if (!submissionRow) {
+          exportStatus.textContent = "No submitted payroll found for this month.";
+          return;
+        }
+
+        if (submissionRow.paid_at) {
+          exportStatus.textContent = "This submission has already been marked paid. Contact a manager if it needs changes.";
+          return;
+        }
+
+        const confirmed = window.confirm(
+          `Remove the submitted payroll for ${submissionRow.month_label || monthLabel}? Your linked timesheet rows will become editable again.`
+        );
+        if (!confirmed) {
+          exportStatus.textContent = "Remove submission cancelled.";
+          return;
+        }
+
+        exportStatus.textContent = "Removing submitted payroll...";
+        const unlockedRows = await window.draftTimesheetStore.unlockSubmittedBySubmission(submissionRow.id, user.id);
+
+        const { data: deletedRows, error: deleteError } = await window.supabaseClient
+          .from("payroll_submissions")
+          .delete()
+          .eq("id", submissionRow.id)
+          .eq("employee_id", user.id)
+          .is("paid_at", null)
+          .select("id");
+
+        if (deleteError) {
+          await relockSubmissionDrafts(unlockedRows, submissionRow.id, user.id);
+          throw new Error(deleteError.message || "Could not remove submitted payroll.");
+        }
+
+        if (!deletedRows?.length) {
+          await relockSubmissionDrafts(unlockedRows, submissionRow.id, user.id);
+          exportStatus.textContent = "This submission has already been marked paid. Contact a manager if it needs changes.";
+          return;
+        }
+
+        entries = await loadEntries();
+        render();
+        exportStatus.textContent = `Removed ${submissionRow.month_label || monthLabel} submission. Your timesheet rows are editable again.`;
+      } catch (error) {
+        console.error("Unexpected remove submission error:", error);
+        exportStatus.textContent = `Could not remove submitted payroll: ${error?.message || "unknown error"}`;
+      } finally {
+        isRemovingSubmission = false;
+        removeSubmissionButton.disabled = false;
+      }
+    }
+
+    async function relockSubmissionDrafts(unlockedRows, submissionId, userId) {
+      const ids = (unlockedRows || []).map((entry) => entry.id).filter(Boolean);
+      if (!ids.length) return;
+      try {
+        await window.draftTimesheetStore.markSubmitted(ids, submissionId, userId);
+      } catch (error) {
+        console.error("Could not relock draft rows after remove submission failed:", error);
+      }
+    }
+
+    async function exportSubmittedPayrollPdf() {
+      if (isExportingSubmission) return;
+      isExportingSubmission = true;
+      exportSubmissionButton.disabled = true;
+      exportStatus.textContent = "Preparing submitted payroll PDF...";
+
+      try {
+        const user = currentUser || await getCurrentUser();
+        if (!user) {
+          exportStatus.textContent = "Please log in again before exporting a submission.";
+          return;
+        }
+
+        const selectedMonth = monthPicker.value;
+        const submissionRow = await loadLatestSubmittedPayrollForMonth(user.id, selectedMonth);
+        if (!submissionRow) {
+          exportStatus.textContent = "Submit payroll for this month before exporting a PDF.";
+          return;
+        }
+
+        const entriesForExport = await loadSubmittedPayrollEntries(submissionRow.id);
+        const submission = {
+          id: submissionRow.id,
+          submittedAt: submissionRow.submitted_at,
+          month: submissionRow.month,
+          monthLabel: submissionRow.month_label,
+          employeeName: submissionRow.employee_name,
+          bankName: submissionRow.bank_name,
+          accountType: submissionRow.account_type,
+          bankAccount: submissionRow.bank_account,
+          hourlyRate: submissionRow.hourly_rate,
+          totalHours: submissionRow.total_hours,
+          totalPay: submissionRow.total_pay,
+          entries: entriesForExport,
+        };
+
+        renderSubmissionExportView(submission);
+        document.body.classList.add("is-exporting-submission");
+        submissionExportView.hidden = false;
+        exportStatus.textContent = "Print dialog opened. Choose Save as PDF to export.";
+        await waitForExportPrintLayout();
+        window.print();
+      } catch (error) {
+        console.error("Unexpected export error:", error);
+        exportStatus.textContent = `Could not export submitted payroll: ${error?.message || "unknown error"}`;
+        cleanupSubmissionExportView();
+      } finally {
+        isExportingSubmission = false;
+        exportSubmissionButton.disabled = false;
+      }
+    }
+
+    async function loadSubmittedPayrollEntries(submissionId) {
+      const { data: entryRows, error: entriesError } = await window.supabaseClient
+        .from("payroll_entries")
+        .select("*")
+        .eq("submission_id", submissionId);
+
+      if (entriesError) {
+        throw new Error(`Could not load payroll entries: ${entriesError.message || "unknown error"}`);
+      }
+
+      return Promise.all((entryRows || []).map(mapSubmittedPayrollEntryForExport));
+    }
+
+    async function mapSubmittedPayrollEntryForExport(row) {
+      const claimPayload = parseClaimNotePayload(row.claim_notes || "");
+      const resolvedClaimUrl = await resolveClaimImageUrl(row.claim_image_url || "");
+      return {
+        id: row.id,
+        schoolName: row.school_name || "",
+        date: row.date || "",
+        type: row.type || "",
+        startTime: row.start_time || "",
+        endTime: row.end_time || "",
+        hours: row.hours,
+        replacementName: row.replacement_name || "",
+        customRate: row.custom_rate,
+        calendarColor: row.calendar_color || "",
+        claimNotes: claimPayload.notes,
+        claimCost: claimPayload.cost,
+        claimImagePath: row.claim_image_url || "",
+        claimProofDataUrl: resolvedClaimUrl,
+        claimProofName: getClaimProofName(row.claim_image_url || ""),
+      };
+    }
+
+    function renderSubmissionExportView(submission) {
+      const exportEntries = (submission.entries || []).slice().sort((a, b) => {
+        const dateCompare = (a.date || "").localeCompare(b.date || "");
+        if (dateCompare !== 0) return dateCompare;
+        return (a.startTime || "").localeCompare(b.startTime || "");
+      });
+      const monthLabel = submission.monthLabel || formatMonthLabel(submission.month || monthPicker.value);
+
+      exportHeroTitle.textContent = submission.employeeName || "Payroll Submission";
+      exportSubmissionMeta.textContent = `${monthLabel} payroll submission`;
+      exportSubmittedAt.textContent = submission.submittedAt ? `Submitted ${formatDateLong(submission.submittedAt)}` : "Submitted payroll";
+      exportEntryCount.textContent = String(exportEntries.length);
+      exportHoursCount.textContent = trimHours(submission.totalHours || 0);
+      exportTotalPayCount.textContent = formatCurrency(submission.totalPay || 0);
+      exportPayName.textContent = submission.employeeName || "-";
+      exportPayBankName.textContent = submission.bankName || "Please Setup in Profile";
+      exportPayAccountType.textContent = submission.accountType || "Please Setup in Profile";
+      exportPayBank.textContent = submission.bankAccount || "-";
+      exportPayMonth.textContent = monthLabel;
+      exportPayRate.textContent = formatCurrency(submission.hourlyRate || 0);
+      exportPayHours.textContent = trimHours(submission.totalHours || 0);
+      exportPayTotal.textContent = formatCurrency(submission.totalPay || 0);
+
+      renderExportCalendar(exportEntries, submission.month || monthPicker.value);
+      renderExportGroups(exportEntries);
+    }
+
+    function renderExportCalendar(activeEntries, monthValue) {
+      exportCalendar.innerHTML = "";
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      weekdays.forEach((day) => {
+        const cell = document.createElement("div");
+        cell.className = "weekday";
+        cell.textContent = day;
+        exportCalendar.appendChild(cell);
+      });
+
+      const [year, month] = String(monthValue || "").split("-").map(Number);
+      if (!year || !month) {
+        exportCalendarTitle.textContent = "Month View";
+        return;
+      }
+
+      const firstDay = new Date(year, month - 1, 1);
+      const lastDay = new Date(year, month, 0);
+      const startGrid = new Date(firstDay);
+      startGrid.setDate(startGrid.getDate() - firstDay.getDay());
+      const endGrid = new Date(lastDay);
+      endGrid.setDate(endGrid.getDate() + (6 - lastDay.getDay()));
+      exportCalendarTitle.textContent = formatMonthLabel(monthValue);
+
+      const groupedByDate = groupBy(activeEntries, (entry) => entry.date);
+
+      for (let day = new Date(startGrid); day <= endGrid; day.setDate(day.getDate() + 1)) {
+        const key = formatDateInput(day);
+        const cell = document.createElement("div");
+        cell.className = "day";
+        if (day.getMonth() !== month - 1) cell.classList.add("outside");
+
+        const number = document.createElement("div");
+        number.className = "day-number";
+        number.textContent = String(day.getDate());
+        cell.appendChild(number);
+
+        const items = document.createElement("div");
+        items.className = "day-items";
+        (groupedByDate[key] || []).forEach((entry) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          applyCalendarColorToChip(chip, entry.calendarColor);
+          chip.innerHTML = `<strong>${escapeHtml(entry.schoolName || "Entry")}</strong>${formatTimeRange(entry)}`;
+          items.appendChild(chip);
+        });
+
+        cell.appendChild(items);
+        exportCalendar.appendChild(cell);
+      }
+    }
+
+    function renderExportGroups(activeEntries) {
+      exportSchoolGroups.innerHTML = "";
+      if (!activeEntries.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No entries found for this submission.";
+        exportSchoolGroups.appendChild(empty);
+        return;
+      }
+
+      const grouped = groupBy(activeEntries, (entry) => normalizeSchool(entry.schoolName || "Unassigned"));
+      const sortedSchools = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+
+      sortedSchools.forEach((schoolKey) => {
+        const schoolEntries = grouped[schoolKey];
+        const fragment = schoolTemplate.content.cloneNode(true);
+        fragment.querySelector("h3").textContent = schoolEntries[0].schoolName || "Unassigned";
+        const isCostOnlyGroup = schoolEntries.every(isCostEntry);
+        const hasClaimRows = schoolEntries.some((entry) => entry.type === "Claim");
+        const headRow = fragment.querySelector("thead tr");
+        headRow.innerHTML = isCostOnlyGroup
+          ? hasClaimRows
+            ? `<th>Image</th><th>Date</th><th>Type</th>`
+            : `<th>Date</th><th>Type</th>`
+          : `<th>Date</th><th>Type</th><th>Hours</th><th>Time</th>`;
+
+        const totalHours = schoolEntries.reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
+        const totalCost = schoolEntries.reduce((sum, entry) => sum + getCostEntryValue(entry), 0);
+        fragment.querySelector(".school-meta").textContent =
+          isCostOnlyGroup
+            ? `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${formatCurrency(totalCost)}`
+            : `${schoolEntries.length} entr${schoolEntries.length === 1 ? "y" : "ies"} • ${trimHours(totalHours)} hrs`;
+
+        const body = fragment.querySelector("tbody");
+        schoolEntries.forEach((entry) => {
+          const row = document.createElement("tr");
+          if (isCostEntry(entry) && isCostOnlyGroup && hasClaimRows) {
+            row.innerHTML = `
+              <td data-label="Image">${formatImageCell(entry)}</td>
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+            `;
+          } else if (isCostEntry(entry) && isCostOnlyGroup) {
+            row.innerHTML = `
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+            `;
+          } else {
+            row.innerHTML = `
+              <td data-label="Date">${formatLongDate(entry.date)}</td>
+              <td data-label="Type">${formatEntryType(entry)}</td>
+              <td data-label="Hours">${formatHoursCell(entry)}</td>
+              <td data-label="Time">${formatTimeRange(entry)}</td>
+            `;
+          }
+          body.appendChild(row);
+        });
+
+        exportSchoolGroups.appendChild(fragment);
+      });
+    }
+
+    function cleanupSubmissionExportView() {
+      document.body.classList.remove("is-exporting-submission");
+      submissionExportView.hidden = true;
+    }
+
+    function waitForExportPrintLayout() {
+      return new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
     }
 
     function render() {
@@ -1571,6 +2318,17 @@
       });
     }
 
+    function formatDateLong(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    }
+
     function formatMonthLabel(value) {
       const [year, month] = value.split("-").map(Number);
       return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
@@ -1629,6 +2387,27 @@
       return escapeHtml(entry.type);
     }
 
+    function parseClaimNotePayload(rawValue) {
+      const raw = String(rawValue || "");
+      const match = raw.match(/^\[(?:ClaimCost|EventCost|EntryCost):(\d+(?:\.\d{1,2})?)\]\s*/i);
+      if (!match) {
+        return { notes: raw, cost: null };
+      }
+      const parsedCost = Number(match[1]);
+      return {
+        notes: raw.replace(match[0], ""),
+        cost: Number.isFinite(parsedCost) ? parsedCost : null,
+      };
+    }
+
+    function formatHoursCell(entry) {
+      const hoursMain = `<span class="hours-main">${trimHours(entry.hours)}</span>`;
+      if ((entry.type === "Private" || entry.type === "Event") && Number(entry.customRate) > 0) {
+        return `${hoursMain} <span class="hours-rate">@ ${formatCurrency(entry.customRate)}/hr</span>`;
+      }
+      return hoursMain;
+    }
+
     function serializeClaimNotesForStorage(entry) {
       if (!isCostEntry(entry)) {
         return entry.claimNotes || null;
@@ -1665,6 +2444,41 @@
         return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
       }
       return `<div class="entry-image-placeholder"></div>`;
+    }
+
+    async function resolveClaimImageUrl(storedValue) {
+      if (!storedValue) return "";
+      if (window.claimProofStorage && typeof window.claimProofStorage.resolveClaimImageUrl === "function") {
+        try {
+          return await window.claimProofStorage.resolveClaimImageUrl(storedValue, {
+            fallbackSupabaseBucket: claimProofBucket,
+            fallbackSupabaseSignedSeconds: 60 * 60,
+            expiresInSeconds: 60 * 60,
+          });
+        } catch (error) {
+          console.warn("Could not resolve claim image URL for export:", error?.message || error);
+          return "";
+        }
+      }
+
+      if (/^https?:\/\//i.test(storedValue) || /^data:/i.test(storedValue)) {
+        return storedValue;
+      }
+      const { data, error } = await window.supabaseClient.storage
+        .from(claimProofBucket)
+        .createSignedUrl(storedValue, 60 * 60);
+      if (error) {
+        console.warn("Could not create signed claim image URL for export:", error.message);
+        return "";
+      }
+      return data?.signedUrl || "";
+    }
+
+    function getClaimProofName(storedValue) {
+      if (!storedValue) return "";
+      const raw = String(storedValue).split("?")[0];
+      const parts = raw.split("/");
+      return parts[parts.length - 1] || "Claim image";
     }
 
     async function hydrateClaimProofUrls(sourceEntries) {

@@ -22,6 +22,7 @@ const uiEffectsSource = fs.readFileSync(
 [
   "Workday Snapshot",
   "id=\"nextClassTitle\"",
+  "id=\"nextClassIcon\"",
   "id=\"weeklySchedule\"",
   "id=\"schoolCount\"",
   "id=\"entryCount\"",
@@ -33,6 +34,12 @@ const uiEffectsSource = fs.readFileSync(
   "submission-panel",
   "quick-link-text",
   "quick-link-arrow",
+  "notice-action-button",
+  "data-dismiss-notice-id",
+  "Dismiss notice",
+  "history-icon",
+  "submissionStatusIcon",
+  "data-lucide=\"arrow-up-right\"",
   "href=\"./chess-timesheet.html\"",
   "href=\"./chess-timesheet-pay.html\"",
   "src=\"./draft-timesheet-store.js\"",
@@ -45,10 +52,20 @@ const uiEffectsSource = fs.readFileSync(
 [
   "window.employeeNoticeStore.loadNoticesForEmployee(employeeId, { limit: 8 })",
   "window.employeeNoticeStore.markNoticeRead(noticeId, { employeeId: currentUserId })",
+  "function dismissNotice",
+  "cgDismissedNotices:",
+  "window.localStorage.setItem(getDismissedNoticeStorageKey()",
+  "const visibleNotices = notices.filter((notice) => !dismissedNoticeIds.has(getNoticeKey(notice)))",
+  "renderIcons();",
   "getUpcomingClassEntries(entries, new Date(), 60)",
   "getUpcomingClassEntries(entries, new Date(), 7)",
   "getCurrentMonthStats(entries, monthKey)",
   "getLatestSubmissionForMonth(submissions, currentMonth)",
+  "setSnapshotIcon(\"calendar-x-2\", \"is-empty\")",
+  "setSnapshotIcon(\"calendar-clock\", \"is-active\")",
+  "setSubmissionStatusIcon(\"send\", \"is-due\")",
+  "setSubmissionStatusIcon(\"badge-check\", \"is-submitted\")",
+  "setSubmissionStatusIcon(\"circle-dollar-sign\", \"is-paid\")",
   "canSeeManagerDashboard(profile)",
   "canSeeWebAdminDashboard(profile)",
 ].forEach((requiredCode) => {
@@ -66,6 +83,15 @@ assert.ok(
 assert.ok(
   uiEffectsSource.includes(".quick-link"),
   "quick links should opt out of generated text icons because they render their own icons"
+);
+assert.ok(
+  !html.includes('<span class="quick-link-arrow" aria-hidden="true">-&gt;</span>'),
+  "quick links should use lucide arrow icons instead of raw arrow text"
+);
+assert.match(
+  html,
+  /\.submission-panel \.quick-link \{[\s\S]*?box-shadow: none;/,
+  "submission quick link should use a flatter treatment"
 );
 
 function extractFunction(source, name) {

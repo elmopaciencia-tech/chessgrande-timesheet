@@ -53,4 +53,15 @@ assert.match(
   "employees should be scoped to their own notice recipient rows"
 );
 
+assert.match(
+  schema,
+  /create policy "submissions_delete_own_unpaid"[\s\S]*on public\.payroll_submissions[\s\S]*for delete[\s\S]*using \([\s\S]*employee_id = auth\.uid\(\)[\s\S]*paid_at is null[\s\S]*\);/,
+  "employees should be able to delete only their own unpaid payroll submissions"
+);
+assert.match(
+  schema,
+  /create policy "draft_entries_unlock_own_unpaid_submission"[\s\S]*on public\.draft_timesheet_entries[\s\S]*for update[\s\S]*using \([\s\S]*employee_id = auth\.uid\(\)[\s\S]*status = 'submitted'[\s\S]*exists \([\s\S]*from public\.payroll_submissions s[\s\S]*s\.id = submission_id[\s\S]*s\.employee_id = auth\.uid\(\)[\s\S]*s\.paid_at is null[\s\S]*\)[\s\S]*with check \([\s\S]*employee_id = auth\.uid\(\)[\s\S]*status = 'active'[\s\S]*submission_id is null[\s\S]*coalesce\(updated_by, auth\.uid\(\)\) = auth\.uid\(\)[\s\S]*\);/,
+  "employees should be able to unlock only their own submitted draft rows from unpaid submissions"
+);
+
 console.log("schema notice checks passed");

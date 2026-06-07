@@ -421,9 +421,10 @@
       gap: var(--space-5);
       margin: 0;
       padding: 28px;
-      border-radius: 24px;
-      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
-      background: color-mix(in srgb, var(--surface-muted) 76%, white 24%);
+      border-radius: 28px;
+      border: 1px solid color-mix(in srgb, var(--line) 78%, white 22%);
+      background: color-mix(in srgb, var(--surface-strong) 92%, white 8%);
+      box-shadow: var(--shadow-md);
     }
     .ai-import-head {
       display: flex;
@@ -452,6 +453,161 @@
       gap: var(--space-3);
       align-items: end;
     }
+    .ai-upload-card {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+      max-width: none;
+    }
+    .ai-upload-dropzone {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-height: 148px;
+      padding: 30px clamp(18px, 5vw, 44px);
+      border: 1px dashed color-mix(in srgb, var(--line-strong) 76%, white 24%);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface) 82%, white 18%);
+      transition: border-color 180ms ease, background 180ms ease;
+    }
+    .ai-upload-dropzone:hover {
+      border-color: color-mix(in srgb, var(--accent) 44%, var(--line) 56%);
+      background: color-mix(in srgb, var(--surface-strong) 92%, var(--accent-soft) 8%);
+    }
+    .ai-upload-dropzone.is-dragging {
+      border-color: color-mix(in srgb, var(--accent) 64%, var(--line) 36%);
+      background: color-mix(in srgb, var(--accent-soft) 42%, var(--surface-strong) 58%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+    .ai-upload-dropzone-inner {
+      width: 100%;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      justify-content: stretch;
+      gap: 16px;
+      text-align: left;
+    }
+    .ai-upload-icon {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      color: var(--muted);
+    }
+    .ai-upload-text {
+      min-width: 0;
+    }
+    .ai-upload-label {
+      position: relative;
+      display: block;
+      width: 100%;
+      cursor: pointer;
+      color: var(--accent);
+      font-size: clamp(0.96rem, 0.88rem + 0.28vw, 1.08rem);
+      font-weight: 800;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .ai-upload-label span {
+      display: block;
+      max-width: 100%;
+    }
+    .ai-upload-label:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .ai-upload-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .ai-upload-help {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.4;
+      width: 100%;
+    }
+    .ai-upload-selected {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      min-height: 64px;
+      padding: 12px 46px 12px 12px;
+      border-radius: 14px;
+      background: var(--surface-muted);
+      border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
+    }
+    .ai-upload-selected[hidden] {
+      display: none;
+    }
+    .ai-upload-file-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--surface-strong);
+      color: var(--ink);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 86%, white 14%), var(--shadow-sm);
+    }
+    .ai-upload-file-icon svg {
+      width: 21px;
+      height: 21px;
+    }
+    .ai-upload-file-name {
+      margin: 0;
+      color: var(--ink);
+      font-size: 0.84rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .ai-upload-file-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+    .ai-upload-remove {
+      position: absolute;
+      right: 7px;
+      top: 7px;
+      width: 32px;
+      height: 32px;
+      min-height: 32px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border-radius: 9px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .ai-upload-remove:hover {
+      background: color-mix(in srgb, var(--surface-strong) 84%, white 16%);
+      color: var(--ink);
+    }
+    .ai-upload-remove svg {
+      width: 16px;
+      height: 16px;
+    }
     .ai-import-actions,
     .ai-import-confirm-actions {
       display: flex;
@@ -467,6 +623,7 @@
     }
     .ai-import-status.error { color: #9f2f1f; }
     .ai-import-status.success { color: var(--accent); }
+    .ai-import-status.warning { color: #92400e; }
     .ai-import-status.loading { color: var(--muted); }
     .ai-loading-breadcrumb {
       display: inline-flex;
@@ -594,9 +751,9 @@
     .ai-import-warning {
       padding: 10px 12px;
       border-radius: 14px;
-      border: 1px solid color-mix(in srgb, var(--clay) 20%, white 80%);
-      background: color-mix(in srgb, var(--clay-soft) 70%, white 30%);
-      color: var(--clay);
+      border: 1px solid color-mix(in srgb, #d97706 28%, white 72%);
+      background: color-mix(in srgb, #fef3c7 76%, white 24%);
+      color: #92400e;
       font-size: 0.84rem;
       line-height: 1.35;
     }
@@ -1833,6 +1990,33 @@
       font-size: 0.94rem;
     }
 
+    .payroll-checklist {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .payroll-checklist li {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .payroll-checklist li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--clay);
+    }
+
     @media (max-width: 1240px) {
       .hero,
       .layout {
@@ -1929,12 +2113,73 @@
       }
 
       h1 {
-        font-size: clamp(2rem, 10vw, 3rem);
-        max-width: 12ch;
+        font-size: clamp(1.72rem, 8.4vw, 2.45rem);
+        max-width: 13ch;
       }
 
       .hero-month {
         padding: var(--space-3);
+      }
+
+      #payrollHandoffPanel .panel-header {
+        margin-bottom: var(--space-4);
+      }
+
+      #payrollHandoffPanel h2 {
+        font-size: 1.24rem;
+        line-height: 1.18;
+      }
+
+      #payrollHandoffPanel .panel-copy {
+        font-size: 0.9rem;
+        line-height: 1.46;
+      }
+
+      #payrollHandoffPanel .payroll-rail {
+        gap: var(--space-3);
+      }
+
+      #payrollHandoffPanel .payroll-rail strong {
+        font-size: 0.94rem;
+      }
+
+      #payrollHandoffPanel .payroll-rail p,
+      #payrollHandoffPanel .payroll-checklist {
+        font-size: 0.88rem;
+      }
+
+      .ai-import-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .ai-upload-dropzone {
+        min-height: 156px;
+        padding: 26px 18px;
+      }
+
+      .ai-upload-dropzone-inner {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 12px;
+        text-align: center;
+      }
+
+      .ai-upload-label {
+        font-size: 0.98rem;
+      }
+
+      #aiClearImportButton,
+      #aiParseXlsxButton {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 0.92rem;
+        white-space: nowrap;
+      }
+
+      .ai-import-status {
+        grid-column: 1 / -1;
       }
 
       .summary {
@@ -2006,7 +2251,7 @@
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
-  <script src="./ui-effects.js" defer></script>
+  <script src="./ui-effects.js?v=20260606-nav" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -2141,9 +2386,27 @@
               </div>
             </div>
             <div class="ai-import-grid">
-              <div class="wide">
-                <label for="aiXlsxFile">Excel File</label>
-                <input id="aiXlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+              <div class="ai-upload-card">
+                <div class="ai-upload-dropzone">
+                  <div class="ai-upload-dropzone-inner">
+                    <i class="ai-upload-icon" data-lucide="upload-cloud" aria-hidden="true"></i>
+                    <div class="ai-upload-text">
+                      <label class="ai-upload-label" for="aiXlsxFile">
+                        <span>Drag and drop or choose file to upload</span>
+                        <input class="ai-upload-input" id="aiXlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <p class="ai-upload-help">Recommended max. size: 10 MB, Accepted file types: XLSX.</p>
+                <div class="ai-upload-selected" id="aiSelectedFileCard" hidden>
+                  <span class="ai-upload-file-icon" aria-hidden="true"><i data-lucide="file-spreadsheet"></i></span>
+                  <div>
+                    <p class="ai-upload-file-name" id="aiSelectedFileName">No file selected</p>
+                    <p class="ai-upload-file-meta"><span id="aiSelectedFileMeta">0 KB</span><span>Ready</span></p>
+                  </div>
+                  <button class="ai-upload-remove" id="aiRemoveSelectedFileButton" type="button" aria-label="Remove selected Excel file"><i data-lucide="x" aria-hidden="true"></i></button>
+                </div>
               </div>
             </div>
             <div class="ai-import-actions">
@@ -2248,13 +2511,18 @@
               <div>
                 <p class="panel-eyebrow">Payroll handoff</p>
                 <h2>Prepare The Monthly Submission</h2>
-                <p class="panel-copy">Use this final check once the ledger is complete. The pay page should feel like the final pass, not the place where missing work is discovered.</p>
+                <p class="panel-copy">Use this checkpoint after adding sessions, claims, and event costs. Review this page first, then open the submission view when the month looks complete.</p>
               </div>
             </div>
             <div class="payroll-rail">
               <div>
                 <strong>Before opening the pay view</strong>
-                <p>Confirm the school count, total entries, and monthly hours. Then scan the calendar for missing days and review the grouped ledger for incorrect school or claim labels.</p>
+                <p>Work down this page once, from the calendar to the school ledger.</p>
+                <ul class="payroll-checklist">
+                  <li>Confirm the selected month, school count, total entries, and monthly hours.</li>
+                  <li>Scan the calendar for missing dates, duplicate sessions, or work placed on the wrong day.</li>
+                  <li>Check the school ledger for incorrect school names, claim labels, and claim rows that still need proof.</li>
+                </ul>
               </div>
               <a class="nav-button" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Continue To Submit</a>
             </div>
@@ -2421,6 +2689,11 @@
     const imageLightboxImg = document.getElementById("imageLightboxImg");
     const imageLightboxClose = document.getElementById("imageLightboxClose");
     const aiXlsxFile = document.getElementById("aiXlsxFile");
+    const aiUploadDropzone = document.querySelector(".ai-upload-dropzone");
+    const aiSelectedFileCard = document.getElementById("aiSelectedFileCard");
+    const aiSelectedFileName = document.getElementById("aiSelectedFileName");
+    const aiSelectedFileMeta = document.getElementById("aiSelectedFileMeta");
+    const aiRemoveSelectedFileButton = document.getElementById("aiRemoveSelectedFileButton");
     const aiParseXlsxButton = document.getElementById("aiParseXlsxButton");
     const aiClearImportButton = document.getElementById("aiClearImportButton");
     const aiImportStatus = document.getElementById("aiImportStatus");
@@ -2613,14 +2886,39 @@
     bindAction(calendarColorToggle, toggleCalendarColorMenu);
     bindQuickAddSaveButton();
     clearMonthButton.addEventListener("click", handleClearMonthButtonClick);
-    aiXlsxFile.addEventListener("change", () => resetAiImportPreview("Excel file selected. Parse it when you are ready."));
+    aiXlsxFile.addEventListener("change", () => {
+      syncAiSelectedFile();
+      resetAiImportPreview(aiXlsxFile.files?.[0] ? "Excel file selected. Parse it when you are ready." : "");
+    });
+    if (aiUploadDropzone) {
+      ["dragenter", "dragover"].forEach((eventName) => {
+        aiUploadDropzone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          aiUploadDropzone.classList.add("is-dragging");
+        });
+      });
+      aiUploadDropzone.addEventListener("dragleave", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!aiUploadDropzone.contains(event.relatedTarget)) {
+          aiUploadDropzone.classList.remove("is-dragging");
+        }
+      });
+      aiUploadDropzone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        aiUploadDropzone.classList.remove("is-dragging");
+        selectAiImportFile(event.dataTransfer?.files);
+      });
+    }
     aiParseXlsxButton.addEventListener("click", () => {
       void parseAiXlsxImport();
     });
     aiClearImportButton.addEventListener("click", () => {
-      aiXlsxFile.value = "";
-      resetAiImportPreview("Import cleared.");
+      clearAiSelectedFile("Import cleared.");
     });
+    aiRemoveSelectedFileButton.addEventListener("click", () => clearAiSelectedFile("Selected file removed."));
     aiCancelImportButton.addEventListener("click", () => resetAiImportPreview("Import cancelled."));
     aiConfirmImportButton.addEventListener("click", () => {
       void executeAiImportPlan();
@@ -3418,7 +3716,65 @@
       aiImportBusy = isBusy;
       aiParseXlsxButton.disabled = isBusy;
       aiConfirmImportButton.disabled = isBusy || !aiPendingImportPlan?.entries?.length;
-      aiParseXlsxButton.textContent = isBusy ? "Parsing..." : "Parse Excel";
+      aiParseXlsxButton.textContent = isBusy ? "Importing..." : "Parse Excel";
+    }
+
+    function renderIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons({
+          attrs: {
+            "aria-hidden": "true",
+            focusable: "false",
+          },
+        });
+      }
+    }
+
+    function selectAiImportFile(files) {
+      const file = Array.from(files || []).find((candidate) => candidate && /\.xlsx$/i.test(candidate.name || ""))
+        || files?.[0];
+      if (!file) {
+        return;
+      }
+
+      if (typeof DataTransfer === "function") {
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        aiXlsxFile.files = transfer.files;
+      } else {
+        aiXlsxFile.files = files;
+      }
+
+      syncAiSelectedFile();
+      resetAiImportPreview("Excel file selected. Parse it when you are ready.");
+    }
+
+    function syncAiSelectedFile() {
+      const file = aiXlsxFile.files?.[0];
+      aiSelectedFileCard.hidden = !file;
+      if (!file) {
+        aiSelectedFileName.textContent = "No file selected";
+        aiSelectedFileMeta.textContent = "0 KB";
+        return;
+      }
+      aiSelectedFileName.textContent = file.name || "Selected workbook";
+      aiSelectedFileMeta.textContent = formatFileSize(file.size || 0);
+      renderIcons();
+    }
+
+    function clearAiSelectedFile(message = "") {
+      aiXlsxFile.value = "";
+      syncAiSelectedFile();
+      resetAiImportPreview(message);
+    }
+
+    function formatFileSize(bytes) {
+      const size = Number(bytes || 0);
+      if (!Number.isFinite(size) || size <= 0) return "0 KB";
+      if (size >= 1024 * 1024) {
+        return `${(size / (1024 * 1024)).toFixed(size >= 10 * 1024 * 1024 ? 0 : 1)} MB`;
+      }
+      return `${Math.max(1, Math.round(size / 1024))} KB`;
     }
 
     function resetAiImportPreview(message = "") {
@@ -3461,7 +3817,7 @@
         await pauseAiImportAfterMonthSwitch();
         setAiImportStatus("Converting workbook to text...");
         const workbookText = await convertXlsxFileToWorkbookText(file, importContext.month);
-        setAiImportStatus("Parsing workbook with secure AI import", "", { loading: true });
+        setAiImportStatus("Importing...", "", { loading: true });
         const content = await callTimesheetXlsxParseWorker({
           fileName: file.name,
           workbookText,
@@ -3484,7 +3840,7 @@
         const claimProofNotice = plan.entries.some((entry) => entry.type === "Claim")
           ? " Imported claims still need proof before payroll submission."
           : "";
-        setAiImportStatus(`Parsed ${plan.entries.length} entries with ${plan.warnings.length} warning${plan.warnings.length === 1 ? "" : "s"}. Review before importing.${claimProofNotice}`, "success");
+        setAiImportStatus(`Parsed ${plan.entries.length} entries with ${plan.warnings.length} warning${plan.warnings.length === 1 ? "" : "s"}. Review before importing.${claimProofNotice}`, plan.warnings.length ? "warning" : "success");
       } catch (error) {
         resetAiImportPreview();
         setAiImportStatus(error?.message || "Import failed.", "error");
@@ -3501,16 +3857,16 @@
 
     async function inferAiImportMonth(file, fallbackMonth) {
       const fileMonth = inferAiImportMonthFromFileName(file?.name || "");
-      if (fileMonth) {
-        return { month: fileMonth, inferred: true, source: "filename" };
-      }
       if (window.XLSX && typeof window.XLSX.read === "function" && file?.arrayBuffer) {
         const buffer = await file.arrayBuffer();
         const workbook = window.XLSX.read(buffer, { type: "array", cellDates: false, cellFormula: false });
-        const workbookMonth = inferAiImportMonthFromWorkbook(workbook);
+        const workbookMonth = inferAiImportMonthFromWorkbook(workbook, fileMonth || fallbackMonth);
         if (workbookMonth) {
           return { month: workbookMonth, inferred: true, source: "workbook" };
         }
+      }
+      if (fileMonth) {
+        return { month: fileMonth, inferred: true, source: "filename" };
       }
       return { month: validateAiMonth(fallbackMonth || formatMonthValue(new Date())), inferred: false, source: "activeMonth" };
     }
@@ -3519,7 +3875,7 @@
       return inferAiMonthFromText(fileName);
     }
 
-    function inferAiImportMonthFromWorkbook(workbook) {
+    function inferAiImportMonthFromWorkbook(workbook, fallbackMonth = "") {
       if (!workbook || !Array.isArray(workbook.SheetNames)) return "";
       for (const sheetName of workbook.SheetNames) {
         const sheetNameMonth = inferAiMonthFromText(sheetName);
@@ -3550,7 +3906,58 @@
         const combinedMonth = inferAiMonthFromText(values.join(" "));
         if (combinedMonth) return combinedMonth;
       }
+      const dateCellMonth = inferAiDominantMonthFromWorkbookDates(workbook, fallbackMonth);
+      if (dateCellMonth) return dateCellMonth;
       return "";
+    }
+
+    function inferAiDominantMonthFromWorkbookDates(workbook, fallbackMonth = "") {
+      if (!workbook || !Array.isArray(workbook.SheetNames)) return "";
+      const fallbackYear = getAiWorkbookDateYear(fallbackMonth);
+      const counts = new Map();
+      workbook.SheetNames.forEach((sheetName) => {
+        const sheet = workbook.Sheets?.[sheetName];
+        Object.keys(sheet || {}).forEach((address) => {
+          if (address.startsWith("!")) return;
+          const month = inferAiMonthFromDateCellText(getAiCellText(sheet, address), fallbackYear);
+          if (!month) return;
+          counts.set(month, (counts.get(month) || 0) + 1);
+        });
+      });
+      const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+      if (!ranked.length) return "";
+      const [bestMonth, bestCount] = ranked[0];
+      const nextCount = ranked[1]?.[1] || 0;
+      const fallbackMatchesBest = fallbackMonth && bestMonth === fallbackMonth;
+      if (fallbackMatchesBest || (bestCount >= 2 && bestCount > nextCount) || (!fallbackMonth && bestCount >= 1)) {
+        return bestMonth;
+      }
+      return "";
+    }
+
+    function inferAiMonthFromDateCellText(value, fallbackYear) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      if (/^\d+(?:\.\d+)?$/.test(text)) {
+        const serial = Number(text);
+        if (serial > 30000) {
+          const millis = Date.UTC(1899, 11, 30) + Math.round(serial) * 86400000;
+          const date = new Date(millis);
+          return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+        }
+        return "";
+      }
+      const slashMatch = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/.exec(text);
+      if (!slashMatch) return "";
+      const parsedMonth = Number(slashMatch[2]);
+      if (parsedMonth < 1 || parsedMonth > 12) return "";
+      const parsedYear = slashMatch[3] ? normalizeWorkbookYear(slashMatch[3]) : fallbackYear;
+      return `${parsedYear}-${String(parsedMonth).padStart(2, "0")}`;
+    }
+
+    function getAiWorkbookDateYear(fallbackMonth = "") {
+      const monthMatch = /^(\d{4})-(\d{2})$/.exec(fallbackMonth || "");
+      return monthMatch ? Number(monthMatch[1]) : new Date().getFullYear();
     }
 
     function inferAiMonthFromText(value) {
@@ -3688,7 +4095,8 @@
       const name = getAiCellText(sheet, `C${rowNumber}`);
       const startTime = normalizeWorkbookTime(getAiCellText(sheet, `D${rowNumber}`));
       const endTime = normalizeWorkbookTime(getAiCellText(sheet, `E${rowNumber}`));
-      const hoursCell = section === "private" ? `M${rowNumber}` : `N${rowNumber}`;
+      const sectionColumns = getAiSectionColumnMap(sheet, rowNumber, section);
+      const hoursCell = `${sectionColumns.hours}${rowNumber}`;
       const hours = normalizeWorkbookNumber(getAiCellText(sheet, hoursCell));
       if (!name || !startTime || !hours) return "";
 
@@ -3699,7 +4107,7 @@
       if (!dates.length) return "";
 
       const type = section === "private" ? "Private" : section === "event" ? "Event" : name.toLowerCase().includes("replacement") ? "Replacement" : "School Coaching";
-      const rate = section === "private" || section === "event" ? normalizeWorkbookNumber(getAiCellText(sheet, `L${rowNumber}`)) : null;
+      const rate = section === "private" || section === "event" ? normalizeWorkbookNumber(getAiCellText(sheet, `${sectionColumns.rate}${rowNumber}`)) : null;
       const calculatedEnd = calculateAiEndTimeFromHours(startTime, hours);
       const duration = endTime ? calculateAiDurationHours(startTime, endTime) : null;
       const mismatch = duration != null && Math.abs(duration - hours) > 0.03;
@@ -3716,6 +4124,33 @@
         `calculatedEndFromHours=${calculatedEnd}`,
         mismatch ? `WARNING=timeHoursMismatch durationFromTimes=${duration}` : "",
       ].filter(Boolean).join(" | ");
+    }
+
+    function getAiSectionColumnMap(sheet, rowNumber, section) {
+      if (section !== "private") {
+        return { rate: "L", hours: "N" };
+      }
+      const headerRow = findAiSectionHeaderRow(sheet, rowNumber);
+      const headers = {};
+      ["L", "M", "N"].forEach((column) => {
+        headers[column] = getAiCellText(sheet, `${column}${headerRow}`).toLowerCase();
+      });
+      const rateColumn = Object.keys(headers).find((column) => /\brate\b/.test(headers[column])) || "L";
+      const hoursColumn = Object.keys(headers).find((column) => /hours?/.test(headers[column])) || (rateColumn === "M" ? "N" : "M");
+      return { rate: rateColumn, hours: hoursColumn };
+    }
+
+    function findAiSectionHeaderRow(sheet, rowNumber) {
+      for (let candidate = rowNumber - 1; candidate >= Math.max(1, rowNumber - 8); candidate -= 1) {
+        const rowText = ["B", "C", "D", "E", "F", "L", "M", "N", "O"]
+          .map((column) => getAiCellText(sheet, `${column}${candidate}`))
+          .join(" ")
+          .toLowerCase();
+        if (rowText.includes("rate") && rowText.includes("hour")) {
+          return candidate;
+        }
+      }
+      return rowNumber - 1;
     }
 
     function buildAiClaimInterpretation(sheet, rowNumber, selectedMonth) {
@@ -3900,10 +4335,19 @@
       if (!plan || typeof plan !== "object") {
         throw new Error("Parser response must be a JSON object.");
       }
-      const importEntries = Array.isArray(plan.entries) ? plan.entries.map(normalizeAiDraftEntry) : [];
       const warnings = Array.isArray(plan.warnings) ? plan.warnings.map(normalizeAiDraftWarning) : [];
+      const entryWarnings = [];
+      const importEntries = [];
+      (Array.isArray(plan.entries) ? plan.entries : []).forEach((entry, index) => {
+        try {
+          importEntries.push(normalizeAiDraftEntry(entry, index, entryWarnings));
+        } catch (error) {
+          entryWarnings.push(normalizeAiEntryValidationWarning(error, entry, index));
+        }
+      });
+      const mergedWarnings = mergeAiWarnings(warnings, entryWarnings);
       const payCalculation = normalizeAiPayCalculation(plan.payCalculation);
-      if (!importEntries.length && !warnings.length) {
+      if (!importEntries.length && !mergedWarnings.length) {
         throw new Error("Parser response did not include entries or warnings.");
       }
       const month = validateAiMonth(plan.month || options.expectedMonth || monthPicker.value);
@@ -3913,12 +4357,12 @@
       return {
         month,
         entries: importEntries,
-        warnings,
+        warnings: mergedWarnings,
         payCalculation,
       };
     }
 
-    function normalizeAiDraftEntry(entry, index) {
+    function normalizeAiDraftEntry(entry, index, warnings = []) {
       if (!entry || typeof entry !== "object") {
         throw new Error(`Entry ${index + 1} is not an object.`);
       }
@@ -3932,7 +4376,7 @@
       }
       const date = validateAiDate(entry.date, `Entry ${index + 1}`);
       const startTime = validateAiTime(entry.startTime, `Entry ${index + 1} startTime`, { allowBlank: true });
-      const endTime = validateAiTime(entry.endTime, `Entry ${index + 1} endTime`, { allowBlank: true });
+      let endTime = validateAiTime(entry.endTime, `Entry ${index + 1} endTime`, { allowBlank: true });
       const hours = normalizeAiNumber(entry.hours, `Entry ${index + 1} hours`, { min: 0 });
       const claimCost = entry.claimCost == null || entry.claimCost === ""
         ? null
@@ -3960,7 +4404,15 @@
         }
         const durationHours = calculateAiDurationHours(startTime, endTime);
         if (Math.abs(durationHours - hours) > 0.03) {
-          throw new Error(`Entry ${index + 1} time range does not match hours.`);
+          const correctedEndTime = calculateAiEndTimeFromHours(startTime, hours);
+          warnings.push({
+            sourceRow: getAiEntrySourceRow(entry, index),
+            type: "TimeHoursMismatch",
+            reason: `The workbook time range did not match the hours. durationFromTimes=${durationHours} row hours=${hours}. Using correction endTime from calculatedEndFromHours (${correctedEndTime}).`,
+            claimNotes: "",
+            claimCost: null,
+          });
+          endTime = correctedEndTime;
         }
       }
 
@@ -3981,6 +4433,34 @@
         calendarColor: window.calendarEntryColors?.normalizeColor(entry.calendarColor) || defaultCalendarColor,
         status: "active",
       };
+    }
+
+    function getAiEntrySourceRow(entry, index) {
+      const parsed = Number(entry?.sourceRow);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : index + 1;
+    }
+
+    function normalizeAiEntryValidationWarning(error, entry, index) {
+      return {
+        sourceRow: getAiEntrySourceRow(entry, index),
+        type: "EntryNeedsReview",
+        reason: error?.message || `Entry ${index + 1} could not be imported automatically.`,
+        claimNotes: String(entry?.claimNotes || "").trim(),
+        claimCost: entry?.claimCost == null || entry?.claimCost === "" ? null : Number(entry.claimCost),
+      };
+    }
+
+    function mergeAiWarnings(...warningGroups) {
+      const seen = new Set();
+      const merged = [];
+      warningGroups.flat().forEach((warning) => {
+        if (!warning) return;
+        const key = `${warning.sourceRow || ""}:${String(warning.type || "").toLowerCase()}:${String(warning.reason || "").slice(0, 80)}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        merged.push(warning);
+      });
+      return merged;
     }
 
     function normalizeAiDraftWarning(warning, index) {
@@ -4118,10 +4598,51 @@
       if (!warnings.length) return "";
       return warnings.map((warning) => `
         <li class="ai-import-warning">
-          <strong>${escapeHtml(warning.type || "Warning")} row ${escapeHtml(String(warning.sourceRow))}</strong>
-          <span>${escapeHtml(warning.reason)}</span>
+          <strong>${escapeHtml(getAiWarningTitle(warning))}</strong>
+          <span>${escapeHtml(formatAiWarningMessage(warning))}</span>
         </li>
       `).join("");
+    }
+
+    function getAiWarningTitle(warning) {
+      const row = warning?.sourceRow ? `row ${warning.sourceRow}` : "this row";
+      const type = String(warning?.type || "").trim().toLowerCase();
+      if (type === "timehoursmismatch") {
+        return `Time and hours need review (${row})`;
+      }
+      if (type === "claimwithoutdate") {
+        return `Claim needs a date (${row})`;
+      }
+      return `Check ${row}`;
+    }
+
+    function formatAiWarningMessage(warning) {
+      const reason = String(warning?.reason || "").trim();
+      const type = String(warning?.type || "").trim().toLowerCase();
+      if (type === "timehoursmismatch" || /timehoursmismatch|durationFromTimes|calculatedEndFromHours/i.test(reason)) {
+        return formatTimeHoursMismatchWarning(reason);
+      }
+      if (type === "claimwithoutdate") {
+        const notes = String(warning?.claimNotes || "").trim();
+        const amount = warning?.claimCost != null ? ` (${formatCurrency(warning.claimCost)})` : "";
+        return `This claim has an amount${amount} but no usable date. Add the date in the workbook or enter the claim manually.${notes ? ` Notes: ${notes}` : ""}`;
+      }
+      return reason || "This row needs review before it can be imported.";
+    }
+
+    function formatTimeHoursMismatchWarning(reason) {
+      const rowHoursMatch = /row hours=([0-9.]+)/i.exec(reason);
+      const durationMatch = /durationFromTimes=([0-9.]+)/i.exec(reason);
+      const endTimeMatch = /calculatedEndFromHours\s*\((\d{2}:\d{2})\)/i.exec(reason) || /calculatedEndFromHours=([0-2]\d:[0-5]\d)/i.exec(reason);
+      const rowHours = rowHoursMatch ? trimHours(Number(rowHoursMatch[1])) : "";
+      const duration = durationMatch ? trimHours(Number(durationMatch[1])) : "";
+      const adjustedEnd = endTimeMatch ? formatTime(endTimeMatch[1]) : "";
+      const details = [];
+      if (duration) details.push(`the start and end times add up to ${duration} hour${duration === "1" ? "" : "s"}`);
+      if (rowHours) details.push(`the hours cell says ${rowHours}`);
+      const comparison = details.length ? ` (${details.join(", but ")}).` : ".";
+      const correction = adjustedEnd ? ` The preview adjusted the end time to ${adjustedEnd}.` : "";
+      return `The time range and hours do not match${comparison}${correction} Please check this row before importing.`;
     }
 
     async function executeAiImportPlan() {
@@ -4681,6 +5202,15 @@
 
     function formatMonthValue(date) {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function formatMonthLabel(value) {
+      const [year, month] = String(value || "").split("-").map(Number);
+      if (!year || !month) return "Selected Month";
+      return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+        month: "long",
+        year: "numeric",
+      });
     }
 
     function isWebKitBrowser() {

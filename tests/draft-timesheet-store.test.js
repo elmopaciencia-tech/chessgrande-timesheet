@@ -245,4 +245,68 @@ assert.equal(diagnosticResult.saved.length, 1, "diagnostic insert should keep ro
 assert.equal(diagnosticResult.failed.length, 1, "diagnostic insert should report blocked rows");
 assert.match(diagnosticResult.failed[0].error, /claims are blocked/, "diagnostic insert should preserve row failure messages");
 
+const unlockCall = {
+  updatePayload: null,
+  filters: [],
+};
+context.window.supabaseClient = {
+  from(tableName) {
+    assert.equal(tableName, "draft_timesheet_entries");
+    return {
+      update(payload) {
+        unlockCall.updatePayload = payload;
+        return {
+          eq(column, value) {
+            unlockCall.filters.push([column, value]);
+            return this;
+          },
+          select(columns) {
+            unlockCall.selectColumns = columns;
+            return Promise.resolve({
+              data: [
+                {
+                  id: "draft-locked-1",
+                  employee_id: "employee-1",
+                  updated_by: "employee-1",
+                  submission_id: null,
+                  status: "active",
+                  school_name: "Anchor Green",
+                  date: "2026-05-16",
+                  type: "School Coaching",
+                  start_time: "14:15",
+                  end_time: "16:15",
+                  hours: 2,
+                },
+              ],
+              error: null,
+            });
+          },
+        };
+      },
+    };
+  },
+};
+
+const unlockedRows = await store.unlockSubmittedBySubmission("submission-1", "employee-1");
+assert.deepEqual(
+  JSON.parse(JSON.stringify(unlockCall.updatePayload)),
+  {
+    status: "active",
+    submission_id: null,
+    updated_by: "employee-1",
+  },
+  "unlock should restore linked submitted draft rows to active rows"
+);
+assert.deepEqual(
+  unlockCall.filters,
+  [
+    ["employee_id", "employee-1"],
+    ["submission_id", "submission-1"],
+    ["status", "submitted"],
+  ],
+  "unlock should be scoped to the current employee, submission, and submitted rows"
+);
+assert.equal(unlockedRows.length, 1, "unlock should return unlocked draft rows");
+assert.equal(unlockedRows[0].status, "active", "unlocked draft rows should be active entries");
+
 console.log("draft-timesheet-store contract tests passed");

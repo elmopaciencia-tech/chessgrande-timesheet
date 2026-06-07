@@ -22,6 +22,11 @@ const wrangler = fs.readFileSync(
   "response_format: { type: \"json_object\" }",
   "model: await resolveOpenRouterImportModel(env)",
   '"X-Title": "Chess Grande Timesheet XLSX Import"',
+  'Never use a rate/pay, Total, Total Hours, or Total $ column as "hours"',
+  "Chess Grande templates vary",
+  "column L is Rate/customRate and column M is No. of Hours",
+  "column M is Rate/customRate and column N is No. of Hours",
+  "trust hours= for entry hours and rate= for customRate",
 ].forEach((snippet) => {
   assert.ok(worker.includes(snippet), `timesheet XLSX Worker parser should include ${snippet}`);
 });

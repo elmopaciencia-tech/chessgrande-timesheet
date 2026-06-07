@@ -313,6 +313,7 @@
     }
     .ai-import-status.error { color: #9f2f1f; }
     .ai-import-status.success { color: var(--accent); }
+    .ai-import-status.warning { color: #92400e; }
     .ai-import-status.loading {
       color: var(--muted);
     }
@@ -442,9 +443,9 @@
     .ai-import-warning {
       padding: 10px 12px;
       border-radius: 14px;
-      border: 1px solid color-mix(in srgb, var(--clay) 20%, white 80%);
-      background: color-mix(in srgb, var(--clay-soft) 70%, white 30%);
-      color: var(--clay);
+      border: 1px solid color-mix(in srgb, #d97706 28%, white 72%);
+      background: color-mix(in srgb, #fef3c7 76%, white 24%);
+      color: #92400e;
       font-size: 0.84rem;
       line-height: 1.35;
     }
@@ -1331,7 +1332,7 @@
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
-  <script src="./ui-effects.js" defer></script>
+  <script src="./ui-effects.js?v=20260606-nav" defer></script>
 </head>
 <body>
   <header class="app-header">
@@ -1926,7 +1927,7 @@
       aiImportBusy = isBusy;
       aiParseXlsxButton.disabled = isBusy;
       aiConfirmImportButton.disabled = isBusy || !aiPendingImportPlan?.entries?.length;
-      aiParseXlsxButton.textContent = isBusy ? "Parsing..." : "Parse Excel";
+      aiParseXlsxButton.textContent = isBusy ? "Importing..." : "Parse Excel";
     }
 
     function resetAiImportPreview(message = "") {
@@ -1971,7 +1972,7 @@
         await pauseAiImportAfterMonthSwitch();
         setAiImportStatus("Converting workbook to text...");
         const workbookText = await convertXlsxFileToWorkbookText(file, importContext.month);
-        setAiImportStatus("Parsing workbook with secure AI import", "", { loading: true });
+        setAiImportStatus("Importing...", "", { loading: true });
         const content = await callTimesheetXlsxParseWorker({
           fileName: file.name,
           workbookText,
@@ -1988,7 +1989,7 @@
           render();
         }
         renderAiImportPreview(plan);
-        setAiImportStatus(`Parsed ${plan.entries.length} entries with ${plan.warnings.length} warning${plan.warnings.length === 1 ? "" : "s"}. Review before importing.`, "success");
+        setAiImportStatus(`Parsed ${plan.entries.length} entries with ${plan.warnings.length} warning${plan.warnings.length === 1 ? "" : "s"}. Review before importing.`, plan.warnings.length ? "warning" : "success");
       } catch (error) {
         resetAiImportPreview();
         setAiImportStatus(error?.message || "Import failed.", "error");
@@ -2005,16 +2006,16 @@
 
     async function inferAiImportMonth(file, fallbackMonth) {
       const fileMonth = inferAiImportMonthFromFileName(file?.name || "");
-      if (fileMonth) {
-        return { month: fileMonth, inferred: true, source: "filename" };
-      }
       if (window.XLSX && typeof window.XLSX.read === "function" && file?.arrayBuffer) {
         const buffer = await file.arrayBuffer();
         const workbook = window.XLSX.read(buffer, { type: "array", cellDates: false, cellFormula: false });
-        const workbookMonth = inferAiImportMonthFromWorkbook(workbook);
+        const workbookMonth = inferAiImportMonthFromWorkbook(workbook, fileMonth || fallbackMonth);
         if (workbookMonth) {
           return { month: workbookMonth, inferred: true, source: "workbook" };
         }
+      }
+      if (fileMonth) {
+        return { month: fileMonth, inferred: true, source: "filename" };
       }
       return { month: validateAiMonth(fallbackMonth || formatMonthValue(new Date())), inferred: false, source: "activeMonth" };
     }
@@ -2023,7 +2024,7 @@
       return inferAiMonthFromText(fileName);
     }
 
-    function inferAiImportMonthFromWorkbook(workbook) {
+    function inferAiImportMonthFromWorkbook(workbook, fallbackMonth = "") {
       if (!workbook || !Array.isArray(workbook.SheetNames)) return "";
       for (const sheetName of workbook.SheetNames) {
         const sheetNameMonth = inferAiMonthFromText(sheetName);
@@ -2054,7 +2055,58 @@
         const combinedMonth = inferAiMonthFromText(values.join(" "));
         if (combinedMonth) return combinedMonth;
       }
+      const dateCellMonth = inferAiDominantMonthFromWorkbookDates(workbook, fallbackMonth);
+      if (dateCellMonth) return dateCellMonth;
       return "";
+    }
+
+    function inferAiDominantMonthFromWorkbookDates(workbook, fallbackMonth = "") {
+      if (!workbook || !Array.isArray(workbook.SheetNames)) return "";
+      const fallbackYear = getAiWorkbookDateYear(fallbackMonth);
+      const counts = new Map();
+      workbook.SheetNames.forEach((sheetName) => {
+        const sheet = workbook.Sheets?.[sheetName];
+        Object.keys(sheet || {}).forEach((address) => {
+          if (address.startsWith("!")) return;
+          const month = inferAiMonthFromDateCellText(getAiCellText(sheet, address), fallbackYear);
+          if (!month) return;
+          counts.set(month, (counts.get(month) || 0) + 1);
+        });
+      });
+      const ranked = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+      if (!ranked.length) return "";
+      const [bestMonth, bestCount] = ranked[0];
+      const nextCount = ranked[1]?.[1] || 0;
+      const fallbackMatchesBest = fallbackMonth && bestMonth === fallbackMonth;
+      if (fallbackMatchesBest || (bestCount >= 2 && bestCount > nextCount) || (!fallbackMonth && bestCount >= 1)) {
+        return bestMonth;
+      }
+      return "";
+    }
+
+    function inferAiMonthFromDateCellText(value, fallbackYear) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      if (/^\d+(?:\.\d+)?$/.test(text)) {
+        const serial = Number(text);
+        if (serial > 30000) {
+          const millis = Date.UTC(1899, 11, 30) + Math.round(serial) * 86400000;
+          const date = new Date(millis);
+          return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+        }
+        return "";
+      }
+      const slashMatch = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/.exec(text);
+      if (!slashMatch) return "";
+      const parsedMonth = Number(slashMatch[2]);
+      if (parsedMonth < 1 || parsedMonth > 12) return "";
+      const parsedYear = slashMatch[3] ? normalizeWorkbookYear(slashMatch[3]) : fallbackYear;
+      return `${parsedYear}-${String(parsedMonth).padStart(2, "0")}`;
+    }
+
+    function getAiWorkbookDateYear(fallbackMonth = "") {
+      const monthMatch = /^(\d{4})-(\d{2})$/.exec(fallbackMonth || "");
+      return monthMatch ? Number(monthMatch[1]) : new Date().getFullYear();
     }
 
     function inferAiMonthFromText(value) {
@@ -2192,7 +2244,8 @@
       const name = getAiCellText(sheet, `C${rowNumber}`);
       const startTime = normalizeWorkbookTime(getAiCellText(sheet, `D${rowNumber}`));
       const endTime = normalizeWorkbookTime(getAiCellText(sheet, `E${rowNumber}`));
-      const hoursCell = section === "private" ? `M${rowNumber}` : `N${rowNumber}`;
+      const sectionColumns = getAiSectionColumnMap(sheet, rowNumber, section);
+      const hoursCell = `${sectionColumns.hours}${rowNumber}`;
       const hours = normalizeWorkbookNumber(getAiCellText(sheet, hoursCell));
       if (!name || !startTime || !hours) return "";
 
@@ -2203,7 +2256,7 @@
       if (!dates.length) return "";
 
       const type = section === "private" ? "Private" : section === "event" ? "Event" : name.toLowerCase().includes("replacement") ? "Replacement" : "School Coaching";
-      const rate = section === "private" || section === "event" ? normalizeWorkbookNumber(getAiCellText(sheet, `L${rowNumber}`)) : null;
+      const rate = section === "private" || section === "event" ? normalizeWorkbookNumber(getAiCellText(sheet, `${sectionColumns.rate}${rowNumber}`)) : null;
       const calculatedEnd = calculateAiEndTimeFromHours(startTime, hours);
       const duration = endTime ? calculateAiDurationHours(startTime, endTime) : null;
       const mismatch = duration != null && Math.abs(duration - hours) > 0.03;
@@ -2220,6 +2273,33 @@
         `calculatedEndFromHours=${calculatedEnd}`,
         mismatch ? `WARNING=timeHoursMismatch durationFromTimes=${duration}` : "",
       ].filter(Boolean).join(" | ");
+    }
+
+    function getAiSectionColumnMap(sheet, rowNumber, section) {
+      if (section !== "private") {
+        return { rate: "L", hours: "N" };
+      }
+      const headerRow = findAiSectionHeaderRow(sheet, rowNumber);
+      const headers = {};
+      ["L", "M", "N"].forEach((column) => {
+        headers[column] = getAiCellText(sheet, `${column}${headerRow}`).toLowerCase();
+      });
+      const rateColumn = Object.keys(headers).find((column) => /\brate\b/.test(headers[column])) || "L";
+      const hoursColumn = Object.keys(headers).find((column) => /hours?/.test(headers[column])) || (rateColumn === "M" ? "N" : "M");
+      return { rate: rateColumn, hours: hoursColumn };
+    }
+
+    function findAiSectionHeaderRow(sheet, rowNumber) {
+      for (let candidate = rowNumber - 1; candidate >= Math.max(1, rowNumber - 8); candidate -= 1) {
+        const rowText = ["B", "C", "D", "E", "F", "L", "M", "N", "O"]
+          .map((column) => getAiCellText(sheet, `${column}${candidate}`))
+          .join(" ")
+          .toLowerCase();
+        if (rowText.includes("rate") && rowText.includes("hour")) {
+          return candidate;
+        }
+      }
+      return rowNumber - 1;
     }
 
     function buildAiClaimInterpretation(sheet, rowNumber, selectedMonth) {
@@ -2361,6 +2441,11 @@
         '- Convert times like 0930 to "09:30".',
         "- Convert Excel date serials and day/month cells to ISO dates for the selected month.",
         "- Convert day numbers in the selected month to ISO dates.",
+        '- Never use a rate/pay, Total, Total Hours, or Total $ column as "hours".',
+        '- Chess Grande templates vary. Use the column headers and INTERPRETED TIMESHEET ROWS instead of fixed assumptions.',
+        '- In newer Private Lessons rows, column L is Rate/customRate and column M is No. of Hours. For example, if L=55 and M=1, set customRate 55 and hours 1.',
+        '- In older Private Lessons rows, column M is Rate/customRate and column N is No. of Hours. For example, if M=60 and N=1, set customRate 60 and hours 1.',
+        "- In interpreted rows, trust hours= for entry hours and rate= for customRate; do not swap them.",
         "- The duration from startTime to endTime must match hours.",
         "- If workbook end time conflicts with hours, calculate endTime from startTime + hours and add a warning.",
         '- Any interpreted row with WARNING=timeHoursMismatch must produce a warning with type "TimeHoursMismatch", sourceRow, reason, and the correction used.',
@@ -2496,10 +2581,19 @@
       if (!plan || typeof plan !== "object") {
         throw new Error("Parser response must be a JSON object.");
       }
-      const entries = Array.isArray(plan.entries) ? plan.entries.map(normalizeAiDraftEntry) : [];
       const warnings = Array.isArray(plan.warnings) ? plan.warnings.map(normalizeAiDraftWarning) : [];
+      const entryWarnings = [];
+      const entries = [];
+      (Array.isArray(plan.entries) ? plan.entries : []).forEach((entry, index) => {
+        try {
+          entries.push(normalizeAiDraftEntry(entry, index, entryWarnings));
+        } catch (error) {
+          entryWarnings.push(normalizeAiEntryValidationWarning(error, entry, index));
+        }
+      });
+      const mergedWarnings = mergeAiWarnings(warnings, entryWarnings);
       const payCalculation = normalizeAiPayCalculation(plan.payCalculation);
-      if (!entries.length && !warnings.length) {
+      if (!entries.length && !mergedWarnings.length) {
         throw new Error("Parser response did not include entries or warnings.");
       }
       const month = validateAiMonth(plan.month || options.expectedMonth || monthPicker.value);
@@ -2509,12 +2603,12 @@
       return {
         month,
         entries,
-        warnings,
+        warnings: mergedWarnings,
         payCalculation,
       };
     }
 
-    function normalizeAiDraftEntry(entry, index) {
+    function normalizeAiDraftEntry(entry, index, warnings = []) {
       if (!entry || typeof entry !== "object") {
         throw new Error(`Entry ${index + 1} is not an object.`);
       }
@@ -2528,7 +2622,7 @@
       }
       const date = validateAiDate(entry.date, `Entry ${index + 1}`);
       const startTime = validateAiTime(entry.startTime, `Entry ${index + 1} startTime`, { allowBlank: true });
-      const endTime = validateAiTime(entry.endTime, `Entry ${index + 1} endTime`, { allowBlank: true });
+      let endTime = validateAiTime(entry.endTime, `Entry ${index + 1} endTime`, { allowBlank: true });
       const hours = normalizeAiNumber(entry.hours, `Entry ${index + 1} hours`, { min: 0 });
       const claimCost = entry.claimCost == null || entry.claimCost === ""
         ? null
@@ -2556,7 +2650,15 @@
         }
         const durationHours = calculateAiDurationHours(startTime, endTime);
         if (Math.abs(durationHours - hours) > 0.03) {
-          throw new Error(`Entry ${index + 1} time range does not match hours.`);
+          const correctedEndTime = calculateAiEndTimeFromHours(startTime, hours);
+          warnings.push({
+            sourceRow: getAiEntrySourceRow(entry, index),
+            type: "TimeHoursMismatch",
+            reason: `The workbook time range did not match the hours. durationFromTimes=${durationHours} row hours=${hours}. Using correction endTime from calculatedEndFromHours (${correctedEndTime}).`,
+            claimNotes: "",
+            claimCost: null,
+          });
+          endTime = correctedEndTime;
         }
       }
 
@@ -2574,6 +2676,34 @@
         calendarColor: window.calendarEntryColors?.normalizeColor(entry.calendarColor) || defaultCalendarColor,
         status: "active",
       };
+    }
+
+    function getAiEntrySourceRow(entry, index) {
+      const parsed = Number(entry?.sourceRow);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : index + 1;
+    }
+
+    function normalizeAiEntryValidationWarning(error, entry, index) {
+      return {
+        sourceRow: getAiEntrySourceRow(entry, index),
+        type: "EntryNeedsReview",
+        reason: error?.message || `Entry ${index + 1} could not be imported automatically.`,
+        claimNotes: String(entry?.claimNotes || "").trim(),
+        claimCost: entry?.claimCost == null || entry?.claimCost === "" ? null : Number(entry.claimCost),
+      };
+    }
+
+    function mergeAiWarnings(...warningGroups) {
+      const seen = new Set();
+      const merged = [];
+      warningGroups.flat().forEach((warning) => {
+        if (!warning) return;
+        const key = `${warning.sourceRow || ""}:${String(warning.type || "").toLowerCase()}:${String(warning.reason || "").slice(0, 80)}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        merged.push(warning);
+      });
+      return merged;
     }
 
     function normalizeAiDraftWarning(warning, index) {
@@ -2712,11 +2842,51 @@
       if (!warnings.length) return "";
       return warnings.map((warning) => `
         <li class="ai-import-warning">
-          Row ${escapeHtml(String(warning.sourceRow))}: ${escapeHtml(warning.reason)}
-          ${warning.claimCost != null ? ` (${escapeHtml(formatCurrency(warning.claimCost))})` : ""}
-          ${warning.claimNotes ? `<br>${escapeHtml(warning.claimNotes)}` : ""}
+          <strong>${escapeHtml(getAiWarningTitle(warning))}</strong>
+          <span>${escapeHtml(formatAiWarningMessage(warning))}</span>
         </li>
       `).join("");
+    }
+
+    function getAiWarningTitle(warning) {
+      const row = warning?.sourceRow ? `row ${warning.sourceRow}` : "this row";
+      const type = String(warning?.type || "").trim().toLowerCase();
+      if (type === "timehoursmismatch") {
+        return `Time and hours need review (${row})`;
+      }
+      if (type === "claimwithoutdate") {
+        return `Claim needs a date (${row})`;
+      }
+      return `Check ${row}`;
+    }
+
+    function formatAiWarningMessage(warning) {
+      const reason = String(warning?.reason || "").trim();
+      const type = String(warning?.type || "").trim().toLowerCase();
+      if (type === "timehoursmismatch" || /timehoursmismatch|durationFromTimes|calculatedEndFromHours/i.test(reason)) {
+        return formatTimeHoursMismatchWarning(reason);
+      }
+      if (type === "claimwithoutdate") {
+        const notes = String(warning?.claimNotes || "").trim();
+        const amount = warning?.claimCost != null ? ` (${formatCurrency(warning.claimCost)})` : "";
+        return `This claim has an amount${amount} but no usable date. Add the date in the workbook or enter the claim manually.${notes ? ` Notes: ${notes}` : ""}`;
+      }
+      return reason || "This row needs review before it can be imported.";
+    }
+
+    function formatTimeHoursMismatchWarning(reason) {
+      const rowHoursMatch = /row hours=([0-9.]+)/i.exec(reason);
+      const durationMatch = /durationFromTimes=([0-9.]+)/i.exec(reason);
+      const endTimeMatch = /calculatedEndFromHours\s*\((\d{2}:\d{2})\)/i.exec(reason) || /calculatedEndFromHours=([0-2]\d:[0-5]\d)/i.exec(reason);
+      const rowHours = rowHoursMatch ? trimHours(Number(rowHoursMatch[1])) : "";
+      const duration = durationMatch ? trimHours(Number(durationMatch[1])) : "";
+      const adjustedEnd = endTimeMatch ? formatTime(endTimeMatch[1]) : "";
+      const details = [];
+      if (duration) details.push(`the start and end times add up to ${duration} hour${duration === "1" ? "" : "s"}`);
+      if (rowHours) details.push(`the hours cell says ${rowHours}`);
+      const comparison = details.length ? ` (${details.join(", but ")}).` : ".";
+      const correction = adjustedEnd ? ` The preview adjusted the end time to ${adjustedEnd}.` : "";
+      return `The time range and hours do not match${comparison}${correction} Please check this row before importing.`;
     }
 
     async function executeAiImportPlan() {

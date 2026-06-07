@@ -486,6 +486,17 @@ for delete
 to authenticated
 using (authz.has_app_role(array['manager', 'webadmin']));
 
+-- Employees can remove their own submitted month only while it is unpaid.
+drop policy if exists "submissions_delete_own_unpaid" on public.payroll_submissions;
+create policy "submissions_delete_own_unpaid"
+on public.payroll_submissions
+for delete
+to authenticated
+using (
+  employee_id = auth.uid()
+  and paid_at is null
+);
+
 -- Managers and webadmins can mark a submission as paid.
 drop policy if exists "submissions_update_paid_admin_all" on public.payroll_submissions;
 drop policy if exists "submissions_update_paid_manager_all" on public.payroll_submissions;
@@ -613,6 +624,29 @@ with check (
   employee_id = auth.uid()
   and coalesce(updated_by, auth.uid()) = auth.uid()
   and status in ('active', 'submitted')
+);
+
+drop policy if exists "draft_entries_unlock_own_unpaid_submission" on public.draft_timesheet_entries;
+create policy "draft_entries_unlock_own_unpaid_submission"
+on public.draft_timesheet_entries
+for update
+to authenticated
+using (
+  employee_id = auth.uid()
+  and status = 'submitted'
+  and exists (
+    select 1
+    from public.payroll_submissions s
+    where s.id = submission_id
+      and s.employee_id = auth.uid()
+      and s.paid_at is null
+  )
+)
+with check (
+  employee_id = auth.uid()
+  and status = 'active'
+  and submission_id is null
+  and coalesce(updated_by, auth.uid()) = auth.uid()
 );
 
 drop policy if exists "draft_entries_delete_own_active" on public.draft_timesheet_entries;
