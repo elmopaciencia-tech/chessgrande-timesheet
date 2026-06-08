@@ -339,6 +339,7 @@
     const triggers = Array.from(root.querySelectorAll(".cg-nav-trigger"));
     ensureMobileProfileNav(root);
     watchMobileProfileNavVisibility();
+    const hoverCloseDelayMs = 360;
 
     if (!triggers.length) {
       return;
@@ -366,14 +367,24 @@
 
       const navItem = trigger.closest(".cg-nav-item");
       if (navItem) {
+        let hoverCloseTimer = 0;
+        const cancelHoverClose = () => {
+          window.clearTimeout(hoverCloseTimer);
+          hoverCloseTimer = 0;
+        };
+
         const openFromHover = () => {
+          cancelHoverClose();
           trigger.dataset.cgHoverOpen = "true";
           openGlobalNavDropdown(trigger);
         };
 
         const closeFromHover = () => {
-          trigger.dataset.cgHoverOpen = "false";
-          closeGlobalNavDropdown(trigger);
+          cancelHoverClose();
+          hoverCloseTimer = window.setTimeout(() => {
+            trigger.dataset.cgHoverOpen = "false";
+            closeGlobalNavDropdown(trigger);
+          }, hoverCloseDelayMs);
         };
 
         navItem.addEventListener("pointerenter", (event) => {

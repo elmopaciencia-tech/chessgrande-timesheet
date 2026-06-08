@@ -10,6 +10,7 @@ const pages = [
 
 for (const [label, fileName] of pages) {
   const html = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
+  const usesSeparateChipRemoveModal = fileName === "chess-timesheet.html" || fileName === "chess-timesheet-pay.html";
   assert.match(
     html,
     /class="entry-actions-inner"/,
@@ -55,7 +56,7 @@ for (const [label, fileName] of pages) {
     /id="chipContextMenu"[\s\S]*data-chip-action="go"[\s\S]*data-chip-action="edit"[\s\S]*data-chip-action="remove"/,
     `${label} coloured calendar chips should expose a context menu with go, edit, and remove actions`
   );
-  if (fileName === "chess-timesheet.html") {
+  if (usesSeparateChipRemoveModal) {
     assert.match(
       html,
       /id="chipRemoveModal"[\s\S]*role="dialog"[\s\S]*Remove this entry\?[\s\S]*data-chip-remove-confirm="cancel"[\s\S]*data-chip-remove-confirm="remove"/,
@@ -118,7 +119,7 @@ for (const [label, fileName] of pages) {
     /function triggerLedgerEntryAction\(action, entryId\)[\s\S]*button\.click\(\)/,
     `${label} chip edit/remove actions should route through existing ledger buttons`
   );
-  if (fileName === "chess-timesheet.html") {
+  if (usesSeparateChipRemoveModal) {
     assert.match(
       html,
       /function onChipContextMenuClick\(event\)[\s\S]*openChipRemoveModal\(entryId\)/,

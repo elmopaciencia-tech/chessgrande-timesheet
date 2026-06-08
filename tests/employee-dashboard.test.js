@@ -27,6 +27,14 @@ const uiEffectsSource = fs.readFileSync(
   "id=\"schoolCount\"",
   "id=\"entryCount\"",
   "id=\"hoursCount\"",
+  "id=\"entryActivitySummary\"",
+  "id=\"entryActivityScroll\"",
+  "id=\"entryActivityMonths\"",
+  "id=\"entryActivityCalendar\"",
+  "entry-activity-grid",
+  "entry-activity-month-label",
+  "Your activity",
+  "is-month-start",
   "id=\"submissionStatusBadge\"",
   "id=\"noticeList\"",
   "id=\"unreadNoticeCount\"",
@@ -42,6 +50,7 @@ const uiEffectsSource = fs.readFileSync(
   "data-lucide=\"arrow-up-right\"",
   "href=\"./chess-timesheet.html\"",
   "href=\"./chess-timesheet-pay.html\"",
+  "Submit the month when the timesheet is ready.",
   "src=\"./draft-timesheet-store.js\"",
   "src=\"./employee-notice-store.js\"",
   ".menu-item[hidden] { display: none; }",
@@ -56,10 +65,15 @@ const uiEffectsSource = fs.readFileSync(
   "cgDismissedNotices:",
   "window.localStorage.setItem(getDismissedNoticeStorageKey()",
   "const visibleNotices = notices.filter((notice) => !dismissedNoticeIds.has(getNoticeKey(notice)))",
+  "const item = document.createElement(\"a\")",
+  "`./chess-timesheet-pay.html?month=${encodeURIComponent(month)}`",
   "renderIcons();",
   "getUpcomingClassEntries(entries, new Date(), 60)",
   "getUpcomingClassEntries(entries, new Date(), 7)",
   "getCurrentMonthStats(entries, monthKey)",
+  "renderEntryActivity(entries, today)",
+  "scrollEntryActivityToCurrentMonth(days, today)",
+  "getEntryActivityDays(entries, today)",
   "getLatestSubmissionForMonth(submissions, currentMonth)",
   "setSnapshotIcon(\"calendar-x-2\", \"is-empty\")",
   "setSnapshotIcon(\"calendar-clock\", \"is-active\")",
@@ -93,6 +107,16 @@ assert.match(
   /\.submission-panel \.quick-link \{[\s\S]*?box-shadow: none;/,
   "submission quick link should use a flatter treatment"
 );
+assert.match(
+  html,
+  /\.entry-activity-scroll \{[\s\S]*?overflow-x: auto;[\s\S]*?overflow-y: hidden;/,
+  "entry activity should only scroll horizontally"
+);
+assert.match(
+  html,
+  /\.entry-activity-grid \{[\s\S]*?grid-template-rows: repeat\(7, 12px\);/,
+  "entry activity grid should use taller cells without vertical scrolling"
+);
 
 function extractFunction(source, name) {
   const start = source.indexOf(`function ${name}`);
@@ -117,8 +141,10 @@ const dashboardHelpers = [
   "startOfDay",
   "addDays",
   "parseDateInput",
+  "formatDateKey",
   "getUpcomingClassEntries",
   "getCurrentMonthStats",
+  "getEntryActivityDays",
   "getLatestSubmissionForMonth",
 ].map((name) => extractFunction(html, name)).join("\n");
 
@@ -130,6 +156,7 @@ const helperFactory = Function(`
     canSeeWebAdminDashboard,
     getUpcomingClassEntries,
     getCurrentMonthStats,
+    getEntryActivityDays,
     getLatestSubmissionForMonth
   };
 `);
@@ -138,6 +165,7 @@ const {
   canSeeWebAdminDashboard,
   getUpcomingClassEntries,
   getCurrentMonthStats,
+  getEntryActivityDays,
   getLatestSubmissionForMonth,
 } = helperFactory();
 
@@ -169,6 +197,30 @@ assert.deepEqual(
   stats,
   { schoolCount: 3, entryCount: 4, hours: 3.5 },
   "month stats should count active rows, unique non-claim schools, and time hours"
+);
+
+const activityDays = getEntryActivityDays(entries, new Date(2026, 4, 30, 12));
+assert.equal(activityDays.length, 371, "entry activity should render a fixed 53-week calendar");
+const may26 = activityDays.find((day) => day.dateKey === "2026-05-26");
+const may27 = activityDays.find((day) => day.dateKey === "2026-05-27");
+const may29 = activityDays.find((day) => day.dateKey === "2026-05-29");
+assert.equal(may26.count, 1, "entry activity should count active rows on a date");
+assert.equal(may26.activeCount, 1, "entry activity should track active rows separately");
+assert.equal(may26.submittedCount, 0, "entry activity should not mark active-only dates as submitted");
+assert.equal(may27.count, 2, "entry activity should include active and submitted rows on a date");
+assert.equal(may27.activeCount, 1, "entry activity should keep active counts on mixed dates");
+assert.equal(may27.submittedCount, 1, "entry activity should track submitted rows for green styling");
+assert.equal(may29.count, 1, "entry activity should include active event/cost rows");
+assert.equal(activityDays[0].weekday, 0, "entry activity should start on Sunday for stable week columns");
+assert.equal(
+  activityDays.find((day) => day.dateKey === "2026-05-01").isMonthStart,
+  true,
+  "entry activity should mark month boundaries"
+);
+assert.equal(
+  activityDays.find((day) => day.dateKey === "2026-05-01").monthLabel,
+  "May",
+  "entry activity should label month boundaries"
 );
 
 const submission = getLatestSubmissionForMonth([

@@ -338,6 +338,107 @@
       font-variant-numeric: tabular-nums;
       overflow-wrap: anywhere;
     }
+    .entry-activity {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .entry-activity-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .entry-activity-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 850;
+    }
+    .entry-activity-summary {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .entry-activity-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 1px;
+    }
+    .entry-activity-months {
+      display: grid;
+      grid-template-columns: repeat(53, 12px);
+      gap: 4px;
+      width: max-content;
+      min-width: 100%;
+      min-height: 16px;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+    .entry-activity-month-label {
+      min-width: 0;
+      white-space: nowrap;
+      transform: translateX(-2px);
+    }
+    .entry-activity-grid {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 12px;
+      grid-template-rows: repeat(7, 12px);
+      gap: 4px;
+      width: max-content;
+      min-width: 100%;
+      align-items: center;
+    }
+    .entry-activity-day {
+      position: relative;
+      width: 12px;
+      height: 12px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--activity-color, var(--surface-muted));
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 64%, transparent);
+    }
+    .entry-activity-day.has-entries {
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+    .entry-activity-day.has-submitted {
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, #22c55e 34%, transparent);
+    }
+    .entry-activity-day.is-month-start {
+      box-shadow: inset 2px 0 0 color-mix(in srgb, var(--clay) 82%, white 18%), inset 0 0 0 1px color-mix(in srgb, var(--clay) 28%, transparent);
+    }
+    .entry-activity-day.is-month-start::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      bottom: -3px;
+      left: -3px;
+      width: 2px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--clay) 64%, transparent);
+    }
+    .entry-activity-legend {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .entry-activity-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      background: var(--activity-color);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 64%, transparent);
+    }
 
     .schedule-list, .notice-list, .history-list, .quick-links {
       display: grid;
@@ -361,6 +462,14 @@
       gap: 12px;
       align-items: center;
       padding: 13px 14px;
+      color: inherit;
+      text-decoration: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+    .history-item:hover, .history-item:focus-visible {
+      border-color: color-mix(in srgb, var(--accent) 26%, var(--line) 74%);
+      box-shadow: 0 14px 34px rgba(31,41,35,.1);
+      transform: translateY(-1px);
     }
     .history-icon {
       width: 38px;
@@ -680,6 +789,25 @@
             <div class="stat-chip"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div>
             <div class="stat-chip"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div>
           </div>
+          <div class="entry-activity" aria-label="Your activity by date">
+            <div class="entry-activity-head">
+              <p class="entry-activity-title">Your activity</p>
+              <p class="entry-activity-summary" id="entryActivitySummary">Loading dates...</p>
+            </div>
+            <div class="entry-activity-scroll" id="entryActivityScroll" tabindex="0" aria-label="Dates with timesheet entries over the past year">
+              <div class="entry-activity-months" id="entryActivityMonths" aria-hidden="true"></div>
+              <div class="entry-activity-grid" id="entryActivityCalendar"></div>
+            </div>
+            <div class="entry-activity-legend" aria-hidden="true">
+              <span>Less</span>
+              <span class="entry-activity-swatch" style="--activity-color: var(--surface-muted);"></span>
+              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, var(--accent-soft) 76%, white 24%);"></span>
+              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, var(--accent) 42%, white 58%);"></span>
+              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, #22c55e 62%, white 38%);"></span>
+              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, var(--accent) 72%, white 28%);"></span>
+              <span>More</span>
+            </div>
+          </div>
         </section>
 
         <section class="panel submission-panel" aria-labelledby="submissionTitle">
@@ -740,7 +868,7 @@
             </a>
             <a class="quick-link" href="./chess-timesheet-pay.html">
               <span class="quick-link-icon is-submission" aria-hidden="true"><i data-lucide="wallet-cards"></i></span>
-              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Submit the month when the ledger is ready.</span></span>
+              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Submit the month when the timesheet is ready.</span></span>
               <span class="quick-link-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
             </a>
             <button class="quick-link" id="profileQuickLink" type="button">
@@ -759,7 +887,7 @@
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
-  <script src="./profile-ui.js"></script>
+  <script src="./profile-ui.js?v=20260608-rate"></script>
   <script src="./draft-timesheet-store.js"></script>
   <script src="./employee-notice-store.js"></script>
   <script>
@@ -773,6 +901,10 @@
     const schoolCount = document.getElementById("schoolCount");
     const entryCount = document.getElementById("entryCount");
     const hoursCount = document.getElementById("hoursCount");
+    const entryActivitySummary = document.getElementById("entryActivitySummary");
+    const entryActivityScroll = document.getElementById("entryActivityScroll");
+    const entryActivityMonths = document.getElementById("entryActivityMonths");
+    const entryActivityCalendar = document.getElementById("entryActivityCalendar");
     const submissionStatusCopy = document.getElementById("submissionStatusCopy");
     const submissionStatusBadge = document.getElementById("submissionStatusBadge");
     const submissionStatusIcon = document.getElementById("submissionStatusIcon");
@@ -995,6 +1127,45 @@
       schoolCount.textContent = stats.schoolCount;
       entryCount.textContent = stats.entryCount;
       hoursCount.textContent = trimHours(stats.hours);
+      renderEntryActivity(entries, today);
+    }
+
+    function renderEntryActivity(entries, today) {
+      const days = getEntryActivityDays(entries, today);
+      entryActivityMonths.innerHTML = "";
+      entryActivityCalendar.innerHTML = "";
+      const activeDayCount = days.filter((day) => day.count > 0).length;
+      entryActivitySummary.textContent = `${activeDayCount} active ${activeDayCount === 1 ? "date" : "dates"} in the past year`;
+      days
+        .filter((day) => day.monthLabel)
+        .forEach((day) => {
+          const label = document.createElement("span");
+          label.className = "entry-activity-month-label";
+          label.textContent = day.monthLabel;
+          label.style.gridColumn = String(day.weekIndex + 1);
+          entryActivityMonths.appendChild(label);
+        });
+      days.forEach((day) => {
+        const cell = document.createElement("span");
+        cell.className = `entry-activity-day${day.count ? " has-entries" : ""}${day.submittedCount ? " has-submitted" : ""}${day.isMonthStart ? " is-month-start" : ""}`;
+        cell.style.setProperty("--activity-color", getEntryActivityColor(day));
+        cell.title = `${formatDateLong(day.date)}: ${formatEntryActivityTitle(day)}`;
+        cell.setAttribute("role", "img");
+        cell.setAttribute("aria-label", cell.title);
+        entryActivityCalendar.appendChild(cell);
+      });
+      scrollEntryActivityToCurrentMonth(days, today);
+    }
+
+    function scrollEntryActivityToCurrentMonth(days, today) {
+      const currentMonthKey = formatMonthKey(today);
+      const currentMonthDay = days.find((day) => formatMonthKey(day.date) === currentMonthKey);
+      if (!currentMonthDay) return;
+      const weekWidth = 16;
+      const targetLeft = Math.max(0, (currentMonthDay.weekIndex * weekWidth) - (entryActivityScroll.clientWidth / 2) + (weekWidth * 2));
+      requestAnimationFrame(() => {
+        entryActivityScroll.scrollLeft = targetLeft;
+      });
     }
 
     function renderSubmissionStatus(submissions) {
@@ -1029,8 +1200,12 @@
         return;
       }
       submissions.slice(0, 4).forEach((submission) => {
-        const item = document.createElement("article");
+        const item = document.createElement("a");
+        const month = String(submission.month || "").trim();
         item.className = "history-item";
+        item.href = month
+          ? `./chess-timesheet-pay.html?month=${encodeURIComponent(month)}`
+          : "./chess-timesheet-pay.html";
         const status = submission.paid_at ? "Paid" : "Submitted";
         const iconName = submission.paid_at ? "circle-dollar-sign" : "badge-check";
         const iconState = submission.paid_at ? "is-paid" : "is-submitted";
@@ -1210,6 +1385,60 @@
       };
     }
 
+    function getEntryActivityDays(entries, today = new Date()) {
+      const endDate = startOfDay(today);
+      const startDate = startOfDay(addDays(endDate, -364));
+      const calendarStart = addDays(startDate, -startDate.getDay());
+      const countsByDate = new Map();
+      (entries || []).forEach((entry) => {
+        const dateKey = String(entry.date || "").slice(0, 10);
+        if (!dateKey) return;
+        const entryDate = parseDateInput(dateKey);
+        if (!entryDate || entryDate < calendarStart || entryDate > endDate) return;
+        const currentCounts = countsByDate.get(dateKey) || { activeCount: 0, submittedCount: 0 };
+        if (String(entry.status || "active").toLowerCase() === "submitted") {
+          currentCounts.submittedCount += 1;
+        } else {
+          currentCounts.activeCount += 1;
+        }
+        countsByDate.set(dateKey, currentCounts);
+      });
+      return Array.from({ length: 53 * 7 }, (_, index) => {
+        const date = addDays(calendarStart, index);
+        const dateKey = formatDateKey(date);
+        const isMonthStart = date.getDate() === 1;
+        const counts = countsByDate.get(dateKey) || { activeCount: 0, submittedCount: 0 };
+        return {
+          date,
+          dateKey,
+          weekday: date.getDay(),
+          weekIndex: Math.floor(index / 7),
+          isMonthStart,
+          monthLabel: isMonthStart || index === 0 ? new Intl.DateTimeFormat(undefined, { month: "short" }).format(date) : "",
+          activeCount: counts.activeCount,
+          submittedCount: counts.submittedCount,
+          count: counts.activeCount + counts.submittedCount,
+        };
+      });
+    }
+
+    function getEntryActivityColor(day) {
+      if (day.count <= 0) return "var(--surface-muted)";
+      if (day.submittedCount && !day.activeCount) return "color-mix(in srgb, #22c55e 62%, white 38%)";
+      if (day.submittedCount) return "linear-gradient(135deg, color-mix(in srgb, #22c55e 66%, white 34%) 0 50%, color-mix(in srgb, var(--accent) 56%, white 44%) 50% 100%)";
+      if (day.count === 1) return "color-mix(in srgb, var(--accent-soft) 76%, white 24%)";
+      if (day.count === 2) return "color-mix(in srgb, var(--accent) 42%, white 58%)";
+      return "color-mix(in srgb, var(--accent) 72%, white 28%)";
+    }
+
+    function formatEntryActivityTitle(day) {
+      if (!day.count) return "0 entries";
+      const parts = [];
+      if (day.activeCount) parts.push(`${day.activeCount} active`);
+      if (day.submittedCount) parts.push(`${day.submittedCount} submitted`);
+      return `${day.count} ${day.count === 1 ? "entry" : "entries"} (${parts.join(", ")})`;
+    }
+
     function getLatestSubmissionForMonth(submissions, monthKey) {
       return (submissions || [])
         .filter((submission) => submission.month === monthKey)
@@ -1236,6 +1465,10 @@
 
     function formatMonthKey(date) {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function formatDateKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     }
 
     function formatDateLong(value) {

@@ -24,7 +24,7 @@ assert.match(
   'id="exportSubmissionButton"',
   "Export Submission",
   'id="removeSubmissionButton"',
-  "Remove Submission",
+  "Undo Submission",
   'id="exportStatus"',
   'id="submissionExportView"',
   "Payroll Submission",
@@ -46,6 +46,52 @@ assert.match(
 ].forEach((snippet) => {
   assert.ok(html.includes(snippet), `pay export should include ${snippet}`);
 });
+
+assert.ok(
+  !html.includes("Remove Submission"),
+  "pay page should use Undo Submission wording"
+);
+assert.match(
+  html,
+  /<h2>Entries By School<\/h2>[\s\S]*id="schoolGroups"[\s\S]*id="exportSubmissionButton">Export Submission<\/button>[\s\S]*id="removeSubmissionButton">Undo Submission<\/button>/,
+  "export and undo submission actions should render below the entries by school ledger"
+);
+assert.match(
+  html,
+  /<form id="payForm"[\s\S]*<div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll<\/button><a class="secondary nav-link" href="\.\/chess-timesheet\.html">Back To Timesheet<\/a><\/div><div class="status-message" id="submitStatus"><\/div><\/form>/,
+  "payroll profile actions should only keep submit and back controls"
+);
+assert.ok(
+  !html.includes('<input id="hourlyRate"'),
+  "pay card should not edit hourly rate inline"
+);
+assert.match(
+  html,
+  /<div class="pay-line"><span>Pay Per Hour<\/span><span id="hourlyRate"/,
+  "pay card should show hourly rate as read-only profile data"
+);
+assert.ok(
+  html.includes('const hourlyRateDisplay = document.getElementById("hourlyRate");'),
+  "pay page should treat hourly rate as display-only"
+);
+assert.ok(
+  !html.includes("hourlyRateInput.addEventListener"),
+  "pay page should not attach inline hourly-rate edit listeners"
+);
+assert.ok(
+  html.includes("function isPayrollSummaryEntry(entry)"),
+  "pay page should define which rows appear in the payroll summary"
+);
+assert.match(
+  html,
+  /function isPayrollSummaryEntry\(entry\)[\s\S]*window\.draftTimesheetStore\.isActive\(entry\)[\s\S]*window\.draftTimesheetStore\.isSubmitted\(entry\)/,
+  "payroll summary should include active and submitted draft rows"
+);
+assert.match(
+  html,
+  /function render\(\)[\s\S]*const summaryEntries = monthEntries\.filter\(isPayrollSummaryEntry\)[\s\S]*const totalHours = summaryEntries\.reduce[\s\S]*const totalPay = summaryEntries\.reduce/,
+  "payroll profile totals should include submitted entries when rendering"
+);
 
 assert.match(
   html,

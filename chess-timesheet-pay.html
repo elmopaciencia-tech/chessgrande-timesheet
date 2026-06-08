@@ -193,12 +193,15 @@
     .chip-context-menu button:hover, .chip-context-menu button:focus-visible { background: var(--accent-soft); transform: translateX(1px); }
     .chip-context-menu button[data-chip-action="remove"] { color: #b42318; }
     .chip-context-menu button:disabled { cursor: not-allowed; opacity: .45; transform: none; }
-    .chip-context-actions, .chip-context-confirm { display: grid; gap: 4px; text-align: left; }
-    .chip-context-confirm[hidden] { display: none; }
-    .chip-context-confirm p { margin: 0; padding: 8px 10px 4px; color: var(--ink); font-size: .88rem; font-weight: 800; line-height: 1.2; text-align: left; }
-    .chip-context-confirm-actions { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding-top: 2px; }
-    .chip-context-confirm-actions button { width: auto; min-width: 74px; }
-    .chip-context-confirm-actions button[data-chip-confirm="remove"] { background: #c73832; color: white; }
+    .chip-context-actions { display: grid; gap: 4px; text-align: left; }
+    .chip-remove-modal { position: fixed; inset: 0; z-index: 1600; display: grid; place-items: center; padding: 24px; background: rgba(23,26,25,.54); backdrop-filter: blur(10px); }
+    .chip-remove-modal[hidden] { display: none; }
+    .chip-remove-card { width: min(420px, 100%); display: grid; gap: 14px; padding: 22px; border-radius: 24px; border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%); background: color-mix(in srgb, var(--surface) 94%, white 6%); box-shadow: 0 28px 80px rgba(23,26,25,.24); }
+    .chip-remove-card h2 { margin: 0; color: var(--ink); font-size: 1.35rem; line-height: 1.15; }
+    .chip-remove-card p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .chip-remove-entry { padding: 12px 14px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); background: color-mix(in srgb, var(--surface-muted) 74%, white 26%); color: var(--ink); font-weight: 700; }
+    .chip-remove-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 2px; }
+    #chipRemoveConfirm { min-height: 44px; padding: 11px 14px; border-radius: 999px; background: #c73832; color: white; border-color: #a6312c; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
     .groups { display: grid; gap: var(--space-4); }
     .school-card { position: relative; overflow: hidden; transform: translateY(0); padding: 18px; transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; will-change: transform; }
     #schoolGroups .school-card:hover, #schoolGroups .school-card:focus-within { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 30%, var(--line) 70%); background: color-mix(in srgb, var(--surface-strong) 96%, white 4%); box-shadow: 0 18px 42px rgba(31,41,35,.12); }
@@ -744,10 +747,10 @@
     <div class="workspace">
       <div class="layout">
         <div class="review-column">
-          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">School ledger</p><h2>Entries By School</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div></section>
+          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">School ledger</p><h2>Entries By School</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
         </div>
         <aside class="action-column">
-          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. The hourly rate is stored automatically on this device.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><div class="pay-line-field"><input id="hourlyRate" type="number" min="0" step="0.01" placeholder="e.g. 55" aria-label="Pay per hour" required></div></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Remove Submission</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></form></section>
+          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. Edit payment details from your profile menu.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
         </aside>
       </div>
     </div>
@@ -805,13 +808,18 @@
       <button type="button" role="menuitem" data-chip-action="edit">Edit Entry</button>
       <button type="button" role="menuitem" data-chip-action="remove">Remove Entry</button>
     </div>
-    <div class="chip-context-confirm" data-chip-menu-panel="confirm" hidden>
-      <p>Remove this entry?</p>
-      <div class="chip-context-confirm-actions">
-        <button type="button" data-chip-confirm="cancel">Cancel</button>
-        <button type="button" data-chip-confirm="remove">Remove</button>
+  </div>
+
+  <div class="chip-remove-modal" id="chipRemoveModal" hidden role="dialog" aria-modal="true" aria-labelledby="chipRemoveTitle" aria-describedby="chipRemoveCopy">
+    <section class="chip-remove-card" id="chipRemoveCard" tabindex="-1">
+      <h2 id="chipRemoveTitle">Remove this entry?</h2>
+      <p id="chipRemoveCopy">This removes the draft row from this monthly pay view. Submitted payroll rows are not affected here.</p>
+      <p class="chip-remove-entry" id="chipRemoveEntry"></p>
+      <div class="chip-remove-actions">
+        <button class="secondary" id="chipRemoveCancel" type="button" data-chip-remove-confirm="cancel">Cancel</button>
+        <button id="chipRemoveConfirm" type="button" data-chip-remove-confirm="remove">Remove</button>
       </div>
-    </div>
+    </section>
   </div>
 
 <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
@@ -933,7 +941,7 @@
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
-  <script src="./profile-ui.js"></script>
+  <script src="./profile-ui.js?v=20260608-rate"></script>
   <script>
     const payStorageKey = "chessGrandePayrollProfile";
     const monthPicker = document.getElementById("monthPicker");
@@ -945,12 +953,17 @@
     const calendarTitle = document.getElementById("calendarTitle");
     const schoolGroups = document.getElementById("schoolGroups");
     const chipContextMenu = document.getElementById("chipContextMenu");
+    const chipRemoveModal = document.getElementById("chipRemoveModal");
+    const chipRemoveCard = document.getElementById("chipRemoveCard");
+    const chipRemoveEntry = document.getElementById("chipRemoveEntry");
+    const chipRemoveCancel = document.getElementById("chipRemoveCancel");
+    const chipRemoveConfirm = document.getElementById("chipRemoveConfirm");
     const schoolTemplate = document.getElementById("schoolTemplate");
     const fullNameInput = document.getElementById("fullName");
     const bankAccountInput = document.getElementById("bankAccount");
     const bankNameInput = document.getElementById("bankName");
     const accountTypeInput = document.getElementById("accountType");
-    const hourlyRateInput = document.getElementById("hourlyRate");
+    const hourlyRateDisplay = document.getElementById("hourlyRate");
     const submitToServerButton = document.getElementById("submitToServer");
     const exportSubmissionButton = document.getElementById("exportSubmissionButton");
     const removeSubmissionButton = document.getElementById("removeSubmissionButton");
@@ -1037,6 +1050,8 @@
     let editModalLastFocus = null;
     let editingEntryId = "";
     let chipContextMenuTrigger = null;
+    let chipRemoveModalLastFocus = null;
+    let chipRemoveModalPreviousOverflow = "";
     let isSubmitting = false;
     let isExportingSubmission = false;
     let isRemovingSubmission = false;
@@ -1116,17 +1131,6 @@
       render();
     });
 
-    [hourlyRateInput].forEach((input) => {
-      input.addEventListener("input", () => {
-        saveProfile();
-        render();
-      });
-      input.addEventListener("change", () => {
-        saveProfile();
-        render();
-      });
-    });
-
     payForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (isSubmitting) return;
@@ -1156,19 +1160,20 @@
     }
 
     function saveProfile() {
+      const localProfile = loadProfile();
       const profile = {
         fullName: currentProfile?.full_name || "",
         bankAccount: currentProfile?.bank_account_number || "",
         bankName: currentProfile?.bank_name || "",
         accountType: currentProfile?.account_type || "",
-        hourlyRate: Number(hourlyRateInput.value || 0),
+        hourlyRate: Number(localProfile.hourlyRate || 0),
       };
       writeJsonToStorage(payStorageKey, profile);
     }
 
     async function loadProfileIntoForm() {
       const localProfile = loadProfile();
-      hourlyRateInput.value = localProfile.hourlyRate || "";
+      hourlyRateDisplay.textContent = formatCurrency(localProfile.hourlyRate || 0);
 
       const user = await getCurrentUser();
       if (!user) return;
@@ -1661,10 +1666,10 @@
       closeChipContextMenu();
       const profile = loadProfile();
       const monthEntries = getEntriesForMonth(monthPicker.value);
-      const activeEntries = monthEntries.filter((entry) => window.draftTimesheetStore.isActive(entry));
-      const totalHours = activeEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+      const summaryEntries = monthEntries.filter(isPayrollSummaryEntry);
+      const totalHours = summaryEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
       const hourlyRate = Number(profile.hourlyRate || 0);
-      const totalPay = activeEntries.reduce(
+      const totalPay = summaryEntries.reduce(
         (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
         0
       );
@@ -1679,6 +1684,11 @@
       renderCalendar(monthEntries, monthPicker.value);
       renderGroups(monthEntries);
       void hydrateClaimProofUrls(monthEntries);
+    }
+
+    function isPayrollSummaryEntry(entry) {
+      return window.draftTimesheetStore.isActive(entry)
+        || window.draftTimesheetStore.isSubmitted(entry);
     }
 
     function getEntriesForMonth(monthValue) {
@@ -1783,6 +1793,13 @@
       calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
       calendar.addEventListener("keydown", onCalendarChipKeydown);
       chipContextMenu.addEventListener("click", onChipContextMenuClick);
+      chipRemoveCancel.addEventListener("click", () => closeChipRemoveModal({ restoreFocus: true }));
+      chipRemoveConfirm.addEventListener("click", confirmChipRemoveModal);
+      chipRemoveModal.addEventListener("click", (event) => {
+        if (event.target === chipRemoveModal) {
+          closeChipRemoveModal({ restoreFocus: true });
+        }
+      });
       document.addEventListener("click", (event) => {
         if (chipContextMenu?.hidden === false && !isChipContextMenuInteraction(event)) {
           closeChipContextMenu();
@@ -1793,9 +1810,16 @@
         closeChipContextMenu();
       });
       document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || chipContextMenu?.hidden !== false) return;
-        event.preventDefault();
-        closeChipContextMenu({ restoreFocus: true });
+        if (event.key !== "Escape") return;
+        if (chipRemoveModal?.hidden === false) {
+          event.preventDefault();
+          closeChipRemoveModal({ restoreFocus: true });
+          return;
+        }
+        if (chipContextMenu?.hidden === false) {
+          event.preventDefault();
+          closeChipContextMenu({ restoreFocus: true });
+        }
       });
       window.addEventListener("resize", () => closeChipContextMenu());
       window.addEventListener("scroll", () => closeChipContextMenu(), true);
@@ -1838,7 +1862,6 @@
 
       event.preventDefault();
       closeEntryEditColorMenu();
-      resetChipContextMenuConfirmation();
 
       chipContextMenuTrigger = chip;
       chipContextMenu.dataset.entryId = entryId;
@@ -1877,26 +1900,13 @@
     }
 
     function onChipContextMenuClick(event) {
-      const confirmButton = event.target instanceof Element ? event.target.closest("[data-chip-confirm]") : null;
-      if (confirmButton) {
-        const entryId = chipContextMenu.dataset.entryId || "";
-        if (confirmButton.dataset.chipConfirm === "remove") {
-          closeChipContextMenu();
-          triggerLedgerEntryAction("remove", entryId);
-        } else {
-          resetChipContextMenuConfirmation();
-          chipContextMenu.querySelector('[data-chip-action="remove"]')?.focus({ preventScroll: true });
-        }
-        return;
-      }
-
       const button = event.target instanceof Element ? event.target.closest("[data-chip-action]") : null;
       if (!button || button.disabled) return;
       const action = button.dataset.chipAction;
       const entryId = chipContextMenu.dataset.entryId || "";
 
       if (action === "remove") {
-        showChipRemoveConfirmation();
+        openChipRemoveModal(entryId);
         return;
       }
 
@@ -1909,28 +1919,50 @@
       }
     }
 
-    function showChipRemoveConfirmation() {
-      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
-      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
-      if (!actionsPanel || !confirmPanel) return;
-      actionsPanel.hidden = true;
-      confirmPanel.hidden = false;
-      chipContextMenu.querySelector('[data-chip-confirm="cancel"]')?.focus({ preventScroll: true });
-      const rect = chipContextMenu.getBoundingClientRect();
-      positionChipContextMenu(rect.left, rect.top);
+    function openChipRemoveModal(entryId) {
+      if (!entryId || !chipRemoveModal) return;
+      const entry = entries.find((item) => item.id === entryId);
+      chipRemoveModalLastFocus = chipContextMenuTrigger || document.activeElement;
+      chipRemoveModalPreviousOverflow = document.body.style.overflow;
+      chipRemoveModal.dataset.entryId = entryId;
+      chipRemoveEntry.textContent = getChipRemoveEntryLabel(entry);
+      closeChipContextMenu();
+      document.body.style.overflow = "hidden";
+      chipRemoveModal.hidden = false;
+      chipRemoveCard.focus({ preventScroll: true });
     }
 
-    function resetChipContextMenuConfirmation() {
-      if (!chipContextMenu) return;
-      const actionsPanel = chipContextMenu.querySelector('[data-chip-menu-panel="actions"]');
-      const confirmPanel = chipContextMenu.querySelector('[data-chip-menu-panel="confirm"]');
-      if (actionsPanel) actionsPanel.hidden = false;
-      if (confirmPanel) confirmPanel.hidden = true;
+    function closeChipRemoveModal(options = {}) {
+      if (!chipRemoveModal || chipRemoveModal.hidden) return;
+      chipRemoveModal.hidden = true;
+      chipRemoveModal.removeAttribute("data-entry-id");
+      chipRemoveEntry.textContent = "";
+      document.body.style.overflow = chipRemoveModalPreviousOverflow;
+      if (options.restoreFocus && chipRemoveModalLastFocus && typeof chipRemoveModalLastFocus.focus === "function") {
+        chipRemoveModalLastFocus.focus({ preventScroll: true });
+      }
+      chipRemoveModalLastFocus = null;
+      chipRemoveModalPreviousOverflow = "";
+    }
+
+    function confirmChipRemoveModal() {
+      const entryId = chipRemoveModal.dataset.entryId || "";
+      closeChipRemoveModal();
+      if (entryId) {
+        triggerLedgerEntryAction("remove", entryId);
+      }
+    }
+
+    function getChipRemoveEntryLabel(entry) {
+      if (!entry) return "Selected entry";
+      const school = entry.schoolName || "Entry";
+      const date = entry.date ? formatLongDate(entry.date) : "";
+      const time = formatTimeRange(entry).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+      return [school, date, time].filter(Boolean).join(" · ");
     }
 
     function closeChipContextMenu(options = {}) {
       if (!chipContextMenu || chipContextMenu.hidden) return;
-      resetChipContextMenuConfirmation();
       chipContextMenu.hidden = true;
       chipContextMenu.removeAttribute("data-entry-id");
       if (options.restoreFocus) {

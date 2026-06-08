@@ -25,6 +25,10 @@ assert.ok(
   'aria-label="Change Profile Picture"',
   'data-tooltip="Change Profile Picture"',
   'id="profileAvatarInitials"',
+  'for="profileHourlyRate"',
+  'id="profileHourlyRate"',
+  'type="number"',
+  'step="0.01"',
   '<svg viewBox="0 0 24 24"',
   'object-position: center center;',
 ].forEach((markup) => {
@@ -45,6 +49,9 @@ assert.ok(
   ".profile-field input:focus,",
   "box-shadow: none;",
   "transform: none;",
+  'const payrollProfile = readPayrollProfile();',
+  'hourlyRateInput.value = payrollProfile.hourlyRate || "";',
+  "writePayrollProfile({ hourlyRate });",
 ].forEach((snippet) => {
   assert.ok(source.includes(snippet), `profile modal should include ${snippet}`);
 });

@@ -8,6 +8,7 @@
   let bankAccountInput = null;
   let bankNameInput = null;
   let accountTypeInput = null;
+  let hourlyRateInput = null;
   let statusEl = null;
   let saveButton = null;
   let cancelButton = null;
@@ -22,6 +23,7 @@
   let pendingAvatarFile = null;
   let pendingAvatarUrl = "";
   let hasAvatarImage = false;
+  const payrollProfileKey = "chessGrandePayrollProfile";
 
   function ensureMounted() {
     if (mounted) return;
@@ -350,6 +352,10 @@
             <label for="profileAccountType">Account type</label>
             <input id="profileAccountType" type="text" autocomplete="off" placeholder="e.g. Savings">
           </div>
+          <div class="profile-field">
+            <label for="profileHourlyRate">Pay per hour</label>
+            <input id="profileHourlyRate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 55">
+          </div>
           <div class="profile-modal-status" id="profileModalStatus"></div>
         </div>
         <div class="profile-modal-footer">
@@ -366,6 +372,7 @@
     bankAccountInput = document.getElementById("profileBankAccount");
     bankNameInput = document.getElementById("profileBankName");
     accountTypeInput = document.getElementById("profileAccountType");
+    hourlyRateInput = document.getElementById("profileHourlyRate");
     statusEl = document.getElementById("profileModalStatus");
     saveButton = document.getElementById("profileModalSave");
     cancelButton = document.getElementById("profileModalCancel");
@@ -480,6 +487,7 @@
     bankAccountInput.value = "";
     bankNameInput.value = "";
     accountTypeInput.value = "";
+    hourlyRateInput.value = "";
     pendingAvatarFile = null;
     pendingAvatarUrl = "";
     setAvatarImage("");
@@ -528,6 +536,9 @@
       accountTypeInput.value = "";
     }
 
+    const payrollProfile = readPayrollProfile();
+    hourlyRateInput.value = payrollProfile.hourlyRate || "";
+
     if (data && data.avatar_r2_key && window.profileAvatar && typeof window.profileAvatar.resolveAvatarUrl === "function") {
       var avatarUrl = await window.profileAvatar.resolveAvatarUrl(data.avatar_r2_key);
       if (avatarPreviewImg && avatarUrl) {
@@ -571,6 +582,8 @@
     const bankAccountNumber = bankAccountInput.value.trim();
     const bankName = bankNameInput.value.trim();
     const accountType = accountTypeInput.value.trim();
+    const hourlyRate = Number(hourlyRateInput.value || 0);
+    writePayrollProfile({ hourlyRate });
 
     const { data, error } = await window.supabaseClient
       .from("profiles")
@@ -612,6 +625,22 @@
       closeButton.disabled = false;
       closeModal();
     }, 300);
+  }
+
+  function readPayrollProfile() {
+    try {
+      return JSON.parse(window.localStorage.getItem(payrollProfileKey) || "{}") || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function writePayrollProfile(updates) {
+    const nextProfile = {
+      ...readPayrollProfile(),
+      ...updates,
+    };
+    window.localStorage.setItem(payrollProfileKey, JSON.stringify(nextProfile));
   }
 
   function updateMenuDisplayName(name) {
