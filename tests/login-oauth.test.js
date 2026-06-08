@@ -14,7 +14,7 @@ const html = fs.readFileSync(
   'id="passwordToggle"',
   'data-lucide="eye"',
   'data-lucide="eye-off"',
-  "Timesheet access, tightened.",
+  "Timesheet entries made easier.",
   "window.supabaseClient.auth.signInWithOAuth",
   'provider: "google"',
   "redirectTo: buildOAuthRedirectUrl()",
