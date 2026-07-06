@@ -120,6 +120,46 @@ for (const [label, fileName] of pages) {
       /function applyDateContextSelection\(\)[\s\S]*entryDateInput\.value = dateContextMenu\.dataset\.entryDate/,
       "employee date context action should update the composer date field"
     );
+    assert.match(
+      html,
+      /Repeat entry on selected dates/,
+      "employee repeat control should use selected-date wording"
+    );
+    assert.match(
+      html,
+      /\.day\.is-repeat-selected\s*\{[\s\S]*\.day\.is-repeat-selected::after/,
+      "employee calendar day cells should have a distinct pending repeat selected state"
+    );
+    assert.match(
+      html,
+      /const pendingRepeatDates = new Set\(\)/,
+      "employee repeat mode should track pending selected repeat dates"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("click", onCalendarRepeatDateClick\)/,
+      "employee calendar should toggle repeat dates with left clicks"
+    );
+    assert.match(
+      html,
+      /function onCalendarRepeatDateClick\(event\)[\s\S]*if \(!isRecurringInput\.checked\) return;[\s\S]*toggleRepeatDate\(dayCell\.dataset\.entryDate/,
+      "employee repeat date clicks should only toggle day cells while repeat mode is active"
+    );
+    assert.match(
+      html,
+      /function toggleRepeatDate\(date\)[\s\S]*syncRepeatDateCellSelection\(date\)[\s\S]*\n    }\n\n    function syncRepeatDateCellSelection\(date\)[\s\S]*classList\.toggle\("is-repeat-selected", pendingRepeatDates\.has\(date\)\)/,
+      "employee repeat date toggles should update the day cell without rerendering calendar chips"
+    );
+    assert.match(
+      html,
+      /function syncRepeatSelectionFromComposer\(\)[\s\S]*buildWeeklyEntries\(baseEntry, monthPicker\.value\)[\s\S]*pendingRepeatDates\.add\(entry\.date\)/,
+      "employee repeat mode should preselect weekly dates from the composer date"
+    );
+    assert.match(
+      html,
+      /const newEntries = !editingEntryId && isRecurring && !isCostEntry[\s\S]*\? buildEntriesForSelectedRepeatDates\(baseEntry\)[\s\S]*: \[baseEntry\]/,
+      "employee save flow should insert selected repeat dates"
+    );
   }
   assert.match(
     html,

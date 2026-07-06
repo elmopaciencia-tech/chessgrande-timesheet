@@ -1570,6 +1570,7 @@
     }
 
     .day {
+      position: relative;
       min-height: 94px;
       background: color-mix(in srgb, var(--calendar) 80%, white 20%);
       border: 1px solid var(--line);
@@ -1589,6 +1590,36 @@
       border-color: color-mix(in srgb, var(--accent) 42%, white 58%);
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, white 82%);
       background: color-mix(in srgb, var(--accent-soft) 46%, var(--surface-strong) 54%);
+    }
+
+    .day.is-repeat-selectable {
+      cursor: pointer;
+    }
+
+    .day.is-repeat-selected {
+      border-color: color-mix(in srgb, var(--success) 70%, white 30%);
+      background: color-mix(in srgb, var(--success) 16%, var(--calendar) 84%);
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, var(--success) 58%, white 42%),
+        0 10px 22px color-mix(in srgb, var(--success) 14%, transparent);
+    }
+
+    .day.is-repeat-selected::after {
+      content: "Repeat";
+      position: absolute;
+      right: 7px;
+      bottom: 6px;
+      max-width: calc(100% - 14px);
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--success) 82%, black 18%);
+      color: var(--surface-strong);
+      font-size: 0.55rem;
+      font-weight: 800;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      pointer-events: none;
     }
 
     .day-number {
@@ -2737,7 +2768,7 @@
               <div>
                 <p class="panel-eyebrow">Entry composer</p>
                 <h2 id="entryComposerTitle">Add Or Update A Session</h2>
-                <p class="panel-copy" id="entryComposerCopy">Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Weekly recurring entries repeat from the chosen date to the end of the selected month.</p>
+                <p class="panel-copy" id="entryComposerCopy">Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Repeat mode preselects weekly dates, then lets you click calendar days to refine the set before saving.</p>
               </div>
             </div>
             <form id="entryForm">
@@ -2796,7 +2827,7 @@
 
               <div class="checkbox-row" id="recurringRow">
                 <input id="isRecurring" name="isRecurring" type="checkbox">
-                <label for="isRecurring" style="margin: 0;">Repeat weekly for this school until the end of the selected month</label>
+                <label for="isRecurring" style="margin: 0;">Repeat entry on selected dates</label>
               </div>
 
     <div id="claimFieldsMount"></div>
@@ -2951,6 +2982,7 @@
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
     const entryDateInput = document.getElementById("entryDate");
+    const isRecurringInput = document.getElementById("isRecurring");
     const chipContextMenu = document.getElementById("chipContextMenu");
     const dateContextMenu = document.getElementById("dateContextMenu");
     const chipRemoveModal = document.getElementById("chipRemoveModal");
@@ -3033,7 +3065,7 @@
     const editEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
     const trashEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>';
     const entryComposerDefaultTitle = "Add Or Update A Session";
-    const entryComposerDefaultCopy = "Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Weekly recurring entries repeat from the chosen date to the end of the selected month.";
+    const entryComposerDefaultCopy = "Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Repeat mode preselects weekly dates, then lets you click calendar days to refine the set before saving.";
     const entryComposerEditTitle = "Edit an Entry";
     const entryComposerEditCopy = "Update the selected ledger entry here. Review the date, type, school, time, hours, colour, and claim details, then save changes or cancel the edit.";
 
@@ -3047,6 +3079,7 @@
     let quickAddStatusTimer = 0;
     let saveQuickAddButton = null;
     let entryDatePickerOpenedAt = 0;
+    const pendingRepeatDates = new Set();
     let chipContextMenuTrigger = null;
     let dateContextMenuTrigger = null;
     let chipRemoveModalLastFocus = null;
@@ -3186,6 +3219,7 @@
     monthPicker.addEventListener("change", () => {
       setMonthValue(monthPicker.value);
       syncDateFieldToMonth();
+      refreshRepeatSelection();
       syncPayrollLink();
       syncQuickAddSaveButton();
       render();
@@ -3197,6 +3231,7 @@
     });
     form.addEventListener("input", syncQuickAddSaveButton);
     form.addEventListener("change", syncQuickAddSaveButton);
+    isRecurringInput.addEventListener("change", onRepeatToggleChange);
 
     bindAction(seedDemoButton, seedDemoData);
     bindAction(quickAddToggle, toggleQuickAddMenu);
@@ -3248,11 +3283,13 @@
     });
     entryDateInput.addEventListener("pointerdown", openEntryDatePicker);
     entryDateInput.addEventListener("click", openEntryDatePicker);
+    entryDateInput.addEventListener("change", onRepeatAnchorChange);
     entryDateInput.addEventListener("keydown", (event) => {
       if (!["Enter", " ", "ArrowDown"].includes(event.key)) return;
       event.preventDefault();
       openEntryDatePicker(event);
     });
+    calendar.addEventListener("click", onCalendarRepeatDateClick);
     calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
     calendar.addEventListener("contextmenu", onCalendarDateContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
@@ -3265,7 +3302,10 @@
         closeChipRemoveModal({ restoreFocus: true });
       }
     });
-    entryTypeSelect.addEventListener("change", syncReplacementField);
+    entryTypeSelect.addEventListener("change", () => {
+      syncReplacementField();
+      render();
+    });
     entryTypeSelect.addEventListener("input", syncReplacementField);
     document.addEventListener("click", (event) => {
       if (quickAddMenu?.hidden === false && !isQuickAddInteraction(event)) {
@@ -3449,6 +3489,16 @@
       if (!(target instanceof Element)) return null;
       const dayCell = target.closest(".day[data-entry-date]");
       return dayCell && calendar.contains(dayCell) ? dayCell : null;
+    }
+
+    function onCalendarRepeatDateClick(event) {
+      if (!isRecurringInput.checked) return;
+      if (event.target instanceof Element && event.target.closest(".chip")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell) return;
+      if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      event.preventDefault();
+      toggleRepeatDate(dayCell.dataset.entryDate);
     }
 
     function onCalendarChipContextMenu(event) {
@@ -3704,6 +3754,63 @@
       payrollLink.href = payrollUrl.toString();
     }
 
+    function onRepeatToggleChange() {
+      if (isRecurringInput.checked) {
+        syncRepeatSelectionFromComposer();
+      } else {
+        clearRepeatSelection();
+      }
+      render();
+    }
+
+    function onRepeatAnchorChange() {
+      refreshRepeatSelection();
+      render();
+    }
+
+    function refreshRepeatSelection() {
+      if (isRecurringInput.checked) {
+        syncRepeatSelectionFromComposer();
+      } else {
+        clearRepeatSelection();
+      }
+    }
+
+    function syncRepeatSelectionFromComposer() {
+      pendingRepeatDates.clear();
+      const baseEntry = { date: entryDateInput.value };
+      if (!baseEntry.date) return;
+      buildWeeklyEntries(baseEntry, monthPicker.value).forEach((entry) => {
+        pendingRepeatDates.add(entry.date);
+      });
+    }
+
+    function toggleRepeatDate(date) {
+      if (!date) return;
+      if (pendingRepeatDates.has(date)) {
+        pendingRepeatDates.delete(date);
+      } else {
+        pendingRepeatDates.add(date);
+      }
+      syncRepeatDateCellSelection(date);
+    }
+
+    function syncRepeatDateCellSelection(date) {
+      const dayCell = calendar.querySelector(`.day[data-entry-date="${date}"]`);
+      if (!dayCell) return;
+      dayCell.classList.toggle("is-repeat-selected", pendingRepeatDates.has(date));
+    }
+
+    function clearRepeatSelection() {
+      pendingRepeatDates.clear();
+    }
+
+    function buildEntriesForSelectedRepeatDates(baseEntry) {
+      return Array.from(pendingRepeatDates)
+        .sort((a, b) => a.localeCompare(b))
+        .map((date) => ({ ...baseEntry, date }));
+    }
+
     function syncReplacementField() {
       const isReplacement = entryTypeSelect.value === "Replacement";
       const isClaim = entryTypeSelect.value === "Claim";
@@ -3725,7 +3832,10 @@
       recurringRow.hidden = shouldHideRecurring;
       recurringRow.style.display = shouldHideRecurring ? "none" : "flex";
       recurringRow.setAttribute("aria-hidden", shouldHideRecurring ? "true" : "false");
-      document.getElementById("isRecurring").checked = shouldHideRecurring ? false : document.getElementById("isRecurring").checked;
+      if (shouldHideRecurring) {
+        isRecurringInput.checked = false;
+        clearRepeatSelection();
+      }
       schoolNameInput.required = !isClaim;
       if (schoolNameLabel) {
         schoolNameLabel.textContent = "Entry Name";
@@ -4024,7 +4134,8 @@
       ensureTimeFieldsRendered();
       document.getElementById("startTime").value = template.startTime;
       document.getElementById("hoursWorked").value = String(Number(template.hours));
-      document.getElementById("isRecurring").checked = false;
+      isRecurringInput.checked = false;
+      clearRepeatSelection();
       setSelectedCalendarColor(template.calendarColor);
       replacementNameInput.value = "";
       customRateInput.value = "";
@@ -5116,7 +5227,7 @@
       const claimProofInput = document.getElementById("claimProof");
       const claimNotes = claimNotesInput ? claimNotesInput.value.trim() : "";
       const claimCost = claimCostInput ? Number(claimCostInput.value) : 0;
-      const isRecurring = document.getElementById("isRecurring").checked;
+      const isRecurring = isRecurringInput.checked;
       const claimProofFile = claimProofInput && claimProofInput.files && claimProofInput.files[0];
       const existingEntry = editingEntryId ? entries.find((item) => item.id === editingEntryId) : null;
       const hasStoredClaimProof = Boolean(existingEntry?.claimImagePath || existingEntry?.claimProofDataUrl);
@@ -5139,6 +5250,10 @@
       }
       if (isCostEntry && (!Number.isFinite(claimCost) || claimCost <= 0)) {
         alert(`${isEvent ? "Event" : "Claim"} cost needs to be greater than zero.`);
+        return;
+      }
+      if (!editingEntryId && isRecurring && !isCostEntry && !pendingRepeatDates.size) {
+        alert("Choose at least one repeat date on the calendar before saving.");
         return;
       }
       const endTime = isCostEntry ? "" : calculateEndTime(startTime, hoursWorked);
@@ -5175,7 +5290,7 @@
       };
 
       const newEntries = !editingEntryId && isRecurring && !isCostEntry
-        ? buildWeeklyEntries(baseEntry, monthPicker.value)
+        ? buildEntriesForSelectedRepeatDates(baseEntry)
         : [baseEntry];
 
       addEntryButton.disabled = true;
@@ -5210,6 +5325,7 @@
     function resetEntryComposer() {
       exitEntryEditMode();
       form.reset();
+      clearRepeatSelection();
       setSelectedCalendarColor(defaultCalendarColor);
       syncDateFieldToMonth();
       syncReplacementField();
@@ -5362,6 +5478,13 @@
         cell.dataset.entryDate = key;
         if (day.getMonth() !== month - 1) cell.classList.add("outside");
         if (key === today) cell.classList.add("today");
+        if (isRecurringInput.checked && day.getMonth() === month - 1) {
+          cell.classList.add("is-repeat-selectable");
+          cell.setAttribute("aria-label", `Toggle repeat date ${formatLongDate(key)}`);
+        }
+        if (pendingRepeatDates.has(key)) {
+          cell.classList.add("is-repeat-selected");
+        }
 
         const number = document.createElement("div");
         number.className = "day-number";
@@ -5509,7 +5632,8 @@
       replacementNameInput.value = entry.type === "Replacement" ? entry.replacementName || "" : "";
       customRateInput.value = entry.type === "Private" && entry.customRate != null ? entry.customRate : "";
       setSelectedCalendarColor(entry.calendarColor || defaultCalendarColor);
-      document.getElementById("isRecurring").checked = false;
+      isRecurringInput.checked = false;
+      clearRepeatSelection();
       syncReplacementField();
 
       if (entry.type === "Claim" || isEventCostEntry(entry)) {
