@@ -152,6 +152,51 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
+      /const repeatDragState = \{[\s\S]*active: false[\s\S]*mode: ""[\s\S]*dates: new Set\(\)[\s\S]*\}/,
+      "employee repeat drag selection should track a single gesture state"
+    );
+    assert.match(
+      html,
+      /\.day\.is-repeat-selectable\s*\{[\s\S]*user-select:\s*none;[\s\S]*\.day\.is-repeat-selectable \*/,
+      "employee repeat-selectable days should prevent native text selection during drag"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("pointerdown", onCalendarRepeatPointerDown\)[\s\S]*calendar\.addEventListener\("pointermove", onCalendarRepeatPointerMove\)[\s\S]*calendar\.addEventListener\("pointerup", finishCalendarRepeatDrag\)[\s\S]*calendar\.addEventListener\("pointercancel", cancelCalendarRepeatDrag\)/,
+      "employee calendar should wire pointer drag selection for repeat mode"
+    );
+    assert.match(
+      html,
+      /function onCalendarRepeatPointerDown\(event\)[\s\S]*if \(!isRecurringInput\.checked\) return;[\s\S]*event\.target\.closest\("button, input, select, textarea, a"\)[\s\S]*startCalendarRepeatDrag\(event, dayCell\)/,
+      "employee repeat drag should start only in repeat mode and ignore controls while allowing chip-covered days"
+    );
+    assert.match(
+      html,
+      /function onCalendarRepeatPointerMove\(event\)[\s\S]*document\.elementFromPoint\(event\.clientX, event\.clientY\)[\s\S]*applyRepeatDragDate\(dayCell\.dataset\.entryDate\)/,
+      "employee repeat drag should detect crossed days from pointer coordinates while pointer capture is active"
+    );
+    assert.match(
+      html,
+      /function startCalendarRepeatDrag\(event, dayCell\)[\s\S]*document\.body\.classList\.add\("is-repeat-dragging"\)/,
+      "employee repeat drag should disable page text selection while the gesture is active"
+    );
+    assert.match(
+      html,
+      /function startCalendarRepeatDrag\(event, dayCell\)[\s\S]*repeatDragState\.mode = pendingRepeatDates\.has\(date\) \? "remove" : "add"[\s\S]*applyRepeatDragDate\(date\)/,
+      "employee repeat drag should choose one add/remove mode for the whole gesture"
+    );
+    assert.match(
+      html,
+      /function applyRepeatDragDate\(date\)[\s\S]*repeatDragState\.dates\.has\(date\)[\s\S]*pendingRepeatDates\.add\(date\)[\s\S]*pendingRepeatDates\.delete\(date\)[\s\S]*syncRepeatDateCellSelection\(date\)/,
+      "employee repeat drag should update selected day cells without rerendering calendar chips"
+    );
+    assert.match(
+      html,
+      /\.day\.is-repeat-dragging\s*\{/,
+      "employee repeat drag should have a subtle active day style"
+    );
+    assert.match(
+      html,
       /function syncRepeatSelectionFromComposer\(\)[\s\S]*buildWeeklyEntries\(baseEntry, monthPicker\.value\)[\s\S]*pendingRepeatDates\.add\(entry\.date\)/,
       "employee repeat mode should preselect weekly dates from the composer date"
     );

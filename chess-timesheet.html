@@ -1594,6 +1594,15 @@
 
     .day.is-repeat-selectable {
       cursor: pointer;
+      user-select: none;
+    }
+
+    .day.is-repeat-selectable * {
+      user-select: none;
+    }
+
+    body.is-repeat-dragging {
+      user-select: none;
     }
 
     .day.is-repeat-selected {
@@ -1620,6 +1629,11 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       pointer-events: none;
+    }
+
+    .day.is-repeat-dragging {
+      outline: 2px solid color-mix(in srgb, var(--success) 52%, white 48%);
+      outline-offset: -5px;
     }
 
     .day-number {
@@ -3080,6 +3094,13 @@
     let saveQuickAddButton = null;
     let entryDatePickerOpenedAt = 0;
     const pendingRepeatDates = new Set();
+    const repeatDragState = {
+      active: false,
+      mode: "",
+      pointerId: null,
+      dates: new Set(),
+    };
+    let suppressNextRepeatClick = false;
     let chipContextMenuTrigger = null;
     let dateContextMenuTrigger = null;
     let chipRemoveModalLastFocus = null;
@@ -3290,6 +3311,10 @@
       openEntryDatePicker(event);
     });
     calendar.addEventListener("click", onCalendarRepeatDateClick);
+    calendar.addEventListener("pointerdown", onCalendarRepeatPointerDown);
+    calendar.addEventListener("pointermove", onCalendarRepeatPointerMove);
+    calendar.addEventListener("pointerup", finishCalendarRepeatDrag);
+    calendar.addEventListener("pointercancel", cancelCalendarRepeatDrag);
     calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
     calendar.addEventListener("contextmenu", onCalendarDateContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
@@ -3493,12 +3518,91 @@
 
     function onCalendarRepeatDateClick(event) {
       if (!isRecurringInput.checked) return;
+      if (suppressNextRepeatClick) {
+        suppressNextRepeatClick = false;
+        event.preventDefault();
+        return;
+      }
       if (event.target instanceof Element && event.target.closest(".chip")) return;
       const dayCell = getCalendarContextDay(event.target);
       if (!dayCell) return;
       if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
       event.preventDefault();
       toggleRepeatDate(dayCell.dataset.entryDate);
+    }
+
+    function onCalendarRepeatPointerDown(event) {
+      if (!isRecurringInput.checked) return;
+      if (event.button !== 0 || event.pointerType === "touch") return;
+      if (!(event.target instanceof Element)) return;
+      if (event.target.closest("button, input, select, textarea, a")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell) return;
+      if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      startCalendarRepeatDrag(event, dayCell);
+    }
+
+    function startCalendarRepeatDrag(event, dayCell) {
+      const date = dayCell.dataset.entryDate;
+      if (!date) return;
+      repeatDragState.active = true;
+      repeatDragState.pointerId = event.pointerId;
+      repeatDragState.mode = pendingRepeatDates.has(date) ? "remove" : "add";
+      repeatDragState.dates.clear();
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+      closeChipContextMenu();
+      closeDateContextMenu();
+      event.preventDefault();
+      document.body.classList.add("is-repeat-dragging");
+      calendar.setPointerCapture?.(event.pointerId);
+      applyRepeatDragDate(date);
+    }
+
+    function onCalendarRepeatPointerMove(event) {
+      if (!repeatDragState.active || event.pointerId !== repeatDragState.pointerId) return;
+      event.preventDefault();
+      const pointerTarget = document.elementFromPoint(event.clientX, event.clientY);
+      const dayCell = getCalendarContextDay(pointerTarget);
+      if (!dayCell) return;
+      if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      applyRepeatDragDate(dayCell.dataset.entryDate);
+    }
+
+    function applyRepeatDragDate(date) {
+      if (!date || repeatDragState.dates.has(date)) return;
+      repeatDragState.dates.add(date);
+      if (repeatDragState.mode === "add") {
+        pendingRepeatDates.add(date);
+      } else if (repeatDragState.mode === "remove") {
+        pendingRepeatDates.delete(date);
+      }
+      syncRepeatDateCellSelection(date);
+      calendar.querySelector(`.day[data-entry-date="${date}"]`)?.classList.add("is-repeat-dragging");
+    }
+
+    function finishCalendarRepeatDrag(event) {
+      if (!repeatDragState.active || event.pointerId !== repeatDragState.pointerId) return;
+      suppressNextRepeatClick = repeatDragState.dates.size > 0;
+      calendar.releasePointerCapture?.(event.pointerId);
+      resetCalendarRepeatDrag();
+    }
+
+    function cancelCalendarRepeatDrag(event) {
+      if (!repeatDragState.active || event.pointerId !== repeatDragState.pointerId) return;
+      calendar.releasePointerCapture?.(event.pointerId);
+      resetCalendarRepeatDrag();
+    }
+
+    function resetCalendarRepeatDrag() {
+      repeatDragState.active = false;
+      repeatDragState.mode = "";
+      repeatDragState.pointerId = null;
+      repeatDragState.dates.clear();
+      document.body.classList.remove("is-repeat-dragging");
+      calendar.querySelectorAll(".day.is-repeat-dragging").forEach((dayCell) => {
+        dayCell.classList.remove("is-repeat-dragging");
+      });
     }
 
     function onCalendarChipContextMenu(event) {
