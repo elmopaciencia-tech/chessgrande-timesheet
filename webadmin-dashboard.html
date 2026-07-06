@@ -60,21 +60,18 @@
     .sidebar-kicker { margin: 0 0 7px; color: var(--clay); font-size: .72rem; text-transform: uppercase; font-weight: 800; letter-spacing: .12em; }
     .sidebar-title { margin: 0; font-size: 1.05rem; line-height: 1.2; font-weight: 800; }
     .sidebar-copy { margin: 6px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.4; }
-    .sidebar-nav { display: grid; gap: 4px; padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); }
-    .sidebar-link { min-height: 38px; display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 10px; color: var(--ink-soft); text-decoration: none; font-size: .92rem; font-weight: 700; }
-    .sidebar-link:hover, .sidebar-link.is-active { background: var(--accent-soft); color: var(--accent); }
     .sidebar-metrics { display: grid; padding: 10px; gap: 8px; }
     .sidebar-metric { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 46px; padding: 10px; border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 12px; background: color-mix(in srgb, var(--surface) 82%, white 18%); }
     .sidebar-metric-label { color: var(--muted); font-size: .78rem; text-transform: uppercase; font-weight: 800; letter-spacing: .06em; }
     .sidebar-metric-value { color: var(--ink); font-size: 1.1rem; font-weight: 850; font-variant-numeric: tabular-nums; }
-    .openrouter-settings { display: grid; gap: 10px; padding: 14px 10px 16px; border-top: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); }
-    .openrouter-settings h2 { margin: -4px 0 2px; font-size: .95rem; line-height: 1.2; }
-    .openrouter-field { display: grid; gap: 6px; }
+    .openrouter-settings { display: grid; gap: 14px; padding: 22px; border-top: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); }
+    .openrouter-settings h2 { margin: 0; font-size: 1.15rem; line-height: 1.2; }
+    .openrouter-field { display: grid; gap: 8px; }
     .openrouter-field label { color: var(--muted); font-size: .76rem; text-transform: uppercase; font-weight: 800; letter-spacing: .06em; }
-    .openrouter-field input { width: 100%; min-height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); padding: 8px 10px; font-size: .86rem; }
-    .openrouter-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .openrouter-actions .button { min-height: 38px; padding: 8px 10px; border-radius: 10px; font-size: .82rem; }
-    .openrouter-status { min-height: 1rem; color: var(--muted); font-size: .78rem; line-height: 1.35; overflow-wrap: anywhere; }
+    .openrouter-field input { width: 100%; min-height: 48px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface-strong); color: var(--ink); padding: 10px 14px; font-size: .94rem; }
+    .openrouter-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .openrouter-actions .button { min-height: 46px; padding: 10px 14px; border-radius: 14px; font-size: .92rem; }
+    .openrouter-status { min-height: 1.35rem; color: var(--muted); font-size: .9rem; line-height: 1.35; overflow-wrap: anywhere; }
     .member-board { min-width: 0; border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); border-radius: 18px; background: color-mix(in srgb, var(--surface-strong) 92%, white 8%); box-shadow: var(--shadow-md); overflow: hidden; }
     .board-toolbar { min-height: 86px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 0.72fr); gap: 16px; align-items: center; padding: 18px 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); background: color-mix(in srgb, var(--surface-strong) 88%, white 12%); }
     .board-kicker { margin: 0 0 6px; color: var(--clay); font-size: .72rem; text-transform: uppercase; font-weight: 800; letter-spacing: .12em; }
@@ -87,22 +84,19 @@
     .member-table { width: 100%; min-width: 0; }
     .member-table-head { display: grid; grid-template-columns: minmax(260px, 1.6fr) 132px 128px minmax(190px, 1fr) 84px; gap: 16px; align-items: center; padding: 8px 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); color: var(--muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; background: color-mix(in srgb, var(--surface-muted) 54%, white 46%); position: sticky; top: calc(env(safe-area-inset-top) + 72px); z-index: 3; }
     .member-list { display: grid; }
-    .member-line { min-width: 0; display: grid; grid-template-columns: minmax(260px, 1.6fr) 132px 128px minmax(190px, 1fr) 84px; gap: 16px; align-items: center; padding: 13px 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, white 30%); background: transparent; color: inherit; text-decoration: none; }
+    .member-line { min-width: 0; overflow: hidden; display: grid; grid-template-columns: minmax(260px, 1.6fr) 132px 128px minmax(190px, 1fr) 84px; gap: 16px; align-items: center; padding: 13px 22px; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, white 30%); background: transparent; color: inherit; text-decoration: none; }
     .member-line:last-child { border-bottom: 0; }
     .member-line:hover { background: color-mix(in srgb, var(--accent-soft) 38%, white 62%); }
     .member-primary { min-width: 0; display: flex; align-items: center; gap: 11px; }
-    .member-avatar { position: relative; width: 34px; height: 34px; min-width: 34px; border-radius: 999px; display: grid; place-items: center; color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 70%, white 30%); border: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%); font-size: .78rem; font-weight: 850; text-transform: uppercase; }
-    .member-presence { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border: 2px solid var(--surface-strong); border-radius: 999px; background: var(--line-strong); }
-    .member-presence.role-webadmin { background: #8b5cf6; }
-    .member-presence.role-manager { background: #22c55e; }
-    .member-presence.role-employee { background: #0ea5e9; }
+    .member-avatar { width: 34px; height: 34px; min-width: 34px; border-radius: 999px; display: grid; place-items: center; color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 70%, white 30%); border: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%); font-size: .78rem; font-weight: 850; text-transform: uppercase; }
+    .member-identity { min-width: 0; }
     .member-name { min-width: 0; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .member-sub { min-width: 0; color: var(--muted); font-size: .82rem; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .role-pill { width: max-content; max-width: 100%; display: inline-flex; align-items: center; min-height: 24px; padding: 3px 9px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%); color: var(--ink-soft); background: color-mix(in srgb, var(--surface-muted) 68%, white 32%); font-size: .78rem; font-weight: 800; text-transform: capitalize; }
     .role-pill.role-webadmin { color: #5b21b6; background: #ede9fe; border-color: #ddd6fe; }
     .role-pill.role-manager { color: #166534; background: #dcfce7; border-color: #bbf7d0; }
     .member-joined, .member-contact { min-width: 0; color: var(--muted); font-size: .84rem; line-height: 1.35; overflow-wrap: anywhere; }
-    .member-actions { display: flex; justify-content: flex-end; }
+    .member-actions { min-width: 0; display: flex; justify-content: flex-end; }
     .member-actions .edit-button { min-height: 34px; padding: 7px 12px; border-radius: 9px; font-size: .84rem; box-shadow: none; }
     .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: 20px; align-items: center; padding: 24px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%); border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); border-radius: 28px; box-shadow: var(--shadow-md); overflow: hidden; }
     .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)), linear-gradient(180deg, transparent 0, transparent calc(100% - 1px), rgba(85,95,87,.05) calc(100% - 1px)); background-size: 100% 100%, 100% 36px; pointer-events: none; opacity: .34; }
@@ -183,6 +177,13 @@
       .sidebar-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .board-toolbar { grid-template-columns: 1fr; }
     }
+    @media (max-width: 920px) {
+      .member-table-head { grid-template-columns: minmax(0, 1.45fr) minmax(92px, 0.48fr) minmax(92px, 0.48fr) minmax(124px, 0.78fr) 72px; gap: 12px; padding: 8px 16px; }
+      .member-line { grid-template-columns: minmax(0, 1.45fr) minmax(92px, 0.48fr) minmax(92px, 0.48fr) minmax(124px, 0.78fr) 72px; gap: 12px; padding: 14px 16px; }
+      .member-avatar { width: 32px; height: 32px; min-width: 32px; }
+      .role-pill { padding-inline: 8px; }
+      .edit-button { min-height: 38px; padding: 9px 11px; }
+    }
     @media (max-width: 760px) { .hero, .panel, .modal { padding: 20px; } .app-header-inner { min-height: 66px; padding: 0 16px; } .modal-grid, .modal-actions { grid-template-columns: 1fr; } .chat-popup { right: 16px; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 74px); max-height: calc(100vh - 118px); } .chat-launcher { right: 18px; bottom: max(18px, env(safe-area-inset-bottom)); } .admin-shell { margin-top: 18px; gap: 14px; } .sidebar-metrics { grid-template-columns: 1fr; } .board-toolbar { padding: 16px; } .board-controls { grid-template-columns: 1fr; } .member-table-head { display: none; } .member-line { grid-template-columns: 1fr; gap: 8px; padding: 14px 16px; } .member-actions { justify-content: flex-start; } }
 
 </style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js?v=20260606-nav" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a>
@@ -207,7 +208,7 @@
           <li class="cg-nav-item" id="managerNavItem" data-nav-section="manager" hidden>
             <button class="cg-nav-trigger" id="managerNavTrigger" type="button" aria-expanded="false" aria-controls="managerNavDropdown">Manager</button>
             <div class="cg-nav-dropdown" id="managerNavDropdown" role="menu" hidden>
-              <a class="cg-nav-dropdown-link" href="./manager-dashboard.html" role="menuitem">Manager-Dashboard</a>
+              <a class="cg-nav-dropdown-link" href="./manager-dashboard.html" role="menuitem">Manager Dashboard</a>
               <a class="cg-nav-dropdown-link" href="./manager-drafts.html" role="menuitem">Draft Timesheet for Employee</a>
             </div>
           </li>
@@ -225,7 +226,7 @@
         </div>
       </div>
     </div>
-  </header><main class="admin-shell" id="main-content"><aside class="admin-sidebar" aria-label="Directory navigation"><div class="sidebar-head"><p class="sidebar-kicker">Webadmin View</p><h1 class="sidebar-title">User Profiles</h1><p class="sidebar-copy">Maintain roles and timesheet identity details from one directory.</p></div><nav class="sidebar-nav" aria-label="Webadmin sections"><a class="sidebar-link is-active" href="./webadmin-dashboard.html">User Directory</a><a class="sidebar-link" href="./manager-dashboard.html">Manager Dashboard</a><a class="sidebar-link" href="./manager-drafts.html">Draft Timesheets</a><a class="sidebar-link" href="./chess-timesheet.html">Employee Timesheet</a></nav><div class="sidebar-metrics" aria-label="User summary"><div class="sidebar-metric"><span class="sidebar-metric-label">Total Users</span><span class="sidebar-metric-value" id="totalUsers">0</span></div><div class="sidebar-metric"><span class="sidebar-metric-label">Managers</span><span class="sidebar-metric-value" id="managerCount">0</span></div><div class="sidebar-metric"><span class="sidebar-metric-label">Webadmins</span><span class="sidebar-metric-value" id="webadminCount">0</span></div></div><form class="openrouter-settings" id="openRouterSettingsPanel">
+  </header><main class="admin-shell" id="main-content"><aside class="admin-sidebar" aria-label="Directory controls"><div class="sidebar-head"><p class="sidebar-kicker">Webadmin View</p><h1 class="sidebar-title">User Profiles</h1><p class="sidebar-copy">Maintain roles and timesheet identity details from one directory.</p></div><div class="sidebar-metrics" aria-label="User summary"><div class="sidebar-metric"><span class="sidebar-metric-label">Total Users</span><span class="sidebar-metric-value" id="totalUsers">0</span></div><div class="sidebar-metric"><span class="sidebar-metric-label">Managers</span><span class="sidebar-metric-value" id="managerCount">0</span></div><div class="sidebar-metric"><span class="sidebar-metric-label">Webadmins</span><span class="sidebar-metric-value" id="webadminCount">0</span></div></div><form class="openrouter-settings" id="openRouterSettingsPanel">
   <p class="sidebar-kicker">OpenRouter</p>
   <h2>Model Settings</h2>
   <div class="openrouter-field">
@@ -514,7 +515,6 @@
           <div class="member-primary">
             <div class="member-avatar" aria-hidden="true">
               ${escapeHtml(getInitials(displayName))}
-              <span class="member-presence role-${escapeHtml(role)}"></span>
             </div>
             <div class="member-identity">
               <div class="member-name">${escapeHtml(displayName)}</div>

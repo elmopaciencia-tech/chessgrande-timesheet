@@ -169,7 +169,7 @@
     { label: "Overview", href: "./employee-dashboard.html", section: "overview" },
     { label: "Timesheet", href: "./chess-timesheet.html", section: "timesheet" },
     { label: "Submissions", href: "./chess-timesheet-pay.html", section: "timesheet" },
-    { label: "Manager-Dashboard", href: "./manager-dashboard.html", section: "manager", role: "manager" },
+    { label: "Manager Dashboard", href: "./manager-dashboard.html", section: "manager", role: "manager" },
     { label: "Draft Timesheet for Employee", href: "./manager-drafts.html", section: "manager", role: "manager" },
     { label: "Webadmin", href: "./webadmin-dashboard.html", section: "webadmin", role: "webadmin" }
   ];

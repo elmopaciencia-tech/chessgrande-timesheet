@@ -939,14 +939,6 @@
       margin: 0;
       flex-shrink: 0;
     }
-    .repeat-options {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(92px, 0.72fr);
-      gap: var(--space-3);
-    }
-    .repeat-options[hidden] {
-      display: none;
-    }
     .repeat-copy {
       margin: 0;
       color: var(--muted);
@@ -1028,6 +1020,7 @@
       text-transform: uppercase;
     }
     .calendar-day {
+      position: relative;
       min-height: 104px;
       border-radius: 16px;
       border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
@@ -1046,6 +1039,44 @@
     .calendar-day.today {
       border-color: color-mix(in srgb, var(--accent) 42%, white 58%);
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, white 82%);
+    }
+    .calendar-day.is-repeat-selectable {
+      cursor: pointer;
+      user-select: none;
+    }
+    .calendar-day.is-repeat-selectable * {
+      user-select: none;
+    }
+    body.is-repeat-dragging {
+      user-select: none;
+    }
+    .calendar-day.is-repeat-selected {
+      border-color: color-mix(in srgb, var(--success) 70%, white 30%);
+      background: color-mix(in srgb, var(--success) 16%, var(--surface-strong) 84%);
+      box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, var(--success) 58%, white 42%),
+        0 10px 22px color-mix(in srgb, var(--success) 14%, transparent);
+    }
+    .calendar-day.is-repeat-selected::after {
+      content: "Repeat";
+      position: absolute;
+      right: 7px;
+      bottom: 6px;
+      max-width: calc(100% - 14px);
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--success) 82%, black 18%);
+      color: var(--surface-strong);
+      font-size: 0.55rem;
+      font-weight: 800;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      pointer-events: none;
+    }
+    .calendar-day.is-repeat-dragging {
+      outline: 2px solid color-mix(in srgb, var(--success) 52%, white 48%);
+      outline-offset: -5px;
     }
     .day-number {
       color: var(--ink-soft);
@@ -1463,7 +1494,7 @@
           <li class="cg-nav-item" id="managerNavItem" data-nav-section="manager" hidden>
             <button class="cg-nav-trigger" id="managerNavTrigger" type="button" aria-expanded="false" aria-controls="managerNavDropdown">Manager</button>
             <div class="cg-nav-dropdown" id="managerNavDropdown" role="menu" hidden>
-              <a class="cg-nav-dropdown-link" href="./manager-dashboard.html" role="menuitem">Manager-Dashboard</a>
+              <a class="cg-nav-dropdown-link" href="./manager-dashboard.html" role="menuitem">Manager Dashboard</a>
               <a class="cg-nav-dropdown-link" href="./manager-drafts.html" role="menuitem">Draft Timesheet for Employee</a>
             </div>
           </li>
@@ -1645,24 +1676,9 @@
             <div class="repeat-panel" id="repeatPanel">
               <label class="repeat-toggle" for="isRepeating">
                 <input id="isRepeating" type="checkbox">
-                <span>Repeat this entry</span>
+                <span>Repeat entry on selected dates</span>
               </label>
-              <div class="repeat-options" id="repeatOptions" hidden>
-                <div>
-                  <label for="repeatDayCount">Days</label>
-                  <select id="repeatDayCount">
-                    <option value="1">1 day</option>
-                    <option value="5">5 weekdays</option>
-                    <option value="2">2 weekend days</option>
-                    <option value="7">7 days</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="repeatWeeks">Weeks</label>
-                  <input id="repeatWeeks" type="number" min="1" max="52" step="1" value="1" inputmode="numeric">
-                </div>
-              </div>
-              <p class="repeat-copy" id="repeatSummary">Creates one draft row unless repeat is enabled.</p>
+              <p class="repeat-copy" id="repeatSummary">Repeat mode preselects weekly dates, then lets you click or drag calendar days to refine the set before saving.</p>
             </div>
             <div id="claimFieldsMount"></div>
             <div class="actions">
@@ -1682,6 +1698,10 @@
       <button type="button" role="menuitem" data-chip-action="edit">Edit Entry</button>
       <button type="button" role="menuitem" data-chip-action="remove">Remove Entry</button>
     </div>
+  </div>
+
+  <div class="chip-context-menu" id="dateContextMenu" role="menu" hidden>
+    <button type="button" role="menuitem" data-date-action="add">Add Entry On This Date</button>
   </div>
 
   <div class="chip-remove-modal" id="chipRemoveModal" hidden role="dialog" aria-modal="true" aria-labelledby="chipRemoveTitle" aria-describedby="chipRemoveCopy">
@@ -1757,6 +1777,7 @@
     const calendarTitle = document.getElementById("calendarTitle");
     const calendarMeta = document.getElementById("calendarMeta");
     const chipContextMenu = document.getElementById("chipContextMenu");
+    const dateContextMenu = document.getElementById("dateContextMenu");
     const chipRemoveModal = document.getElementById("chipRemoveModal");
     const chipRemoveCard = document.getElementById("chipRemoveCard");
     const chipRemoveEntry = document.getElementById("chipRemoveEntry");
@@ -1786,9 +1807,6 @@
     const claimFieldsTemplate = document.getElementById("claimFieldsTemplate");
     const repeatPanel = document.getElementById("repeatPanel");
     const repeatInput = document.getElementById("isRepeating");
-    const repeatOptions = document.getElementById("repeatOptions");
-    const repeatDayCountSelect = document.getElementById("repeatDayCount");
-    const repeatWeeksInput = document.getElementById("repeatWeeks");
     const repeatSummary = document.getElementById("repeatSummary");
     const saveDraftButton = document.getElementById("saveDraftButton");
     const cancelEditButton = document.getElementById("cancelEditButton");
@@ -1827,7 +1845,16 @@
     let quickAddTemplates = [];
     let quickAddStatusTimer = 0;
     let editingEntryId = "";
+    const pendingRepeatDates = new Set();
+    const repeatDragState = {
+      active: false,
+      mode: "",
+      pointerId: null,
+      dates: new Set(),
+    };
+    let suppressNextRepeatClick = false;
     let chipContextMenuTrigger = null;
+    let dateContextMenuTrigger = null;
     let chipRemoveModalLastFocus = null;
     let chipRemoveModalPreviousOverflow = "";
     let aiPendingImportPlan = null;
@@ -1918,13 +1945,15 @@
       monthPicker.addEventListener("change", () => {
         applySelectedMonthChange(monthPicker.value);
       });
-      entryTypeSelect.addEventListener("change", syncReplacementField);
+      entryTypeSelect.addEventListener("change", () => {
+        syncReplacementField();
+        render();
+      });
       entryTypeSelect.addEventListener("input", syncReplacementField);
       draftForm.addEventListener("input", updateQuickAddSaveState);
       draftForm.addEventListener("change", updateQuickAddSaveState);
-      repeatInput.addEventListener("change", () => syncRepeatControls());
-      repeatDayCountSelect.addEventListener("change", () => syncRepeatControls());
-      repeatWeeksInput.addEventListener("input", () => syncRepeatControls());
+      repeatInput.addEventListener("change", onRepeatToggleChange);
+      entryDateInput.addEventListener("change", onRepeatAnchorChange);
       quickAddToggle.addEventListener("click", toggleQuickAddMenu);
       quickAddList.addEventListener("click", onQuickAddListClick);
       calendarColorToggle.addEventListener("click", toggleCalendarColorMenu);
@@ -1962,8 +1991,15 @@
         }
       });
       draftCalendar.addEventListener("contextmenu", onCalendarChipContextMenu);
+      draftCalendar.addEventListener("contextmenu", onCalendarDateContextMenu);
+      draftCalendar.addEventListener("click", onCalendarRepeatDateClick);
+      draftCalendar.addEventListener("pointerdown", onCalendarRepeatPointerDown);
+      draftCalendar.addEventListener("pointermove", onCalendarRepeatPointerMove);
+      draftCalendar.addEventListener("pointerup", finishCalendarRepeatDrag);
+      draftCalendar.addEventListener("pointercancel", cancelCalendarRepeatDrag);
       draftCalendar.addEventListener("keydown", onCalendarChipKeydown);
       chipContextMenu.addEventListener("click", onChipContextMenuClick);
+      dateContextMenu.addEventListener("click", onDateContextMenuClick);
       chipRemoveCancel.addEventListener("click", () => closeChipRemoveModal({ restoreFocus: true }));
       chipRemoveConfirm.addEventListener("click", () => {
         void confirmChipRemoveModal();
@@ -1983,10 +2019,14 @@
         if (chipContextMenu?.hidden === false && !isChipContextMenuInteraction(event)) {
           closeChipContextMenu();
         }
+        if (dateContextMenu?.hidden === false && !isDateContextMenuInteraction(event)) {
+          closeDateContextMenu();
+        }
       });
       document.addEventListener("contextmenu", (event) => {
-        if (getCalendarContextChip(event.target) || isChipContextMenuInteraction(event)) return;
+        if (getCalendarContextChip(event.target) || getCalendarContextDay(event.target) || isChipContextMenuInteraction(event) || isDateContextMenuInteraction(event)) return;
         closeChipContextMenu();
+        closeDateContextMenu();
       });
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
@@ -1997,6 +2037,10 @@
         }
         if (chipContextMenu?.hidden === false) {
           closeChipContextMenu({ restoreFocus: true });
+          handledMenu = true;
+        }
+        if (dateContextMenu?.hidden === false) {
+          closeDateContextMenu({ restoreFocus: true });
           handledMenu = true;
         }
         if (calendarColorMenu?.hidden === false) {
@@ -2015,6 +2059,8 @@
       });
       window.addEventListener("resize", closeChipContextMenu);
       window.addEventListener("scroll", closeChipContextMenu, true);
+      window.addEventListener("resize", closeDateContextMenu);
+      window.addEventListener("scroll", closeDateContextMenu, true);
       syncReplacementField();
     }
 
@@ -3117,16 +3163,125 @@
       return event.composedPath().some((node) => node === chipContextMenu);
     }
 
+    function isDateContextMenuInteraction(event) {
+      if (event.target instanceof Element && event.target.closest("#dateContextMenu")) {
+        return true;
+      }
+      return event.composedPath().some((node) => node === dateContextMenu);
+    }
+
     function getCalendarContextChip(target) {
       if (!(target instanceof Element)) return null;
       const chip = target.closest(".calendar-chip.has-calendar-color[data-entry-id]");
       return chip && draftCalendar.contains(chip) ? chip : null;
     }
 
+    function getCalendarContextDay(target) {
+      if (!(target instanceof Element)) return null;
+      const dayCell = target.closest(".calendar-day[data-entry-date]");
+      return dayCell && draftCalendar.contains(dayCell) ? dayCell : null;
+    }
+
+    function onCalendarRepeatDateClick(event) {
+      if (!repeatInput.checked) return;
+      if (suppressNextRepeatClick) {
+        suppressNextRepeatClick = false;
+        event.preventDefault();
+        return;
+      }
+      if (event.target instanceof Element && event.target.closest(".calendar-chip")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell) return;
+      if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      event.preventDefault();
+      toggleRepeatDate(dayCell.dataset.entryDate);
+    }
+
+    function onCalendarRepeatPointerDown(event) {
+      if (!repeatInput.checked) return;
+      if (event.button !== 0 || event.pointerType === "touch") return;
+      if (!(event.target instanceof Element)) return;
+      if (event.target.closest("button, input, select, textarea, a")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell) return;
+      if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      startCalendarRepeatDrag(event, dayCell);
+    }
+
+    function startCalendarRepeatDrag(event, dayCell) {
+      const date = dayCell.dataset.entryDate;
+      if (!date) return;
+      repeatDragState.active = true;
+      repeatDragState.pointerId = event.pointerId;
+      repeatDragState.mode = pendingRepeatDates.has(date) ? "remove" : "add";
+      repeatDragState.dates.clear();
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+      closeChipContextMenu();
+      event.preventDefault();
+      document.body.classList.add("is-repeat-dragging");
+      draftCalendar.setPointerCapture?.(event.pointerId);
+      applyRepeatDragDate(date);
+    }
+
+    function onCalendarRepeatPointerMove(event) {
+      if (!repeatDragState.active || event.pointerId !== repeatDragState.pointerId) return;
+      event.preventDefault();
+      const pointerTarget = document.elementFromPoint(event.clientX, event.clientY);
+      const dayCell = getCalendarContextDay(pointerTarget);
+      if (!dayCell) return;
+      if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      applyRepeatDragDate(dayCell.dataset.entryDate);
+    }
+
+    function applyRepeatDragDate(date) {
+      if (!date || repeatDragState.dates.has(date)) return;
+      repeatDragState.dates.add(date);
+      if (repeatDragState.mode === "add") {
+        pendingRepeatDates.add(date);
+      } else if (repeatDragState.mode === "remove") {
+        pendingRepeatDates.delete(date);
+      }
+      syncRepeatDateCellSelection(date);
+      draftCalendar.querySelector(`.calendar-day[data-entry-date="${date}"]`)?.classList.add("is-repeat-dragging");
+      syncRepeatControls();
+    }
+
+    function finishCalendarRepeatDrag(event) {
+      if (!repeatDragState.active || event.pointerId !== repeatDragState.pointerId) return;
+      suppressNextRepeatClick = repeatDragState.dates.size > 0;
+      draftCalendar.releasePointerCapture?.(event.pointerId);
+      resetCalendarRepeatDrag();
+    }
+
+    function cancelCalendarRepeatDrag(event) {
+      if (!repeatDragState.active || event.pointerId !== repeatDragState.pointerId) return;
+      draftCalendar.releasePointerCapture?.(event.pointerId);
+      resetCalendarRepeatDrag();
+    }
+
+    function resetCalendarRepeatDrag() {
+      repeatDragState.active = false;
+      repeatDragState.mode = "";
+      repeatDragState.pointerId = null;
+      repeatDragState.dates.clear();
+      document.body.classList.remove("is-repeat-dragging");
+      draftCalendar.querySelectorAll(".calendar-day.is-repeat-dragging").forEach((dayCell) => {
+        dayCell.classList.remove("is-repeat-dragging");
+      });
+    }
+
     function onCalendarChipContextMenu(event) {
       const chip = getCalendarContextChip(event.target);
       if (!chip) return;
       openChipContextMenu(event, chip);
+    }
+
+    function onCalendarDateContextMenu(event) {
+      if (event.defaultPrevented) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell) return;
+      openDateContextMenu(event, dayCell);
     }
 
     function onCalendarChipKeydown(event) {
@@ -3160,6 +3315,24 @@
       }
     }
 
+    function openDateContextMenu(event, dayCell, options = {}) {
+      const entryDate = dayCell.dataset.entryDate || "";
+      if (!entryDate) return;
+
+      event.preventDefault();
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+      closeChipContextMenu();
+
+      dateContextMenuTrigger = dayCell;
+      dateContextMenu.dataset.entryDate = entryDate;
+      positionDateContextMenu(options.x ?? event.clientX, options.y ?? event.clientY);
+
+      if (options.focusMenu) {
+        dateContextMenu.querySelector("button:not(:disabled)")?.focus({ preventScroll: true });
+      }
+    }
+
     function positionChipContextMenu(x, y) {
       chipContextMenu.style.visibility = "hidden";
       chipContextMenu.hidden = false;
@@ -3170,6 +3343,18 @@
       chipContextMenu.style.left = `${left}px`;
       chipContextMenu.style.top = `${top}px`;
       chipContextMenu.style.visibility = "";
+    }
+
+    function positionDateContextMenu(x, y) {
+      dateContextMenu.style.visibility = "hidden";
+      dateContextMenu.hidden = false;
+      const rect = dateContextMenu.getBoundingClientRect();
+      const margin = 8;
+      const left = Math.max(margin, Math.min(x, window.innerWidth - rect.width - margin));
+      const top = Math.max(margin, Math.min(y, window.innerHeight - rect.height - margin));
+      dateContextMenu.style.left = `${left}px`;
+      dateContextMenu.style.top = `${top}px`;
+      dateContextMenu.style.visibility = "";
     }
 
     function syncChipContextMenuActions(entryId) {
@@ -3204,6 +3389,23 @@
       } else if (action === "edit") {
         triggerLedgerEntryAction(action, entryId);
       }
+    }
+
+    function onDateContextMenuClick(event) {
+      const button = event.target instanceof Element ? event.target.closest("[data-date-action]") : null;
+      if (!button) return;
+      if (button.dataset.dateAction === "add") {
+        applyDateContextSelection();
+      }
+    }
+
+    function applyDateContextSelection() {
+      entryDateInput.value = dateContextMenu.dataset.entryDate;
+      entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
+      entryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      closeDateContextMenu();
+      entryDateInput.focus({ preventScroll: true });
+      formTitle?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function openChipRemoveModal(entryId) {
@@ -3253,6 +3455,16 @@
         chipContextMenuTrigger?.focus?.({ preventScroll: true });
       }
       chipContextMenuTrigger = null;
+    }
+
+    function closeDateContextMenu(options = {}) {
+      if (!dateContextMenu || dateContextMenu.hidden) return;
+      dateContextMenu.hidden = true;
+      dateContextMenu.removeAttribute("data-entry-date");
+      if (options.restoreFocus) {
+        dateContextMenuTrigger?.focus?.({ preventScroll: true });
+      }
+      dateContextMenuTrigger = null;
     }
 
     function getLedgerActionButton(action, entryId) {
@@ -3676,13 +3888,8 @@
       const claimCost = claimCostInput ? Number(claimCostInput.value) : 0;
       const claimProofFile = claimProofInput && claimProofInput.files && claimProofInput.files[0];
       const existing = editingEntryId ? entries.find((entry) => entry.id === editingEntryId) : null;
-      const repeatSettings = getRepeatSettings(isCostEntry);
 
       if (!date) return;
-      if (repeatSettings.error) {
-        statusMessage.textContent = repeatSettings.error;
-        return;
-      }
       if (!isCostEntry && (!schoolName || !startTime || !hours)) return;
       if (isEvent && !schoolName) return;
       if (isCostEntry && !claimNotes) return;
@@ -3701,6 +3908,10 @@
       }
       if (hasCustomRate && (!Number.isFinite(customRateValue) || customRateValue < 0)) {
         statusMessage.textContent = "Custom pay per hour must be zero or greater.";
+        return;
+      }
+      if (!editingEntryId && repeatInput.checked && !isCostEntry && !pendingRepeatDates.size) {
+        statusMessage.textContent = "Choose at least one repeat date on the calendar before saving.";
         return;
       }
 
@@ -3737,8 +3948,8 @@
         claimProofDataUrl,
         status: "active",
       };
-      const draftsToSave = repeatSettings.enabled
-        ? buildRepeatDraftEntries(draft, repeatSettings)
+      const draftsToSave = repeatInput.checked && !editingEntryId && !isCostEntry
+        ? buildDraftsForSelectedRepeatDates(draft)
         : [draft];
 
       saveDraftButton.disabled = true;
@@ -3962,8 +4173,16 @@
 
         const cell = document.createElement("div");
         cell.className = "calendar-day";
+        cell.dataset.entryDate = dateKey;
         if (day.getMonth() !== month - 1) cell.classList.add("outside");
         if (dateKey === todayKey) cell.classList.add("today");
+        if (repeatInput.checked && day.getMonth() === month - 1) {
+          cell.classList.add("is-repeat-selectable");
+          cell.setAttribute("aria-label", `Toggle repeat date ${formatLongDate(dateKey)}`);
+        }
+        if (pendingRepeatDates.has(dateKey)) {
+          cell.classList.add("is-repeat-selected");
+        }
 
         const dayNumber = document.createElement("div");
         dayNumber.className = "day-number";
@@ -4091,8 +4310,7 @@
 
     function resetRepeatControls() {
       repeatInput.checked = false;
-      repeatDayCountSelect.value = "1";
-      repeatWeeksInput.value = "1";
+      clearRepeatSelection();
       syncRepeatControls();
     }
 
@@ -4103,121 +4321,91 @@
       repeatInput.disabled = shouldHide;
       if (shouldHide) {
         repeatInput.checked = false;
+        clearRepeatSelection();
       }
 
       const enabled = !shouldHide && repeatInput.checked;
-      repeatOptions.hidden = !enabled;
-      repeatDayCountSelect.disabled = !enabled;
-      repeatWeeksInput.disabled = !enabled;
 
       if (!enabled) {
         repeatSummary.textContent = shouldHide
           ? "Repeat is available for new time entries only."
-          : "Creates one draft row unless repeat is enabled.";
+          : "Repeat mode preselects weekly dates, then lets you click or drag calendar days to refine the set before saving.";
         return;
       }
 
-      const dayCount = getRepeatDayCount();
-      const weekCount = getRepeatWeekCount();
-      const totalRows = Number.isFinite(weekCount) ? dayCount * weekCount : dayCount;
-      repeatSummary.textContent = `Creates ${totalRows} draft rows across ${weekCount || 1} total week${weekCount === 1 ? "" : "s"}.`;
+      repeatSummary.textContent = `Creates ${pendingRepeatDates.size} draft row${pendingRepeatDates.size === 1 ? "" : "s"} from selected calendar dates.`;
     }
 
-    function getRepeatDayCount() {
-      if (repeatDayCountSelect.value === "7") return 7;
-      if (repeatDayCountSelect.value === "2") return 2;
-      if (repeatDayCountSelect.value === "1") return 1;
-      return 5;
-    }
-
-    function getRepeatWeekCount() {
-      const value = Number.parseInt(repeatWeeksInput.value, 10);
-      return Number.isInteger(value) ? value : NaN;
-    }
-
-    function getRepeatSettings(isCostEntryValue) {
-      const enabled = repeatInput.checked && !editingEntryId && !isCostEntryValue;
-      if (!enabled) {
-        return { enabled: false };
+    function onRepeatToggleChange() {
+      if (repeatInput.checked) {
+        syncRepeatSelectionFromComposer();
+      } else {
+        clearRepeatSelection();
       }
-
-      const weeks = getRepeatWeekCount();
-      if (!Number.isInteger(weeks) || weeks < 1 || weeks > 52) {
-        return {
-          enabled: false,
-          error: "Repeat weeks must be a whole number from 1 to 52.",
-        };
-      }
-
-      return {
-        enabled: true,
-        dayCount: getRepeatDayCount(),
-        weeks,
-      };
+      syncRepeatControls();
+      render();
     }
 
-    function buildRepeatDraftEntries(baseEntry, settings) {
-      const startDate = parseDateInput(baseEntry.date);
-      if (!startDate || !settings?.weeks) return [baseEntry];
+    function onRepeatAnchorChange() {
+      refreshRepeatSelection();
+      syncRepeatControls();
+      render();
+    }
 
-      const dayOffsets = getRepeatDayOffsets(startDate, settings.dayCount);
+    function refreshRepeatSelection() {
+      if (repeatInput.checked) {
+        syncRepeatSelectionFromComposer();
+      } else {
+        clearRepeatSelection();
+      }
+    }
+
+    function syncRepeatSelectionFromComposer() {
+      pendingRepeatDates.clear();
+      const baseDraft = { date: entryDateInput.value };
+      if (!baseDraft.date) return;
+      buildWeeklyDraftEntries(baseDraft, monthPicker.value).forEach((entry) => {
+        pendingRepeatDates.add(entry.date);
+      });
+    }
+
+    function toggleRepeatDate(date) {
+      if (!date) return;
+      if (pendingRepeatDates.has(date)) {
+        pendingRepeatDates.delete(date);
+      } else {
+        pendingRepeatDates.add(date);
+      }
+      syncRepeatDateCellSelection(date);
+      syncRepeatControls();
+    }
+
+    function syncRepeatDateCellSelection(date) {
+      const dayCell = draftCalendar.querySelector(`.calendar-day[data-entry-date="${date}"]`);
+      if (!dayCell) return;
+      dayCell.classList.toggle("is-repeat-selected", pendingRepeatDates.has(date));
+    }
+
+    function clearRepeatSelection() {
+      pendingRepeatDates.clear();
+    }
+
+    function buildDraftsForSelectedRepeatDates(baseDraft) {
+      return Array.from(pendingRepeatDates)
+        .sort((a, b) => a.localeCompare(b))
+        .map((date) => ({ ...baseDraft, date }));
+    }
+
+    function buildWeeklyDraftEntries(baseDraft, monthValue) {
+      const startDate = parseDateInput(baseDraft.date);
+      const [year, month] = String(monthValue || "").split("-").map(Number);
+      if (!startDate || !year || !month) return [baseDraft];
+      const monthEnd = new Date(year, month, 0);
       const built = [];
-
-      for (let weekIndex = 0; weekIndex < settings.weeks; weekIndex += 1) {
-        dayOffsets.forEach((offset) => {
-          built.push({
-            ...baseEntry,
-            date: formatDateInput(addCalendarDays(startDate, weekIndex * 7 + offset)),
-          });
-        });
+      for (let date = new Date(startDate); date <= monthEnd; date.setDate(date.getDate() + 7)) {
+        built.push({ ...baseDraft, date: formatDateInput(date) });
       }
-
       return built;
-    }
-
-    function getRepeatDayOffsets(startDate, dayCount) {
-      if (dayCount === 7) {
-        return Array.from({ length: 7 }, (_, index) => index);
-      }
-      if (dayCount === 2) {
-        return buildWeekendOffsets(startDate);
-      }
-      if (dayCount === 1) {
-        return [0];
-      }
-      return buildWeekdayOffsets(startDate, 5);
-    }
-
-    function buildWeekdayOffsets(startDate, count) {
-      const offsets = [];
-      let offset = 0;
-      while (offsets.length < count) {
-        const day = addCalendarDays(startDate, offset);
-        if (day.getDay() !== 0 && day.getDay() !== 6) {
-          offsets.push(offset);
-        }
-        offset += 1;
-      }
-      return offsets;
-    }
-
-    function buildWeekendOffsets(startDate) {
-      const offsets = [];
-      let offset = 0;
-      while (offsets.length < 2) {
-        const day = addCalendarDays(startDate, offset);
-        if (day.getDay() === 0 || day.getDay() === 6) {
-          offsets.push(offset);
-        }
-        offset += 1;
-      }
-      return offsets;
-    }
-
-    function addCalendarDays(date, days) {
-      const copy = new Date(date);
-      copy.setDate(copy.getDate() + days);
-      return copy;
     }
 
     function parseDateInput(value) {

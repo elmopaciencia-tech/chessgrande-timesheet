@@ -47,17 +47,15 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   'id="claimFieldsMount"',
   'id="repeatPanel"',
   'id="isRepeating"',
-  'id="repeatDayCount"',
-  'id="repeatWeeks"',
   'id="monthPickerTrigger"',
   'id="monthPickerPanel"',
   'id="monthPickerGrid"',
   'id="chipContextMenu"',
   'id="chipRemoveModal"',
-  '<option value="1">1 day</option>',
-  '<option value="5">5 weekdays</option>',
-  '<option value="2">2 weekend days</option>',
-  '<option value="7">7 days</option>',
+  'id="dateContextMenu"',
+  'data-date-action="add"',
+  'Add Entry On This Date',
+  'Repeat entry on selected dates',
 ].forEach((requiredMarkup) => {
   assert.ok(html.includes(requiredMarkup), `manager composer should include ${requiredMarkup}`);
 });
@@ -73,13 +71,15 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   "entryType === \"Private\"",
   "claimProofInput.required = !isEvent",
   "setSelectedCalendarColor(defaultCalendarColor)",
-  "repeatInput.addEventListener(\"change\", () => syncRepeatControls());",
-  "repeatDayCountSelect.addEventListener(\"change\", () => syncRepeatControls());",
-  "repeatWeeksInput.addEventListener(\"input\", () => syncRepeatControls());",
-  "buildRepeatDraftEntries(draft, repeatSettings)",
+  "repeatInput.addEventListener(\"change\", onRepeatToggleChange);",
+  "entryDateInput.addEventListener(\"change\", onRepeatAnchorChange);",
+  "draftCalendar.addEventListener(\"click\", onCalendarRepeatDateClick);",
+  "draftCalendar.addEventListener(\"pointerdown\", onCalendarRepeatPointerDown);",
+  "draftCalendar.addEventListener(\"pointermove\", onCalendarRepeatPointerMove);",
+  "buildDraftsForSelectedRepeatDates(draft)",
   "function renderMonthPickerGrid(monthValue = monthPicker.value)",
   "function setMonthValue(monthValue)",
-  "Repeat weeks must be a whole number from 1 to 52.",
+  "Choose at least one repeat date on the calendar before saving.",
   "renderDraftGroups(monthEntries)",
   "function renderDraftEntryActions(entry)",
   "class=\"entry-actions-inner\"",
@@ -96,10 +96,63 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   "await deleteDraft(entryId, { skipConfirm: true });",
   "function scrollToLedgerEntry(entryId)",
   "row.scrollIntoView({ behavior: \"smooth\", block: \"center\" });",
+  "draftCalendar.addEventListener(\"contextmenu\", onCalendarDateContextMenu);",
+  "dateContextMenu.addEventListener(\"click\", onDateContextMenuClick);",
+  "function applyDateContextSelection()",
 ].forEach((requiredCode) => {
   assert.ok(html.includes(requiredCode), `manager composer should include ${requiredCode}`);
 });
 
+assert.match(
+  html,
+  /function getCalendarContextDay\(target\)[\s\S]*target\.closest\("\.calendar-day\[data-entry-date\]"\)/,
+  "manager date context menu should target calendar day cells"
+);
+assert.match(
+  html,
+  /function applyDateContextSelection\(\)[\s\S]*entryDateInput\.value = dateContextMenu\.dataset\.entryDate[\s\S]*entryDateInput\.dispatchEvent\(new Event\("change"/,
+  "manager date context action should update the composer date and refresh repeat selection"
+);
+assert.match(
+  html,
+  /\.calendar-day\.is-repeat-selected\s*\{[\s\S]*\.calendar-day\.is-repeat-selected::after/,
+  "manager calendar day cells should have a distinct pending repeat selected state"
+);
+assert.match(
+  html,
+  /\.calendar-day\.is-repeat-selectable\s*\{[\s\S]*user-select:\s*none;[\s\S]*\.calendar-day\.is-repeat-selectable \*/,
+  "manager repeat-selectable days should prevent native text selection during drag"
+);
+assert.match(
+  html,
+  /const pendingRepeatDates = new Set\(\)/,
+  "manager repeat mode should track pending selected repeat dates"
+);
+assert.match(
+  html,
+  /function syncRepeatSelectionFromComposer\(\)[\s\S]*buildWeeklyDraftEntries\(baseDraft, monthPicker\.value\)[\s\S]*pendingRepeatDates\.add\(entry\.date\)/,
+  "manager repeat mode should preselect weekly dates from the composer date"
+);
+assert.match(
+  html,
+  /function onCalendarRepeatDateClick\(event\)[\s\S]*if \(!repeatInput\.checked\) return;[\s\S]*toggleRepeatDate\(dayCell\.dataset\.entryDate/,
+  "manager repeat date clicks should toggle day cells while repeat mode is active"
+);
+assert.match(
+  html,
+  /function onCalendarRepeatPointerMove\(event\)[\s\S]*document\.elementFromPoint\(event\.clientX, event\.clientY\)[\s\S]*applyRepeatDragDate\(dayCell\.dataset\.entryDate\)/,
+  "manager repeat drag should detect crossed days from pointer coordinates"
+);
+assert.match(
+  html,
+  /const draftsToSave = repeatInput\.checked && !editingEntryId && !isCostEntry[\s\S]*\? buildDraftsForSelectedRepeatDates\(draft\)[\s\S]*: \[draft\]/,
+  "manager save flow should insert selected repeat dates"
+);
+assert.doesNotMatch(
+  html,
+  /id="repeatDayCount"|id="repeatWeeks"|buildRepeatDraftEntries|Repeat weeks must be a whole number from 1 to 52\./,
+  "manager composer should remove the old weeks/day-count repeat mode"
+);
 assert.doesNotMatch(
   html,
   /Repeat weekly for this school until the end of the selected month/,
@@ -136,14 +189,10 @@ function extractFunction(source, name) {
 const repeatBuilderScript = [
   "formatDateInput",
   "parseDateInput",
-  "addCalendarDays",
-  "buildWeekdayOffsets",
-  "buildWeekendOffsets",
-  "getRepeatDayOffsets",
-  "buildRepeatDraftEntries",
+  "buildWeeklyDraftEntries",
 ].map((name) => extractFunction(html, name)).join("\n");
 
-const buildRepeatDraftEntries = Function(`${repeatBuilderScript}; return buildRepeatDraftEntries;`)();
+const buildWeeklyDraftEntries = Function(`${repeatBuilderScript}; return buildWeeklyDraftEntries;`)();
 const baseDraft = {
   employeeId: "employee-1",
   schoolName: "Mock School",
@@ -154,61 +203,12 @@ const baseDraft = {
   hours: 2,
 };
 
-const mondayWeekdays = buildRepeatDraftEntries(baseDraft, { dayCount: 5, weeks: 8 });
-assert.equal(mondayWeekdays.length, 40, "Monday 5-weekday repeat for 8 weeks should create 40 rows");
-assert.deepEqual(
-  mondayWeekdays.slice(0, 5).map((entry) => entry.date),
-  ["2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05"],
-  "5-weekday repeat should create Monday-Friday for a Monday start"
-);
-assert.equal(
-  mondayWeekdays[5].date,
-  "2026-06-08",
-  "week 2 should start seven days after the selected Monday"
-);
-
-const mondaySingleDay = buildRepeatDraftEntries(baseDraft, { dayCount: 1, weeks: 8 });
-assert.equal(mondaySingleDay.length, 8, "Monday 1-day repeat for 8 weeks should create 8 rows");
+const mondaySingleDay = buildWeeklyDraftEntries(baseDraft, "2026-06");
+assert.equal(mondaySingleDay.length, 5, "weekly draft repeat should create Monday rows through month end");
 assert.deepEqual(
   mondaySingleDay.map((entry) => entry.date),
-  ["2026-06-01", "2026-06-08", "2026-06-15", "2026-06-22", "2026-06-29", "2026-07-06", "2026-07-13", "2026-07-20"],
-  "1-day repeat should repeat the selected date's weekday once per week"
-);
-
-const mondaySevenDays = buildRepeatDraftEntries(baseDraft, { dayCount: 7, weeks: 8 });
-assert.equal(mondaySevenDays.length, 56, "Monday 7-day repeat for 8 weeks should create 56 rows");
-assert.deepEqual(
-  mondaySevenDays.slice(0, 7).map((entry) => entry.date),
-  ["2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07"],
-  "7-day repeat should create consecutive calendar days"
-);
-
-const mondayWeekends = buildRepeatDraftEntries(baseDraft, { dayCount: 2, weeks: 3 });
-assert.equal(mondayWeekends.length, 6, "Monday 2-weekend-day repeat for 3 weeks should create 6 rows");
-assert.deepEqual(
-  mondayWeekends.map((entry) => entry.date),
-  ["2026-06-06", "2026-06-07", "2026-06-13", "2026-06-14", "2026-06-20", "2026-06-21"],
-  "2-weekend-day repeat should create Saturday and Sunday pairs"
-);
-
-const sundayWeekends = buildRepeatDraftEntries({ ...baseDraft, date: "2026-06-07" }, { dayCount: 2, weeks: 1 });
-assert.deepEqual(
-  sundayWeekends.map((entry) => entry.date),
-  ["2026-06-07", "2026-06-13"],
-  "2-weekend-day repeat should start on Sunday when Sunday is selected, then use the next Saturday"
-);
-
-const fridayWeekdays = buildRepeatDraftEntries({ ...baseDraft, date: "2026-05-01" }, { dayCount: 5, weeks: 1 });
-assert.deepEqual(
-  fridayWeekdays.map((entry) => entry.date),
-  ["2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07"],
-  "Friday 5-weekday repeat should skip Saturday and Sunday"
-);
-
-const crossMonthRows = buildRepeatDraftEntries({ ...baseDraft, date: "2026-05-29" }, { dayCount: 5, weeks: 2 });
-assert.ok(
-  crossMonthRows.some((entry) => entry.date.startsWith("2026-06")),
-  "multi-week repeat should not truncate generated rows at the selected month"
+  ["2026-06-01", "2026-06-08", "2026-06-15", "2026-06-22", "2026-06-29"],
+  "weekly draft repeat should use the selected date's weekday until month end"
 );
 
 const adminPolicyTypeLists = schema.match(/type in \(([^)]*)\)/g) || [];

@@ -22,6 +22,18 @@ const worker = fs.readFileSync(path.join(process.cwd(), "cloudflare-worker", "cl
 });
 
 [
+  /\.openrouter-settings\s*\{[^}]*gap:\s*14px;[^}]*padding:\s*22px;/,
+  /\.openrouter-settings h2\s*\{[^}]*margin:\s*0;[^}]*font-size:\s*1\.15rem;/,
+  /\.openrouter-field\s*\{[^}]*gap:\s*8px;/,
+  /\.openrouter-field input\s*\{[^}]*min-height:\s*48px;[^}]*border-radius:\s*14px;/,
+  /\.openrouter-actions\s*\{[^}]*gap:\s*12px;/,
+  /\.openrouter-actions \.button\s*\{[^}]*min-height:\s*46px;[^}]*border-radius:\s*14px;/,
+  /\.openrouter-status\s*\{[^}]*min-height:\s*1\.35rem;[^}]*font-size:\s*\.9rem;/,
+].forEach((pattern) => {
+  assert.match(html, pattern, "OpenRouter settings panel should use section-consistent spacing");
+});
+
+[
   'pathname === "/api/openrouter-settings"',
   "handleGetOpenRouterSettings(request, env)",
   "handleSaveOpenRouterSettings(request, env)",
