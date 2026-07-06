@@ -938,6 +938,25 @@
       transition: border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
     }
 
+    .entry-composer-modal-close {
+      display: none;
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-strong) 92%, white 8%);
+      color: var(--ink);
+      cursor: pointer;
+      place-items: center;
+      padding: 0;
+    }
+
+    .entry-composer-modal-close i {
+      width: 18px;
+      height: 18px;
+    }
+
     #entryComposerPanel.is-editing-entry {
       border-color: color-mix(in srgb, #7c3aed 42%, var(--line) 58%);
       background: color-mix(in srgb, var(--surface) 86%, #f3edff 14%);
@@ -1304,6 +1323,10 @@
     }
 
     button.quick-add-save {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       align-self: end;
       white-space: nowrap;
       min-height: 52px;
@@ -1312,6 +1335,13 @@
       color: var(--surface-strong);
       border-color: color-mix(in srgb, var(--success) 78%, black 22%);
       box-shadow: var(--shadow-sm);
+    }
+
+    .quick-add-save-glyph {
+      display: inline-block;
+      font-size: 1.18rem;
+      line-height: 1;
+      font-weight: 800;
     }
 
     .quick-add-list {
@@ -1524,6 +1554,67 @@
       gap: var(--space-3);
     }
 
+    .repeat-selection-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid color-mix(in srgb, var(--success) 42%, var(--line) 58%);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--success) 12%, var(--surface-strong) 88%);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .repeat-selection-bar[hidden] {
+      display: none;
+    }
+
+    .repeat-selection-copy {
+      margin: 0;
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .repeat-selection-bar .secondary,
+    .repeat-selection-bar .primary {
+      min-height: 40px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .repeat-date-summary {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border: 1px solid color-mix(in srgb, var(--success) 34%, var(--line) 66%);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--success) 10%, var(--surface-strong) 90%);
+    }
+
+    .repeat-date-summary[hidden] {
+      display: none;
+    }
+
+    .repeat-date-summary-count {
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .repeat-date-summary-list {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
     .calendar-actions-header {
       display: flex;
       justify-content: space-between;
@@ -1537,6 +1628,18 @@
       color: var(--muted);
       font-size: 0.9rem;
       line-height: 1.45;
+    }
+
+    .calendar-mobile-help {
+      display: none;
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line) 82%);
+      background: color-mix(in srgb, var(--accent-soft) 44%, white 56%);
+      color: var(--ink);
+      font-size: 0.88rem;
+      line-height: 1.4;
     }
 
     .nav-button {
@@ -1866,6 +1969,43 @@
       background: #c73832;
       color: white;
       border-color: #a6312c;
+    }
+
+    .entry-composer-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1550;
+      display: none;
+      align-items: center;
+      justify-items: center;
+      padding:
+        max(14px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(14px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+      background: rgba(23, 26, 25, 0.54);
+      backdrop-filter: blur(10px);
+    }
+
+    .entry-composer-modal[hidden] {
+      display: none;
+    }
+
+    .entry-composer-modal:not([hidden]) {
+      animation: cg-overlay-fade 180ms var(--motion-ease, ease) both;
+    }
+
+    .entry-composer-modal-body {
+      width: min(100%, 460px);
+      max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow: auto;
+      overscroll-behavior: contain;
+      border-radius: 28px;
+    }
+
+    .entry-composer-modal:not([hidden]) .entry-composer-modal-body {
+      animation: cg-modal-pop 260ms var(--motion-ease, ease) both;
+      transform-origin: center;
     }
 
     .groups {
@@ -2310,8 +2450,27 @@
         gap: var(--space-4);
       }
 
-      .action-column { order: -1; }
       .review-column { order: 1; }
+      .action-column { order: 2; }
+
+      .entry-composer-modal {
+        display: grid;
+      }
+
+      .entry-composer-modal-body #entryComposerPanel {
+        width: 100%;
+        margin: 0;
+        box-shadow: 0 28px 80px rgba(23, 26, 25, 0.24);
+      }
+
+      .entry-composer-modal-close {
+        display: grid;
+      }
+
+      .entry-composer-modal-body #entryComposerPanel .panel-header {
+        align-items: flex-start;
+        flex-wrap: nowrap;
+      }
 
       h1 {
         font-size: clamp(1.72rem, 8.4vw, 2.45rem);
@@ -2325,6 +2484,62 @@
       .panel-copy {
         font-size: clamp(0.86rem, 3.4vw, 0.98rem);
         line-height: 1.38;
+      }
+
+      #entryComposerPanel .form-grid {
+        grid-template-columns: minmax(118px, 0.78fr) minmax(0, 1.22fr);
+        gap: 12px;
+      }
+
+      #entryComposerPanel .date-field,
+      #entryComposerPanel .entry-type-row {
+        grid-column: auto;
+      }
+
+      #entryComposerPanel .school-name-row,
+      #entryComposerPanel #replacementField,
+      #entryComposerPanel #customRateField,
+      #entryComposerPanel #claimFields > div {
+        grid-column: 1 / -1;
+      }
+
+      #entryComposerPanel .time-fields-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(92px, 0.74fr) auto;
+        gap: 10px;
+        align-items: end;
+      }
+
+      #entryComposerPanel .quick-add-save {
+        width: 46px;
+        min-width: 46px;
+        min-height: 46px;
+        padding: 0;
+        border-radius: 999px;
+      }
+
+      #entryComposerPanel .quick-add-save-label {
+        display: none;
+      }
+
+      #entryComposerPanel .actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #entryComposerPanel .actions > * {
+        width: 100%;
+      }
+
+      #monthlyReviewPanel .panel-copy {
+        font-size: 1.0625rem;
+      }
+
+      #monthlyReviewPanel .panel-copy strong {
+        color: var(--ink);
+        font-weight: 800;
+      }
+
+      .calendar-mobile-help {
+        display: block;
       }
 
       #payrollHandoffPanel .panel-header {
@@ -2457,6 +2672,15 @@
         align-items: flex-start;
       }
 
+      .repeat-selection-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .repeat-selection-bar .secondary,
+      .repeat-selection-bar .primary {
+        width: 100%;
+      }
+
       table,
       thead,
       tbody,
@@ -2584,6 +2808,18 @@
         font-size: clamp(0.78rem, 3.5vw, 0.9rem);
         line-height: 1.34;
       }
+
+      #entryComposerPanel .form-grid {
+        grid-template-columns: minmax(106px, 0.8fr) minmax(0, 1.2fr);
+      }
+
+      #entryComposerPanel .time-fields-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(82px, 0.7fr) auto;
+      }
+
+      #monthlyReviewPanel .panel-copy {
+        font-size: 1rem;
+      }
     }
   </style>
   <link rel="stylesheet" href="./theme.css">
@@ -2702,15 +2938,21 @@
           <section class="panel" id="monthlyReviewPanel" aria-labelledby="calendarTitle">
             <div class="panel-header">
               <div>
-                <p class="panel-eyebrow">Monthly review</p>
+                <p class="panel-eyebrow">Calendar View</p>
                 <h2 id="calendarTitle">Month View</h2>
-                <p class="panel-copy">Scan the full month first. Calendar density shows where the schedule is balanced, sparse, or overloaded before payroll is prepared.</p>
+                <p class="panel-copy">Review your month here, then add entries directly from the calendar. <strong>On mobile, tap any date to add an entry.</strong></p>
               </div>
             </div>
             <div id="calendar" class="calendar-grid"></div>
             <div class="calendar-actions">
               <div class="calendar-actions-header">
-                <p class="calendar-note">Need the submission view? Open the monthly pay page after the calendar and school ledger both look complete.</p>
+                <p class="calendar-note">Open the submission view after your calendar and school ledger both look complete for the month.</p>
+              </div>
+              <p class="calendar-mobile-help">Tap a date to add or update an entry. Turn on repeat in the composer if you want to pick several dates before saving.</p>
+              <div class="repeat-selection-bar" id="repeatSelectionBar" hidden role="status" aria-live="polite">
+                <p class="repeat-selection-copy" id="repeatSelectionSummary">0 repeat dates selected.</p>
+                <button class="primary" id="repeatSelectionDone" type="button">Done Selecting Dates</button>
+                <button class="secondary" id="repeatSelectionCancel" type="button">Cancel Repeat</button>
               </div>
               <a class="nav-button" id="payrollLink" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Open Submission View</a>
             </div>
@@ -2784,6 +3026,9 @@
                 <h2 id="entryComposerTitle">Add Or Update A Session</h2>
                 <p class="panel-copy" id="entryComposerCopy">Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Repeat mode preselects weekly dates, then lets you click calendar days to refine the set before saving.</p>
               </div>
+              <button class="entry-composer-modal-close" id="entryComposerModalClose" type="button" aria-label="Close entry composer">
+                <i data-lucide="x" aria-hidden="true"></i>
+              </button>
             </div>
             <form id="entryForm">
               <div class="form-grid">
@@ -2807,6 +3052,10 @@
                 <div class="date-field">
                   <label for="entryDate">Date</label>
                   <input id="entryDate" name="entryDate" type="date" required aria-label="Entry date. Opens a calendar picker.">
+                  <div class="repeat-date-summary" id="repeatDateSummary" hidden aria-live="polite">
+                    <span class="repeat-date-summary-count" id="repeatDateSummaryCount">0 dates selected</span>
+                    <span class="repeat-date-summary-list" id="repeatDateSummaryList"></span>
+                  </div>
                 </div>
                 <div class="entry-type-row">
                   <div class="entry-type-field">
@@ -2905,6 +3154,10 @@
     </div>
   </div>
 
+  <div class="entry-composer-modal" id="entryComposerModal" hidden role="dialog" aria-modal="true" aria-labelledby="entryComposerTitle" aria-describedby="entryComposerCopy">
+    <div class="entry-composer-modal-body" id="entryComposerModalBody" tabindex="-1"></div>
+  </div>
+
   <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
     <div class="lightbox-content" id="imageLightboxContent" tabindex="-1">
       <button class="lightbox-close" id="imageLightboxClose" type="button" aria-label="Close image viewer">×</button>
@@ -2935,13 +3188,14 @@
         <label for="startTime">Start Time</label>
         <input id="startTime" name="startTime" type="time" required>
       </div>
-      <div class="hours-quick-add-row">
-        <div class="hours-field">
-          <label for="hoursWorked">Hours Worked</label>
-          <input id="hoursWorked" name="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
-        </div>
-        <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled>Save To Quick Add</button>
+      <div class="hours-field">
+        <label for="hoursWorked">Hours Worked</label>
+        <input id="hoursWorked" name="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
       </div>
+      <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add">
+        <span class="quick-add-save-glyph" aria-hidden="true">+</span>
+        <span class="quick-add-save-label">Save To Quick Add</span>
+      </button>
     </div>
   </template>
 
@@ -2996,6 +3250,9 @@
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
     const entryDateInput = document.getElementById("entryDate");
+    const repeatDateSummary = document.getElementById("repeatDateSummary");
+    const repeatDateSummaryCount = document.getElementById("repeatDateSummaryCount");
+    const repeatDateSummaryList = document.getElementById("repeatDateSummaryList");
     const isRecurringInput = document.getElementById("isRecurring");
     const chipContextMenu = document.getElementById("chipContextMenu");
     const dateContextMenu = document.getElementById("dateContextMenu");
@@ -3004,6 +3261,13 @@
     const chipRemoveEntry = document.getElementById("chipRemoveEntry");
     const chipRemoveCancel = document.getElementById("chipRemoveCancel");
     const chipRemoveConfirm = document.getElementById("chipRemoveConfirm");
+    const entryComposerModal = document.getElementById("entryComposerModal");
+    const entryComposerModalBody = document.getElementById("entryComposerModalBody");
+    const entryComposerModalClose = document.getElementById("entryComposerModalClose");
+    const repeatSelectionBar = document.getElementById("repeatSelectionBar");
+    const repeatSelectionSummary = document.getElementById("repeatSelectionSummary");
+    const repeatSelectionDone = document.getElementById("repeatSelectionDone");
+    const repeatSelectionCancel = document.getElementById("repeatSelectionCancel");
     const schoolTemplate = document.getElementById("schoolTemplate");
     const schoolCount = document.getElementById("schoolCount");
     const entryCount = document.getElementById("entryCount");
@@ -3105,16 +3369,32 @@
     let dateContextMenuTrigger = null;
     let chipRemoveModalLastFocus = null;
     let chipRemoveModalPreviousOverflow = "";
+    let entryComposerModalLastFocus = null;
+    let entryComposerModalPreviousOverflow = "";
     let aiPendingImportPlan = null;
     let aiImportBusy = false;
 
     initApp();
 
-    const mobileLayoutQuery = window.matchMedia("(max-width: 1240px)");
-    if (typeof mobileLayoutQuery.addEventListener === "function") {
-      mobileLayoutQuery.addEventListener("change", syncCompactPanelOrder);
-    } else if (typeof mobileLayoutQuery.addListener === "function") {
-      mobileLayoutQuery.addListener(syncCompactPanelOrder);
+    const compactLayoutQuery = window.matchMedia("(max-width: 1240px)");
+    const mobileComposerQuery = window.matchMedia("(max-width: 760px)");
+    [compactLayoutQuery, mobileComposerQuery].forEach((query) => {
+      if (typeof query.addEventListener === "function") {
+        query.addEventListener("change", syncCompactPanelOrder);
+      } else if (typeof query.addListener === "function") {
+        query.addListener(syncCompactPanelOrder);
+      }
+    });
+    if (typeof mobileComposerQuery.addEventListener === "function") {
+      mobileComposerQuery.addEventListener("change", () => {
+        if (!isMobileComposerMode()) closeEntryComposerModal();
+        syncRepeatSelectionUi();
+      });
+    } else if (typeof mobileComposerQuery.addListener === "function") {
+      mobileComposerQuery.addListener(() => {
+        if (!isMobileComposerMode()) closeEntryComposerModal();
+        syncRepeatSelectionUi();
+      });
     }
     syncCompactPanelOrder();
     window.addEventListener("profile-updated", async () => {
@@ -3191,7 +3471,23 @@
         return;
       }
 
-      if (mobileLayoutQuery.matches) {
+      if (isMobileComposerMode()) {
+        if (reviewColumn.firstElementChild !== monthlyReviewPanel) {
+          reviewColumn.prepend(monthlyReviewPanel);
+        }
+        if (entryComposerModalBody && entryComposerPanel.parentElement !== entryComposerModalBody) {
+          entryComposerModalBody.appendChild(entryComposerPanel);
+        }
+        if (reviewColumn.lastElementChild !== schoolLedgerPanel) {
+          reviewColumn.appendChild(schoolLedgerPanel);
+        }
+        if (reviewColumn.lastElementChild !== aiXlsxImportPanel) {
+          reviewColumn.appendChild(aiXlsxImportPanel);
+        }
+        if (reviewColumn.lastElementChild !== payrollHandoffPanel) {
+          reviewColumn.appendChild(payrollHandoffPanel);
+        }
+      } else if (compactLayoutQuery.matches) {
         if (reviewColumn.firstElementChild !== entryComposerPanel) {
           reviewColumn.prepend(entryComposerPanel);
         }
@@ -3221,6 +3517,10 @@
           actionColumn.appendChild(payrollHandoffPanel);
         }
       }
+    }
+
+    function isMobileComposerMode() {
+      return mobileComposerQuery.matches;
     }
 
     async function applyRoleMenuVisibility() {
@@ -3318,8 +3618,19 @@
     calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
     calendar.addEventListener("contextmenu", onCalendarDateContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
+    calendar.addEventListener("click", onMobileCalendarDateClick);
+    calendar.addEventListener("keydown", onMobileCalendarDateKeydown);
     chipContextMenu.addEventListener("click", onChipContextMenuClick);
     dateContextMenu.addEventListener("click", onDateContextMenuClick);
+    entryComposerModalClose.addEventListener("click", () => closeEntryComposerModal({ restoreFocus: true }));
+    entryComposerModal.addEventListener("click", (event) => {
+      if (event.target === entryComposerModal) {
+        closeEntryComposerModal({ restoreFocus: true });
+      }
+    });
+    entryComposerModal.addEventListener("keydown", trapEntryComposerModalFocus);
+    repeatSelectionDone.addEventListener("click", finishMobileRepeatSelection);
+    repeatSelectionCancel.addEventListener("click", cancelMobileRepeatSelection);
     chipRemoveCancel.addEventListener("click", () => closeChipRemoveModal({ restoreFocus: true }));
     chipRemoveConfirm.addEventListener("click", confirmChipRemoveModal);
     chipRemoveModal.addEventListener("click", (event) => {
@@ -3356,6 +3667,10 @@
       if (imageLightbox && !imageLightbox.hidden) return;
 
       let handledMenu = false;
+      if (entryComposerModal?.hidden === false) {
+        closeEntryComposerModal({ restoreFocus: true });
+        handledMenu = true;
+      }
       if (chipRemoveModal?.hidden === false) {
         closeChipRemoveModal({ restoreFocus: true });
         handledMenu = true;
@@ -3392,6 +3707,93 @@
     window.addEventListener("scroll", closeChipContextMenu, true);
     window.addEventListener("resize", closeDateContextMenu);
     window.addEventListener("scroll", closeDateContextMenu, true);
+
+    function getEntryComposerFocusTarget() {
+      if (entryTypeSelect.value === "Claim") {
+        return document.getElementById("claimNotes") || schoolNameInput;
+      }
+      return schoolNameInput || entryDateInput || addEntryButton;
+    }
+
+    function openEntryComposerModalForDate(date, trigger) {
+      if (!date || !isMobileComposerMode()) return;
+      closeChipContextMenu();
+      closeDateContextMenu();
+      entryDateInput.value = date;
+      entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
+      entryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      openEntryComposerModal({ trigger, preserveFields: true });
+    }
+
+    function openEntryComposerModal(options = {}) {
+      if (!entryComposerModal || !isMobileComposerMode()) return;
+      if (entryComposerPanel.parentElement !== entryComposerModalBody) {
+        syncCompactPanelOrder();
+      }
+      entryComposerModalLastFocus = options.trigger || document.activeElement;
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+      entryComposerModalPreviousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      entryComposerModal.hidden = false;
+      window.setTimeout(() => {
+        const target = getEntryComposerFocusTarget();
+        target?.focus({ preventScroll: true });
+      }, 80);
+    }
+
+    function closeEntryComposerModal(options = {}) {
+      if (!entryComposerModal || entryComposerModal.hidden) return;
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+      entryComposerModal.hidden = true;
+      document.body.style.overflow = entryComposerModalPreviousOverflow;
+      if (options.restoreFocus && entryComposerModalLastFocus && typeof entryComposerModalLastFocus.focus === "function") {
+        entryComposerModalLastFocus.focus({ preventScroll: true });
+      }
+      entryComposerModalLastFocus = null;
+    }
+
+    function trapEntryComposerModalFocus(event) {
+      if (event.key !== "Tab" || entryComposerModal.hidden) return;
+      const focusable = Array.from(entryComposerModal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"))
+        .filter((element) => !element.disabled && !element.hidden && element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function onMobileCalendarDateClick(event) {
+      if (!isMobileComposerMode()) return;
+      if (isRecurringInput.checked) return;
+      if (event.defaultPrevented) return;
+      if (event.target instanceof Element && event.target.closest("button, input, select, textarea, a")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      event.preventDefault();
+      openEntryComposerModalForDate(dayCell.dataset.entryDate, dayCell);
+    }
+
+    function onMobileCalendarDateKeydown(event) {
+      if (!isMobileComposerMode()) return;
+      if (!["Enter", " "].includes(event.key)) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      if (isRecurringInput.checked) {
+        event.preventDefault();
+        toggleRepeatDate(dayCell.dataset.entryDate);
+        return;
+      }
+      event.preventDefault();
+      openEntryComposerModalForDate(dayCell.dataset.entryDate, dayCell);
+    }
 
     function bindAction(element, handler) {
       if (!element) return;
@@ -3523,7 +3925,7 @@
         event.preventDefault();
         return;
       }
-      if (event.target instanceof Element && event.target.closest(".chip")) return;
+      if (!isMobileComposerMode() && event.target instanceof Element && event.target.closest(".chip")) return;
       const dayCell = getCalendarContextDay(event.target);
       if (!dayCell) return;
       if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
@@ -3578,6 +3980,7 @@
         pendingRepeatDates.delete(date);
       }
       syncRepeatDateCellSelection(date);
+      syncRepeatSelectionUi();
       calendar.querySelector(`.day[data-entry-date="${date}"]`)?.classList.add("is-repeat-dragging");
     }
 
@@ -3739,6 +4142,10 @@
       entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
       entryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
       closeDateContextMenu();
+      if (isMobileComposerMode()) {
+        openEntryComposerModal({ preserveFields: true, trigger: dateContextMenuTrigger });
+        return;
+      }
       entryDateInput.focus({ preventScroll: true });
       document.getElementById("entryComposerTitle")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -3861,14 +4268,20 @@
     function onRepeatToggleChange() {
       if (isRecurringInput.checked) {
         syncRepeatSelectionFromComposer();
+        if (isMobileComposerMode()) {
+          closeEntryComposerModal({ preserveFields: true });
+          syncRepeatSelectionUi();
+        }
       } else {
         clearRepeatSelection();
       }
+      syncRepeatSelectionUi();
       render();
     }
 
     function onRepeatAnchorChange() {
       refreshRepeatSelection();
+      syncRepeatSelectionUi();
       render();
     }
 
@@ -3897,6 +4310,7 @@
         pendingRepeatDates.add(date);
       }
       syncRepeatDateCellSelection(date);
+      syncRepeatSelectionUi();
     }
 
     function syncRepeatDateCellSelection(date) {
@@ -3907,6 +4321,57 @@
 
     function clearRepeatSelection() {
       pendingRepeatDates.clear();
+      syncRepeatSelectionUi();
+    }
+
+    function syncRepeatSelectionUi() {
+      syncRepeatSelectionBar();
+      syncRepeatDateSummary();
+    }
+
+    function syncRepeatSelectionBar() {
+      if (!repeatSelectionBar || !repeatSelectionSummary) return;
+      const shouldShow = isMobileComposerMode() && isRecurringInput.checked && !editingEntryId && !isCostEntryType(entryTypeSelect.value);
+      repeatSelectionBar.hidden = !shouldShow;
+      repeatSelectionBar.setAttribute("aria-hidden", shouldShow ? "false" : "true");
+      if (!shouldShow) return;
+      const count = pendingRepeatDates.size;
+      repeatSelectionSummary.textContent = `${count} repeat date${count === 1 ? "" : "s"} selected.`;
+    }
+
+    function syncRepeatDateSummary() {
+      if (!repeatDateSummary || !repeatDateSummaryCount || !repeatDateSummaryList) return;
+      const shouldShow = isRecurringInput.checked && !editingEntryId && !isCostEntryType(entryTypeSelect.value);
+      repeatDateSummary.hidden = !shouldShow;
+      repeatDateSummary.setAttribute("aria-hidden", shouldShow ? "false" : "true");
+      if (!shouldShow) {
+        repeatDateSummaryCount.textContent = "0 dates selected";
+        repeatDateSummaryList.textContent = "";
+        return;
+      }
+      const dates = Array.from(pendingRepeatDates).sort((a, b) => a.localeCompare(b));
+      const count = dates.length;
+      repeatDateSummaryCount.textContent = `${count} repeat date${count === 1 ? "" : "s"} selected`;
+      repeatDateSummaryList.textContent = dates.length
+        ? dates.map(formatCompactRepeatDate).join(", ")
+        : "No repeat dates selected yet.";
+    }
+
+    function finishMobileRepeatSelection() {
+      syncRepeatSelectionUi();
+      openEntryComposerModal({ preserveFields: true, trigger: repeatSelectionDone });
+    }
+
+    function cancelMobileRepeatSelection() {
+      isRecurringInput.checked = false;
+      clearRepeatSelection();
+      syncRepeatSelectionUi();
+      render();
+      openEntryComposerModal({ preserveFields: true, trigger: repeatSelectionCancel });
+    }
+
+    function isCostEntryType(entryType) {
+      return entryType === "Claim" || entryType === "Event";
     }
 
     function buildEntriesForSelectedRepeatDates(baseEntry) {
@@ -3940,6 +4405,7 @@
         isRecurringInput.checked = false;
         clearRepeatSelection();
       }
+      syncRepeatSelectionUi();
       schoolNameInput.required = !isClaim;
       if (schoolNameLabel) {
         schoolNameLabel.textContent = "Entry Name";
@@ -5418,6 +5884,7 @@
         }
         entries = await loadEntries();
         resetEntryComposer();
+        closeEntryComposerModal();
         render();
       } catch (error) {
         alert(error?.message || "Could not save the draft timesheet entry.");
@@ -5430,6 +5897,7 @@
       exitEntryEditMode();
       form.reset();
       clearRepeatSelection();
+      syncRepeatSelectionUi();
       setSelectedCalendarColor(defaultCalendarColor);
       syncDateFieldToMonth();
       syncReplacementField();
@@ -5497,6 +5965,7 @@
 
     function render() {
       closeChipContextMenu();
+      syncRepeatSelectionUi();
       const activeEntries = getEntriesForMonth(monthPicker.value);
       syncClearMonthButton(activeEntries);
       updateSummary(activeEntries);
@@ -5582,6 +6051,9 @@
         cell.dataset.entryDate = key;
         if (day.getMonth() !== month - 1) cell.classList.add("outside");
         if (key === today) cell.classList.add("today");
+        if (day.getMonth() === month - 1) {
+          cell.tabIndex = 0;
+        }
         if (isRecurringInput.checked && day.getMonth() === month - 1) {
           cell.classList.add("is-repeat-selectable");
           cell.setAttribute("aria-label", `Toggle repeat date ${formatLongDate(key)}`);
@@ -5754,6 +6226,10 @@
 
       syncQuickAddSaveButton();
       render();
+      if (isMobileComposerMode()) {
+        openEntryComposerModal({ preserveFields: true });
+        return;
+      }
       entryComposerPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       window.setTimeout(() => {
         const focusTarget = entry.type === "Claim" ? document.getElementById("claimNotes") : schoolNameInput;
@@ -6006,6 +6482,14 @@
       const date = new Date(value + "T00:00:00");
       return date.toLocaleDateString(undefined, {
         weekday: "short",
+        day: "numeric",
+        month: "short",
+      });
+    }
+
+    function formatCompactRepeatDate(value) {
+      const date = new Date(value + "T00:00:00");
+      return date.toLocaleDateString(undefined, {
         day: "numeric",
         month: "short",
       });

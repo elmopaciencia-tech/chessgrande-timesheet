@@ -205,6 +205,81 @@ for (const [label, fileName] of pages) {
       /const newEntries = !editingEntryId && isRecurring && !isCostEntry[\s\S]*\? buildEntriesForSelectedRepeatDates\(baseEntry\)[\s\S]*: \[baseEntry\]/,
       "employee save flow should insert selected repeat dates"
     );
+    assert.match(
+      html,
+      /<div class="date-field">[\s\S]*<input id="entryDate"[\s\S]*<div class="repeat-date-summary" id="repeatDateSummary" hidden/,
+      "employee composer should show pending repeat dates inside the Date field area"
+    );
+    assert.match(
+      html,
+      /function syncRepeatDateSummary\(\)[\s\S]*repeatDateSummary\.hidden = !shouldShow[\s\S]*repeatDateSummaryCount\.textContent[\s\S]*repeatDateSummaryList\.textContent/,
+      "employee composer should sync a visible repeat date count and date list"
+    );
+    assert.match(
+      html,
+      /function toggleRepeatDate\(date\)[\s\S]*syncRepeatDateCellSelection\(date\)[\s\S]*syncRepeatSelectionUi\(\)/,
+      "employee repeat date toggles should update the composer repeat date summary"
+    );
+    assert.match(
+      html,
+      /function applyRepeatDragDate\(date\)[\s\S]*syncRepeatDateCellSelection\(date\)[\s\S]*syncRepeatSelectionUi\(\)/,
+      "employee repeat drag changes should update the composer repeat date summary"
+    );
+    assert.match(
+      html,
+      /function onRepeatAnchorChange\(\)[\s\S]*refreshRepeatSelection\(\);[\s\S]*syncRepeatSelectionUi\(\);[\s\S]*render\(\);/,
+      "employee composer date changes should refresh repeat dates and the summary"
+    );
+    assert.match(
+      html,
+      /function syncReplacementField\(\)[\s\S]*const shouldHideRecurring = isCostEntry \|\| Boolean\(editingEntryId\)[\s\S]*syncRepeatSelectionUi\(\)/,
+      "employee cost entries and edit mode should hide the repeat date summary"
+    );
+    assert.match(
+      html,
+      /id="entryComposerModal"[\s\S]*role="dialog"[\s\S]*aria-modal="true"[\s\S]*id="entryComposerModalBody"/,
+      "employee mobile composer should render inside a modal dialog shell"
+    );
+    assert.match(
+      html,
+      /id="repeatSelectionBar"[\s\S]*id="repeatSelectionDone"[\s\S]*Done Selecting Dates[\s\S]*id="repeatSelectionCancel"/,
+      "employee mobile repeat mode should expose a finalizer above the submission action"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("click", onMobileCalendarDateClick\)/,
+      "employee mobile calendar should open the composer from date clicks"
+    );
+    assert.match(
+      html,
+      /function onMobileCalendarDateClick\(event\)[\s\S]*openEntryComposerModalForDate\(dayCell\.dataset\.entryDate/,
+      "employee mobile date clicks should fill the composer date before opening"
+    );
+    assert.match(
+      html,
+      /function onRepeatToggleChange\(\)[\s\S]*if \(isMobileComposerMode\(\)\)[\s\S]*closeEntryComposerModal\(\{ preserveFields: true \}\)[\s\S]*syncRepeatSelectionBar\(\)/,
+      "employee mobile repeat toggle should temporarily hide the composer and show selected dates"
+    );
+    assert.match(
+      html,
+      /function finishMobileRepeatSelection\(\)[\s\S]*openEntryComposerModal\(\{ preserveFields: true/,
+      "employee mobile repeat finalizer should reopen the composer without clearing selected dates"
+    );
+    assert.match(
+      html,
+      /function cancelMobileRepeatSelection\(\)[\s\S]*isRecurringInput\.checked = false[\s\S]*clearRepeatSelection\(\)[\s\S]*openEntryComposerModal\(\{ preserveFields: true/,
+      "employee mobile repeat cancel should clear pending dates and return to the composer"
+    );
+    assert.match(
+      html,
+      /<button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add">[\s\S]*quick-add-save-glyph[\s\S]*quick-add-save-label/s,
+      "employee composer should keep a labeled quick-add save button that can collapse to an icon on mobile"
+    );
+    assert.match(
+      html,
+      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(92px,\s*0\.74fr\)\s*auto;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+      "employee mobile composer should compact date and type, time and hours, icon quick add, and action buttons into shared rows"
+    );
   }
   assert.match(
     html,
@@ -460,6 +535,16 @@ assert.doesNotMatch(
   /editUrl\.searchParams\.set\("edit", entryId\)/,
   "pay review edit action should not redirect to the timesheet editor"
 );
+assert.match(
+  payHtml,
+  /\.entry-edit-modal\s*\{[^}]*place-items:\s*center;[\s\S]*\.entry-edit-card\s*\{[^}]*max-height:\s*calc\(100dvh - 28px - env\(safe-area-inset-top\) - env\(safe-area-inset-bottom\)\);[^}]*overscroll-behavior:\s*contain;/,
+  "pay review mobile edit composer should use the centered keyboard-safe composer modal"
+);
+assert.match(
+  payHtml,
+  /@media \(max-width: 760px\)[\s\S]*\.entry-edit-modal\s*\{[^}]*padding:\s*max\(14px, env\(safe-area-inset-top\)\)[\s\S]*place-items:\s*center;[\s\S]*\.entry-edit-card\s*\{[^}]*border-radius:\s*28px;/,
+  "pay review mobile edit composer should not become a bottom sheet"
+);
 
 [
   ["employee timesheet", "chess-timesheet.html", "timesheet"],
@@ -533,6 +618,16 @@ assert.match(
   managerHtml,
   /@media \(max-width: 760px\)[\s\S]*#schoolGroups \.school-card\s*\{[^}]*overflow:\s*hidden;[\s\S]*#schoolGroups table\s*\{[^}]*display:\s*table;[^}]*width:\s*100%;[^}]*min-width:\s*0;[^}]*table-layout:\s*fixed;[\s\S]*#schoolGroups th,[\s\S]*#schoolGroups td\s*\{[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;[\s\S]*#schoolGroups td::before\s*\{[^}]*content:\s*none;/,
   "manager entry mobile school ledger should compress inside the card while keeping desktop-like columns"
+);
+assert.match(
+  managerHtml,
+  /\.entry-edit-modal\s*\{[^}]*place-items:\s*center;[\s\S]*\.entry-edit-card\s*\{[^}]*max-height:\s*calc\(100dvh - 28px - env\(safe-area-inset-top\) - env\(safe-area-inset-bottom\)\);[^}]*overscroll-behavior:\s*contain;/,
+  "manager entry mobile edit composer should use the centered keyboard-safe composer modal"
+);
+assert.match(
+  managerHtml,
+  /@media \(max-width: 760px\)[\s\S]*\.entry-edit-modal\s*\{[^}]*padding:\s*max\(14px, env\(safe-area-inset-top\)\)[\s\S]*place-items:\s*center;[\s\S]*\.entry-edit-card\s*\{[^}]*border-radius:\s*28px;/,
+  "manager entry mobile edit composer should not become a bottom sheet"
 );
 assert.match(
   managerHtml,

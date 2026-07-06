@@ -79,6 +79,11 @@ assert.match(
   /@media \(max-width: 760px\)[\s\S]*\.month-picker-popover\s*\{[^}]*left:\s*50%;[^}]*right:\s*auto;[^}]*transform:\s*translateX\(-50%\);/s,
   "working month popover should center on mobile"
 );
+assert.match(
+  html,
+  /@media \(max-width: 760px\)[\s\S]*\.entry-edit-grid\.compact,\s*\.entry-edit-grid\.edit-top-row\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*\.entry-edit-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+  "pay mobile entry composer should keep date and type in one row and save actions side by side"
+);
 
 assert.ok(
   !html.includes("Remove Submission"),

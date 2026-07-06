@@ -202,6 +202,21 @@
     #entryComposerPanel {
       max-height: calc(100vh - 126px);
       overflow: auto;
+      isolation: isolate;
+    }
+
+    .entry-composer-modal-close {
+      display: none;
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-strong) 92%, white 8%);
+      color: var(--ink);
+      cursor: pointer;
+      place-items: center;
+      padding: 0;
     }
 
     #entryComposerPanel .form-grid,
@@ -665,6 +680,10 @@
       align-items: end;
     }
     .quick-add-save {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       min-height: 44px;
       align-self: end;
       min-width: 150px;
@@ -676,6 +695,12 @@
     .quick-add-save:hover:not(:disabled) {
       background: #246b43;
       border-color: #246b43;
+    }
+    .quick-add-save-glyph {
+      display: inline-block;
+      font-size: 1.18rem;
+      line-height: 1;
+      font-weight: 800;
     }
     .quick-add-menu {
       position: absolute;
@@ -1078,6 +1103,59 @@
       outline: 2px solid color-mix(in srgb, var(--success) 52%, white 48%);
       outline-offset: -5px;
     }
+    .repeat-selection-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid color-mix(in srgb, var(--success) 42%, var(--line) 58%);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--success) 12%, var(--surface-strong) 88%);
+      box-shadow: var(--shadow-sm);
+    }
+    .repeat-selection-bar[hidden] {
+      display: none;
+    }
+    .repeat-selection-copy {
+      margin: 0;
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .repeat-selection-bar .secondary,
+    .repeat-selection-bar .primary {
+      min-height: 40px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .repeat-date-summary {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border: 1px solid color-mix(in srgb, var(--success) 34%, var(--line) 66%);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--success) 10%, var(--surface-strong) 90%);
+    }
+    .repeat-date-summary[hidden] {
+      display: none;
+    }
+    .repeat-date-summary-count {
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .repeat-date-summary-list {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
     .day-number {
       color: var(--ink-soft);
       font-size: 0.78rem;
@@ -1191,6 +1269,39 @@
       animation: cg-overlay-fade 180ms var(--motion-ease, ease) both;
     }
     .chip-remove-modal:not([hidden]) .chip-remove-card {
+      animation: cg-modal-pop 280ms var(--motion-ease, ease) both;
+      transform-origin: center;
+    }
+
+    .entry-composer-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1550;
+      display: none;
+      align-items: center;
+      justify-items: center;
+      padding:
+        max(14px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(14px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+      background: rgba(23, 26, 25, 0.54);
+      backdrop-filter: blur(10px);
+    }
+    .entry-composer-modal[hidden] {
+      display: none;
+    }
+    .entry-composer-modal:not([hidden]) {
+      animation: cg-overlay-fade 180ms var(--motion-ease, ease) both;
+    }
+    .entry-composer-modal-body {
+      width: min(100%, 460px);
+      max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow: auto;
+      overscroll-behavior: contain;
+      border-radius: 28px;
+    }
+    .entry-composer-modal:not([hidden]) .entry-composer-modal-body {
       animation: cg-modal-pop 280ms var(--motion-ease, ease) both;
       transform-origin: center;
     }
@@ -1467,6 +1578,70 @@
       .entry-actions-inner { justify-content: flex-start; }
       .entry-actions .entry-action-button { width: 34px; min-width: 34px; }
     }
+
+    @media (max-width: 760px) {
+      .action-column {
+        order: 2;
+      }
+      #entryComposerPanel .form-grid {
+        grid-template-columns: minmax(118px, 0.78fr) minmax(0, 1.22fr);
+        gap: 12px;
+      }
+      #entryComposerPanel .date-field,
+      #entryComposerPanel .entry-type-row {
+        grid-column: auto;
+      }
+      #entryComposerPanel .school-name-row,
+      #entryComposerPanel #replacementField,
+      #entryComposerPanel #customRateField,
+      #entryComposerPanel #claimFields > div {
+        grid-column: 1 / -1;
+      }
+      #entryComposerPanel .time-fields-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(92px, 0.74fr) auto;
+        gap: 10px;
+        align-items: end;
+      }
+      #entryComposerPanel .quick-add-save {
+        width: 46px;
+        min-width: 46px;
+        min-height: 46px;
+        padding: 0;
+        border-radius: 999px;
+      }
+      #entryComposerPanel .quick-add-save-label {
+        display: none;
+      }
+      #entryComposerPanel .actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      #entryComposerPanel .actions > * {
+        width: 100%;
+      }
+      .entry-composer-modal {
+        display: grid;
+      }
+      .entry-composer-modal-body #entryComposerPanel {
+        width: 100%;
+        margin: 0;
+        max-height: none;
+        box-shadow: 0 28px 80px rgba(23, 26, 25, 0.24);
+      }
+      .entry-composer-modal-close {
+        display: grid;
+      }
+      .entry-composer-modal-body #entryComposerPanel .panel-header {
+        align-items: flex-start;
+        flex-wrap: nowrap;
+      }
+      .repeat-selection-bar {
+        grid-template-columns: 1fr;
+      }
+      .repeat-selection-bar .secondary,
+      .repeat-selection-bar .primary {
+        width: 100%;
+      }
+    }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
@@ -1607,6 +1782,11 @@
               <div class="calendar-meta" id="calendarMeta">0 entries</div>
             </div>
             <div id="draftCalendar" class="calendar-grid"></div>
+            <div class="repeat-selection-bar" id="repeatSelectionBar" hidden role="status" aria-live="polite">
+              <p class="repeat-selection-copy" id="repeatSelectionSummary">0 repeat dates selected.</p>
+              <button class="secondary" id="repeatSelectionCancel" type="button">Cancel Repeat</button>
+              <button class="primary" id="repeatSelectionDone" type="button">Done Selecting Dates</button>
+            </div>
           </div>
           <div id="draftList" class="groups"></div>
         </section>
@@ -1620,6 +1800,7 @@
               <h2 id="formTitle">Add Draft</h2>
               <p class="panel-copy">Use the same composer shape as the employee timesheet to prepare sessions, replacements, claims, event costs, and calendar colours for the selected employee.</p>
             </div>
+            <button class="entry-composer-modal-close" id="entryComposerModalClose" type="button" aria-label="Close entry composer">×</button>
           </div>
           <form id="draftForm">
             <div class="form-grid">
@@ -1643,6 +1824,10 @@
               <div class="date-field">
                 <label for="entryDate">Date</label>
                 <input id="entryDate" type="date" required>
+                <div class="repeat-date-summary" id="repeatDateSummary" hidden aria-live="polite">
+                  <span class="repeat-date-summary-count" id="repeatDateSummaryCount">0 dates selected</span>
+                  <span class="repeat-date-summary-list" id="repeatDateSummaryList"></span>
+                </div>
               </div>
               <div class="entry-type-row">
                 <div class="entry-type-field">
@@ -1692,6 +1877,10 @@
     </div>
   </main>
 
+  <div class="entry-composer-modal" id="entryComposerModal" hidden role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="entry-composer-modal-body" id="entryComposerModalBody" tabindex="-1"></div>
+  </div>
+
   <div class="chip-context-menu" id="chipContextMenu" role="menu" hidden>
     <div class="chip-context-actions" data-chip-menu-panel="actions">
       <button type="button" role="menuitem" data-chip-action="go">Go To Entry</button>
@@ -1739,13 +1928,14 @@
         <label for="startTime">Start Time</label>
         <input id="startTime" type="time" required>
       </div>
-      <div class="hours-quick-add-row">
-        <div>
-          <label for="hoursWorked">Hours Worked</label>
-          <input id="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
-        </div>
-        <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled>Save To Quick Add</button>
+      <div>
+        <label for="hoursWorked">Hours Worked</label>
+        <input id="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
       </div>
+      <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add">
+        <span class="quick-add-save-glyph" aria-hidden="true">+</span>
+        <span class="quick-add-save-label">Save To Quick Add</span>
+      </button>
     </div>
   </template>
 
@@ -1776,6 +1966,11 @@
     const draftCalendar = document.getElementById("draftCalendar");
     const calendarTitle = document.getElementById("calendarTitle");
     const calendarMeta = document.getElementById("calendarMeta");
+    const actionColumn = document.querySelector(".action-column");
+    const entryComposerPanel = document.getElementById("entryComposerPanel");
+    const entryComposerModal = document.getElementById("entryComposerModal");
+    const entryComposerModalBody = document.getElementById("entryComposerModalBody");
+    const entryComposerModalClose = document.getElementById("entryComposerModalClose");
     const chipContextMenu = document.getElementById("chipContextMenu");
     const dateContextMenu = document.getElementById("dateContextMenu");
     const chipRemoveModal = document.getElementById("chipRemoveModal");
@@ -1808,6 +2003,13 @@
     const repeatPanel = document.getElementById("repeatPanel");
     const repeatInput = document.getElementById("isRepeating");
     const repeatSummary = document.getElementById("repeatSummary");
+    const repeatDateSummary = document.getElementById("repeatDateSummary");
+    const repeatDateSummaryCount = document.getElementById("repeatDateSummaryCount");
+    const repeatDateSummaryList = document.getElementById("repeatDateSummaryList");
+    const repeatSelectionBar = document.getElementById("repeatSelectionBar");
+    const repeatSelectionSummary = document.getElementById("repeatSelectionSummary");
+    const repeatSelectionDone = document.getElementById("repeatSelectionDone");
+    const repeatSelectionCancel = document.getElementById("repeatSelectionCancel");
     const saveDraftButton = document.getElementById("saveDraftButton");
     const cancelEditButton = document.getElementById("cancelEditButton");
     const logoutButton = document.getElementById("logoutButton");
@@ -1857,10 +2059,28 @@
     let dateContextMenuTrigger = null;
     let chipRemoveModalLastFocus = null;
     let chipRemoveModalPreviousOverflow = "";
+    let entryComposerModalLastFocus = null;
+    let entryComposerModalPreviousOverflow = "";
     let aiPendingImportPlan = null;
     let aiImportBusy = false;
 
     initApp();
+
+    const mobileComposerQuery = window.matchMedia("(max-width: 760px)");
+    if (typeof mobileComposerQuery.addEventListener === "function") {
+      mobileComposerQuery.addEventListener("change", () => {
+        if (!isMobileComposerMode()) closeEntryComposerModal();
+        syncDraftComposerPlacement();
+        syncRepeatSelectionUi();
+      });
+    } else if (typeof mobileComposerQuery.addListener === "function") {
+      mobileComposerQuery.addListener(() => {
+        if (!isMobileComposerMode()) closeEntryComposerModal();
+        syncDraftComposerPlacement();
+        syncRepeatSelectionUi();
+      });
+    }
+    syncDraftComposerPlacement();
 
     async function initApp() {
       const user = await requireLogin();
@@ -1993,13 +2213,24 @@
       draftCalendar.addEventListener("contextmenu", onCalendarChipContextMenu);
       draftCalendar.addEventListener("contextmenu", onCalendarDateContextMenu);
       draftCalendar.addEventListener("click", onCalendarRepeatDateClick);
+      draftCalendar.addEventListener("click", onMobileCalendarDateClick);
       draftCalendar.addEventListener("pointerdown", onCalendarRepeatPointerDown);
       draftCalendar.addEventListener("pointermove", onCalendarRepeatPointerMove);
       draftCalendar.addEventListener("pointerup", finishCalendarRepeatDrag);
       draftCalendar.addEventListener("pointercancel", cancelCalendarRepeatDrag);
       draftCalendar.addEventListener("keydown", onCalendarChipKeydown);
+      draftCalendar.addEventListener("keydown", onMobileCalendarDateKeydown);
       chipContextMenu.addEventListener("click", onChipContextMenuClick);
       dateContextMenu.addEventListener("click", onDateContextMenuClick);
+      entryComposerModalClose.addEventListener("click", () => closeEntryComposerModal({ restoreFocus: true }));
+      entryComposerModal.addEventListener("click", (event) => {
+        if (event.target === entryComposerModal) {
+          closeEntryComposerModal({ restoreFocus: true });
+        }
+      });
+      entryComposerModal.addEventListener("keydown", trapEntryComposerModalFocus);
+      repeatSelectionDone.addEventListener("click", finishMobileRepeatSelection);
+      repeatSelectionCancel.addEventListener("click", cancelMobileRepeatSelection);
       chipRemoveCancel.addEventListener("click", () => closeChipRemoveModal({ restoreFocus: true }));
       chipRemoveConfirm.addEventListener("click", () => {
         void confirmChipRemoveModal();
@@ -2031,6 +2262,10 @@
       document.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
         let handledMenu = false;
+        if (entryComposerModal?.hidden === false) {
+          closeEntryComposerModal({ restoreFocus: true });
+          handledMenu = true;
+        }
         if (chipRemoveModal?.hidden === false) {
           closeChipRemoveModal({ restoreFocus: true });
           handledMenu = true;
@@ -2062,6 +2297,107 @@
       window.addEventListener("resize", closeDateContextMenu);
       window.addEventListener("scroll", closeDateContextMenu, true);
       syncReplacementField();
+    }
+
+    function syncDraftComposerPlacement() {
+      if (!entryComposerPanel || !entryComposerModalBody || !actionColumn) return;
+      if (isMobileComposerMode()) {
+        if (entryComposerPanel.parentElement !== entryComposerModalBody) {
+          entryComposerModalBody.appendChild(entryComposerPanel);
+        }
+        return;
+      }
+      if (actionColumn.firstElementChild !== entryComposerPanel) {
+        actionColumn.prepend(entryComposerPanel);
+      }
+    }
+
+    function isMobileComposerMode() {
+      return mobileComposerQuery.matches;
+    }
+
+    function getEntryComposerFocusTarget() {
+      if (entryTypeSelect.value === "Claim" || entryTypeSelect.value === "Event") {
+        return document.getElementById("claimNotes") || schoolNameInput || entryDateInput;
+      }
+      return schoolNameInput || entryDateInput || saveDraftButton;
+    }
+
+    function openEntryComposerModalForDate(date, trigger) {
+      if (!date || !isMobileComposerMode()) return;
+      closeChipContextMenu();
+      closeDateContextMenu();
+      entryDateInput.value = date;
+      entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
+      entryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      openEntryComposerModal({ trigger });
+    }
+
+    function openEntryComposerModal(options = {}) {
+      if (!entryComposerModal || !isMobileComposerMode()) return;
+      syncDraftComposerPlacement();
+      entryComposerModalLastFocus = options.trigger || document.activeElement;
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+      entryComposerModalPreviousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      entryComposerModal.hidden = false;
+      window.setTimeout(() => {
+        const target = getEntryComposerFocusTarget();
+        target?.focus({ preventScroll: true });
+      }, 80);
+    }
+
+    function closeEntryComposerModal(options = {}) {
+      if (!entryComposerModal || entryComposerModal.hidden) return;
+      closeQuickAddMenu();
+      closeCalendarColorMenu();
+      entryComposerModal.hidden = true;
+      document.body.style.overflow = entryComposerModalPreviousOverflow;
+      if (options.restoreFocus && entryComposerModalLastFocus && typeof entryComposerModalLastFocus.focus === "function") {
+        entryComposerModalLastFocus.focus({ preventScroll: true });
+      }
+      entryComposerModalLastFocus = null;
+    }
+
+    function trapEntryComposerModalFocus(event) {
+      if (event.key !== "Tab" || entryComposerModal.hidden) return;
+      const focusable = Array.from(entryComposerModal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])"))
+        .filter((element) => !element.disabled && !element.hidden && element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function onMobileCalendarDateClick(event) {
+      if (!isMobileComposerMode() || repeatInput.checked) return;
+      if (event.defaultPrevented) return;
+      if (event.target instanceof Element && event.target.closest("button, input, select, textarea, a")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      event.preventDefault();
+      openEntryComposerModalForDate(dayCell.dataset.entryDate, dayCell);
+    }
+
+    function onMobileCalendarDateKeydown(event) {
+      if (!isMobileComposerMode()) return;
+      if (!["Enter", " "].includes(event.key)) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      if (repeatInput.checked) {
+        event.preventDefault();
+        toggleRepeatDate(dayCell.dataset.entryDate);
+        return;
+      }
+      event.preventDefault();
+      openEntryComposerModalForDate(dayCell.dataset.entryDate, dayCell);
     }
 
     function setAiImportStatus(message, type = "", options = {}) {
@@ -3189,7 +3525,7 @@
         event.preventDefault();
         return;
       }
-      if (event.target instanceof Element && event.target.closest(".calendar-chip")) return;
+      if (!isMobileComposerMode() && event.target instanceof Element && event.target.closest(".calendar-chip")) return;
       const dayCell = getCalendarContextDay(event.target);
       if (!dayCell) return;
       if (!dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
@@ -3244,7 +3580,7 @@
       }
       syncRepeatDateCellSelection(date);
       draftCalendar.querySelector(`.calendar-day[data-entry-date="${date}"]`)?.classList.add("is-repeat-dragging");
-      syncRepeatControls();
+      syncRepeatSelectionUi();
     }
 
     function finishCalendarRepeatDrag(event) {
@@ -3403,9 +3739,14 @@
       entryDateInput.value = dateContextMenu.dataset.entryDate;
       entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
       entryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      const trigger = dateContextMenuTrigger;
       closeDateContextMenu();
-      entryDateInput.focus({ preventScroll: true });
-      formTitle?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (isMobileComposerMode()) {
+        openEntryComposerModal({ trigger });
+      } else {
+        entryDateInput.focus({ preventScroll: true });
+        formTitle?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
 
     function openChipRemoveModal(entryId) {
@@ -4010,7 +4351,11 @@
         startTimeInput.value = entry.startTime || "";
         hoursWorkedInput.value = entry.hours || "";
       }
-      schoolNameInput.focus();
+      if (isMobileComposerMode()) {
+        openEntryComposerModal({ trigger: document.querySelector(`[data-edit-id="${CSS.escape(id)}"]`) });
+      } else {
+        schoolNameInput.focus();
+      }
     }
 
     async function deleteDraft(id, options = {}) {
@@ -4174,6 +4519,7 @@
         const cell = document.createElement("div");
         cell.className = "calendar-day";
         cell.dataset.entryDate = dateKey;
+        cell.tabIndex = 0;
         if (day.getMonth() !== month - 1) cell.classList.add("outside");
         if (dateKey === todayKey) cell.classList.add("today");
         if (repeatInput.checked && day.getMonth() === month - 1) {
@@ -4223,6 +4569,7 @@
     }
 
     function resetForm() {
+      closeEntryComposerModal();
       editingEntryId = "";
       formTitle.textContent = "Add Draft";
       saveDraftButton.textContent = "Save Draft";
@@ -4233,6 +4580,7 @@
       setSelectedCalendarColor(defaultCalendarColor);
       ensureTimeFieldsRendered();
       syncReplacementField();
+      syncRepeatSelectionUi();
     }
 
     function syncReplacementField() {
@@ -4330,25 +4678,31 @@
         repeatSummary.textContent = shouldHide
           ? "Repeat is available for new time entries only."
           : "Repeat mode preselects weekly dates, then lets you click or drag calendar days to refine the set before saving.";
+        syncRepeatSelectionUi();
         return;
       }
 
       repeatSummary.textContent = `Creates ${pendingRepeatDates.size} draft row${pendingRepeatDates.size === 1 ? "" : "s"} from selected calendar dates.`;
+      syncRepeatSelectionUi();
     }
 
     function onRepeatToggleChange() {
       if (repeatInput.checked) {
         syncRepeatSelectionFromComposer();
+        if (isMobileComposerMode()) {
+          closeEntryComposerModal();
+          syncRepeatSelectionUi();
+        }
       } else {
         clearRepeatSelection();
       }
-      syncRepeatControls();
+      syncRepeatSelectionUi();
       render();
     }
 
     function onRepeatAnchorChange() {
       refreshRepeatSelection();
-      syncRepeatControls();
+      syncRepeatSelectionUi();
       render();
     }
 
@@ -4377,7 +4731,7 @@
         pendingRepeatDates.add(date);
       }
       syncRepeatDateCellSelection(date);
-      syncRepeatControls();
+      syncRepeatSelectionUi();
     }
 
     function syncRepeatDateCellSelection(date) {
@@ -4388,6 +4742,66 @@
 
     function clearRepeatSelection() {
       pendingRepeatDates.clear();
+      syncRepeatSelectionUi();
+    }
+
+    function syncRepeatSelectionUi() {
+      syncRepeatControlsSummary();
+      syncRepeatSelectionBar();
+      syncRepeatDateSummary();
+    }
+
+    function syncRepeatControlsSummary() {
+      const shouldHide = Boolean(editingEntryId) || isCostEntry({ type: entryTypeSelect.value });
+      const enabled = !shouldHide && repeatInput.checked;
+      if (!enabled) {
+        repeatSummary.textContent = shouldHide
+          ? "Repeat is available for new time entries only."
+          : "Repeat mode preselects weekly dates, then lets you click or drag calendar days to refine the set before saving.";
+        return;
+      }
+      repeatSummary.textContent = `Creates ${pendingRepeatDates.size} draft row${pendingRepeatDates.size === 1 ? "" : "s"} from selected calendar dates.`;
+    }
+
+    function syncRepeatSelectionBar() {
+      if (!repeatSelectionBar || !repeatSelectionSummary) return;
+      const shouldShow = isMobileComposerMode() && repeatInput.checked && !editingEntryId && !isCostEntry({ type: entryTypeSelect.value });
+      repeatSelectionBar.hidden = !shouldShow;
+      repeatSelectionBar.setAttribute("aria-hidden", shouldShow ? "false" : "true");
+      if (!shouldShow) return;
+      const count = pendingRepeatDates.size;
+      repeatSelectionSummary.textContent = `${count} repeat date${count === 1 ? "" : "s"} selected.`;
+    }
+
+    function syncRepeatDateSummary() {
+      if (!repeatDateSummary || !repeatDateSummaryCount || !repeatDateSummaryList) return;
+      const shouldShow = repeatInput.checked && !editingEntryId && !isCostEntry({ type: entryTypeSelect.value });
+      repeatDateSummary.hidden = !shouldShow;
+      repeatDateSummary.setAttribute("aria-hidden", shouldShow ? "false" : "true");
+      if (!shouldShow) {
+        repeatDateSummaryCount.textContent = "0 dates selected";
+        repeatDateSummaryList.textContent = "";
+        return;
+      }
+      const dates = Array.from(pendingRepeatDates).sort((a, b) => a.localeCompare(b));
+      const count = dates.length;
+      repeatDateSummaryCount.textContent = `${count} repeat date${count === 1 ? "" : "s"} selected`;
+      repeatDateSummaryList.textContent = dates.length
+        ? dates.map(formatCompactRepeatDate).join(", ")
+        : "No repeat dates selected yet.";
+    }
+
+    function finishMobileRepeatSelection() {
+      syncRepeatSelectionUi();
+      openEntryComposerModal({ trigger: repeatSelectionDone });
+    }
+
+    function cancelMobileRepeatSelection() {
+      repeatInput.checked = false;
+      clearRepeatSelection();
+      syncRepeatSelectionUi();
+      render();
+      openEntryComposerModal({ trigger: repeatSelectionCancel });
     }
 
     function buildDraftsForSelectedRepeatDates(baseDraft) {
@@ -4562,6 +4976,11 @@
     function formatLongDate(value) {
       const date = new Date(`${value}T00:00:00`);
       return date.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+    }
+
+    function formatCompactRepeatDate(value) {
+      const date = new Date(`${value}T00:00:00`);
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
     }
 
     function formatMonthLabel(value) {

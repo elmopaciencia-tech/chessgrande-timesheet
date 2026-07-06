@@ -56,6 +56,13 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   'data-date-action="add"',
   'Add Entry On This Date',
   'Repeat entry on selected dates',
+  'id="entryComposerModal"',
+  'id="entryComposerModalBody"',
+  'id="entryComposerModalClose"',
+  'id="repeatDateSummary"',
+  'id="repeatSelectionBar"',
+  'id="repeatSelectionDone"',
+  'id="repeatSelectionCancel"',
 ].forEach((requiredMarkup) => {
   assert.ok(html.includes(requiredMarkup), `manager composer should include ${requiredMarkup}`);
 });
@@ -74,6 +81,7 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   "repeatInput.addEventListener(\"change\", onRepeatToggleChange);",
   "entryDateInput.addEventListener(\"change\", onRepeatAnchorChange);",
   "draftCalendar.addEventListener(\"click\", onCalendarRepeatDateClick);",
+  "draftCalendar.addEventListener(\"click\", onMobileCalendarDateClick);",
   "draftCalendar.addEventListener(\"pointerdown\", onCalendarRepeatPointerDown);",
   "draftCalendar.addEventListener(\"pointermove\", onCalendarRepeatPointerMove);",
   "buildDraftsForSelectedRepeatDates(draft)",
@@ -99,9 +107,63 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   "draftCalendar.addEventListener(\"contextmenu\", onCalendarDateContextMenu);",
   "dateContextMenu.addEventListener(\"click\", onDateContextMenuClick);",
   "function applyDateContextSelection()",
+  "function syncDraftComposerPlacement()",
+  "entryComposerModalBody.appendChild(entryComposerPanel)",
+  "function openEntryComposerModalForDate(date, trigger)",
+  "function closeEntryComposerModal",
+  "function syncRepeatSelectionUi()",
+  "function syncRepeatDateSummary()",
+  "function finishMobileRepeatSelection()",
+  "function cancelMobileRepeatSelection()",
 ].forEach((requiredCode) => {
   assert.ok(html.includes(requiredCode), `manager composer should include ${requiredCode}`);
 });
+
+assert.match(
+  html,
+  /<div class="date-field">[\s\S]*<input id="entryDate" type="date" required>[\s\S]*id="repeatDateSummary"/,
+  "manager mobile composer should reflect selected repeat dates directly below the date input"
+);
+assert.match(
+  html,
+  /<div class="entry-composer-modal" id="entryComposerModal" hidden role="dialog" aria-modal="true"/,
+  "manager mobile composer should have a centered dialog shell"
+);
+assert.match(
+  html,
+  /function onMobileCalendarDateClick\(event\)[\s\S]*if \(!isMobileComposerMode\(\) \|\| repeatInput\.checked\) return;[\s\S]*openEntryComposerModalForDate\(dayCell\.dataset\.entryDate/,
+  "manager mobile calendar day clicks should open the composer modal with the clicked date"
+);
+assert.match(
+  html,
+  /function syncRepeatDateSummary\(\)[\s\S]*const shouldShow = repeatInput\.checked && !editingEntryId && !isCostEntry\(\{ type: entryTypeSelect\.value \}\)/,
+  "manager repeat date summary should hide while editing or composing cost entries"
+);
+assert.match(
+  html,
+  /function applyRepeatDragDate\(date\)[\s\S]*syncRepeatSelectionUi\(\)/,
+  "manager repeat drag should update the shared repeat summary UI"
+);
+assert.match(
+  html,
+  /function toggleRepeatDate\(date\)[\s\S]*syncRepeatSelectionUi\(\)/,
+  "manager repeat toggles should update the shared repeat summary UI"
+);
+assert.match(
+  html,
+  /function finishMobileRepeatSelection\(\)[\s\S]*openEntryComposerModal\(\{ trigger: repeatSelectionDone \}\)/,
+  "manager mobile repeat finalizer should reopen the composer with selected dates reflected"
+);
+assert.match(
+  html,
+  /<button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add">[\s\S]*quick-add-save-glyph[\s\S]*quick-add-save-label/s,
+  "manager draft composer should keep a labeled quick-add save button that can collapse to an icon on mobile"
+);
+assert.match(
+  html,
+  /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(92px,\s*0\.74fr\)\s*auto;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+  "manager draft mobile composer should compact date and type, time and hours, icon quick add, and action buttons into shared rows"
+);
 
 assert.match(
   html,

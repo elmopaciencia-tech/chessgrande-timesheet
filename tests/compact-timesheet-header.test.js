@@ -249,6 +249,11 @@ assert.match(
 );
 assert.match(
   managerEntry,
+  /@media \(max-width: 760px\)[\s\S]*\.entry-edit-grid\.compact,\s*\.entry-edit-grid\.edit-top-row\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*\.entry-edit-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+  "manager entry mobile composer should keep compact top rows and side-by-side save actions"
+);
+assert.match(
+  managerEntry,
   /<span>Rate<\/span><span id="payRate">S\$0\.00<\/span>/,
   "manager entry payroll snapshot should include the submitted hourly rate"
 );
@@ -289,8 +294,8 @@ assert.match(
 );
 assert.match(
   html,
-  /if \(mobileLayoutQuery\.matches\)[\s\S]*reviewColumn\.insertBefore\(monthlyReviewPanel, schoolLedgerPanel\);[\s\S]*reviewColumn\.appendChild\(aiXlsxImportPanel\);[\s\S]*reviewColumn\.appendChild\(payrollHandoffPanel\);/,
-  "timesheet mobile layout should move payroll handoff to the bottom of the review flow"
+  /if \(isMobileComposerMode\(\)\)[\s\S]*reviewColumn\.prepend\(monthlyReviewPanel\);[\s\S]*entryComposerModalBody\.appendChild\(entryComposerPanel\);[\s\S]*reviewColumn\.appendChild\(payrollHandoffPanel\);/,
+  "timesheet mobile layout should keep calendar first and move the composer into a modal"
 );
 assert.match(
   html,
@@ -335,8 +340,12 @@ assert.match(
   );
   assert.match(
     source,
-    /@media \(max-width: 760px\)[\s\S]*\.action-column\s*\{\s*order:\s*-1;\s*\}[\s\S]*\.review-column\s*\{\s*order:\s*1;\s*\}/,
-    `${label} mobile layout should show action details before review content`
+    fileName === "chess-timesheet.html"
+      ? /@media \(max-width: 760px\)[\s\S]*\.review-column\s*\{\s*order:\s*1;\s*\}[\s\S]*\.action-column\s*\{\s*order:\s*2;\s*\}/
+      : /@media \(max-width: 760px\)[\s\S]*\.action-column\s*\{\s*order:\s*-1;\s*\}[\s\S]*\.review-column\s*\{\s*order:\s*1;\s*\}/,
+    fileName === "chess-timesheet.html"
+      ? `${label} mobile layout should keep review content before action details`
+      : `${label} mobile layout should show action details before review content`
   );
 });
 
