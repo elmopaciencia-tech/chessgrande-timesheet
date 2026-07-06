@@ -90,7 +90,7 @@ pages.forEach((fileName) => {
     'src="./assets/cg-nav-logo.png"',
     'href="./employee-dashboard.html"',
     'class="sr-only">Chess Grande</span>',
-    ">Overview<",
+    ">Dashboard<",
     ">Timesheet<",
     ">Submissions<",
     ">Manager<",

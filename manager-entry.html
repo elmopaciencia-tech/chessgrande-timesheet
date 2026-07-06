@@ -274,7 +274,7 @@
     #fullName[readonly], #bankAccount[readonly], #bankName[readonly], #accountType[readonly] { border: 0; background: transparent; padding: 4px 0 6px; border-radius: 0; color: var(--ink); pointer-events: none; caret-color: transparent; }
     #fullName[readonly]::placeholder, #bankAccount[readonly]::placeholder, #bankName[readonly]::placeholder, #accountType[readonly]::placeholder { color: var(--muted); opacity: 1; }
     #bankAccount[readonly].missing-profile::placeholder, #bankName[readonly].missing-profile::placeholder, #accountType[readonly].missing-profile::placeholder, .missing-profile { color: var(--clay); font-weight: 700; }
-    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .hero-month { align-self: auto; } }
+    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; order: -1; } .review-column { order: 1; } .hero-month { align-self: auto; } }
     @media (max-width: 900px) {
       .form-grid, .summary, .actions { grid-template-columns: 1fr; }
       .stat-value { font-size: 1.24rem; }
@@ -488,7 +488,7 @@
       <nav class="cg-nav" aria-label="Primary navigation">
         <ul class="cg-nav-list">
           <li class="cg-nav-item" data-nav-section="overview">
-            <a class="cg-nav-link" href="./employee-dashboard.html">Overview</a>
+            <a class="cg-nav-link" href="./employee-dashboard.html">Dashboard</a>
           </li>
           <li class="cg-nav-item" data-nav-section="timesheet">
             <button class="cg-nav-trigger" id="timesheetNavTrigger" type="button" aria-expanded="false" aria-controls="timesheetNavDropdown">Timesheet</button>

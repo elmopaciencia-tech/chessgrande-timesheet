@@ -184,7 +184,8 @@
       .role-pill { padding-inline: 8px; }
       .edit-button { min-height: 38px; padding: 9px 11px; }
     }
-    @media (max-width: 760px) { .hero, .panel, .modal { padding: 20px; } .app-header-inner { min-height: 66px; padding: 0 16px; } .modal-grid, .modal-actions { grid-template-columns: 1fr; } .chat-popup { right: 16px; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 74px); max-height: calc(100vh - 118px); } .chat-launcher { right: 18px; bottom: max(18px, env(safe-area-inset-bottom)); } .admin-shell { margin-top: 18px; gap: 14px; } .sidebar-metrics { grid-template-columns: 1fr; } .board-toolbar { padding: 16px; } .board-controls { grid-template-columns: 1fr; } .member-table-head { display: none; } .member-line { grid-template-columns: 1fr; gap: 8px; padding: 14px 16px; } .member-actions { justify-content: flex-start; } }
+    @media (max-width: 760px) { .hero, .panel, .modal { padding: 20px; } .app-header-inner { min-height: 66px; padding: 0 16px; } .modal-grid, .modal-actions { grid-template-columns: 1fr; } .chat-popup { right: 16px; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 74px); max-height: calc(100vh - 118px); } .chat-launcher { right: 18px; bottom: max(18px, env(safe-area-inset-bottom)); } .admin-shell { margin-top: 18px; gap: 14px; } .sidebar-metrics { grid-template-columns: 1fr; } .board-toolbar { padding: 16px; } .board-controls { grid-template-columns: 1fr; } .member-table-head { display: none; } .member-line { grid-template-columns: minmax(0, 1.8fr) auto minmax(0, 1fr) auto; gap: 10px; padding: 10px 16px; align-items: center; } .member-sub, .member-joined { display: none; } .member-contact { font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .member-contact br { display: none; } .member-actions { justify-content: flex-end; } }
+    @media (max-width: 420px) { .member-line { grid-template-columns: 1fr; gap: 8px; padding: 14px 16px; } .member-sub, .member-joined { display: block; } .member-contact { font-size: .84rem; white-space: normal; overflow: visible; } .member-contact br { display: block; } .member-actions { justify-content: flex-start; } }
 
 </style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js?v=20260606-nav" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="app-header">
@@ -196,7 +197,7 @@
       <nav class="cg-nav" aria-label="Primary navigation">
         <ul class="cg-nav-list">
           <li class="cg-nav-item" data-nav-section="overview">
-            <a class="cg-nav-link" href="./employee-dashboard.html">Overview</a>
+            <a class="cg-nav-link" href="./employee-dashboard.html">Dashboard</a>
           </li>
           <li class="cg-nav-item" data-nav-section="timesheet">
             <button class="cg-nav-trigger" id="timesheetNavTrigger" type="button" aria-expanded="false" aria-controls="timesheetNavDropdown">Timesheet</button>
