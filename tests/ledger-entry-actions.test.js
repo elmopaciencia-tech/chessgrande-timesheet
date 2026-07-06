@@ -94,6 +94,33 @@ for (const [label, fileName] of pages) {
     /calendar\.addEventListener\("contextmenu", onCalendarChipContextMenu\)/,
     `${label} calendar should open the chip menu on right click`
   );
+  if (fileName === "chess-timesheet.html") {
+    assert.match(
+      html,
+      /id="dateContextMenu"[\s\S]*data-date-action="add"/,
+      "employee calendar day cells should expose an add-entry date context menu"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("contextmenu", onCalendarDateContextMenu\)/,
+      "employee calendar should open the date menu on right click"
+    );
+    assert.match(
+      html,
+      /cell\.dataset\.entryDate = key/,
+      "employee calendar day cells should carry the date they represent"
+    );
+    assert.match(
+      html,
+      /const dayCell = target\.closest\("\.day\[data-entry-date\]"\)/,
+      "employee date context menu should target any calendar day cell"
+    );
+    assert.match(
+      html,
+      /function applyDateContextSelection\(\)[\s\S]*entryDateInput\.value = dateContextMenu\.dataset\.entryDate/,
+      "employee date context action should update the composer date field"
+    );
+  }
   assert.match(
     html,
     /calendar\.addEventListener\("keydown", onCalendarChipKeydown\)/,
@@ -349,6 +376,43 @@ assert.doesNotMatch(
   "pay review edit action should not redirect to the timesheet editor"
 );
 
+[
+  ["employee timesheet", "chess-timesheet.html", "timesheet"],
+  ["pay review", "chess-timesheet-pay.html", "pay"],
+].forEach(([label, fileName, varPrefix]) => {
+  const html = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
+  assert.match(
+    html,
+    /@media \(max-width: 760px\)[\s\S]*#schoolGroups \.school-card\s*\{[^}]*overflow:\s*hidden;[\s\S]*#schoolGroups table\s*\{[^}]*display:\s*table;[^}]*width:\s*100%;[^}]*min-width:\s*0;[^}]*table-layout:\s*fixed;[\s\S]*#schoolGroups th,[\s\S]*#schoolGroups td\s*\{[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;[\s\S]*#schoolGroups td::before\s*\{[^}]*content:\s*none;/,
+    `${label} mobile school ledger should compress inside the card while keeping desktop-like columns`
+  );
+  assert.match(
+    html,
+    new RegExp(`#schoolGroups table\\.is-time-ledger\\s*\\{[\\s\\S]*--${varPrefix}-date-col:\\s*clamp\\(48px, 14vw, 70px\\);[\\s\\S]*--${varPrefix}-type-col:\\s*clamp\\(64px, 20vw, 94px\\);[\\s\\S]*--${varPrefix}-actions-col:\\s*clamp\\(64px, 17vw, 78px\\);[\\s\\S]*#schoolGroups th\\s*\\{[^}]*font-size:\\s*clamp\\(0?\\.62rem, 2\\.7vw, 0?\\.74rem\\);[\\s\\S]*#schoolGroups table\\.is-time-ledger th:nth-child\\(4\\),\\s*#schoolGroups table\\.is-time-ledger td:nth-child\\(4\\)\\s*\\{\\s*width:\\s*calc\\(100% - var\\(--${varPrefix}-date-col\\) - var\\(--${varPrefix}-type-col\\) - var\\(--${varPrefix}-hours-col\\) - var\\(--${varPrefix}-actions-col\\)\\);[\\s\\S]*#schoolGroups table\\.is-time-ledger td:nth-child\\(1\\),[\\s\\S]*#schoolGroups table\\.is-time-ledger td:nth-child\\(2\\),[\\s\\S]*#schoolGroups table\\.is-time-ledger td:nth-child\\(4\\)\\s*\\{[\\s\\S]*white-space:\\s*normal;[\\s\\S]*overflow-wrap:\\s*anywhere;`),
+    `${label} mobile date, type, and time columns should wrap instead of clipping`
+  );
+  assert.match(
+    html,
+    /table\.classList\.toggle\("is-time-ledger", !isCostOnlyGroup\);/,
+    `${label} should mark standard time ledgers for mobile column sizing`
+  );
+  assert.match(
+    html,
+    new RegExp(`#schoolGroups table\\.is-cost-ledger\\s*\\{[\\s\\S]*--${varPrefix}-cost-date-col:\\s*clamp\\(56px, 16vw, 76px\\);[\\s\\S]*--${varPrefix}-cost-actions-col:\\s*clamp\\(64px, 17vw, 78px\\);[\\s\\S]*#schoolGroups table\\.is-cost-ledger th:nth-child\\(2\\),\\s*#schoolGroups table\\.is-cost-ledger td:nth-child\\(2\\)\\s*\\{\\s*width:\\s*calc\\(100% - var\\(--${varPrefix}-cost-date-col\\) - var\\(--${varPrefix}-cost-actions-col\\)\\);[\\s\\S]*#schoolGroups table\\.is-cost-ledger td:nth-child\\(1\\),[\\s\\S]*#schoolGroups table\\.is-cost-ledger td:nth-child\\(2\\)\\s*\\{[\\s\\S]*white-space:\\s*normal;[\\s\\S]*overflow-wrap:\\s*anywhere;`),
+    `${label} mobile cost ledgers should use matching responsive date and type columns`
+  );
+  assert.match(
+    html,
+    /#schoolGroups \.entry-actions \.locked\s*\{[^}]*max-width:\s*100%;[^}]*padding:\s*0 5px;[^}]*font-size:\s*clamp\(0?\.48rem, 2\.1vw, 0?\.58rem\);[^}]*white-space:\s*nowrap;/,
+    `${label} submitted status should shrink to fit the mobile action column`
+  );
+  assert.match(
+    html,
+    /table\.classList\.toggle\("is-cost-ledger", isCostOnlyGroup && !hasClaimRows\);/,
+    `${label} should mark cost-only ledgers for mobile column sizing`
+  );
+});
+
 const managerHtml = fs.readFileSync(path.join(process.cwd(), "manager-entry.html"), "utf8");
 assert.match(
   managerHtml,
@@ -379,6 +443,36 @@ assert.match(
   managerHtml,
   /\.update\(updates\)[\s\S]*\.eq\("id", editingEntryId\)[\s\S]*\.select\("id"\)[\s\S]*\.maybeSingle\(\)/,
   "manager entry save should require Supabase to return the updated payroll entry"
+);
+assert.match(
+  managerHtml,
+  /@media \(max-width: 760px\)[\s\S]*#schoolGroups \.school-card\s*\{[^}]*overflow:\s*hidden;[\s\S]*#schoolGroups table\s*\{[^}]*display:\s*table;[^}]*width:\s*100%;[^}]*min-width:\s*0;[^}]*table-layout:\s*fixed;[\s\S]*#schoolGroups th,[\s\S]*#schoolGroups td\s*\{[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;[\s\S]*#schoolGroups td::before\s*\{[^}]*content:\s*none;/,
+  "manager entry mobile school ledger should compress inside the card while keeping desktop-like columns"
+);
+assert.match(
+  managerHtml,
+  /#schoolGroups table\.is-time-ledger\s*\{[\s\S]*--manager-entry-date-col:\s*clamp\(48px, 14vw, 70px\);[\s\S]*--manager-entry-type-col:\s*clamp\(64px, 20vw, 94px\);[\s\S]*--manager-entry-actions-col:\s*clamp\(64px, 17vw, 78px\);[\s\S]*#schoolGroups th\s*\{[^}]*font-size:\s*clamp\(.62rem, 2.7vw, .74rem\);[\s\S]*#schoolGroups table\.is-time-ledger th:nth-child\(4\),\s*#schoolGroups table\.is-time-ledger td:nth-child\(4\)\s*\{\s*width:\s*calc\(100% - var\(--manager-entry-date-col\) - var\(--manager-entry-type-col\) - var\(--manager-entry-hours-col\) - var\(--manager-entry-actions-col\)\);[\s\S]*#schoolGroups table\.is-time-ledger td:nth-child\(1\),[\s\S]*#schoolGroups table\.is-time-ledger td:nth-child\(2\),[\s\S]*#schoolGroups table\.is-time-ledger td:nth-child\(4\)\s*\{[\s\S]*white-space:\s*normal;[\s\S]*overflow-wrap:\s*anywhere;/,
+  "manager entry mobile date, type, and time columns should wrap instead of clipping"
+);
+assert.match(
+  managerHtml,
+  /@media \(max-width: 420px\)[\s\S]*#schoolGroups table\.is-time-ledger\s*\{[\s\S]*--manager-entry-date-col:\s*clamp\(40px, 13vw, 46px\);[\s\S]*--manager-entry-type-col:\s*clamp\(54px, 18vw, 62px\);[\s\S]*--manager-entry-actions-col:\s*clamp\(48px, 16vw, 54px\);[\s\S]*#schoolGroups table\.is-time-ledger td:nth-child\(4\)\s*\{[\s\S]*overflow-wrap:\s*normal;[\s\S]*#schoolGroups \.entry-actions \.entry-action-button\s*\{[\s\S]*width:\s*24px;/,
+  "manager entry very narrow ledger should preserve time column width and compact row actions"
+);
+assert.match(
+  managerHtml,
+  /table\.classList\.toggle\("is-time-ledger", !isCostOnlyGroup\);/,
+  "manager entry should mark standard time ledgers for mobile column sizing"
+);
+assert.match(
+  managerHtml,
+  /#schoolGroups table\.is-cost-ledger\s*\{[\s\S]*--manager-entry-cost-date-col:\s*clamp\(56px, 16vw, 76px\);[\s\S]*--manager-entry-cost-actions-col:\s*clamp\(64px, 17vw, 78px\);[\s\S]*#schoolGroups table\.is-cost-ledger th:nth-child\(2\),\s*#schoolGroups table\.is-cost-ledger td:nth-child\(2\)\s*\{\s*width:\s*calc\(100% - var\(--manager-entry-cost-date-col\) - var\(--manager-entry-cost-actions-col\)\);[\s\S]*#schoolGroups table\.is-cost-ledger td:nth-child\(1\),[\s\S]*#schoolGroups table\.is-cost-ledger td:nth-child\(2\)\s*\{[\s\S]*white-space:\s*normal;[\s\S]*overflow-wrap:\s*anywhere;/,
+  "manager entry mobile cost ledgers should use matching responsive date and type columns"
+);
+assert.match(
+  managerHtml,
+  /table\.classList\.toggle\("is-cost-ledger", isCostOnlyGroup && !hasClaimRows\);/,
+  "manager entry should mark cost-only ledgers for mobile column sizing"
 );
 assert.match(
   managerHtml,

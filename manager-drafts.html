@@ -249,6 +249,106 @@
       border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%);
     }
+    #monthPicker { display: none !important; }
+    .month-picker { position: relative; }
+    .month-picker-trigger {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      background: var(--surface-strong);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+    .month-picker-trigger:hover,
+    .month-picker-trigger:focus-visible {
+      border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%);
+    }
+    .month-picker-trigger i,
+    .month-picker-nav-button i {
+      width: 18px;
+      height: 18px;
+      opacity: 0.78;
+    }
+    .month-picker-popover {
+      position: absolute;
+      z-index: 1500;
+      top: calc(100% + 8px);
+      right: 0;
+      width: min(100vw - 32px, 356px);
+      display: grid;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 20px;
+      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
+      background: color-mix(in srgb, var(--surface) 96%, white 4%);
+      box-shadow: 0 24px 62px rgba(23, 26, 25, 0.18);
+    }
+    .month-picker-popover[hidden] { display: none; }
+    .month-picker-nav {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) 40px;
+      align-items: center;
+      gap: 8px;
+    }
+    .month-picker-nav-button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+    .month-picker-nav-button:hover,
+    .month-picker-nav-button:focus-visible {
+      background: var(--accent-soft);
+    }
+    #monthPickerFallback {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(92px, 112px);
+      gap: 8px;
+    }
+    #monthPickerFallback select {
+      min-height: 40px;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+    .month-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .month-picker-month {
+      min-height: 42px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .month-picker-month:hover,
+    .month-picker-month:focus-visible {
+      background: var(--accent-soft);
+    }
+    .month-picker-month.is-selected {
+      background: var(--accent);
+      color: var(--surface-strong);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+    .month-picker-month.is-current:not(.is-selected) {
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, white 70%);
+    }
 
     .ai-import-panel {
       display: grid;
@@ -1286,6 +1386,13 @@
       .toolbar, .form-grid, .form-grid.compact, .actions, .school-name-row { grid-template-columns: 1fr; }
       .entry-type-row { grid-template-columns: minmax(0, 1fr) auto; }
       .hours-quick-add-row { grid-template-columns: 1fr; }
+      #monthPickerFallback { grid-template-columns: 1fr; }
+      .month-picker-popover {
+        left: 50%;
+        right: auto;
+        width: min(calc(100vw - 32px), 356px);
+        transform: translateX(-50%);
+      }
       .quick-add-control {
         display: grid;
         justify-content: stretch;
@@ -1399,8 +1506,38 @@
               <select id="employeeSelect"></select>
             </div>
             <div class="toolbar-card">
-              <label for="monthPicker">Month</label>
+              <label id="monthPickerLabelText" for="monthPickerTrigger">Month</label>
               <input id="monthPicker" type="month">
+              <div class="month-picker" id="monthPickerControl">
+                <button class="month-picker-trigger" id="monthPickerTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="monthPickerPanel" aria-labelledby="monthPickerLabelText monthPickerLabel">
+                  <span id="monthPickerLabel">Select month</span>
+                  <i data-lucide="calendar" aria-hidden="true"></i>
+                </button>
+                <div class="month-picker-popover" id="monthPickerPanel" role="dialog" aria-label="Select working month" hidden>
+                  <div class="month-picker-nav">
+                    <button class="month-picker-nav-button" id="monthPickerPrev" type="button" aria-label="Previous month"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+                    <div id="monthPickerFallback">
+                      <select id="monthNameSelect" aria-label="Viewing month name">
+                        <option value="01">January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                      </select>
+                      <select id="monthYearSelect" aria-label="Viewing month year"></select>
+                    </div>
+                    <button class="month-picker-nav-button" id="monthPickerNext" type="button" aria-label="Next month"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+                  </div>
+                  <div class="month-picker-grid" id="monthPickerGrid" role="grid" aria-label="Months"></div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="status" id="statusMessage"></div>
@@ -1605,6 +1742,16 @@
   <script>
     const employeeSelect = document.getElementById("employeeSelect");
     const monthPicker = document.getElementById("monthPicker");
+    const monthPickerControl = document.getElementById("monthPickerControl");
+    const monthPickerTrigger = document.getElementById("monthPickerTrigger");
+    const monthPickerLabel = document.getElementById("monthPickerLabel");
+    const monthPickerPanel = document.getElementById("monthPickerPanel");
+    const monthPickerFallback = document.getElementById("monthPickerFallback");
+    const monthNameSelect = document.getElementById("monthNameSelect");
+    const monthYearSelect = document.getElementById("monthYearSelect");
+    const monthPickerPrev = document.getElementById("monthPickerPrev");
+    const monthPickerNext = document.getElementById("monthPickerNext");
+    const monthPickerGrid = document.getElementById("monthPickerGrid");
     const statusMessage = document.getElementById("statusMessage");
     const draftCalendar = document.getElementById("draftCalendar");
     const calendarTitle = document.getElementById("calendarTitle");
@@ -1663,6 +1810,7 @@
     const aiImportWarnings = document.getElementById("aiImportWarnings");
     const aiConfirmImportButton = document.getElementById("aiConfirmImportButton");
     const aiCancelImportButton = document.getElementById("aiCancelImportButton");
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const quickAddWeekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const defaultCalendarColor = "#B4CFA4";
@@ -1704,7 +1852,8 @@
 
       managerNavItem.hidden = !(role === "manager" || role === "webadmin");
       webAdminNavItem.hidden = role !== "webadmin";
-      monthPicker.value = formatMonthValue(new Date());
+      setupMonthPickerUi();
+      setMonthValue(formatMonthValue(new Date()));
       entryDateInput.value = formatDateInput(new Date());
       ensureTimeFieldsRendered();
       renderCalendarColorPicker();
@@ -1767,8 +1916,7 @@
         await loadSelectedEmployeeEntries();
       });
       monthPicker.addEventListener("change", () => {
-        resetForm();
-        render();
+        applySelectedMonthChange(monthPicker.value);
       });
       entryTypeSelect.addEventListener("change", syncReplacementField);
       entryTypeSelect.addEventListener("input", syncReplacementField);
@@ -1966,7 +2114,7 @@
       setAiImportBusy(true);
       try {
         const importContext = await inferAiImportMonth(file, monthPicker.value);
-        monthPicker.value = importContext.month;
+        setMonthValue(importContext.month);
         render();
         setAiImportStatus(`Switched to ${formatMonthLabel(importContext.month)}. Preparing workbook...`);
         await pauseAiImportAfterMonthSwitch();
@@ -1985,7 +2133,7 @@
         });
         aiPendingImportPlan = plan;
         if (monthPicker.value !== plan.month) {
-          monthPicker.value = plan.month;
+          setMonthValue(plan.month);
           render();
         }
         renderAiImportPreview(plan);
@@ -2911,7 +3059,7 @@
         const saved = result.saved || [];
         const failed = result.failed || [];
         const warningCount = aiPendingImportPlan.warnings.length;
-        monthPicker.value = aiPendingImportPlan.month;
+        setMonthValue(aiPendingImportPlan.month);
         aiPendingImportPlan = null;
         await loadSelectedEmployeeEntries();
         render();
@@ -3410,7 +3558,7 @@
       const nextMonthValue = formatMonthValue(nextDate);
 
       if (monthPicker.value !== nextMonthValue) {
-        monthPicker.value = nextMonthValue;
+        setMonthValue(nextMonthValue);
         render();
       }
 
@@ -4090,6 +4238,126 @@
     function toMinutes(value) {
       const [hours, minutes] = String(value || "0:00").split(":").map(Number);
       return (hours || 0) * 60 + (minutes || 0);
+    }
+
+    function setupMonthPickerUi() {
+      const currentYear = new Date().getFullYear();
+      for (let year = currentYear - 5; year <= currentYear + 5; year += 1) {
+        addMonthPickerYearOption(year);
+      }
+      monthPicker.hidden = true;
+      monthPickerFallback.hidden = false;
+      monthPickerTrigger.addEventListener("click", toggleMonthPickerPanel);
+      monthPickerPrev.addEventListener("click", () => shiftMonthValue(-1));
+      monthPickerNext.addEventListener("click", () => shiftMonthValue(1));
+      monthNameSelect.addEventListener("change", onFallbackMonthChange);
+      monthYearSelect.addEventListener("change", onFallbackMonthChange);
+      document.addEventListener("click", (event) => {
+        if (!monthPickerPanel.hidden && !isMonthPickerInteraction(event)) closeMonthPickerPanel();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || monthPickerPanel.hidden) return;
+        event.preventDefault();
+        closeMonthPickerPanel({ restoreFocus: true });
+      });
+    }
+
+    function addMonthPickerYearOption(year) {
+      const value = String(year);
+      if (monthYearSelect.querySelector(`option[value="${value}"]`)) return;
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      const nextOption = Array.from(monthYearSelect.options).find((item) => Number(item.value) > year);
+      monthYearSelect.insertBefore(option, nextOption || null);
+    }
+
+    function toggleMonthPickerPanel() {
+      if (monthPickerPanel.hidden) openMonthPickerPanel();
+      else closeMonthPickerPanel({ restoreFocus: true });
+    }
+
+    function openMonthPickerPanel() {
+      renderMonthPickerGrid(monthPicker.value);
+      monthPickerPanel.hidden = false;
+      monthPickerTrigger.setAttribute("aria-expanded", "true");
+      monthPickerGrid.querySelector(".month-picker-month.is-selected")?.focus({ preventScroll: true });
+    }
+
+    function closeMonthPickerPanel(options = {}) {
+      if (monthPickerPanel.hidden) return;
+      monthPickerPanel.hidden = true;
+      monthPickerTrigger.setAttribute("aria-expanded", "false");
+      if (options.restoreFocus) monthPickerTrigger.focus({ preventScroll: true });
+    }
+
+    function isMonthPickerInteraction(event) {
+      if (event.target instanceof Element && event.target.closest("#monthPickerControl")) return true;
+      return event.composedPath().some((node) => node === monthPickerControl);
+    }
+
+    function onFallbackMonthChange() {
+      const year = monthYearSelect.value;
+      const month = monthNameSelect.value;
+      if (!year || !month) return;
+      applySelectedMonthChange(`${year}-${month}`);
+    }
+
+    function applySelectedMonthChange(monthValue) {
+      setMonthValue(monthValue);
+      resetForm();
+      render();
+    }
+
+    function setMonthValue(monthValue) {
+      if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
+      monthPicker.value = monthValue;
+      syncFallbackFromMonthValue(monthValue);
+      renderMonthPickerGrid(monthValue);
+    }
+
+    function syncFallbackFromMonthValue(monthValue) {
+      if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
+      const [year, month] = monthValue.split("-");
+      addMonthPickerYearOption(Number(year));
+      monthYearSelect.value = year;
+      monthNameSelect.value = month;
+      const label = `${monthNames[Number(month) - 1]} ${year}`;
+      monthPickerLabel.textContent = label;
+      monthPicker.setAttribute("aria-label", label);
+      monthPickerTrigger.setAttribute("aria-label", `Select working month, currently ${label}`);
+    }
+
+    function shiftMonthValue(offset) {
+      const [year, month] = (monthPicker.value || formatMonthValue(new Date())).split("-").map(Number);
+      const nextDate = new Date(year, month - 1 + offset, 1);
+      applySelectedMonthChange(formatMonthValue(nextDate));
+    }
+
+    function renderMonthPickerGrid(monthValue = monthPicker.value) {
+      if (!monthPickerGrid || !/^\d{4}-\d{2}$/.test(monthValue)) return;
+      const [selectedYear, selectedMonth] = monthValue.split("-").map(Number);
+      const currentMonthValue = formatMonthValue(new Date());
+      monthPickerGrid.innerHTML = "";
+      monthNames.forEach((monthName, index) => {
+        const month = String(index + 1).padStart(2, "0");
+        const value = `${selectedYear}-${month}`;
+        const button = document.createElement("button");
+        button.className = "month-picker-month";
+        button.type = "button";
+        button.dataset.monthValue = value;
+        button.textContent = monthName.slice(0, 3);
+        button.setAttribute("role", "gridcell");
+        button.setAttribute("aria-label", `${monthName} ${selectedYear}`);
+        button.setAttribute("aria-selected", String(index + 1 === selectedMonth));
+        button.classList.toggle("is-selected", index + 1 === selectedMonth);
+        button.classList.toggle("is-current", value === currentMonthValue);
+        button.addEventListener("click", () => {
+          applySelectedMonthChange(value);
+          closeMonthPickerPanel({ restoreFocus: true });
+        });
+        monthPickerGrid.appendChild(button);
+      });
     }
 
     function formatMonthValue(date) {

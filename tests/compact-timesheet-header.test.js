@@ -15,9 +15,14 @@ const hero = heroMatch[0];
   "<h1>Chess Grande Timesheet</h1>",
   'class="hero-stats"',
   'id="monthPicker"',
+  'id="monthPickerControl"',
+  'id="monthPickerTrigger"',
+  'id="monthPickerLabel"',
+  'id="monthPickerPanel"',
   'id="monthPickerFallback"',
   'id="monthNameSelect"',
   'id="monthYearSelect"',
+  'id="monthPickerGrid"',
   'id="schoolCount"',
   'id="entryCount"',
   'id="hoursCount"',
@@ -84,7 +89,6 @@ const compactPageExpectations = [
       "<h1>Payroll Submissions</h1>",
       'class="hero-stats"',
       'id="submissionCount"',
-      'id="employeeCount"',
       'id="totalSubmittedPay"',
       "$0.00",
     ],
@@ -203,8 +207,8 @@ assert.match(
 );
 assert.match(
   managerDashboard,
-  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/is,
-  "manager dashboard hero stats should keep submissions, employees, and pay in one row"
+  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/is,
+  "manager dashboard hero stats should keep submissions and pay in one row"
 );
 assert.match(
   managerDashboard,
@@ -258,6 +262,83 @@ assert.match(
   /payRate\.textContent = formatCurrency\(submission\.hourlyRate \|\| 0\)/,
   "manager entry script should render the submitted rate in the pay card"
 );
+assert.match(
+  managerEntry,
+  /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*clamp\(.48rem, 1.8vw, .58rem\);[\s\S]*overflow-wrap:\s*anywhere;/s,
+  "manager entry mobile calendar should stay squareish with compressed chip text"
+);
+assert.match(
+  managerEntry,
+  /@media \(max-width: 760px\)[\s\S]*\.month-box-header strong\s*\{[^}]*font-size:\s*clamp\(.66rem, 2.8vw, .76rem\);[\s\S]*\.month-box-value\s*\{[^}]*font-size:\s*clamp\(1.42rem, 6.8vw, 1.8rem\);[\s\S]*#totalPayCount\s*\{[^}]*font-size:\s*clamp\(1.08rem, 5.1vw, 1.32rem\);[\s\S]*h1\s*\{[^}]*font-size:\s*clamp\(1.62rem, 7.4vw, 2.08rem\);[\s\S]*@media \(max-width: 420px\)[\s\S]*h1\s*\{[^}]*font-size:\s*clamp\(1.42rem, 7.2vw, 1.78rem\);[\s\S]*#totalPayCount\s*\{[^}]*font-size:\s*clamp\(.96rem, 4.8vw, 1.12rem\);/s,
+  "manager entry mobile hero should use a quieter manager review type hierarchy"
+);
+assert.match(
+  managerEntry,
+  /@media \(max-width: 760px\)[\s\S]*\.panel-copy\s*\{[^}]*font-size:\s*clamp\(.86rem, 3.4vw, .98rem\);[\s\S]*@media \(max-width: 420px\)[\s\S]*\.panel-copy\s*\{[^}]*font-size:\s*clamp\(.78rem, 3.5vw, .9rem\);/s,
+  "manager entry panel copy should reduce font size as mobile width shrinks"
+);
+assert.match(
+  managerEntry,
+  /@media \(max-width: 420px\)[\s\S]*\.action-column \.panel h2\s*\{[^}]*font-size:\s*clamp\(1.35rem, 7.2vw, 1.7rem\);[\s\S]*\.action-column \.pay-line\s*\{[^}]*font-size:\s*clamp\(.9rem, 4.3vw, 1rem\);/s,
+  "manager entry employee details panel should compact typography on narrow mobile widths"
+);
+assert.match(
+  managerEntry,
+  /@media \(max-width: 760px\)[\s\S]*\.action-column\s*\{\s*order:\s*-1;\s*\}[\s\S]*\.review-column\s*\{\s*order:\s*1;\s*\}/,
+  "manager entry mobile layout should show employee details before review content"
+);
+assert.match(
+  html,
+  /if \(mobileLayoutQuery\.matches\)[\s\S]*reviewColumn\.insertBefore\(monthlyReviewPanel, schoolLedgerPanel\);[\s\S]*reviewColumn\.appendChild\(aiXlsxImportPanel\);[\s\S]*reviewColumn\.appendChild\(payrollHandoffPanel\);/,
+  "timesheet mobile layout should move payroll handoff to the bottom of the review flow"
+);
+assert.match(
+  html,
+  /#monthPicker\s*\{\s*display:\s*none !important;\s*\}[\s\S]*\.month-picker-popover\s*\{[^}]*z-index:\s*1500;[\s\S]*\.month-picker-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/s,
+  "timesheet page should use the custom month picker popover from the pay page"
+);
+assert.match(
+  html,
+  /@media \(max-width: 760px\)[\s\S]*\.month-picker-popover\s*\{[^}]*left:\s*50%;[^}]*right:\s*auto;[^}]*transform:\s*translateX\(-50%\);/s,
+  "timesheet month picker popover should center on mobile"
+);
+assert.match(
+  html,
+  /\.hero\s*\{[^}]*z-index:\s*20;[^}]*overflow:\s*visible;[\s\S]*\.workspace\s*\{[^}]*z-index:\s*1;/s,
+  "timesheet hero should let the month picker render above the workspace"
+);
+assert.match(
+  html,
+  /function setupMonthPickerUi\(\)[\s\S]*monthPickerTrigger\.addEventListener\("click", toggleMonthPickerPanel\);[\s\S]*monthPickerPrev\.addEventListener\("click", \(\) => shiftMonthValue\(-1\)\);[\s\S]*monthPickerNext\.addEventListener\("click", \(\) => shiftMonthValue\(1\)\);/s,
+  "timesheet month picker should wire trigger and arrow navigation"
+);
+assert.match(
+  html,
+  /function renderMonthPickerGrid\(monthValue = monthPicker\.value\)[\s\S]*button\.className = "month-picker-month";[\s\S]*setMonthValue\(value\);[\s\S]*syncDateFieldToMonth\(\);[\s\S]*syncPayrollLink\(\);[\s\S]*syncQuickAddSaveButton\(\);[\s\S]*render\(\);/s,
+  "timesheet month picker grid should refresh the timesheet when a month is selected"
+);
+
+[
+  ["employee timesheet", "chess-timesheet.html"],
+  ["pay review", "chess-timesheet-pay.html"],
+].forEach(([label, fileName]) => {
+  const source = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
+  assert.match(
+    source,
+    /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*clamp\(0?\.48rem, 1\.8vw, 0?\.58rem\);[\s\S]*overflow-wrap:\s*anywhere;/s,
+    `${label} mobile calendar should stay squareish with compressed chip text`
+  );
+  assert.match(
+    source,
+    /@media \(max-width: 760px\)[\s\S]*\.panel-copy\s*\{[^}]*font-size:\s*clamp\(0?\.86rem, 3\.4vw, 0?\.98rem\);[\s\S]*@media \(max-width: 420px\)[\s\S]*\.panel-copy\s*\{[^}]*font-size:\s*clamp\(0?\.78rem, 3\.5vw, 0?\.9rem\);/s,
+    `${label} panel copy should reduce font size as mobile width shrinks`
+  );
+  assert.match(
+    source,
+    /@media \(max-width: 760px\)[\s\S]*\.action-column\s*\{\s*order:\s*-1;\s*\}[\s\S]*\.review-column\s*\{\s*order:\s*1;\s*\}/,
+    `${label} mobile layout should show action details before review content`
+  );
+});
 
 [
   "chess-timesheet.html",

@@ -61,7 +61,7 @@
     .hero p, .panel-copy, .status, .modal-status { margin: 0; color: var(--muted); line-height: 1.5; }
     .hero-copy, .hero-stats { position: relative; z-index: 1; }
     .hero-copy { display: grid; gap: 12px; }
-    .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .hero-stat { min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px; border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%); background: linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 90%, white 10%) 0%, color-mix(in srgb, var(--surface-muted) 82%, white 18%) 100%); }
     .hero-stat-wide { grid-column: auto; grid-template-columns: 1fr; align-items: start; gap: 3px; }
     .stat, .filter-card, .file-item, .modal, .toolbar-card { background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); border: 1px solid var(--line); border-radius: 24px; }
@@ -218,7 +218,7 @@
         clip: rect(0 0 0 0);
         white-space: nowrap;
       }
-      .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
       .hero-stat { padding: 10px 9px; }
       .hero-stat-wide { grid-template-columns: 1fr; align-items: start; }
       .hero-stats .stat-label { font-size: .66rem; letter-spacing: .06em; }
@@ -290,7 +290,7 @@
         </div>
       </div>
     </div>
-  </header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat"><span class="stat-label">Employees</span><span class="stat-value" id="employeeCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><div class="panel-actions"><button class="button" id="sendNoticeButton" type="button">Send Notice to Employee</button><a class="button" href="./manager-drafts.html">Draft Timesheet for Employee</a></div></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+  </header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><div class="panel-actions"><button class="button" id="sendNoticeButton" type="button">Send Notice to Employee</button><a class="button" href="./manager-drafts.html">Draft Timesheet for Employee</a></div></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
   <div class="modal-overlay" id="noticeModalOverlay" role="dialog" aria-modal="true" aria-labelledby="noticeModalTitle" hidden>
     <section class="modal notice-modal">
       <div class="modal-head">
@@ -335,7 +335,6 @@
     const filterStorageKey = "chessGrandeManagerDashboardFilters";
     const fileList = document.getElementById("fileList");
     const submissionCount = document.getElementById("submissionCount");
-    const employeeCount = document.getElementById("employeeCount");
     const totalSubmittedPay = document.getElementById("totalSubmittedPay");
     const yearFilters = document.getElementById("yearFilters");
     const monthFilters = document.getElementById("monthFilters");
@@ -577,7 +576,6 @@
       if (error) {
         console.error("Failed to load payroll submissions:", error);
         submissionCount.textContent = "0";
-        employeeCount.textContent = "0";
         totalSubmittedPay.textContent = formatSummaryCurrency(0);
         fileList.innerHTML = "";
         const message = document.createElement("div");
@@ -628,9 +626,6 @@
       });
 
       submissionCount.textContent = visibleSubmissions.length;
-      employeeCount.textContent = new Set(
-        visibleSubmissions.map((item) => item.employeeId || item.employeeName || "")
-      ).size;
       totalSubmittedPay.textContent = formatSummaryCurrency(
         visibleSubmissions.reduce((sum, item) => sum + Number(item.totalPay || 0), 0)
       );

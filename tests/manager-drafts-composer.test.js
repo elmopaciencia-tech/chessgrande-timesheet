@@ -49,6 +49,9 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   'id="isRepeating"',
   'id="repeatDayCount"',
   'id="repeatWeeks"',
+  'id="monthPickerTrigger"',
+  'id="monthPickerPanel"',
+  'id="monthPickerGrid"',
   'id="chipContextMenu"',
   'id="chipRemoveModal"',
   '<option value="1">1 day</option>',
@@ -74,6 +77,8 @@ assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-targ
   "repeatDayCountSelect.addEventListener(\"change\", () => syncRepeatControls());",
   "repeatWeeksInput.addEventListener(\"input\", () => syncRepeatControls());",
   "buildRepeatDraftEntries(draft, repeatSettings)",
+  "function renderMonthPickerGrid(monthValue = monthPicker.value)",
+  "function setMonthValue(monthValue)",
   "Repeat weeks must be a whole number from 1 to 52.",
   "renderDraftGroups(monthEntries)",
   "function renderDraftEntryActions(entry)",
@@ -104,6 +109,12 @@ assert.doesNotMatch(
   html,
   /class="draft-list"|draft-card/,
   "manager draft rows should no longer render as individual draft cards"
+);
+
+assert.match(
+  html,
+  /@media \(max-width: 920px\)[\s\S]*\.month-picker-popover\s*\{[^}]*left:\s*50%;[^}]*right:\s*auto;[^}]*transform:\s*translateX\(-50%\);/s,
+  "manager drafts month picker popover should center on mobile"
 );
 
 function extractFunction(source, name) {

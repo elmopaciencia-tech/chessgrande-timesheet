@@ -43,9 +43,42 @@ assert.match(
   "function getClaimProofName(storedValue)",
   "function formatHoursCell(entry)",
   "function formatDateLong(value)",
+  'id="monthPickerTrigger"',
+  'id="monthPickerPanel"',
+  'id="monthPickerGrid"',
+  'data-lucide="chevron-left"',
+  'data-lucide="chevron-right"',
+  "function renderMonthPickerGrid(monthValue = monthPicker.value)",
+  "function shiftMonthValue(offset)",
 ].forEach((snippet) => {
   assert.ok(html.includes(snippet), `pay export should include ${snippet}`);
 });
+
+assert.match(
+  html,
+  /<input id="monthPicker" type="month">[\s\S]*class="month-picker"[\s\S]*id="monthPickerTrigger"[\s\S]*aria-controls="monthPickerPanel"[\s\S]*id="monthPickerPanel"[\s\S]*id="monthPickerGrid"/,
+  "working month should use a custom popover picker while retaining the hidden month value"
+);
+assert.match(
+  html,
+  /function renderMonthPickerGrid\(monthValue = monthPicker\.value\)[\s\S]*button\.dataset\.monthValue = value[\s\S]*button\.classList\.toggle\("is-selected"[\s\S]*setMonthValue\(value\)[\s\S]*render\(\)/,
+  "custom month picker grid should select a month and rerender the pay view"
+);
+assert.match(
+  html,
+  /\.hero\s*\{[\s\S]*z-index:\s*20;[\s\S]*overflow:\s*visible;/,
+  "working month popover should not be clipped or covered by the hero card"
+);
+assert.match(
+  html,
+  /\.workspace\s*\{[\s\S]*z-index:\s*1;/,
+  "content below the hero should stay below the open working month popover"
+);
+assert.match(
+  html,
+  /@media \(max-width: 760px\)[\s\S]*\.month-picker-popover\s*\{[^}]*left:\s*50%;[^}]*right:\s*auto;[^}]*transform:\s*translateX\(-50%\);/s,
+  "working month popover should center on mobile"
+);
 
 assert.ok(
   !html.includes("Remove Submission"),

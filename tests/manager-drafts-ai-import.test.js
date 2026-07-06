@@ -663,9 +663,9 @@ rowWarningCases.forEach((caseItem) => {
   "createdBy: currentUser.id",
   "updatedBy: currentUser.id",
   "await loadSelectedEmployeeEntries();",
-  "monthPicker.value = plan.month;",
+  "setMonthValue(plan.month);",
   "render();",
-  "monthPicker.value = aiPendingImportPlan.month;",
+  "setMonthValue(aiPendingImportPlan.month);",
   "resetAiImportPreview(`Imported ${saved.length} draft entr",
 ].forEach((requiredCode) => {
   assert.ok(html.includes(requiredCode), `AI executor should include ${requiredCode}`);
@@ -674,7 +674,7 @@ rowWarningCases.forEach((caseItem) => {
 const parseFlowStart = html.indexOf("async function parseAiXlsxImport()");
 assert.notEqual(parseFlowStart, -1, "manager drafts should define parseAiXlsxImport");
 const importMonthIndex = html.indexOf("const importContext = await inferAiImportMonth(file, monthPicker.value);", parseFlowStart);
-const switchMonthIndex = html.indexOf("monthPicker.value = importContext.month;", parseFlowStart);
+const switchMonthIndex = html.indexOf("setMonthValue(importContext.month);", parseFlowStart);
 const pauseIndex = html.indexOf("await pauseAiImportAfterMonthSwitch();", parseFlowStart);
 const convertIndex = html.indexOf("const workbookText = await convertXlsxFileToWorkbookText(file, importContext.month);", parseFlowStart);
 assert.ok(importMonthIndex > parseFlowStart, "AI import should infer the file month before parsing entries");

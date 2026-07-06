@@ -283,13 +283,72 @@
       .page { gap: var(--space-5); }
       .app-header-inner { min-height: 66px; padding: 0 var(--space-4); }
       .hero, .panel { padding: var(--space-5); }
-      .hero { gap: var(--space-4); }
-      .hero-month { padding: var(--space-3); }
+      .hero {
+        gap: 14px;
+        border-radius: 24px;
+      }
+      .hero-copy header { gap: 8px; }
+      .eyebrow {
+        font-size: clamp(.6rem, 2.6vw, .68rem);
+        letter-spacing: .14em;
+      }
+      .hero-month {
+        gap: 12px;
+        padding: clamp(14px, 4vw, 18px);
+        border-radius: 18px;
+      }
+      .month-box { gap: 6px; }
+      .month-box-header strong {
+        color: var(--muted);
+        font-size: clamp(.66rem, 2.8vw, .76rem);
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+      }
+      .month-box-value {
+        font-size: clamp(1.42rem, 6.8vw, 1.8rem);
+        font-weight: 800;
+        line-height: 1.02;
+      }
+      .hero-stat {
+        padding: 10px 12px;
+        border-radius: 14px;
+        gap: 2px;
+      }
+      .stat-label {
+        font-size: clamp(.54rem, 2.3vw, .6rem);
+        letter-spacing: .075em;
+      }
+      .stat-value { font-size: clamp(1.08rem, 5.1vw, 1.32rem); }
+      #totalPayCount { font-size: clamp(1.08rem, 5.1vw, 1.32rem); }
+      .action-column { order: -1; }
+      .review-column { order: 1; }
+      .panel-copy { font-size: clamp(.86rem, 3.4vw, .98rem); line-height: 1.38; }
       .hero-stat-wide { grid-template-columns: 1fr; align-items: start; }
-      h1 { font-size: clamp(2rem, 10vw, 3rem); max-width: 12ch; }
+      h1 { font-size: clamp(1.62rem, 7.4vw, 2.08rem); max-width: none; line-height: 1; }
       #monthPickerFallback { grid-template-columns: 1fr; }
       .calendar-grid { gap: 4px; }
-      .day { min-height: 76px; padding: 7px; }
+      .weekday { padding: 4px 0; font-size: clamp(.55rem, 2vw, .66rem); letter-spacing: .08em; }
+      .day {
+        min-height: 0;
+        aspect-ratio: 1 / 1;
+        padding: clamp(4px, 1.6vw, 7px);
+        gap: 3px;
+        border-radius: 14px;
+      }
+      .day-number { font-size: clamp(.6rem, 2.2vw, .72rem); }
+      .day-items { gap: 2px; min-height: 0; overflow: hidden; }
+      .chip {
+        min-width: 0;
+        padding: 2px 3px;
+        border-radius: 7px;
+        font-size: clamp(.48rem, 1.8vw, .58rem);
+        line-height: 1.05;
+        overflow: hidden;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+      }
+      .chip strong { display: block; overflow: hidden; text-overflow: clip; overflow-wrap: anywhere; }
       table, thead, tbody, th, td, tr { display: block; }
       thead { display: none; }
       td { padding: 8px 0; }
@@ -297,10 +356,119 @@
       .entry-actions { width: auto; min-width: 0; }
       .entry-actions-inner { justify-content: flex-start; }
       .entry-actions .entry-action-button { width: 34px; min-width: 34px; }
+      #schoolGroups .school-card { overflow: hidden; padding: clamp(12px, 3.5vw, 20px); }
+      #schoolGroups table {
+        display: table;
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+        font-size: clamp(.68rem, 2.55vw, .86rem);
+      }
+      #schoolGroups table.is-time-ledger {
+        --manager-entry-date-col: clamp(48px, 14vw, 70px);
+        --manager-entry-type-col: clamp(64px, 20vw, 94px);
+        --manager-entry-hours-col: clamp(30px, 8vw, 42px);
+        --manager-entry-actions-col: clamp(64px, 17vw, 78px);
+      }
+      #schoolGroups table.is-cost-ledger {
+        --manager-entry-cost-date-col: clamp(56px, 16vw, 76px);
+        --manager-entry-cost-actions-col: clamp(64px, 17vw, 78px);
+      }
+      #schoolGroups thead { display: table-header-group; }
+      #schoolGroups tbody { display: table-row-group; }
+      #schoolGroups tr { display: table-row; }
+      #schoolGroups th,
+      #schoolGroups td { display: table-cell; padding: clamp(5px, 1.5vw, 9px) clamp(3px, 1.1vw, 7px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
+      #schoolGroups th { font-size: clamp(.62rem, 2.7vw, .74rem); letter-spacing: .035em; }
+      #schoolGroups td::before { content: none; display: none; }
+      #schoolGroups table.is-time-ledger th:nth-child(1),
+      #schoolGroups table.is-time-ledger td:nth-child(1) { width: var(--manager-entry-date-col); }
+      #schoolGroups table.is-time-ledger th:nth-child(2),
+      #schoolGroups table.is-time-ledger td:nth-child(2) { width: var(--manager-entry-type-col); }
+      #schoolGroups table.is-time-ledger th:nth-child(3),
+      #schoolGroups table.is-time-ledger td:nth-child(3) { width: var(--manager-entry-hours-col); }
+      #schoolGroups table.is-time-ledger th:nth-child(4),
+      #schoolGroups table.is-time-ledger td:nth-child(4) { width: calc(100% - var(--manager-entry-date-col) - var(--manager-entry-type-col) - var(--manager-entry-hours-col) - var(--manager-entry-actions-col)); }
+      #schoolGroups table.is-time-ledger th:nth-child(5),
+      #schoolGroups table.is-time-ledger td:nth-child(5) { width: var(--manager-entry-actions-col); }
+      #schoolGroups table.is-time-ledger td:nth-child(1),
+      #schoolGroups table.is-time-ledger td:nth-child(2),
+      #schoolGroups table.is-time-ledger td:nth-child(4) {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      #schoolGroups table.is-cost-ledger th:nth-child(1),
+      #schoolGroups table.is-cost-ledger td:nth-child(1) { width: var(--manager-entry-cost-date-col); }
+      #schoolGroups table.is-cost-ledger th:nth-child(2),
+      #schoolGroups table.is-cost-ledger td:nth-child(2) { width: calc(100% - var(--manager-entry-cost-date-col) - var(--manager-entry-cost-actions-col)); }
+      #schoolGroups table.is-cost-ledger th:nth-child(3),
+      #schoolGroups table.is-cost-ledger td:nth-child(3) { width: var(--manager-entry-cost-actions-col); }
+      #schoolGroups table.is-cost-ledger td:nth-child(1),
+      #schoolGroups table.is-cost-ledger td:nth-child(2) {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      #schoolGroups .entry-actions { width: auto; min-width: 0; }
+      #schoolGroups .entry-actions-inner { justify-content: flex-end; }
+      #schoolGroups .entry-actions .entry-action-button { width: 28px; min-width: 28px; height: 28px; min-height: 28px; }
+      #schoolGroups .entry-action-button svg { width: 14px; height: 14px; }
       .entry-edit-modal { padding: 12px; align-items: end; }
       .entry-edit-card { max-height: 92vh; padding: 18px; border-radius: 22px 22px 0 0; }
       .entry-edit-grid,
       .entry-edit-grid.compact { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 420px) {
+      .hero {
+        padding: 16px;
+        gap: 12px;
+      }
+      h1 { font-size: clamp(1.42rem, 7.2vw, 1.78rem); }
+      .hero-month { padding: 12px; }
+      .month-box-header { gap: 6px; }
+      .month-box-header strong { font-size: clamp(.58rem, 2.9vw, .66rem); }
+      .month-box-value { font-size: clamp(1.18rem, 6.1vw, 1.42rem); }
+      .hero-stats { gap: 8px; }
+      .hero-stat { padding: 9px 10px; }
+      .stat-value { font-size: clamp(.98rem, 5vw, 1.16rem); }
+      #totalPayCount { font-size: clamp(.96rem, 4.8vw, 1.12rem); }
+      #schoolGroups .school-card { padding: 14px; }
+      #schoolGroups table {
+        font-size: clamp(.62rem, 3.25vw, .78rem);
+      }
+      #schoolGroups table.is-time-ledger {
+        --manager-entry-date-col: clamp(40px, 13vw, 46px);
+        --manager-entry-type-col: clamp(54px, 18vw, 62px);
+        --manager-entry-hours-col: clamp(22px, 7vw, 28px);
+        --manager-entry-actions-col: clamp(48px, 16vw, 54px);
+      }
+      #schoolGroups th,
+      #schoolGroups td {
+        padding: 5px 2px;
+        line-height: 1.14;
+      }
+      #schoolGroups table.is-time-ledger td:nth-child(4) {
+        word-break: normal;
+        overflow-wrap: normal;
+      }
+      #schoolGroups .entry-actions-inner {
+        gap: 4px;
+      }
+      #schoolGroups .entry-actions .entry-action-button {
+        width: 24px;
+        min-width: 24px;
+        height: 24px;
+        min-height: 24px;
+      }
+      #schoolGroups .entry-action-button svg {
+        width: 12px;
+        height: 12px;
+      }
+      .action-column .panel h2 { font-size: clamp(1.35rem, 7.2vw, 1.7rem); }
+      .panel-copy { font-size: clamp(.78rem, 3.5vw, .9rem); line-height: 1.34; }
+      .action-column .pay-card { padding: 14px; margin-top: 14px; border-radius: 18px; }
+      .action-column .pay-line { padding: 8px 0; gap: 8px; font-size: clamp(.9rem, 4.3vw, 1rem); }
+      .action-column .pay-line strong { font-size: clamp(.95rem, 4.5vw, 1.08rem); }
+      .action-column .calendar-actions { margin-top: 14px; }
     }
 
     .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
@@ -1200,6 +1368,9 @@
         fragment.querySelector("h3").textContent = schoolEntries[0].schoolName;
         const isCostOnlyGroup = schoolEntries.every(isCostEntry);
         const hasClaimRows = schoolEntries.some((entry) => entry.type === "Claim");
+        const table = fragment.querySelector("table");
+        table.classList.toggle("is-time-ledger", !isCostOnlyGroup);
+        table.classList.toggle("is-cost-ledger", isCostOnlyGroup && !hasClaimRows);
         const headRow = fragment.querySelector("thead tr");
         headRow.innerHTML = isCostOnlyGroup
           ? hasClaimRows
