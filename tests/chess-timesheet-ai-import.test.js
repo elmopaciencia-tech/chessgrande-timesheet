@@ -160,9 +160,9 @@ assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel sho
   "createdBy: currentUser.id",
   "updatedBy: currentUser.id",
   "Imported claims still need proof before payroll submission.",
-  "Use this checkpoint after adding sessions, claims, and event costs.",
+  "Check the month for missing dates, wrong times, duplicate entries, replacement names, and claim dates or costs before you submit.",
   'class="payroll-checklist"',
-  "Scan the calendar for missing dates, duplicate sessions, or work placed on the wrong day.",
+  "Scan for missing dates, duplicate entries, or work placed on the wrong day.",
 ].forEach((snippet) => {
   assert.ok(html.includes(snippet), `employee Excel import should include ${snippet}`);
 });

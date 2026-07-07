@@ -269,8 +269,8 @@ assert.match(
 );
 assert.match(
   managerEntry,
-  /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*clamp\(.48rem, 1.8vw, .58rem\);[\s\S]*overflow-wrap:\s*anywhere;/s,
-  "manager entry mobile calendar should stay squareish with compressed chip text"
+  /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*6px;[\s\S]*overflow-wrap:\s*anywhere;/s,
+  "manager entry mobile calendar should stay squareish with compact 6px chip text"
 );
 assert.match(
   managerEntry,
@@ -328,11 +328,23 @@ assert.match(
   ["pay review", "chess-timesheet-pay.html"],
 ].forEach(([label, fileName]) => {
   const source = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
-  assert.match(
-    source,
-    /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*clamp\(0?\.48rem, 1\.8vw, 0?\.58rem\);[\s\S]*overflow-wrap:\s*anywhere;/s,
-    `${label} mobile calendar should stay squareish with compressed chip text`
-  );
+  if (fileName === "chess-timesheet.html") {
+    [
+      "aspect-ratio: auto;",
+      "min-height: clamp(104px, 24vw, 132px);",
+      "overflow: visible;",
+      "font-size: 6px;",
+      "line-height: 1.1;",
+    ].forEach((snippet) => {
+      assert.ok(source.includes(snippet), `${label} mobile calendar should include ${snippet}`);
+    });
+  } else {
+    assert.match(
+      source,
+      /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*6px;[\s\S]*overflow-wrap:\s*anywhere;/s,
+      `${label} mobile calendar should stay squareish with compact 6px chip text`
+    );
+  }
   assert.match(
     source,
     /@media \(max-width: 760px\)[\s\S]*\.panel-copy\s*\{[^}]*font-size:\s*clamp\(0?\.86rem, 3\.4vw, 0?\.98rem\);[\s\S]*@media \(max-width: 420px\)[\s\S]*\.panel-copy\s*\{[^}]*font-size:\s*clamp\(0?\.78rem, 3\.5vw, 0?\.9rem\);/s,

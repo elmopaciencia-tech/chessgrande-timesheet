@@ -1589,7 +1589,7 @@
     .repeat-date-summary {
       display: grid;
       gap: 6px;
-      margin-top: 8px;
+      margin-top: 0;
       padding: 10px 12px;
       border: 1px solid color-mix(in srgb, var(--success) 34%, var(--line) 66%);
       border-radius: 14px;
@@ -1762,8 +1762,8 @@
     }
 
     .chip {
-      font-size: 0.72rem;
-      line-height: 1.2;
+      font-size: 6px;
+      line-height: 1.1;
       background: color-mix(in srgb, var(--surface-strong) 92%, white 8%);
       border: 1px solid color-mix(in srgb, var(--accent) 12%, white 88%);
       color: var(--accent);
@@ -2512,6 +2512,7 @@
       }
 
       #entryComposerPanel .school-name-row,
+      #entryComposerPanel .repeat-date-summary,
       #entryComposerPanel #replacementField,
       #entryComposerPanel #customRateField,
       #entryComposerPanel #claimFields > div {
@@ -2666,11 +2667,12 @@
       }
 
       .day {
-        min-height: 0;
-        aspect-ratio: 1 / 1;
-        padding: clamp(4px, 1.6vw, 7px);
-        gap: 3px;
+        min-height: clamp(104px, 24vw, 132px);
+        aspect-ratio: auto;
+        padding: clamp(5px, 1.8vw, 8px);
+        gap: 4px;
         border-radius: 14px;
+        overflow: visible;
       }
 
       .weekday {
@@ -2684,26 +2686,26 @@
       }
 
       .day-items {
-        gap: 2px;
+        gap: 3px;
         min-height: 0;
-        overflow: hidden;
+        overflow: visible;
       }
 
       .chip {
         min-width: 0;
-        padding: 2px 3px;
+        padding: 3px 4px;
         border-radius: 7px;
-        font-size: clamp(0.48rem, 1.8vw, 0.58rem);
-        line-height: 1.05;
-        overflow: hidden;
-        text-overflow: clip;
+        font-size: 6px;
+        line-height: 1.1;
+        overflow: visible;
+        text-overflow: unset;
         overflow-wrap: anywhere;
       }
 
       .chip strong {
         display: block;
-        overflow: hidden;
-        text-overflow: clip;
+        overflow: visible;
+        text-overflow: unset;
         overflow-wrap: anywhere;
       }
 
@@ -2986,7 +2988,7 @@
             <div id="calendar" class="calendar-grid"></div>
             <div class="calendar-actions">
               <div class="calendar-actions-header">
-                <p class="calendar-note">Open the submission view after your calendar and school ledger both look complete for the month.</p>
+                <p class="calendar-note">Open the submission view after your calendar and timesheet both look complete for the month.</p>
               </div>
               <p class="calendar-mobile-help">Tap a date to add or update an entry. Turn on repeat in the composer if you want to pick several dates before saving.</p>
               <div class="repeat-selection-bar" id="repeatSelectionBar" hidden role="status" aria-live="polite">
@@ -3092,10 +3094,6 @@
                 <div class="date-field">
                   <label for="entryDate">Date</label>
                   <input id="entryDate" name="entryDate" type="date" required aria-label="Entry date. Opens a calendar picker.">
-                  <div class="repeat-date-summary" id="repeatDateSummary" hidden aria-live="polite">
-                    <span class="repeat-date-summary-count" id="repeatDateSummaryCount">0 dates selected</span>
-                    <span class="repeat-date-summary-list" id="repeatDateSummaryList"></span>
-                  </div>
                 </div>
                 <div class="entry-type-row">
                   <div class="entry-type-field">
@@ -3115,6 +3113,10 @@
                       <div class="calendar-color-options" id="calendarColorOptions"></div>
                     </div>
                   </div>
+                </div>
+                <div class="repeat-date-summary full" id="repeatDateSummary" hidden aria-live="polite">
+                  <span class="repeat-date-summary-count" id="repeatDateSummaryCount">0 dates selected</span>
+                  <span class="repeat-date-summary-list" id="repeatDateSummaryList"></span>
                 </div>
                 <div class="full" id="replacementField" hidden>
                   <label for="replacementName">Replaced Person</label>
@@ -3149,18 +3151,18 @@
             <div class="panel-header">
               <div>
                 <p class="panel-eyebrow">Payroll handoff</p>
-                <h2>Prepare The Monthly Submission</h2>
-                <p class="panel-copy">Use this checkpoint after adding sessions, claims, and event costs. Review this page first, then open the submission view when the month looks complete.</p>
+                <h2>Review The Timesheet</h2>
+                <p class="panel-copy">Check the month for missing dates, wrong times, duplicate entries, replacement names, and claim dates or costs before you submit.</p>
               </div>
             </div>
             <div class="payroll-rail">
               <div>
-                <strong>Before opening the pay view</strong>
-                <p>Work down this page once, from the calendar to the school ledger.</p>
+                <strong>Before submitting</strong>
+                <p>Work through the timesheet once, from the calendar to the entries below.</p>
                 <ul class="payroll-checklist">
-                  <li>Confirm the selected month, school count, total entries, and monthly hours.</li>
-                  <li>Scan the calendar for missing dates, duplicate sessions, or work placed on the wrong day.</li>
-                  <li>Check the school ledger for incorrect school names, claim labels, and claim rows that still need proof.</li>
+                  <li>Confirm the selected month, total entries, and monthly hours.</li>
+                  <li>Scan for missing dates, duplicate entries, or work placed on the wrong day.</li>
+                  <li>Check replacement names, claim dates, claim costs, and any rows that still need proof.</li>
                 </ul>
               </div>
               <a class="nav-button" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Continue To Submit</a>
@@ -3411,6 +3413,7 @@
     let chipRemoveModalPreviousOverflow = "";
     let entryComposerModalLastFocus = null;
     let entryComposerModalPreviousOverflow = "";
+    let mobileComposerAnimationTimer = 0;
     let aiPendingImportPlan = null;
     let aiImportBusy = false;
 
@@ -3659,6 +3662,7 @@
     calendar.addEventListener("contextmenu", onCalendarDateContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
     calendar.addEventListener("click", onMobileCalendarDateClick);
+    calendar.addEventListener("pointerdown", onMobileCalendarDatePointerDown);
     calendar.addEventListener("keydown", onMobileCalendarDateKeydown);
     chipContextMenu.addEventListener("click", onChipContextMenuClick);
     dateContextMenu.addEventListener("click", onDateContextMenuClick);
@@ -3759,9 +3763,12 @@
       if (!date || !isMobileComposerMode()) return;
       closeChipContextMenu();
       closeDateContextMenu();
+      suppressCalendarTapAnimation();
       entryDateInput.value = date;
       entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
-      entryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      if (isRecurringInput.checked) {
+        entryDateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
       openEntryComposerModal({ trigger, preserveFields: true });
     }
 
@@ -3771,12 +3778,12 @@
       entryComposerModalLastFocus = options.trigger || document.activeElement;
       closeQuickAddMenu();
       closeCalendarColorMenu();
+      suppressCalendarTapAnimation();
       entryComposerModalPreviousOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       entryComposerModal.hidden = false;
       window.setTimeout(() => {
-        const target = getEntryComposerFocusTarget();
-        target?.focus({ preventScroll: true });
+        entryComposerModalBody?.focus({ preventScroll: true });
       }, 80);
     }
 
@@ -3804,11 +3811,24 @@
       closeQuickAddMenu();
       closeCalendarColorMenu();
       entryComposerModal.hidden = true;
+      window.clearTimeout(mobileComposerAnimationTimer);
+      document.body.classList.remove("is-opening-entry-composer", "is-entry-composer-modal-open");
       document.body.style.overflow = entryComposerModalPreviousOverflow;
       if (options.restoreFocus && entryComposerModalLastFocus && typeof entryComposerModalLastFocus.focus === "function") {
         entryComposerModalLastFocus.focus({ preventScroll: true });
       }
       entryComposerModalLastFocus = null;
+    }
+
+    function suppressCalendarTapAnimation() {
+      window.clearTimeout(mobileComposerAnimationTimer);
+      document.body.classList.add("is-opening-entry-composer");
+      mobileComposerAnimationTimer = window.setTimeout(() => {
+        if (entryComposerModal?.hidden === false) {
+          document.body.classList.add("is-entry-composer-modal-open");
+        }
+        document.body.classList.remove("is-opening-entry-composer");
+      }, 180);
     }
 
     function trapEntryComposerModalFocus(event) {
@@ -3836,6 +3856,16 @@
       if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
       event.preventDefault();
       openEntryComposerModalForDate(dayCell.dataset.entryDate, dayCell);
+    }
+
+    function onMobileCalendarDatePointerDown(event) {
+      if (!isMobileComposerMode()) return;
+      if (isRecurringInput.checked) return;
+      if (event.defaultPrevented) return;
+      if (event.target instanceof Element && event.target.closest("button, input, select, textarea, a")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      suppressCalendarTapAnimation();
     }
 
     function onMobileCalendarDateKeydown(event) {
@@ -6562,7 +6592,8 @@
 
     function formatTimeRange(entry) {
       if (entry.type === "Claim") {
-        return entry.claimProofName ? `Proof: ${escapeHtml(entry.claimProofName)}` : "Claim";
+        const claimCost = getCostEntryValue(entry);
+        return claimCost > 0 ? formatCurrency(claimCost) : "Claim";
       }
       if (isEventCostEntry(entry)) {
         return getCostEntryValue(entry) > 0 ? formatCurrency(getCostEntryValue(entry)) : "Event";

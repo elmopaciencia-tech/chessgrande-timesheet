@@ -7,6 +7,7 @@ const pages = [
   ["pay review", "chess-timesheet-pay.html"],
   ["manager entry", "manager-entry.html"],
 ];
+const themeCss = fs.readFileSync(path.join(process.cwd(), "theme.css"), "utf8");
 
 for (const [label, fileName] of pages) {
   const html = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
@@ -130,6 +131,17 @@ for (const [label, fileName] of pages) {
       /\.day\.is-repeat-selected\s*\{[\s\S]*\.day\.is-repeat-selected::after/,
       "employee calendar day cells should have a distinct pending repeat selected state"
     );
+    [
+      "aspect-ratio: auto;",
+      "min-height: clamp(104px, 24vw, 132px);",
+      "overflow: visible;",
+      ".day-items {",
+      ".chip {",
+      "line-height: 1.1;",
+      ".chip strong {",
+    ].forEach((snippet) => {
+      assert.ok(html.includes(snippet), `employee mobile calendar should include ${snippet}`);
+    });
     assert.match(
       html,
       /const pendingRepeatDates = new Set\(\)/,
@@ -207,8 +219,8 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /<div class="date-field">[\s\S]*<input id="entryDate"[\s\S]*<div class="repeat-date-summary" id="repeatDateSummary" hidden/,
-      "employee composer should show pending repeat dates inside the Date field area"
+      /<div class="date-field">[\s\S]*<input id="entryDate"[\s\S]*<\/div>\s*<div class="entry-type-row">[\s\S]*<\/div>\s*<div class="repeat-date-summary full" id="repeatDateSummary" hidden/,
+      "employee composer should show pending repeat dates on their own row below Date and Entry Type"
     );
     assert.match(
       html,
@@ -257,6 +269,36 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
+      /function formatTimeRange\(entry\)[\s\S]*if \(entry\.type === "Claim"\)[\s\S]*const claimCost = getCostEntryValue\(entry\)[\s\S]*return claimCost > 0 \? formatCurrency\(claimCost\) : "Claim";/,
+      "employee claim chips should show the claim cost instead of the proof filename"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("pointerdown", onMobileCalendarDatePointerDown\)/,
+      "employee mobile calendar should suppress tap animations before the click opens the composer"
+    );
+    assert.match(
+      html,
+      /function openEntryComposerModalForDate\(date, trigger\)[\s\S]*suppressCalendarTapAnimation\(\)[\s\S]*entryDateInput\.dispatchEvent\(new Event\("input"[\s\S]*if \(isRecurringInput\.checked\) \{[\s\S]*entryDateInput\.dispatchEvent\(new Event\("change"/,
+      "employee mobile date taps should skip the full date-change render unless repeat mode needs it"
+    );
+    assert.match(
+      html,
+      /function suppressCalendarTapAnimation\(\)[\s\S]*classList\.add\("is-opening-entry-composer"\)[\s\S]*classList\.add\("is-entry-composer-modal-open"\)/,
+      "employee mobile composer should mark the opening/open state for animation suppression"
+    );
+    assert.match(
+      html,
+      /function openEntryComposerModal\(options = \{\}\)[\s\S]*entryComposerModal\.hidden = false[\s\S]*entryComposerModalBody\?\.focus\(\{ preventScroll: true \}\)/,
+      "employee mobile composer should focus the modal body instead of opening the keyboard immediately"
+    );
+    assert.match(
+      themeCss,
+      /body\.is-opening-entry-composer \.day,[\s\S]*body\.is-entry-composer-modal-open \.calendar-chip\s*\{[^}]*transition:\s*none !important;[^}]*transform:\s*none !important;/,
+      "theme should disable calendar day and chip animation while the mobile composer opens"
+    );
+    assert.match(
+      html,
       /function openEntryComposerModal\(options = \{\}\)[\s\S]*prepareEntryComposerModalBody\(\)[\s\S]*entryComposerModal\.hidden = false/,
       "employee mobile composer should prepare its modal body before reopening the overlay"
     );
@@ -299,6 +341,11 @@ for (const [label, fileName] of pages) {
       html,
       /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)\s*46px;[\s\S]*#entryComposerPanel \.time-field input\[type="time"\],[\s\S]*#entryComposerPanel \.hours-field input\s*\{[^}]*min-inline-size:\s*0;[^}]*max-inline-size:\s*100%;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
       "employee mobile composer should compact date and type, time and hours, icon quick add, and action buttons into shared rows"
+    );
+    assert.match(
+      html,
+      /#entryComposerPanel \.school-name-row,[\s\S]*#entryComposerPanel \.repeat-date-summary,[\s\S]*#entryComposerPanel #replacementField,[\s\S]*grid-column:\s*1 \/ -1;/,
+      "employee mobile repeat summary should span its own full-width row"
     );
     assert.match(
       html,
@@ -569,6 +616,19 @@ assert.match(
   payHtml,
   /@media \(max-width: 760px\)[\s\S]*\.entry-edit-modal\s*\{[^}]*padding:\s*max\(14px, env\(safe-area-inset-top\)\)[\s\S]*place-items:\s*center;[\s\S]*\.entry-edit-card\s*\{[^}]*border-radius:\s*28px;/,
   "pay review mobile edit composer should not become a bottom sheet"
+);
+const payrollHandoffStart = timesheetHtml.indexOf('<section class="panel" id="payrollHandoffPanel">');
+const payrollHandoffEnd = timesheetHtml.indexOf('</section>', payrollHandoffStart) + '</section>'.length;
+const payrollHandoffHtml = timesheetHtml.slice(payrollHandoffStart, payrollHandoffEnd);
+assert.match(
+  payrollHandoffHtml,
+  /<section class="panel" id="payrollHandoffPanel">[\s\S]*<h2>Review The Timesheet<\/h2>[\s\S]*Check the month for missing dates, wrong times, duplicate entries, replacement names, and claim dates or costs before you submit\.[\s\S]*<strong>Before submitting<\/strong>[\s\S]*Work through the timesheet once, from the calendar to the entries below\.[\s\S]*<li>Check replacement names, claim dates, claim costs, and any rows that still need proof\.<\/li>/,
+  "employee payroll handoff should use a shorter timesheet-focused reminder"
+);
+assert.doesNotMatch(
+  payrollHandoffHtml,
+  /ledger/i,
+  "employee payroll handoff should avoid ledger wording"
 );
 
 [

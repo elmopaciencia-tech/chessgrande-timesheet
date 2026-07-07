@@ -757,6 +757,24 @@ textarea:focus {
   transform: translateY(-1px);
 }
 
+.chip,
+.calendar-chip {
+  font-size: 6px;
+  line-height: 1.1;
+}
+
+body.is-opening-entry-composer .day,
+body.is-opening-entry-composer .calendar-day,
+body.is-opening-entry-composer .chip,
+body.is-opening-entry-composer .calendar-chip,
+body.is-entry-composer-modal-open .day,
+body.is-entry-composer-modal-open .calendar-day,
+body.is-entry-composer-modal-open .chip,
+body.is-entry-composer-modal-open .calendar-chip {
+  transition: none !important;
+  transform: none !important;
+}
+
 .menu-panel:not([hidden]),
 .chat-popup:not([hidden]),
 .modal:not([hidden]),
