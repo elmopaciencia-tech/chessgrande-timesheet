@@ -262,8 +262,18 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /function prepareEntryComposerModalBody\(\)[\s\S]*entryComposerModalBody\.appendChild\(entryComposerPanel\)[\s\S]*entryComposerPanel\.hidden = false[\s\S]*entryComposerModalBody\.hidden = false/,
+      /function prepareEntryComposerModalBody\(\)[\s\S]*entryComposerModalBody\.appendChild\(entryComposerPanel\)[\s\S]*entryComposerPanel\.hidden = false[\s\S]*entryComposerPanel\.style\.removeProperty\("opacity"\)[\s\S]*entryComposerModalBody\.hidden = false[\s\S]*entryComposerModalBody\.style\.removeProperty\("opacity"\)/,
       "employee mobile composer reopen should keep the panel attached and visible inside the modal body"
+    );
+    assert.match(
+      html,
+      /\.entry-composer-modal-body\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*none;[^}]*visibility:\s*visible;[\s\S]*\.entry-composer-modal:not\(\[hidden\]\) \.entry-composer-modal-body\s*\{(?![^}]*animation:)[^}]*transform-origin:\s*center;/,
+      "employee mobile composer card should not rely on a replayed animation to become visible"
+    );
+    assert.match(
+      html,
+      /\.entry-composer-modal::before\s*\{[^}]*-webkit-backdrop-filter:\s*blur\(10px\);[^}]*backdrop-filter:\s*blur\(10px\);[\s\S]*\.entry-composer-modal-body\s*\{[^}]*position:\s*relative;[^}]*z-index:\s*1;/,
+      "employee mobile composer should keep the Safari backdrop layer behind the visible card"
     );
     assert.match(
       html,
@@ -287,8 +297,13 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(96px,\s*0\.88fr\)\s*minmax\(78px,\s*0\.62fr\)\s*auto;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)\s*46px;[\s\S]*#entryComposerPanel \.time-field input\[type="time"\],[\s\S]*#entryComposerPanel \.hours-field input\s*\{[^}]*min-inline-size:\s*0;[^}]*max-inline-size:\s*100%;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
       "employee mobile composer should compact date and type, time and hours, icon quick add, and action buttons into shared rows"
+    );
+    assert.match(
+      html,
+      /#entryComposerPanel \.time-field input\[type="time"\]\s*\{[^}]*-webkit-appearance:\s*none;[^}]*appearance:\s*none;[^}]*font-size:\s*0\.94rem;/,
+      "employee mobile time input should opt out of iOS Safari intrinsic control sizing"
     );
   }
   assert.match(

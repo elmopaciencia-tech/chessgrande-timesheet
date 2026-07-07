@@ -1285,8 +1285,18 @@
         max(12px, env(safe-area-inset-right))
         max(14px, env(safe-area-inset-bottom))
         max(12px, env(safe-area-inset-left));
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .entry-composer-modal::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
       background: rgba(23, 26, 25, 0.54);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
+      pointer-events: none;
     }
     .entry-composer-modal[hidden] {
       display: none;
@@ -1295,14 +1305,18 @@
       animation: cg-overlay-fade 180ms var(--motion-ease, ease) both;
     }
     .entry-composer-modal-body {
+      position: relative;
+      z-index: 1;
       width: min(100%, 460px);
       max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
       overflow: auto;
       overscroll-behavior: contain;
       border-radius: 28px;
+      opacity: 1;
+      transform: none;
+      visibility: visible;
     }
     .entry-composer-modal:not([hidden]) .entry-composer-modal-body {
-      animation: cg-modal-pop 280ms var(--motion-ease, ease) both;
       transform-origin: center;
     }
     .chip-remove-card {
@@ -1598,16 +1612,28 @@
         grid-column: 1 / -1;
       }
       #entryComposerPanel .time-fields-grid {
-        grid-template-columns: minmax(96px, 0.88fr) minmax(78px, 0.62fr) auto;
-        gap: 10px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 46px;
+        gap: 8px;
         align-items: end;
+        overflow: hidden;
       }
       #entryComposerPanel .time-fields-grid > div {
         min-width: 0;
+        overflow: hidden;
       }
       #entryComposerPanel .time-fields-grid input {
         width: 100%;
+        max-width: 100%;
         min-width: 0;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+        box-sizing: border-box;
+      }
+      #entryComposerPanel .time-fields-grid input[type="time"] {
+        -webkit-appearance: none;
+        appearance: none;
+        padding-inline: 10px;
+        font-size: 0.94rem;
       }
       #entryComposerPanel .quick-add-save {
         width: 46px;
@@ -2309,9 +2335,7 @@
     function syncDraftComposerPlacement() {
       if (!entryComposerPanel || !entryComposerModalBody || !actionColumn) return;
       if (isMobileComposerMode()) {
-        if (entryComposerPanel.parentElement !== entryComposerModalBody) {
-          entryComposerModalBody.appendChild(entryComposerPanel);
-        }
+        prepareEntryComposerModalBody();
         return;
       }
       if (actionColumn.firstElementChild !== entryComposerPanel) {
@@ -2342,7 +2366,7 @@
 
     function openEntryComposerModal(options = {}) {
       if (!entryComposerModal || !isMobileComposerMode()) return;
-      syncDraftComposerPlacement();
+      prepareEntryComposerModalBody();
       entryComposerModalLastFocus = options.trigger || document.activeElement;
       closeQuickAddMenu();
       closeCalendarColorMenu();
@@ -2353,6 +2377,25 @@
         const target = getEntryComposerFocusTarget();
         target?.focus({ preventScroll: true });
       }, 80);
+    }
+
+    function prepareEntryComposerModalBody() {
+      if (!entryComposerPanel || !entryComposerModalBody) return;
+      if (entryComposerPanel.parentElement !== entryComposerModalBody) {
+        entryComposerModalBody.appendChild(entryComposerPanel);
+      }
+      entryComposerPanel.hidden = false;
+      entryComposerPanel.removeAttribute("aria-hidden");
+      entryComposerPanel.style.removeProperty("display");
+      entryComposerPanel.style.removeProperty("opacity");
+      entryComposerPanel.style.removeProperty("transform");
+      entryComposerPanel.style.removeProperty("visibility");
+      entryComposerModalBody.hidden = false;
+      entryComposerModalBody.removeAttribute("aria-hidden");
+      entryComposerModalBody.style.removeProperty("display");
+      entryComposerModalBody.style.removeProperty("opacity");
+      entryComposerModalBody.style.removeProperty("transform");
+      entryComposerModalBody.style.removeProperty("visibility");
     }
 
     function closeEntryComposerModal(options = {}) {
