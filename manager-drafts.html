@@ -1598,9 +1598,16 @@
         grid-column: 1 / -1;
       }
       #entryComposerPanel .time-fields-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(92px, 0.74fr) auto;
+        grid-template-columns: minmax(96px, 0.88fr) minmax(78px, 0.62fr) auto;
         gap: 10px;
         align-items: end;
+      }
+      #entryComposerPanel .time-fields-grid > div {
+        min-width: 0;
+      }
+      #entryComposerPanel .time-fields-grid input {
+        width: 100%;
+        min-width: 0;
       }
       #entryComposerPanel .quick-add-save {
         width: 46px;

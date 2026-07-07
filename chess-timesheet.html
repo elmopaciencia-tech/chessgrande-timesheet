@@ -2504,9 +2504,20 @@
       }
 
       #entryComposerPanel .time-fields-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(92px, 0.74fr) auto;
+        grid-template-columns: minmax(96px, 0.88fr) minmax(78px, 0.62fr) auto;
         gap: 10px;
         align-items: end;
+      }
+
+      #entryComposerPanel .time-field,
+      #entryComposerPanel .hours-field {
+        min-width: 0;
+      }
+
+      #entryComposerPanel .time-field input[type="time"],
+      #entryComposerPanel .hours-field input {
+        width: 100%;
+        min-width: 0;
       }
 
       #entryComposerPanel .quick-add-save {
@@ -2814,7 +2825,7 @@
       }
 
       #entryComposerPanel .time-fields-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(82px, 0.7fr) auto;
+        grid-template-columns: minmax(90px, 0.84fr) minmax(74px, 0.58fr) auto;
       }
 
       #monthlyReviewPanel .panel-copy {
@@ -3727,9 +3738,7 @@
 
     function openEntryComposerModal(options = {}) {
       if (!entryComposerModal || !isMobileComposerMode()) return;
-      if (entryComposerPanel.parentElement !== entryComposerModalBody) {
-        syncCompactPanelOrder();
-      }
+      prepareEntryComposerModalBody();
       entryComposerModalLastFocus = options.trigger || document.activeElement;
       closeQuickAddMenu();
       closeCalendarColorMenu();
@@ -3740,6 +3749,17 @@
         const target = getEntryComposerFocusTarget();
         target?.focus({ preventScroll: true });
       }, 80);
+    }
+
+    function prepareEntryComposerModalBody() {
+      if (!entryComposerPanel || !entryComposerModalBody) return;
+      if (entryComposerPanel.parentElement !== entryComposerModalBody) {
+        entryComposerModalBody.appendChild(entryComposerPanel);
+      }
+      entryComposerPanel.hidden = false;
+      entryComposerPanel.removeAttribute("aria-hidden");
+      entryComposerModalBody.hidden = false;
+      entryComposerModalBody.removeAttribute("aria-hidden");
     }
 
     function closeEntryComposerModal(options = {}) {

@@ -257,6 +257,16 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
+      /function openEntryComposerModal\(options = \{\}\)[\s\S]*prepareEntryComposerModalBody\(\)[\s\S]*entryComposerModal\.hidden = false/,
+      "employee mobile composer should prepare its modal body before reopening the overlay"
+    );
+    assert.match(
+      html,
+      /function prepareEntryComposerModalBody\(\)[\s\S]*entryComposerModalBody\.appendChild\(entryComposerPanel\)[\s\S]*entryComposerPanel\.hidden = false[\s\S]*entryComposerModalBody\.hidden = false/,
+      "employee mobile composer reopen should keep the panel attached and visible inside the modal body"
+    );
+    assert.match(
+      html,
       /function onRepeatToggleChange\(\)[\s\S]*if \(isMobileComposerMode\(\)\)[\s\S]*closeEntryComposerModal\(\{ preserveFields: true \}\)[\s\S]*syncRepeatSelectionBar\(\)/,
       "employee mobile repeat toggle should temporarily hide the composer and show selected dates"
     );
@@ -277,7 +287,7 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(92px,\s*0\.74fr\)\s*auto;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(96px,\s*0\.88fr\)\s*minmax\(78px,\s*0\.62fr\)\s*auto;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
       "employee mobile composer should compact date and type, time and hours, icon quick add, and action buttons into shared rows"
     );
   }
