@@ -10,8 +10,13 @@ assert.ok(heroMatch, "timesheet page should render the compact hero section");
 
 const hero = heroMatch[0];
 
+assert.match(
+  html,
+  /<section class="panel" id="monthlyReviewPanel"[\s\S]*<h2 id="calendarTitle">Month View<\/h2>[\s\S]*<p class="panel-copy">Select a month above, add all of your entries for that month, then finalize your timesheet in Submission View\.<\/p>/,
+  "calendar view should explain the month-to-submission workflow"
+);
+
 [
-  "Streamlined Monthly Tracker",
   "<h1>Chess Grande Timesheet</h1>",
   'class="hero-stats"',
   'id="monthPicker"',
@@ -29,6 +34,10 @@ const hero = heroMatch[0];
 ].forEach((snippet) => {
   assert.ok(hero.includes(snippet), `compact hero should include ${snippet}`);
 });
+assert.ok(
+  !hero.includes("Streamlined Monthly Tracker"),
+  "timesheet hero should avoid decorative tracker copy"
+);
 
 [
   "How this page works",

@@ -20,7 +20,7 @@ const uiEffectsSource = fs.readFileSync(
 );
 
 [
-  "Workday Snapshot",
+  "Dashboard",
   "id=\"nextClassTitle\"",
   "id=\"nextClassIcon\"",
   "id=\"weeklySchedule\"",
@@ -50,7 +50,8 @@ const uiEffectsSource = fs.readFileSync(
   "data-lucide=\"arrow-up-right\"",
   "href=\"./chess-timesheet.html\"",
   "href=\"./chess-timesheet-pay.html\"",
-  "Submit the month when the timesheet is ready.",
+  "Review this month's payroll.",
+  "Review and submit payroll.",
   "src=\"./draft-timesheet-store.js\"",
   "src=\"./employee-notice-store.js\"",
   ".menu-item[hidden] { display: none; }",
@@ -116,6 +117,39 @@ assert.match(
   html,
   /\.entry-activity-grid \{[\s\S]*?grid-template-rows: repeat\(7, 12px\);/,
   "entry activity grid should use taller cells without vertical scrolling"
+);
+assert.match(
+  html,
+  /@media \(max-width: 640px\) \{[\s\S]*?\.stat-grid \{[^}]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);[^}]*?gap: 8px;/,
+  "month progress stats should stay in one compact row on mobile"
+);
+assert.match(
+  html,
+  /@media \(max-width: 640px\) \{[\s\S]*?\.history-item \{[\s\S]*?grid-template-columns: auto minmax\(0, 1fr\);[\s\S]*?\.history-item > \.badge \{[\s\S]*?grid-column: 1 \/ -1;/,
+  "payment history content should stay aligned beside its icon on mobile"
+);
+assert.match(
+  html,
+  /@media \(max-width: 640px\) \{[\s\S]*?\.notice-actions \{[\s\S]*?position: absolute;[\s\S]*?top: 12px;[\s\S]*?right: 12px;/,
+  "notice actions should sit in the top-right corner on mobile"
+);
+[
+  "Check what is coming up, keep this month tidy, and catch payroll updates from one place.",
+  "Upcoming active sessions from your timesheet drafts.",
+  "Manager updates and paid confirmations.",
+  "Recent submitted payroll months.",
+  "This month has not been submitted yet. Open the submission view when your timesheet is ready.",
+].forEach((verboseCopy) => {
+  assert.ok(!html.includes(verboseCopy), `dashboard should remove redundant copy: ${verboseCopy}`);
+});
+assert.ok(
+  html.includes('submissionStatusCopy.textContent = "Submit when this month is ready.";'),
+  "submission status should use concise not-submitted copy"
+);
+assert.match(
+  html,
+  /submissionStatusCopy\.textContent = `\$\{submission\.month_label \|\| submission\.month\} · (?:Paid|Submitted)/,
+  "submission status details should use compact state copy"
 );
 
 function extractFunction(source, name) {

@@ -763,10 +763,6 @@ textarea:focus {
   line-height: 1.1;
 }
 
-body.is-opening-entry-composer .day,
-body.is-opening-entry-composer .calendar-day,
-body.is-opening-entry-composer .chip,
-body.is-opening-entry-composer .calendar-chip,
 body.is-entry-composer-modal-open .day,
 body.is-entry-composer-modal-open .calendar-day,
 body.is-entry-composer-modal-open .chip,

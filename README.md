@@ -15,7 +15,7 @@ The original workflow was a spreadsheet-first payment sheet: staff filled repeat
   </tr>
   <tr>
     <td><img src="assets/readme/excel-before.png" alt="Old Chess Grande Excel payment sheet with manual rows for school sessions and camp entries"></td>
-    <td><img src="assets/readme/employee-timesheet.png" alt="Chess Grande employee timesheet web page with a monthly calendar, school ledger, and entry composer"></td>
+    <td><img src="assets/readme/employee-timesheet.png" alt="Chess Grande employee timesheet web page with a monthly calendar, activity summary, and entry composer"></td>
   </tr>
 </table>
 
@@ -34,7 +34,7 @@ The web app keeps the familiar monthly ledger idea, but gives each role a focuse
 
 ### 1. Employees Build The Monthly Timesheet
 
-Employees work from one monthly view. The calendar shows schedule density, while the school ledger groups entries for review before submission.
+Employees work from one monthly view. The calendar shows schedule density, while the activity summary groups entries for review before submission.
 
 ![Employee timesheet view with demo monthly entries](assets/readme/employee-timesheet.png)
 

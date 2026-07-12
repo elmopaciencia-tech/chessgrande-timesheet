@@ -56,6 +56,9 @@ export default {
       if (request.method === "POST" && pathname === "/api/claim-proofs/sign-read") {
         return withCors(await handleSignRead(request, env));
       }
+      if (request.method === "POST" && pathname === "/api/notices/sender-avatar") {
+        return withCors(await handleNoticeSenderAvatar(request, env));
+      }
       if (request.method === "GET" && pathname === "/api/claim-proofs/read") {
         return withCors(await handleRead(request, env));
       }
@@ -209,6 +212,35 @@ async function handleSignRead(request, env) {
     signedUrl: `${baseUrl}/api/claim-proofs/read?token=${encodeURIComponent(token)}`,
     expiresIn,
     expiresAt,
+  });
+}
+
+async function handleNoticeSenderAvatar(request, env) {
+  const user = await requireAuthUser(request, env);
+  const body = await request.json().catch(() => ({}));
+  const noticeId = String(body?.noticeId || "").trim();
+
+  if (!isUuid(noticeId)) {
+    return jsonResponse(400, { error: "noticeId must be a UUID." });
+  }
+
+  const avatarKey = await getNoticeSenderAvatarKey(noticeId, user.id, env);
+  if (!avatarKey) {
+    return jsonResponse(200, { signedUrl: "", expiresIn: 0 });
+  }
+
+  const expiresIn = 60 * 60;
+  const expiresAt = Math.floor(Date.now() / 1000) + expiresIn;
+  const token = await signToken({
+    type: "read",
+    objectKey: avatarKey,
+    exp: expiresAt,
+  }, env.WORKER_UPLOAD_TOKEN_SECRET);
+  const baseUrl = resolvePublicWorkerBaseUrl(request, env);
+
+  return jsonResponse(200, {
+    signedUrl: `${baseUrl}/api/claim-proofs/read?token=${encodeURIComponent(token)}`,
+    expiresIn,
   });
 }
 
@@ -711,6 +743,10 @@ function isRoleAllowed(role) {
   return ["employee", "manager", "webadmin"].includes(String(role || "").toLowerCase());
 }
 
+function isUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ""));
+}
+
 function resolvePublicWorkerBaseUrl(request, env) {
   const configured = String(env.PUBLIC_WORKER_BASE_URL || "").trim();
   if (
@@ -740,6 +776,51 @@ async function getProfileForUser(userId, env) {
   }
   const rows = await response.json();
   return Array.isArray(rows) ? rows[0] || null : null;
+}
+
+async function getNoticeSenderAvatarKey(noticeId, employeeId, env) {
+  const recipientUrl = new URL(`${env.SUPABASE_URL}/rest/v1/employee_notice_recipients`);
+  recipientUrl.searchParams.set("select", "notice:employee_notices(created_by)");
+  recipientUrl.searchParams.set("notice_id", `eq.${noticeId}`);
+  recipientUrl.searchParams.set("employee_id", `eq.${employeeId}`);
+  recipientUrl.searchParams.set("limit", "1");
+
+  const recipientResponse = await fetch(recipientUrl.toString(), {
+    method: "GET",
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+  });
+  if (!recipientResponse.ok) {
+    throw new ErrorResponse(500, "Could not verify notice delivery from Supabase.");
+  }
+
+  const recipients = await recipientResponse.json();
+  const delivery = Array.isArray(recipients) ? recipients[0] : null;
+  const notice = Array.isArray(delivery?.notice) ? delivery.notice[0] : delivery?.notice;
+  const senderId = String(notice?.created_by || "").trim();
+  if (!senderId) return "";
+
+  const profileUrl = new URL(`${env.SUPABASE_URL}/rest/v1/profiles`);
+  profileUrl.searchParams.set("select", "avatar_r2_key");
+  profileUrl.searchParams.set("id", `eq.${senderId}`);
+  profileUrl.searchParams.set("limit", "1");
+
+  const profileResponse = await fetch(profileUrl.toString(), {
+    method: "GET",
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+  });
+  if (!profileResponse.ok) {
+    throw new ErrorResponse(500, "Could not read the notice sender profile from Supabase.");
+  }
+
+  const profiles = await profileResponse.json();
+  const avatarKey = String(Array.isArray(profiles) ? profiles[0]?.avatar_r2_key || "" : "").trim();
+  return avatarKey.startsWith(`r2/${senderId}/profile/`) ? avatarKey : "";
 }
 
 class ErrorResponse extends Error {

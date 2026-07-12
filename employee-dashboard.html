@@ -531,17 +531,18 @@
       border: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%);
       font-weight: 850;
       text-transform: uppercase;
+      overflow: hidden;
     }
-    .notice-avatar::after {
-      content: "";
+    .notice-avatar-initial { line-height: 1; }
+    .notice-avatar-image {
       position: absolute;
-      right: 1px;
-      bottom: 1px;
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      background: var(--success, #22c55e);
-      border: 2px solid var(--surface-strong);
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .notice-avatar-image[hidden] { display: none; }
+    .notice-avatar.has-image .notice-avatar-initial { visibility: hidden; }
     }
     .notice-top {
       display: flex;
@@ -683,12 +684,36 @@
       body { padding-left: 12px; padding-right: 12px; }
       .app-header-inner { min-height: 66px; padding: 0 16px; }
       .hero, .panel { padding: 18px; border-radius: 22px; }
-      .stat-grid { grid-template-columns: 1fr; }
-      .schedule-item, .history-item { grid-template-columns: 1fr; align-items: start; }
-      .notice-item { grid-template-columns: auto minmax(0, 1fr); }
+      .stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .stat-chip {
+        padding: 11px 10px;
+        border-radius: 14px;
+      }
+      .schedule-item { grid-template-columns: 1fr; align-items: start; }
+      .history-item {
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
+      }
+      .history-item > .badge {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+      .notice-item {
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
+      }
+      .notice-content {
+        min-width: 0;
+        padding-right: 72px;
+      }
       .notice-actions {
-        grid-column: 2;
-        justify-content: flex-start;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        justify-content: flex-end;
       }
     }
     @media (max-width: 460px) {
@@ -708,7 +733,7 @@
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
       <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
-        <img src="./assets/cg-nav-logo.png" alt="" width="46" height="46">
+        <img src="./assets/cg-nav-logo.svg" alt="" width="46" height="46">
         <span class="sr-only">Chess Grande</span>
       </a>
       <nav class="cg-nav" aria-label="Primary navigation">
@@ -749,9 +774,8 @@
   <main class="page" id="main-content">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Workday Snapshot</p>
+        <p class="eyebrow">Dashboard</p>
         <h1 id="dashboardGreeting">Employee Dashboard</h1>
-        <p>Check what is coming up, keep this month tidy, and catch payroll updates from one place.</p>
       </div>
       <aside class="snapshot-card" aria-label="Next class">
         <span class="snapshot-icon is-empty" id="nextClassIcon" aria-hidden="true"><i data-lucide="calendar-x-2"></i></span>
@@ -769,7 +793,6 @@
           <div class="panel-header">
             <div>
               <h2 id="weekTitle">This Week</h2>
-              <p class="panel-copy">Upcoming active sessions from your timesheet drafts.</p>
             </div>
             <span class="badge" id="weekCount">0 classes</span>
           </div>
@@ -824,7 +847,7 @@
           <div class="quick-links">
             <a class="quick-link" href="./chess-timesheet-pay.html">
               <span class="quick-link-icon is-submission" aria-hidden="true"><i data-lucide="receipt-text"></i></span>
-              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Review monthly pay and submit payroll.</span></span>
+              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Review and submit payroll.</span></span>
               <span class="quick-link-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
             </a>
           </div>
@@ -836,7 +859,6 @@
           <div class="panel-header">
             <div>
               <h2 id="noticeTitle">Notices</h2>
-              <p class="panel-copy">Manager updates and paid confirmations.</p>
             </div>
             <span class="badge is-due" id="unreadNoticeCount">0 unread</span>
           </div>
@@ -848,7 +870,6 @@
           <div class="panel-header">
             <div>
               <h2 id="historyTitle">Payment History</h2>
-              <p class="panel-copy">Recent submitted payroll months.</p>
             </div>
           </div>
           <div class="history-list" id="paymentHistory"></div>
@@ -868,7 +889,7 @@
             </a>
             <a class="quick-link" href="./chess-timesheet-pay.html">
               <span class="quick-link-icon is-submission" aria-hidden="true"><i data-lucide="wallet-cards"></i></span>
-              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Submit the month when the timesheet is ready.</span></span>
+              <span class="quick-link-text"><strong>Submission View</strong><span class="item-meta">Review this month's payroll.</span></span>
               <span class="quick-link-arrow" aria-hidden="true"><i data-lucide="arrow-up-right"></i></span>
             </a>
             <button class="quick-link" id="profileQuickLink" type="button">
@@ -1085,7 +1106,7 @@
       if (!nextClass) {
         setSnapshotIcon("calendar-x-2", "is-empty");
         nextClassTitle.textContent = "No upcoming class";
-        nextClassMeta.textContent = "Add confirmed sessions to your timesheet when they are ready.";
+        nextClassMeta.textContent = "Add a confirmed session in Timesheet.";
         return;
       }
       setSnapshotIcon("calendar-clock", "is-active");
@@ -1175,7 +1196,7 @@
         setSubmissionStatusIcon("send", "is-due");
         submissionStatusBadge.textContent = "Not Submitted";
         submissionStatusBadge.className = "badge is-due";
-        submissionStatusCopy.textContent = "This month has not been submitted yet. Open the submission view when your timesheet is ready.";
+        submissionStatusCopy.textContent = "Submit when this month is ready.";
         return;
       }
 
@@ -1183,14 +1204,14 @@
         setSubmissionStatusIcon("circle-dollar-sign", "is-paid");
         submissionStatusBadge.textContent = "Paid";
         submissionStatusBadge.className = "badge is-paid";
-        submissionStatusCopy.textContent = `${submission.month_label || submission.month} was paid ${formatDateLong(submission.paid_at)} for ${formatCurrency(submission.total_pay)}.`;
+        submissionStatusCopy.textContent = `${submission.month_label || submission.month} · Paid ${formatDateLong(submission.paid_at)} · ${formatCurrency(submission.total_pay)}`;
         return;
       }
 
       setSubmissionStatusIcon("badge-check", "is-submitted");
       submissionStatusBadge.textContent = "Submitted";
       submissionStatusBadge.className = "badge";
-      submissionStatusCopy.textContent = `${submission.month_label || submission.month} was submitted ${formatDateLong(submission.submitted_at)} and is waiting for manager review.`;
+      submissionStatusCopy.textContent = `${submission.month_label || submission.month} · Submitted ${formatDateLong(submission.submitted_at)} · Awaiting manager review.`;
     }
 
     function renderPaymentHistory(submissions) {
@@ -1241,7 +1262,7 @@
         const item = document.createElement("article");
         item.className = `notice-item${notice.isRead ? " is-read" : ""}`;
         item.innerHTML = `
-          <span class="notice-avatar" aria-hidden="true">${escapeHtml(getNoticeInitial(notice))}</span>
+          <span class="notice-avatar" aria-hidden="true"><span class="notice-avatar-initial">${escapeHtml(getNoticeInitial(notice))}</span><img class="notice-avatar-image" alt="" hidden></span>
           <div class="notice-content">
             <p class="notice-title">${escapeHtml(notice.title)}</p>
             <p class="notice-body">${escapeHtml(notice.body)}</p>
@@ -1253,6 +1274,7 @@
           </div>
         `;
         noticeList.appendChild(item);
+        void hydrateNoticeAvatar(notice, item.querySelector(".notice-avatar-image"));
       });
 
       noticeList.querySelectorAll("[data-notice-id]").forEach((button) => {
@@ -1262,6 +1284,32 @@
         button.addEventListener("click", () => dismissNotice(button.dataset.dismissNoticeId));
       });
       renderIcons();
+    }
+
+    async function hydrateNoticeAvatar(notice, image) {
+      if (!(image instanceof HTMLImageElement)) return;
+      const resolveAvatar = window.profileAvatar?.resolveNoticeSenderAvatarUrl;
+      const noticeId = getNoticeKey(notice);
+      if (!noticeId || typeof resolveAvatar !== "function") return;
+
+      try {
+        const avatarUrl = await resolveAvatar(noticeId);
+        if (!avatarUrl || !noticeList.contains(image)) return;
+
+        const avatar = image.closest(".notice-avatar");
+        image.addEventListener("load", () => {
+          if (noticeList.contains(image)) avatar?.classList.add("has-image");
+        }, { once: true });
+        image.addEventListener("error", () => {
+          image.hidden = true;
+          image.removeAttribute("src");
+          avatar?.classList.remove("has-image");
+        }, { once: true });
+        image.src = avatarUrl;
+        image.hidden = false;
+      } catch (error) {
+        // Keep the sender initial visible if the private avatar cannot be loaded.
+      }
     }
 
     async function markNoticeRead(noticeId) {

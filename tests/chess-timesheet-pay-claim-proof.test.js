@@ -29,7 +29,7 @@ assert.match(
   'id="submissionExportView"',
   "Payroll Submission",
   "Submitted Payroll Snapshot",
-  "Entries By School",
+  "Entries By Activity",
   'id="exportPayRate"',
   'id="exportPayHours"',
   'id="exportPayTotal"',
@@ -84,6 +84,31 @@ assert.match(
   /@media \(max-width: 760px\)[\s\S]*\.entry-edit-grid\.compact,\s*\.entry-edit-grid\.edit-top-row\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*\.entry-edit-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
   "pay mobile entry composer should keep date and type in one row and save actions side by side"
 );
+assert.match(
+  html,
+  /@media \(max-width: 760px\)[\s\S]*\.day\.has-entries\s*\{[^}]*aspect-ratio:\s*auto;[^}]*min-height:\s*86px;[^}]*overflow:\s*visible;/s,
+  "pay mobile calendar days with entries should expand vertically"
+);
+assert.match(
+  html,
+  /@media \(max-width: 760px\)[\s\S]*\.day\.has-entries \.day-items\s*\{[^}]*overflow:\s*visible;[\s\S]*\.day\.has-entries \.chip\s*\{[^}]*overflow:\s*visible;[^}]*white-space:\s*normal;/s,
+  "pay mobile entry chips should show their complete content"
+);
+assert.match(
+  html,
+  /const dayEntries = groupedByDate\[key\] \|\| \[\];[\s\S]*cell\.classList\.add\("has-entries"\)[\s\S]*dayEntries\.forEach\(/,
+  "pay calendar should mark days that contain entries for the responsive layout"
+);
+assert.match(
+  html,
+  /\.calendar-week\s*\{[^}]*grid-template-columns:\s*repeat\(7, minmax\(0, 1fr\)\);[^}]*align-items:\s*stretch;/,
+  "pay calendar should use seven-column week rows that stretch days to the row height"
+);
+assert.match(
+  html,
+  /weekRow\.className = "calendar-week is-empty";[\s\S]*weekRow\.classList\.add\("has-entries"\)[\s\S]*weekRow\.classList\.remove\("is-empty"\)/,
+  "pay calendar should keep empty weeks squareish and expand populated weeks"
+);
 
 assert.ok(
   !html.includes("Remove Submission"),
@@ -91,8 +116,8 @@ assert.ok(
 );
 assert.match(
   html,
-  /<h2>Entries By School<\/h2>[\s\S]*id="schoolGroups"[\s\S]*id="exportSubmissionButton">Export Submission<\/button>[\s\S]*id="removeSubmissionButton">Undo Submission<\/button>/,
-  "export and undo submission actions should render below the entries by school ledger"
+  /<h2>Entries By Activity<\/h2>[\s\S]*id="schoolGroups"[\s\S]*id="exportSubmissionButton">Export Submission<\/button>[\s\S]*id="removeSubmissionButton">Undo Submission<\/button>/,
+  "export and undo submission actions should render below the activity entries"
 );
 assert.match(
   html,

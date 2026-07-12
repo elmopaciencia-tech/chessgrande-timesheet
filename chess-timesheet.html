@@ -1985,6 +1985,7 @@
         max(12px, env(safe-area-inset-left));
       overflow: hidden;
       isolation: isolate;
+      pointer-events: none;
     }
 
     .entry-composer-modal::before {
@@ -1992,9 +1993,9 @@
       position: absolute;
       inset: 0;
       z-index: 0;
-      background: rgba(23, 26, 25, 0.54);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
+      background: rgba(23, 26, 25, 0.58);
+      opacity: 0;
+      transition: opacity 140ms ease-out;
       pointer-events: none;
     }
 
@@ -2002,8 +2003,17 @@
       display: none;
     }
 
-    .entry-composer-modal:not([hidden]) {
-      animation: cg-overlay-fade 180ms var(--motion-ease, ease) both;
+    .entry-composer-modal.is-open {
+      pointer-events: auto;
+    }
+
+    .entry-composer-modal.is-open::before {
+      opacity: 1;
+    }
+
+    .entry-composer-modal.is-closing::before {
+      opacity: 0;
+      transition-duration: 120ms;
     }
 
     .entry-composer-modal-body {
@@ -2014,13 +2024,24 @@
       overflow: auto;
       overscroll-behavior: contain;
       border-radius: 28px;
-      opacity: 1;
-      transform: none;
+      opacity: 0;
+      transform: translateY(12px);
       visibility: visible;
+      transition:
+        opacity 150ms ease-out,
+        transform 180ms var(--motion-ease, ease);
+      will-change: transform, opacity;
     }
 
-    .entry-composer-modal:not([hidden]) .entry-composer-modal-body {
-      transform-origin: center;
+    .entry-composer-modal.is-open .entry-composer-modal-body {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .entry-composer-modal.is-closing .entry-composer-modal-body {
+      opacity: 0;
+      transform: translateY(-6px);
+      transition-duration: 120ms;
     }
 
     .groups {
@@ -2370,7 +2391,7 @@
       background: var(--clay);
     }
 
-    @media (max-width: 1240px) {
+    @media (max-width: 960px) {
       .hero,
       .layout {
         grid-template-columns: 1fr;
@@ -2475,7 +2496,22 @@
       .entry-composer-modal-body #entryComposerPanel {
         width: 100%;
         margin: 0;
-        box-shadow: 0 28px 80px rgba(23, 26, 25, 0.24);
+        box-shadow:
+          0 0 0 1px rgba(23, 26, 25, 0.06),
+          0 12px 32px rgba(23, 26, 25, 0.18);
+      }
+
+      .entry-composer-modal-body #entryComposerPanel.cg-reveal {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+
+      .entry-composer-modal-body #entryComposerPanel.is-editing-entry::before {
+        animation: none;
+        opacity: 0.55;
+        transform: none;
+        box-shadow: none;
       }
 
       .entry-composer-modal-close {
@@ -2873,7 +2909,7 @@
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
       <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
-        <img src="./assets/cg-nav-logo.png" alt="" width="46" height="46">
+        <img src="./assets/cg-nav-logo.svg" alt="" width="46" height="46">
         <span class="sr-only">Chess Grande</span>
       </a>
       <nav class="cg-nav" aria-label="Primary navigation">
@@ -2914,7 +2950,6 @@
     <section class="hero">
       <div class="hero-copy">
         <header>
-          <p class="eyebrow">Streamlined Monthly Tracker</p>
           <h1>Chess Grande Timesheet</h1>
           <a class="hero-import-button" href="#aiXlsxImportPanel">Import from Excel</a>
         </header>
@@ -2982,15 +3017,12 @@
               <div>
                 <p class="panel-eyebrow">Calendar View</p>
                 <h2 id="calendarTitle">Month View</h2>
-                <p class="panel-copy">Review your month here, then add entries directly from the calendar. <strong>On mobile, tap any date to add an entry.</strong></p>
+                <p class="panel-copy">Select a month above, add all of your entries for that month, then finalize your timesheet in Submission View.</p>
               </div>
             </div>
             <div id="calendar" class="calendar-grid"></div>
             <div class="calendar-actions">
-              <div class="calendar-actions-header">
-                <p class="calendar-note">Open the submission view after your calendar and timesheet both look complete for the month.</p>
-              </div>
-              <p class="calendar-mobile-help">Tap a date to add or update an entry. Turn on repeat in the composer if you want to pick several dates before saving.</p>
+              <p class="calendar-mobile-help">Tap a date to add or update an entry. Use Repeat for several dates.</p>
               <div class="repeat-selection-bar" id="repeatSelectionBar" hidden role="status" aria-live="polite">
                 <p class="repeat-selection-copy" id="repeatSelectionSummary">0 repeat dates selected.</p>
                 <button class="primary" id="repeatSelectionDone" type="button">Done Selecting Dates</button>
@@ -3003,9 +3035,8 @@
           <section class="panel" id="schoolLedgerPanel">
             <div class="panel-header">
               <div>
-                <p class="panel-eyebrow">School ledger</p>
-                <h2>Entries By School</h2>
-                <p class="panel-copy">Schools are sorted alphabetically. Inside each group, entries remain ordered by date and then by start time so monthly review stays predictable.</p>
+                <p class="panel-eyebrow">Activity summary</p>
+                <h2>Entries By Activity</h2>
               </div>
             </div>
             <div id="schoolGroups" class="groups"></div>
@@ -3016,7 +3047,7 @@
               <div>
                 <p class="panel-eyebrow">Excel import</p>
                 <h2 class="ai-import-title" id="aiXlsxImportTitle">Parse Excel</h2>
-                <p class="ai-import-copy">Upload a Chess Grande XLSX file, review the parsed entries, then import them into your current timesheet.</p>
+                <p class="ai-import-copy">Upload an XLSX, review the preview, then import.</p>
               </div>
             </div>
             <div class="ai-import-grid">
@@ -3026,13 +3057,13 @@
                     <i class="ai-upload-icon" data-lucide="upload-cloud" aria-hidden="true"></i>
                     <div class="ai-upload-text">
                       <label class="ai-upload-label" for="aiXlsxFile">
-                        <span>Drag and drop or choose file to upload</span>
+                        <span>Drop or choose an XLSX file</span>
                         <input class="ai-upload-input" id="aiXlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                       </label>
                     </div>
                   </div>
                 </div>
-                <p class="ai-upload-help">Recommended max. size: 10 MB, Accepted file types: XLSX.</p>
+                <p class="ai-upload-help">XLSX only · Max 10 MB.</p>
                 <div class="ai-upload-selected" id="aiSelectedFileCard" hidden>
                   <span class="ai-upload-file-icon" aria-hidden="true"><i data-lucide="file-spreadsheet"></i></span>
                   <div>
@@ -3053,7 +3084,7 @@
               <div class="ai-import-table-wrap" id="aiImportTableWrap"></div>
               <ul class="ai-import-warnings" id="aiImportWarnings"></ul>
               <div class="ai-import-confirm-actions">
-                <button class="primary" id="aiConfirmImportButton" type="button">Import Previewed Entries</button>
+                <button class="primary" id="aiConfirmImportButton" type="button">Import Entries</button>
                 <button class="secondary" id="aiCancelImportButton" type="button">Cancel Import</button>
               </div>
             </div>
@@ -3066,7 +3097,7 @@
               <div>
                 <p class="panel-eyebrow">Entry composer</p>
                 <h2 id="entryComposerTitle">Add Or Update A Session</h2>
-                <p class="panel-copy" id="entryComposerCopy">Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Repeat mode preselects weekly dates, then lets you click calendar days to refine the set before saving.</p>
+                <p class="panel-copy" id="entryComposerCopy">Add a session, claim, or event cost. Use Repeat for multiple dates.</p>
               </div>
               <button class="entry-composer-modal-close" id="entryComposerModalClose" type="button" aria-label="Close entry composer">
                 <i data-lucide="x" aria-hidden="true"></i>
@@ -3084,7 +3115,7 @@
                     <div class="quick-add-menu" id="quickAddMenu" role="dialog" aria-labelledby="quickAddTitle" hidden>
                       <div>
                         <p class="quick-add-title" id="quickAddTitle">Quick Add</p>
-                        <p class="quick-add-copy">Saved School Coaching slots stay with this account.</p>
+                        <p class="quick-add-copy">Saved shortcuts stay with this account.</p>
                       </div>
                       <div class="quick-add-list" id="quickAddList"></div>
                       <div class="quick-add-status" id="quickAddStatus" role="status" aria-live="polite"></div>
@@ -3142,7 +3173,7 @@
                 <button class="secondary" type="button" id="clearMonth" disabled>Clear Month</button>
               </div>
               <div class="hint">
-                End time is calculated automatically from the start time and hours worked. Events need a name, notes, and cost; claims also need proof before they can be saved.
+                End time is calculated from start time + hours. Events need a name, notes, and cost. Claims need proof.
               </div>
             </form>
           </section>
@@ -3152,20 +3183,18 @@
               <div>
                 <p class="panel-eyebrow">Payroll handoff</p>
                 <h2>Review The Timesheet</h2>
-                <p class="panel-copy">Check the month for missing dates, wrong times, duplicate entries, replacement names, and claim dates or costs before you submit.</p>
               </div>
             </div>
             <div class="payroll-rail">
               <div>
                 <strong>Before submitting</strong>
-                <p>Work through the timesheet once, from the calendar to the entries below.</p>
                 <ul class="payroll-checklist">
-                  <li>Confirm the selected month, total entries, and monthly hours.</li>
-                  <li>Scan for missing dates, duplicate entries, or work placed on the wrong day.</li>
-                  <li>Check replacement names, claim dates, claim costs, and any rows that still need proof.</li>
+                  <li>Confirm the month, entries, and hours.</li>
+                  <li>Check for missing, duplicate, or misdated entries.</li>
+                  <li>Check replacement names, claim costs, and missing proof.</li>
                 </ul>
               </div>
-              <a class="nav-button" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Continue To Submit</a>
+              <a class="nav-button" href="./chess-timesheet-pay.html" target="_blank" rel="noopener">Submit Payroll</a>
             </div>
           </section>
         </aside>
@@ -3385,9 +3414,9 @@
     const editEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
     const trashEntryIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>';
     const entryComposerDefaultTitle = "Add Or Update A Session";
-    const entryComposerDefaultCopy = "Use this composer for school sessions, private work, replacements, claims, and one-off event costs. Repeat mode preselects weekly dates, then lets you click calendar days to refine the set before saving.";
+    const entryComposerDefaultCopy = "Add a session, claim, or event cost. Use Repeat for multiple dates.";
     const entryComposerEditTitle = "Edit an Entry";
-    const entryComposerEditCopy = "Update the selected ledger entry here. Review the date, type, school, time, hours, colour, and claim details, then save changes or cancel the edit.";
+    const entryComposerEditCopy = "Update the entry, then save or cancel.";
 
     let entries = [];
     let quickAddTemplates = [];
@@ -3413,14 +3442,17 @@
     let chipRemoveModalPreviousOverflow = "";
     let entryComposerModalLastFocus = null;
     let entryComposerModalPreviousOverflow = "";
-    let mobileComposerAnimationTimer = 0;
+    let entryComposerCloseTimer = 0;
+    let entryComposerOpenFrame = 0;
+    let entryComposerSettleFrame = 0;
     let aiPendingImportPlan = null;
     let aiImportBusy = false;
 
     initApp();
 
-    const compactLayoutQuery = window.matchMedia("(max-width: 1240px)");
+    const compactLayoutQuery = window.matchMedia("(max-width: 960px)");
     const mobileComposerQuery = window.matchMedia("(max-width: 760px)");
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     [compactLayoutQuery, mobileComposerQuery].forEach((query) => {
       if (typeof query.addEventListener === "function") {
         query.addEventListener("change", syncCompactPanelOrder);
@@ -3662,7 +3694,6 @@
     calendar.addEventListener("contextmenu", onCalendarDateContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
     calendar.addEventListener("click", onMobileCalendarDateClick);
-    calendar.addEventListener("pointerdown", onMobileCalendarDatePointerDown);
     calendar.addEventListener("keydown", onMobileCalendarDateKeydown);
     chipContextMenu.addEventListener("click", onChipContextMenuClick);
     dateContextMenu.addEventListener("click", onDateContextMenuClick);
@@ -3763,7 +3794,6 @@
       if (!date || !isMobileComposerMode()) return;
       closeChipContextMenu();
       closeDateContextMenu();
-      suppressCalendarTapAnimation();
       entryDateInput.value = date;
       entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
       if (isRecurringInput.checked) {
@@ -3774,17 +3804,32 @@
 
     function openEntryComposerModal(options = {}) {
       if (!entryComposerModal || !isMobileComposerMode()) return;
+      window.clearTimeout(entryComposerCloseTimer);
+      window.cancelAnimationFrame(entryComposerOpenFrame);
+      window.cancelAnimationFrame(entryComposerSettleFrame);
       prepareEntryComposerModalBody();
       entryComposerModalLastFocus = options.trigger || document.activeElement;
       closeQuickAddMenu();
       closeCalendarColorMenu();
-      suppressCalendarTapAnimation();
-      entryComposerModalPreviousOverflow = document.body.style.overflow;
+      if (entryComposerModal.hidden) {
+        entryComposerModalPreviousOverflow = document.body.style.overflow;
+      }
       document.body.style.overflow = "hidden";
+      document.body.classList.add("is-entry-composer-modal-open");
+      entryComposerModal.classList.remove("is-open", "is-closing");
       entryComposerModal.hidden = false;
-      window.setTimeout(() => {
+      if (reducedMotionQuery.matches) {
+        entryComposerModal.classList.add("is-open");
         entryComposerModalBody?.focus({ preventScroll: true });
-      }, 80);
+        return;
+      }
+      entryComposerOpenFrame = window.requestAnimationFrame(() => {
+        entryComposerSettleFrame = window.requestAnimationFrame(() => {
+          if (entryComposerModal.hidden) return;
+          entryComposerModal.classList.add("is-open");
+          entryComposerModalBody?.focus({ preventScroll: true });
+        });
+      });
     }
 
     function prepareEntryComposerModalBody() {
@@ -3808,27 +3853,24 @@
 
     function closeEntryComposerModal(options = {}) {
       if (!entryComposerModal || entryComposerModal.hidden) return;
+      window.clearTimeout(entryComposerCloseTimer);
+      window.cancelAnimationFrame(entryComposerOpenFrame);
+      window.cancelAnimationFrame(entryComposerSettleFrame);
       closeQuickAddMenu();
       closeCalendarColorMenu();
-      entryComposerModal.hidden = true;
-      window.clearTimeout(mobileComposerAnimationTimer);
-      document.body.classList.remove("is-opening-entry-composer", "is-entry-composer-modal-open");
-      document.body.style.overflow = entryComposerModalPreviousOverflow;
-      if (options.restoreFocus && entryComposerModalLastFocus && typeof entryComposerModalLastFocus.focus === "function") {
-        entryComposerModalLastFocus.focus({ preventScroll: true });
-      }
-      entryComposerModalLastFocus = null;
-    }
-
-    function suppressCalendarTapAnimation() {
-      window.clearTimeout(mobileComposerAnimationTimer);
-      document.body.classList.add("is-opening-entry-composer");
-      mobileComposerAnimationTimer = window.setTimeout(() => {
-        if (entryComposerModal?.hidden === false) {
-          document.body.classList.add("is-entry-composer-modal-open");
+      entryComposerModal.classList.remove("is-open");
+      entryComposerModal.classList.add("is-closing");
+      document.body.classList.remove("is-entry-composer-modal-open");
+      const restoreTarget = options.restoreFocus ? entryComposerModalLastFocus : null;
+      entryComposerCloseTimer = window.setTimeout(() => {
+        entryComposerModal.hidden = true;
+        entryComposerModal.classList.remove("is-closing");
+        document.body.style.overflow = entryComposerModalPreviousOverflow;
+        if (restoreTarget && typeof restoreTarget.focus === "function") {
+          restoreTarget.focus({ preventScroll: true });
         }
-        document.body.classList.remove("is-opening-entry-composer");
-      }, 180);
+        entryComposerModalLastFocus = null;
+      }, reducedMotionQuery.matches ? 0 : 140);
     }
 
     function trapEntryComposerModalFocus(event) {
@@ -3856,16 +3898,6 @@
       if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
       event.preventDefault();
       openEntryComposerModalForDate(dayCell.dataset.entryDate, dayCell);
-    }
-
-    function onMobileCalendarDatePointerDown(event) {
-      if (!isMobileComposerMode()) return;
-      if (isRecurringInput.checked) return;
-      if (event.defaultPrevented) return;
-      if (event.target instanceof Element && event.target.closest("button, input, select, textarea, a")) return;
-      const dayCell = getCalendarContextDay(event.target);
-      if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
-      suppressCalendarTapAnimation();
     }
 
     function onMobileCalendarDateKeydown(event) {
@@ -6204,7 +6236,7 @@
       if (!activeEntries.length) {
         const empty = document.createElement("div");
         empty.className = "empty";
-        empty.textContent = "No entries yet for this month. Add one above to start building the timesheet.";
+        empty.textContent = "No entries yet. Add one above to begin.";
         schoolGroups.appendChild(empty);
         return;
       }

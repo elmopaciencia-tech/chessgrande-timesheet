@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Chess Grande calendar</title>
+  <rect x="10" y="13" width="44" height="42" rx="10" fill="#90A77F"/>
+  <path fill="#202A33" d="M10 25h44v-2a10 10 0 0 0-10-10H20a10 10 0 0 0-10 10v2Z"/>
+  <rect x="15" y="29" width="34" height="21" rx="5" fill="#F8F7F3"/>
+  <path fill="#202A33" d="M19 34h6v5h-6zm10 0h6v5h-6zm10 0h6v5h-6zm-20 10h6v2h-6zm10 0h6v2h-6zm10 0h6v2h-6z"/>
+  <rect x="20" y="8" width="5" height="12" rx="2.5" fill="#202A33"/>
+  <rect x="39" y="8" width="5" height="12" rx="2.5" fill="#202A33"/>
+</svg>

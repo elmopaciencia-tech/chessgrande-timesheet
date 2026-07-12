@@ -178,7 +178,7 @@
     .review-column, .action-column { display: grid; gap: var(--space-5); align-content: start; }
     .action-column { position: sticky; top: calc(env(safe-area-inset-top) + 96px); }
 
-@media (max-width: 1240px) {
+@media (max-width: 960px) {
   .action-column { order: -1; }
 }
     .panel {
@@ -201,7 +201,8 @@
     .primary, .button { border: 0; background: var(--accent); color: var(--surface-strong); }
     .secondary, .button-secondary, .nav-link { border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%); background: var(--surface-strong); color: var(--accent); }
     .danger { border: 1px solid color-mix(in srgb, #c73832 30%, white 70%); background: color-mix(in srgb, #c73832 8%, var(--surface-strong) 92%); color: #a12b26; }
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+    .calendar-grid { display: grid; gap: 5px; }
+    .calendar-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; align-items: stretch; }
     .weekday, .day { border-radius: 18px; }
     .weekday { padding: 6px 0; text-align: center; color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
     .day { min-height: 86px; background: color-mix(in srgb, var(--calendar) 80%, white 20%); border: 1px solid var(--line); padding: 8px 8px 7px; display: flex; flex-direction: column; gap: 5px; overflow: hidden; }
@@ -400,7 +401,8 @@
       margin: 0 0 10px;
       font-size: 1.05rem;
     }
-    .submission-export .calendar-grid {
+    .submission-export .calendar-grid,
+    .submission-export .calendar-week {
       gap: 4px;
     }
     .submission-export .weekday,
@@ -451,7 +453,7 @@
     #fullName[readonly], #bankAccount[readonly], #bankName[readonly], #accountType[readonly] { min-height: 28px; border: 0; background: transparent; padding: 2px 0; border-radius: 0; color: var(--ink); pointer-events: none; caret-color: transparent; }
     #fullName[readonly]::placeholder, #bankAccount[readonly]::placeholder, #bankName[readonly]::placeholder, #accountType[readonly]::placeholder { color: var(--muted); opacity: 1; }
     #bankAccount[readonly].missing-profile::placeholder, #bankName[readonly].missing-profile::placeholder, #accountType[readonly].missing-profile::placeholder, .missing-profile { color: var(--clay); font-weight: 700; }
-    @media (max-width: 1240px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .hero-month { align-self: auto; } }
+    @media (max-width: 960px) { .hero, .layout { grid-template-columns: 1fr; } .action-column { position: static; } .hero-month { align-self: auto; } }
     @media (max-width: 900px) {
       .form-grid, .summary, .actions { grid-template-columns: 1fr; }
       .stat-value { font-size: 1.24rem; }
@@ -468,13 +470,27 @@
       .panel-copy { font-size: clamp(.86rem, 3.4vw, .98rem); line-height: 1.38; }
       #monthPickerFallback { grid-template-columns: 1fr; }
       .month-picker-popover { left: 50%; right: auto; width: min(calc(100vw - 32px), 356px); transform: translateX(-50%); }
-      .calendar-grid { gap: 3px; }
+      .calendar-grid,
+      .calendar-week { gap: 3px; }
       .day {
         min-height: 0;
         aspect-ratio: 1 / 1;
         padding: clamp(4px, 1.6vw, 7px);
         gap: 3px;
         border-radius: 14px;
+      }
+      .day.has-entries {
+        aspect-ratio: auto;
+        min-height: 86px;
+        overflow: visible;
+      }
+      .calendar-week.has-entries .day {
+        aspect-ratio: auto;
+        min-height: 86px;
+      }
+      .calendar-week.is-empty .day {
+        aspect-ratio: 1 / 1;
+        min-height: 0;
       }
       .weekday {
         padding: 4px 0;
@@ -487,6 +503,9 @@
         min-height: 0;
         overflow: hidden;
       }
+      .day.has-entries .day-items {
+        overflow: visible;
+      }
       .chip {
         min-width: 0;
         padding: 2px 3px;
@@ -497,11 +516,18 @@
         text-overflow: clip;
         overflow-wrap: anywhere;
       }
+      .day.has-entries .chip {
+        overflow: visible;
+        white-space: normal;
+      }
       .chip strong {
         display: block;
         overflow: hidden;
         text-overflow: clip;
         overflow-wrap: anywhere;
+      }
+      .day.has-entries .chip strong {
+        overflow: visible;
       }
       table, thead, tbody, th, td, tr { display: block; }
       thead { display: none; }
@@ -730,7 +756,8 @@
         max-width: 31mm;
         overflow-wrap: anywhere;
       }
-      .submission-export .calendar-grid {
+      .submission-export .calendar-grid,
+      .submission-export .calendar-week {
         gap: 2px;
       }
       .submission-export .weekday {
@@ -845,7 +872,7 @@
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
       <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
-        <img src="./assets/cg-nav-logo.png" alt="" width="46" height="46">
+        <img src="./assets/cg-nav-logo.svg" alt="" width="46" height="46">
         <span class="sr-only">Chess Grande</span>
       </a>
       <nav class="cg-nav" aria-label="Primary navigation">
@@ -901,7 +928,7 @@
     <div class="workspace">
       <div class="layout">
         <div class="review-column">
-          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">School ledger</p><h2>Entries By School</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
+          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Activity summary</p><h2>Entries By Activity</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
         </div>
         <aside class="action-column">
           <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. Edit payment details from your profile menu.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
@@ -934,8 +961,8 @@
           <div id="exportCalendar" class="calendar-grid"></div>
         </section>
         <section class="submission-export-section">
-          <p class="panel-eyebrow">Submitted ledger</p>
-          <h2>Entries By School</h2>
+          <p class="panel-eyebrow">Submitted activity</p>
+          <h2>Entries By Activity</h2>
           <div id="exportSchoolGroups" class="groups"></div>
         </section>
       </div>
@@ -1702,12 +1729,15 @@
     function renderExportCalendar(activeEntries, monthValue) {
       exportCalendar.innerHTML = "";
       const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const weekdayRow = document.createElement("div");
+      weekdayRow.className = "calendar-week calendar-weekdays";
       weekdays.forEach((day) => {
         const cell = document.createElement("div");
         cell.className = "weekday";
         cell.textContent = day;
-        exportCalendar.appendChild(cell);
+        weekdayRow.appendChild(cell);
       });
+      exportCalendar.appendChild(weekdayRow);
 
       const [year, month] = String(monthValue || "").split("-").map(Number);
       if (!year || !month) {
@@ -1725,7 +1755,14 @@
 
       const groupedByDate = groupBy(activeEntries, (entry) => entry.date);
 
+      let dayIndex = 0;
+      let weekRow;
       for (let day = new Date(startGrid); day <= endGrid; day.setDate(day.getDate() + 1)) {
+        if (dayIndex % 7 === 0) {
+          weekRow = document.createElement("div");
+          weekRow.className = "calendar-week is-empty";
+          exportCalendar.appendChild(weekRow);
+        }
         const key = formatDateInput(day);
         const cell = document.createElement("div");
         cell.className = "day";
@@ -1738,7 +1775,12 @@
 
         const items = document.createElement("div");
         items.className = "day-items";
-        (groupedByDate[key] || []).forEach((entry) => {
+        const dayEntries = groupedByDate[key] || [];
+        if (dayEntries.length) {
+          weekRow.classList.add("has-entries");
+          weekRow.classList.remove("is-empty");
+        }
+        dayEntries.forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "chip";
           applyCalendarColorToChip(chip, entry.calendarColor);
@@ -1747,7 +1789,8 @@
         });
 
         cell.appendChild(items);
-        exportCalendar.appendChild(cell);
+        weekRow.appendChild(cell);
+        dayIndex += 1;
       }
     }
 
@@ -1866,12 +1909,15 @@
     function renderCalendar(activeEntries, monthValue) {
       calendar.innerHTML = "";
       const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const weekdayRow = document.createElement("div");
+      weekdayRow.className = "calendar-week calendar-weekdays";
       weekdays.forEach((day) => {
         const cell = document.createElement("div");
         cell.className = "weekday";
         cell.textContent = day;
-        calendar.appendChild(cell);
+        weekdayRow.appendChild(cell);
       });
+      calendar.appendChild(weekdayRow);
 
       const [year, month] = monthValue.split("-").map(Number);
       const firstDay = new Date(year, month - 1, 1);
@@ -1886,7 +1932,14 @@
       const groupedByDate = groupBy(activeEntries, (entry) => entry.date);
       const today = formatDateInput(new Date());
 
+      let dayIndex = 0;
+      let weekRow;
       for (let day = new Date(startGrid); day <= endGrid; day.setDate(day.getDate() + 1)) {
+        if (dayIndex % 7 === 0) {
+          weekRow = document.createElement("div");
+          weekRow.className = "calendar-week is-empty";
+          calendar.appendChild(weekRow);
+        }
         const key = formatDateInput(day);
         const cell = document.createElement("div");
         cell.className = "day";
@@ -1900,7 +1953,13 @@
 
         const items = document.createElement("div");
         items.className = "day-items";
-        (groupedByDate[key] || []).forEach((entry) => {
+        const dayEntries = groupedByDate[key] || [];
+        if (dayEntries.length) {
+          cell.classList.add("has-entries");
+          weekRow.classList.add("has-entries");
+          weekRow.classList.remove("is-empty");
+        }
+        dayEntries.forEach((entry) => {
           const chip = document.createElement("div");
           chip.className = "chip";
           chip.dataset.entryId = entry.id || "";
@@ -1918,7 +1977,8 @@
         });
 
         cell.appendChild(items);
-        calendar.appendChild(cell);
+        weekRow.appendChild(cell);
+        dayIndex += 1;
       }
     }
 

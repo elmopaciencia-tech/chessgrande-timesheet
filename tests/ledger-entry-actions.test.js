@@ -274,27 +274,22 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /calendar\.addEventListener\("pointerdown", onMobileCalendarDatePointerDown\)/,
-      "employee mobile calendar should suppress tap animations before the click opens the composer"
-    );
-    assert.match(
-      html,
-      /function openEntryComposerModalForDate\(date, trigger\)[\s\S]*suppressCalendarTapAnimation\(\)[\s\S]*entryDateInput\.dispatchEvent\(new Event\("input"[\s\S]*if \(isRecurringInput\.checked\) \{[\s\S]*entryDateInput\.dispatchEvent\(new Event\("change"/,
+      /function openEntryComposerModalForDate\(date, trigger\)[\s\S]*entryDateInput\.dispatchEvent\(new Event\("input"[\s\S]*if \(isRecurringInput\.checked\) \{[\s\S]*entryDateInput\.dispatchEvent\(new Event\("change"/,
       "employee mobile date taps should skip the full date-change render unless repeat mode needs it"
     );
     assert.match(
       html,
-      /function suppressCalendarTapAnimation\(\)[\s\S]*classList\.add\("is-opening-entry-composer"\)[\s\S]*classList\.add\("is-entry-composer-modal-open"\)/,
-      "employee mobile composer should mark the opening/open state for animation suppression"
+      /function openEntryComposerModal\(options = \{\}\)[\s\S]*classList\.add\("is-entry-composer-modal-open"\)[\s\S]*requestAnimationFrame[\s\S]*classList\.add\("is-open"\)/,
+      "employee mobile composer should use one interruptible open state"
     );
     assert.match(
       html,
-      /function openEntryComposerModal\(options = \{\}\)[\s\S]*entryComposerModal\.hidden = false[\s\S]*entryComposerModalBody\?\.focus\(\{ preventScroll: true \}\)/,
+      /function openEntryComposerModal\(options = \{\}\)[\s\S]*entryComposerModal\.hidden = false[\s\S]*entryComposerModal\.classList\.add\("is-open"\)[\s\S]*entryComposerModalBody\?\.focus\(\{ preventScroll: true \}\)/,
       "employee mobile composer should focus the modal body instead of opening the keyboard immediately"
     );
     assert.match(
       themeCss,
-      /body\.is-opening-entry-composer \.day,[\s\S]*body\.is-entry-composer-modal-open \.calendar-chip\s*\{[^}]*transition:\s*none !important;[^}]*transform:\s*none !important;/,
+      /body\.is-entry-composer-modal-open \.day,[\s\S]*body\.is-entry-composer-modal-open \.calendar-chip\s*\{[^}]*transition:\s*none !important;[^}]*transform:\s*none !important;/,
       "theme should disable calendar day and chip animation while the mobile composer opens"
     );
     assert.match(
@@ -309,13 +304,23 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /\.entry-composer-modal-body\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*none;[^}]*visibility:\s*visible;[\s\S]*\.entry-composer-modal:not\(\[hidden\]\) \.entry-composer-modal-body\s*\{(?![^}]*animation:)[^}]*transform-origin:\s*center;/,
-      "employee mobile composer card should not rely on a replayed animation to become visible"
+      /\.entry-composer-modal-body\s*\{[^}]*opacity:\s*0;[^}]*transform:\s*translateY\(12px\);[^}]*transition:[^}]*opacity[^}]*transform[^}]*will-change:\s*transform, opacity;[\s\S]*\.entry-composer-modal\.is-open \.entry-composer-modal-body\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*translateY\(0\);/,
+      "employee mobile composer card should use compositor-friendly interruptible transitions"
     );
     assert.match(
       html,
-      /\.entry-composer-modal::before\s*\{[^}]*-webkit-backdrop-filter:\s*blur\(10px\);[^}]*backdrop-filter:\s*blur\(10px\);[\s\S]*\.entry-composer-modal-body\s*\{[^}]*position:\s*relative;[^}]*z-index:\s*1;/,
-      "employee mobile composer should keep the Safari backdrop layer behind the visible card"
+      /\.entry-composer-modal::before\s*\{[^}]*background:\s*rgba\(23, 26, 25, 0\.58\);[^}]*opacity:\s*0;[^}]*transition:\s*opacity 140ms ease-out;[\s\S]*\.entry-composer-modal\.is-open::before\s*\{[^}]*opacity:\s*1;/,
+      "employee mobile composer should use a lightweight dimming layer without backdrop blur"
+    );
+    assert.match(
+      html,
+      /\.entry-composer-modal-body #entryComposerPanel\s*\{[^}]*0 12px 32px rgba\(23, 26, 25, 0\.18\);[\s\S]*#entryComposerPanel\.cg-reveal\s*\{[^}]*animation:\s*none;[\s\S]*#entryComposerPanel\.is-editing-entry::before\s*\{[^}]*animation:\s*none;[^}]*box-shadow:\s*none;/,
+      "employee mobile composer should avoid the oversized shadow and paint-heavy reveal/edit animations"
+    );
+    assert.match(
+      html,
+      /const reducedMotionQuery = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)[\s\S]*function closeEntryComposerModal\(options = \{\}\)[\s\S]*classList\.add\("is-closing"\)[\s\S]*reducedMotionQuery\.matches \? 0 : 140/,
+      "employee mobile composer should preserve a short exit transition while respecting reduced motion"
     );
     assert.match(
       html,
@@ -467,8 +472,13 @@ assert.match(
 );
 assert.match(
   timesheetHtml,
-  /const entryComposerEditCopy = "Update the selected ledger entry here\./,
+  /const entryComposerEditCopy = "Update the entry, then save or cancel\."/,
   "employee composer should use edit-specific helper copy while editing"
+);
+assert.match(
+  timesheetHtml,
+  /const entryComposerDefaultCopy = "Add a session, claim, or event cost\. Use Repeat for multiple dates\."/,
+  "employee composer should use concise helper copy"
 );
 assert.match(
   timesheetHtml,
@@ -622,8 +632,13 @@ const payrollHandoffEnd = timesheetHtml.indexOf('</section>', payrollHandoffStar
 const payrollHandoffHtml = timesheetHtml.slice(payrollHandoffStart, payrollHandoffEnd);
 assert.match(
   payrollHandoffHtml,
-  /<section class="panel" id="payrollHandoffPanel">[\s\S]*<h2>Review The Timesheet<\/h2>[\s\S]*Check the month for missing dates, wrong times, duplicate entries, replacement names, and claim dates or costs before you submit\.[\s\S]*<strong>Before submitting<\/strong>[\s\S]*Work through the timesheet once, from the calendar to the entries below\.[\s\S]*<li>Check replacement names, claim dates, claim costs, and any rows that still need proof\.<\/li>/,
+  /<section class="panel" id="payrollHandoffPanel">[\s\S]*<h2>Review The Timesheet<\/h2>[\s\S]*<strong>Before submitting<\/strong>[\s\S]*<li>Confirm the month, entries, and hours\.<\/li>[\s\S]*<li>Check for missing, duplicate, or misdated entries\.<\/li>[\s\S]*<li>Check replacement names, claim costs, and missing proof\.<\/li>/,
   "employee payroll handoff should use a shorter timesheet-focused reminder"
+);
+assert.doesNotMatch(
+  payrollHandoffHtml,
+  /Check the month for missing dates|Work through the timesheet once/,
+  "employee payroll handoff should remove redundant lead copy"
 );
 assert.doesNotMatch(
   payrollHandoffHtml,

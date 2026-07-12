@@ -154,6 +154,34 @@
     return "";
   }
 
+  async function resolveNoticeSenderAvatarUrl(noticeId) {
+    var normalizedNoticeId = String(noticeId || "").trim();
+    if (!normalizedNoticeId || !hasWorker()) return "";
+
+    var cacheKey = "notice-sender-avatar:" + normalizedNoticeId;
+    var cached = avatarUrlCache.get(cacheKey);
+    if (cached) return cached;
+
+    var r2 = getR2();
+    var token;
+    try {
+      token = await r2.getAccessToken();
+    } catch (e) {
+      return "";
+    }
+
+    var payload = await r2.postJson(
+      r2.getWorkerBaseUrl() + "/api/notices/sender-avatar",
+      { noticeId: normalizedNoticeId },
+      token
+    );
+    var signedUrl = String(payload?.signedUrl || "").trim();
+    if (signedUrl) {
+      avatarUrlCache.set(cacheKey, signedUrl);
+    }
+    return signedUrl;
+  }
+
   async function removeProfileAvatar() {
     var r2 = getR2();
     var user = await r2.getCurrentUserSafe();
@@ -309,6 +337,7 @@
   window.profileAvatar = {
     uploadProfileAvatar: uploadProfileAvatar,
     resolveAvatarUrl: resolveAvatarUrl,
+    resolveNoticeSenderAvatarUrl: resolveNoticeSenderAvatarUrl,
     removeProfileAvatar: removeProfileAvatar,
     hydrateAvatarEl: hydrateAvatarEl,
     hydrateHeaderAvatar: hydrateHeaderAvatar,

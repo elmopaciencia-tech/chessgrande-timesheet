@@ -111,14 +111,14 @@ const harness = buildAiHarness();
 const hero = html.match(/<section class="hero">[\s\S]*?<\/section>/)?.[0] || "";
 assert.match(
   hero,
-  /Streamlined Monthly Tracker[\s\S]*<h1>Chess Grande Timesheet<\/h1>[\s\S]*href="#aiXlsxImportPanel"[\s\S]*Import from Excel/,
+  /<h1>Chess Grande Timesheet<\/h1>[\s\S]*href="#aiXlsxImportPanel"[\s\S]*Import from Excel/,
   "employee hero should show Import from Excel directly below the title"
 );
 
 const schoolLedgerIndex = html.indexOf('id="schoolLedgerPanel"');
 const importPanelIndex = html.indexOf('id="aiXlsxImportPanel"');
-assert.ok(schoolLedgerIndex > -1, "employee page should include the school ledger panel");
-assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel should be below the school ledger");
+assert.ok(schoolLedgerIndex > -1, "employee page should include the activity summary panel");
+assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel should be below the activity summary");
 
 [
   'src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"',
@@ -134,7 +134,8 @@ assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel sho
   'class="ai-upload-selected"',
   'id="aiSelectedFileName"',
   'id="aiSelectedFileMeta"',
-  "Recommended max. size: 10 MB, Accepted file types: XLSX.",
+  "XLSX only · Max 10 MB.",
+  "Upload an XLSX, review the preview, then import.",
   "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);",
   "#aiParseXlsxButton",
   'id="aiParseXlsxButton"',
@@ -160,12 +161,17 @@ assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel sho
   "createdBy: currentUser.id",
   "updatedBy: currentUser.id",
   "Imported claims still need proof before payroll submission.",
-  "Check the month for missing dates, wrong times, duplicate entries, replacement names, and claim dates or costs before you submit.",
+  "Check for missing, duplicate, or misdated entries.",
   'class="payroll-checklist"',
-  "Scan for missing dates, duplicate entries, or work placed on the wrong day.",
+  "Check replacement names, claim costs, and missing proof.",
 ].forEach((snippet) => {
   assert.ok(html.includes(snippet), `employee Excel import should include ${snippet}`);
 });
+assert.doesNotMatch(
+  html,
+  /Upload a Chess Grande XLSX file, review the parsed entries, then import them into your current timesheet\./,
+  "employee Excel import should remove its repeated instructional copy"
+);
 
 [
   "https://openrouter.ai/api/v1/chat/completions",
