@@ -11,11 +11,28 @@ const pages = [
   "manager-entry.html",
   "webadmin-dashboard.html",
 ];
+const faviconPages = [
+  "index.html",
+  "login.html",
+  "signup.html",
+  "privacy.html",
+  "profile-setup.html",
+  ...pages,
+];
 
 const theme = fs.readFileSync(path.join(process.cwd(), "theme.css"), "utf8");
 const uiEffects = fs.readFileSync(path.join(process.cwd(), "ui-effects.js"), "utf8");
 
 assert.ok(fs.existsSync(path.join(process.cwd(), "chess-grande-timesheet-logo.svg")), "global navbar SVG asset should exist");
+assert.ok(fs.existsSync(path.join(process.cwd(), "favicon.ico")), "site favicon should exist");
+
+faviconPages.forEach((fileName) => {
+  const html = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
+  assert.ok(
+    html.includes('<link rel="icon" href="./favicon.ico" sizes="any">'),
+    `${fileName} should reference the shared favicon`
+  );
+});
 
 [
   ".cg-navbar",
