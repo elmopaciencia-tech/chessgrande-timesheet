@@ -1684,7 +1684,7 @@
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
       <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
-        <img src="./assets/cg-nav-logo.svg" alt="" width="46" height="46">
+        <img src="./chess-grande-timesheet-logo.svg" alt="" width="46" height="46">
         <span class="sr-only">Chess Grande</span>
       </a>
       <nav class="cg-nav" aria-label="Primary navigation">
@@ -4589,6 +4589,7 @@
         items.className = "day-items";
         dayEntries.slice(0, 3).forEach((entry) => {
           const chip = document.createElement("div");
+          const calendarTitle = getCalendarEntryTitle(entry);
           chip.className = "calendar-chip";
           chip.dataset.entryId = entry.id || "";
           if (entry.type === "Claim") chip.classList.add("claim");
@@ -4597,10 +4598,10 @@
           if (chip.classList.contains("has-calendar-color")) {
             chip.tabIndex = 0;
             chip.setAttribute("aria-haspopup", "menu");
-            chip.setAttribute("aria-label", `${entry.schoolName || "Entry"} actions`);
+            chip.setAttribute("aria-label", `${calendarTitle} actions`);
           }
           chip.innerHTML = `
-            <strong>${escapeHtml(entry.schoolName || "Untitled")}</strong>
+            <strong>${escapeHtml(calendarTitle)}</strong>
             <span>${escapeHtml(formatCalendarEntryMeta(entry))}</span>
           `;
           items.appendChild(chip);
@@ -5089,9 +5090,16 @@
       }
     }
 
+    function getCalendarEntryTitle(entry) {
+      const claimTitle = String(entry?.claimNotes || "").trim();
+      if (entry?.type === "Claim" && claimTitle) return claimTitle;
+      return String(entry?.schoolName || "").trim() || (entry?.type === "Claim" ? "Claim" : "Entry");
+    }
+
     function formatCalendarEntryMeta(entry) {
       if (entry.type === "Claim") {
-        return "Claim";
+        const claimCost = getCostEntryValue(entry);
+        return claimCost > 0 ? formatCurrency(claimCost) : "Claim";
       }
       if (isEventCostEntry(entry)) {
         return getCostEntryValue(entry) > 0 ? formatCurrency(getCostEntryValue(entry)) : "Event";

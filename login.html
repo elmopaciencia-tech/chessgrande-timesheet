@@ -80,21 +80,18 @@
     }
 
     .brand-mark {
-      width: 46px;
-      height: 46px;
+      width: 72px;
+      height: 72px;
       margin: 0 auto 4px;
-      border-radius: 16px;
       display: grid;
       place-items: center;
-      background: color-mix(in srgb, var(--accent) 14%, white 86%);
-      color: var(--accent);
-      border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%);
-      box-shadow: var(--shadow-sm);
     }
 
-    .brand-mark svg {
-      width: 24px;
-      height: 24px;
+    .brand-mark img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     h1 {
@@ -455,7 +452,7 @@
       <div class="login-form-wrap">
         <header class="form-header">
           <div class="brand-mark" aria-hidden="true">
-            <i data-lucide="landmark"></i>
+            <img src="./chess-grande-timesheet-logo.svg" alt="" width="72" height="72">
           </div>
           <h1 id="loginTitle">Welcome back</h1>
           <p>Sign in to Chess Grande Timesheet.</p>

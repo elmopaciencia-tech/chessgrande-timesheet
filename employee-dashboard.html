@@ -20,6 +20,7 @@
       --line-strong: oklch(76.8% 0.018 178);
       --accent: oklch(43.5% 0.076 177);
       --accent-soft: oklch(91.4% 0.028 175);
+      --hours-accent: #5aa9f8;
       --clay: oklch(57.5% 0.108 44);
       --clay-soft: oklch(92.6% 0.03 44);
       --gold: oklch(92.6% 0.049 88);
@@ -357,11 +358,30 @@
       font-size: 0.9rem;
       font-weight: 850;
     }
-    .entry-activity-summary {
-      margin: 0;
+    .entry-activity-view-switch {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      margin-left: auto;
+    }
+    .entry-activity-view-button {
+      min-height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
       color: var(--muted);
-      font-size: 0.82rem;
-      font-weight: 700;
+      font-size: 0.84rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .entry-activity-view-button:hover {
+      color: var(--ink-soft);
+    }
+    .entry-activity-view-button[aria-pressed="true"] {
+      color: var(--ink);
+      font-weight: 850;
     }
     .entry-activity-scroll {
       overflow-x: auto;
@@ -375,7 +395,7 @@
       width: max-content;
       min-width: 100%;
       min-height: 16px;
-      margin-bottom: 3px;
+      margin-top: 8px;
       color: var(--muted);
       font-size: 0.72rem;
       font-weight: 800;
@@ -404,40 +424,37 @@
       background: var(--activity-color, var(--surface-muted));
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 64%, transparent);
     }
-    .entry-activity-day.has-entries {
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+    .entry-activity-day.has-hours {
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hours-accent) 34%, transparent);
     }
-    .entry-activity-day.has-submitted {
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, #22c55e 34%, transparent);
+    .entry-activity-day.is-hovered {
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--hours-accent) 72%, var(--ink) 28%);
     }
-    .entry-activity-day.is-month-start {
-      box-shadow: inset 2px 0 0 color-mix(in srgb, var(--clay) 82%, white 18%), inset 0 0 0 1px color-mix(in srgb, var(--clay) 28%, transparent);
-    }
-    .entry-activity-day.is-month-start::before {
-      content: "";
-      position: absolute;
-      top: -3px;
-      bottom: -3px;
-      left: -3px;
-      width: 2px;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--clay) 64%, transparent);
-    }
-    .entry-activity-legend {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 6px;
+    .entry-activity-error {
+      padding: 14px;
+      border: 1px dashed color-mix(in srgb, var(--line) 82%, white 18%);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-muted) 72%, white 28%);
       color: var(--muted);
-      font-size: 0.72rem;
+      font-size: 0.84rem;
       font-weight: 700;
+      text-align: center;
     }
-    .entry-activity-swatch {
-      width: 12px;
-      height: 12px;
-      border-radius: 4px;
-      background: var(--activity-color);
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 64%, transparent);
+    .entry-activity-tooltip {
+      position: fixed;
+      z-index: 2147483647;
+      max-width: min(320px, calc(100vw - 24px));
+      padding: 9px 12px;
+      border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--surface-strong) 97%, white 3%);
+      color: var(--ink);
+      box-shadow: var(--shadow-md);
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.3;
+      pointer-events: none;
+      white-space: nowrap;
     }
 
     .schedule-list, .notice-list, .history-list, .quick-links {
@@ -692,6 +709,12 @@
         padding: 11px 10px;
         border-radius: 14px;
       }
+      .entry-activity-view-switch {
+        gap: 12px;
+      }
+      .entry-activity-view-button {
+        font-size: 0.78rem;
+      }
       .schedule-item { grid-template-columns: 1fr; align-items: start; }
       .history-item {
         grid-template-columns: auto minmax(0, 1fr);
@@ -733,7 +756,7 @@
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
       <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
-        <img src="./assets/cg-nav-logo.svg" alt="" width="46" height="46">
+        <img src="./chess-grande-timesheet-logo.svg" alt="" width="46" height="46">
         <span class="sr-only">Chess Grande</span>
       </a>
       <nav class="cg-nav" aria-label="Primary navigation">
@@ -812,24 +835,21 @@
             <div class="stat-chip"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div>
             <div class="stat-chip"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div>
           </div>
-          <div class="entry-activity" aria-label="Your activity by date">
+          <div class="entry-activity" aria-label="Cumulative hours by date">
             <div class="entry-activity-head">
-              <p class="entry-activity-title">Your activity</p>
-              <p class="entry-activity-summary" id="entryActivitySummary">Loading dates...</p>
+              <p class="entry-activity-title">Cumulative Hours</p>
+              <div class="entry-activity-view-switch" role="group" aria-label="Activity view">
+                <button class="entry-activity-view-button" type="button" data-activity-view="daily" aria-pressed="false">Daily</button>
+                <button class="entry-activity-view-button" type="button" data-activity-view="weekly" aria-pressed="false">Weekly</button>
+                <button class="entry-activity-view-button" type="button" data-activity-view="cumulative" aria-pressed="true">Cumulative</button>
+              </div>
             </div>
-            <div class="entry-activity-scroll" id="entryActivityScroll" tabindex="0" aria-label="Dates with timesheet entries over the past year">
-              <div class="entry-activity-months" id="entryActivityMonths" aria-hidden="true"></div>
+            <div class="entry-activity-scroll" id="entryActivityScroll" tabindex="0" aria-label="Logged hours by date over the past year">
               <div class="entry-activity-grid" id="entryActivityCalendar"></div>
+              <div class="entry-activity-months" id="entryActivityMonths" aria-hidden="true"></div>
             </div>
-            <div class="entry-activity-legend" aria-hidden="true">
-              <span>Less</span>
-              <span class="entry-activity-swatch" style="--activity-color: var(--surface-muted);"></span>
-              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, var(--accent-soft) 76%, white 24%);"></span>
-              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, var(--accent) 42%, white 58%);"></span>
-              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, #22c55e 62%, white 38%);"></span>
-              <span class="entry-activity-swatch" style="--activity-color: color-mix(in srgb, var(--accent) 72%, white 28%);"></span>
-              <span>More</span>
-            </div>
+            <div class="entry-activity-error" id="entryActivityError" role="status" hidden>Logged hours are unavailable.</div>
+            <div class="entry-activity-tooltip" id="entryActivityTooltip" role="tooltip" hidden></div>
           </div>
         </section>
 
@@ -922,10 +942,12 @@
     const schoolCount = document.getElementById("schoolCount");
     const entryCount = document.getElementById("entryCount");
     const hoursCount = document.getElementById("hoursCount");
-    const entryActivitySummary = document.getElementById("entryActivitySummary");
+    const entryActivityViewButtons = [...document.querySelectorAll("[data-activity-view]")];
     const entryActivityScroll = document.getElementById("entryActivityScroll");
     const entryActivityMonths = document.getElementById("entryActivityMonths");
     const entryActivityCalendar = document.getElementById("entryActivityCalendar");
+    const entryActivityError = document.getElementById("entryActivityError");
+    const entryActivityTooltip = document.getElementById("entryActivityTooltip");
     const submissionStatusCopy = document.getElementById("submissionStatusCopy");
     const submissionStatusBadge = document.getElementById("submissionStatusBadge");
     const submissionStatusIcon = document.getElementById("submissionStatusIcon");
@@ -947,6 +969,14 @@
 
     let currentUserId = "";
     let cachedNotices = [];
+    let currentActivityView = "cumulative";
+    let cumulativeHourActivity = null;
+
+    document.body.appendChild(entryActivityTooltip);
+    entryActivityViewButtons.forEach((button) => {
+      button.addEventListener("click", () => setActivityView(button.dataset.activityView));
+    });
+    entryActivityScroll.addEventListener("scroll", hideEntryActivityTooltip, { passive: true });
 
     initApp();
 
@@ -1148,15 +1178,16 @@
       schoolCount.textContent = stats.schoolCount;
       entryCount.textContent = stats.entryCount;
       hoursCount.textContent = trimHours(stats.hours);
-      renderEntryActivity(entries, today);
+      renderCumulativeHours(entries, today);
     }
 
-    function renderEntryActivity(entries, today) {
-      const days = getEntryActivityDays(entries, today);
+    function renderCumulativeHours(entries, today) {
+      const days = getCumulativeHourDays(entries, today);
+      const weeks = getCumulativeHourWeeks(days, entries, today);
+      cumulativeHourActivity = { days, weeks };
       entryActivityMonths.innerHTML = "";
-      entryActivityCalendar.innerHTML = "";
-      const activeDayCount = days.filter((day) => day.count > 0).length;
-      entryActivitySummary.textContent = `${activeDayCount} active ${activeDayCount === 1 ? "date" : "dates"} in the past year`;
+      entryActivityScroll.hidden = false;
+      entryActivityError.hidden = true;
       days
         .filter((day) => day.monthLabel)
         .forEach((day) => {
@@ -1166,16 +1197,96 @@
           label.style.gridColumn = String(day.weekIndex + 1);
           entryActivityMonths.appendChild(label);
         });
+      renderCumulativeHourView();
+      scrollEntryActivityToCurrentMonth(days, today);
+    }
+
+    function setActivityView(view) {
+      if (!new Set(["daily", "weekly", "cumulative"]).has(view)) return;
+      currentActivityView = view;
+      entryActivityViewButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.activityView === view));
+      });
+      hideEntryActivityTooltip();
+      renderCumulativeHourView();
+    }
+
+    function renderCumulativeHourView() {
+      if (!cumulativeHourActivity) return;
+      const { days, weeks } = cumulativeHourActivity;
+      const maxWeeklyHours = Math.max(0, ...weeks.map((week) => week.hours));
+      const maxCumulativeHours = Math.max(0, ...weeks.map((week) => week.cumulativeHours));
+      entryActivityCalendar.innerHTML = "";
+      entryActivityScroll.setAttribute("aria-label", `${capitalize(currentActivityView)} logged hours over the past year`);
       days.forEach((day) => {
+        const week = weeks[day.weekIndex];
+        const rowIndex = day.weekday;
+        const weeklyFill = getActivityFillLevel(week.hours, maxWeeklyHours);
+        const cumulativeFill = getActivityFillLevel(week.cumulativeHours, maxCumulativeHours);
+        const isDailyActive = day.hours > 0;
+        const isWeeklyActive = rowIndex >= 7 - weeklyFill;
+        const isCumulativeActive = rowIndex >= 7 - cumulativeFill;
+        const hasHours = currentActivityView === "daily"
+          ? isDailyActive
+          : currentActivityView === "weekly"
+            ? isWeeklyActive
+            : isCumulativeActive;
         const cell = document.createElement("span");
-        cell.className = `entry-activity-day${day.count ? " has-entries" : ""}${day.submittedCount ? " has-submitted" : ""}${day.isMonthStart ? " is-month-start" : ""}`;
-        cell.style.setProperty("--activity-color", getEntryActivityColor(day));
-        cell.title = `${formatDateLong(day.date)}: ${formatEntryActivityTitle(day)}`;
+        const color = currentActivityView === "daily" && hasHours
+          ? getCumulativeHourColor(day.hours)
+          : hasHours
+            ? "var(--hours-accent)"
+            : "var(--surface-muted)";
+        const tooltipText = getEntryActivityTooltipText(currentActivityView, day, week);
+        cell.className = `entry-activity-day${hasHours ? " has-hours" : ""}`;
+        cell.style.setProperty("--activity-color", color);
+        cell.dataset.tooltip = tooltipText;
         cell.setAttribute("role", "img");
-        cell.setAttribute("aria-label", cell.title);
+        cell.setAttribute("aria-label", tooltipText);
+        cell.addEventListener("mouseenter", (event) => showEntryActivityTooltip(cell, tooltipText, event));
+        cell.addEventListener("mousemove", positionEntryActivityTooltip);
+        cell.addEventListener("mouseleave", hideEntryActivityTooltip);
         entryActivityCalendar.appendChild(cell);
       });
-      scrollEntryActivityToCurrentMonth(days, today);
+    }
+
+    function renderCumulativeHoursError() {
+      cumulativeHourActivity = null;
+      entryActivityMonths.innerHTML = "";
+      entryActivityCalendar.innerHTML = "";
+      entryActivityScroll.hidden = true;
+      entryActivityError.hidden = false;
+      hideEntryActivityTooltip();
+    }
+
+    function showEntryActivityTooltip(cell, text, event) {
+      entryActivityCalendar.querySelectorAll(".is-hovered").forEach((node) => node.classList.remove("is-hovered"));
+      cell.classList.add("is-hovered");
+      entryActivityTooltip.textContent = text;
+      entryActivityTooltip.hidden = false;
+      positionEntryActivityTooltip(event);
+    }
+
+    function positionEntryActivityTooltip(event) {
+      if (entryActivityTooltip.hidden) return;
+      const tooltipRect = entryActivityTooltip.getBoundingClientRect();
+      const viewportPadding = 12;
+      const pointerOffset = 14;
+      const preferredLeft = event.clientX + pointerOffset;
+      const preferredTop = event.clientY + pointerOffset;
+      const left = preferredLeft + tooltipRect.width <= window.innerWidth - viewportPadding
+        ? preferredLeft
+        : Math.max(viewportPadding, event.clientX - tooltipRect.width - pointerOffset);
+      const top = preferredTop + tooltipRect.height <= window.innerHeight - viewportPadding
+        ? preferredTop
+        : Math.max(viewportPadding, event.clientY - tooltipRect.height - pointerOffset);
+      entryActivityTooltip.style.left = `${left}px`;
+      entryActivityTooltip.style.top = `${top}px`;
+    }
+
+    function hideEntryActivityTooltip() {
+      entryActivityTooltip.hidden = true;
+      entryActivityCalendar.querySelectorAll(".is-hovered").forEach((node) => node.classList.remove("is-hovered"));
     }
 
     function scrollEntryActivityToCurrentMonth(days, today) {
@@ -1375,6 +1486,7 @@
       nextClassTitle.textContent = "Could not load schedule";
       nextClassMeta.textContent = error.message || "unknown error";
       weeklySchedule.innerHTML = `<div class="empty">Could not load this week: ${escapeHtml(error.message || "unknown error")}</div>`;
+      renderCumulativeHoursError();
     }
 
     function renderSubmissionError(error) {
@@ -1433,29 +1545,24 @@
       };
     }
 
-    function getEntryActivityDays(entries, today = new Date()) {
+    function getCumulativeHourDays(entries, today = new Date()) {
       const endDate = startOfDay(today);
       const startDate = startOfDay(addDays(endDate, -364));
       const calendarStart = addDays(startDate, -startDate.getDay());
-      const countsByDate = new Map();
+      const hoursByDate = new Map();
       (entries || []).forEach((entry) => {
         const dateKey = String(entry.date || "").slice(0, 10);
         if (!dateKey) return;
         const entryDate = parseDateInput(dateKey);
         if (!entryDate || entryDate < calendarStart || entryDate > endDate) return;
-        const currentCounts = countsByDate.get(dateKey) || { activeCount: 0, submittedCount: 0 };
-        if (String(entry.status || "active").toLowerCase() === "submitted") {
-          currentCounts.submittedCount += 1;
-        } else {
-          currentCounts.activeCount += 1;
-        }
-        countsByDate.set(dateKey, currentCounts);
+        const hours = Number(entry.hours || 0);
+        if (!Number.isFinite(hours) || hours <= 0) return;
+        hoursByDate.set(dateKey, (hoursByDate.get(dateKey) || 0) + hours);
       });
       return Array.from({ length: 53 * 7 }, (_, index) => {
         const date = addDays(calendarStart, index);
         const dateKey = formatDateKey(date);
         const isMonthStart = date.getDate() === 1;
-        const counts = countsByDate.get(dateKey) || { activeCount: 0, submittedCount: 0 };
         return {
           date,
           dateKey,
@@ -1463,28 +1570,61 @@
           weekIndex: Math.floor(index / 7),
           isMonthStart,
           monthLabel: isMonthStart || index === 0 ? new Intl.DateTimeFormat(undefined, { month: "short" }).format(date) : "",
-          activeCount: counts.activeCount,
-          submittedCount: counts.submittedCount,
-          count: counts.activeCount + counts.submittedCount,
+          hours: hoursByDate.get(dateKey) || 0,
         };
       });
     }
 
-    function getEntryActivityColor(day) {
-      if (day.count <= 0) return "var(--surface-muted)";
-      if (day.submittedCount && !day.activeCount) return "color-mix(in srgb, #22c55e 62%, white 38%)";
-      if (day.submittedCount) return "linear-gradient(135deg, color-mix(in srgb, #22c55e 66%, white 34%) 0 50%, color-mix(in srgb, var(--accent) 56%, white 44%) 50% 100%)";
-      if (day.count === 1) return "color-mix(in srgb, var(--accent-soft) 76%, white 24%)";
-      if (day.count === 2) return "color-mix(in srgb, var(--accent) 42%, white 58%)";
-      return "color-mix(in srgb, var(--accent) 72%, white 28%)";
+    function getCumulativeHourWeeks(days, entries, today = new Date()) {
+      if (!days.length) return [];
+      const endDate = startOfDay(today);
+      const visibleStart = days[0].date;
+      let cumulativeHours = (entries || []).reduce((total, entry) => {
+        const entryDate = parseDateInput(entry.date);
+        const hours = Number(entry.hours || 0);
+        if (!entryDate || entryDate >= visibleStart || entryDate > endDate || !Number.isFinite(hours) || hours <= 0) {
+          return total;
+        }
+        return total + hours;
+      }, 0);
+
+      return Array.from({ length: 53 }, (_, weekIndex) => {
+        const weekDays = days.slice(weekIndex * 7, (weekIndex + 1) * 7);
+        const hours = weekDays.reduce((total, day) => total + day.hours, 0);
+        cumulativeHours += hours;
+        return {
+          weekIndex,
+          startDate: weekDays[0].date,
+          endDate: weekDays[weekDays.length - 1].date,
+          hours,
+          cumulativeHours,
+        };
+      });
     }
 
-    function formatEntryActivityTitle(day) {
-      if (!day.count) return "0 entries";
-      const parts = [];
-      if (day.activeCount) parts.push(`${day.activeCount} active`);
-      if (day.submittedCount) parts.push(`${day.submittedCount} submitted`);
-      return `${day.count} ${day.count === 1 ? "entry" : "entries"} (${parts.join(", ")})`;
+    function getActivityFillLevel(value, maximum) {
+      const amount = Number(value || 0);
+      const maxAmount = Number(maximum || 0);
+      if (amount <= 0 || maxAmount <= 0) return 0;
+      return Math.min(7, Math.max(1, Math.ceil((amount / maxAmount) * 7)));
+    }
+
+    function getEntryActivityTooltipText(view, day, week) {
+      if (view === "daily") {
+        return `${formatHoursLong(day.hours)} on ${formatDateLong(day.date)}`;
+      }
+      if (view === "weekly") {
+        return `${formatHoursLong(week.hours)} during week of ${formatDateLong(week.startDate)}`;
+      }
+      return `${formatHoursLong(week.cumulativeHours)} through week of ${formatDateLong(week.startDate)}`;
+    }
+
+    function getCumulativeHourColor(hours) {
+      if (hours <= 0) return "var(--surface-muted)";
+      if (hours <= 2) return "color-mix(in srgb, var(--hours-accent) 34%, white 66%)";
+      if (hours <= 4) return "color-mix(in srgb, var(--hours-accent) 56%, white 44%)";
+      if (hours <= 6) return "color-mix(in srgb, var(--hours-accent) 78%, white 22%)";
+      return "var(--hours-accent)";
     }
 
     function getLatestSubmissionForMonth(submissions, monthKey) {
@@ -1553,6 +1693,16 @@
     function formatHours(value) {
       const hours = trimHours(value);
       return `${hours} ${hours === "1" ? "hr" : "hrs"}`;
+    }
+
+    function formatHoursLong(value) {
+      const hours = trimHours(value);
+      return `${hours} ${hours === "1" ? "hour" : "hours"}`;
+    }
+
+    function capitalize(value) {
+      const text = String(value || "");
+      return text ? `${text.charAt(0).toUpperCase()}${text.slice(1)}` : "";
     }
 
     function formatCurrency(value) {

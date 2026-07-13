@@ -27,14 +27,21 @@ const uiEffectsSource = fs.readFileSync(
   "id=\"schoolCount\"",
   "id=\"entryCount\"",
   "id=\"hoursCount\"",
-  "id=\"entryActivitySummary\"",
   "id=\"entryActivityScroll\"",
   "id=\"entryActivityMonths\"",
   "id=\"entryActivityCalendar\"",
+  "id=\"entryActivityError\"",
+  "id=\"entryActivityTooltip\"",
   "entry-activity-grid",
   "entry-activity-month-label",
-  "Your activity",
-  "is-month-start",
+  "entry-activity-view-switch",
+  "data-activity-view=\"daily\"",
+  "data-activity-view=\"weekly\"",
+  "data-activity-view=\"cumulative\" aria-pressed=\"true\"",
+  "Cumulative Hours",
+  "Daily",
+  "Weekly",
+  "Cumulative",
   "id=\"submissionStatusBadge\"",
   "id=\"noticeList\"",
   "id=\"unreadNoticeCount\"",
@@ -72,9 +79,23 @@ const uiEffectsSource = fs.readFileSync(
   "getUpcomingClassEntries(entries, new Date(), 60)",
   "getUpcomingClassEntries(entries, new Date(), 7)",
   "getCurrentMonthStats(entries, monthKey)",
-  "renderEntryActivity(entries, today)",
+  "renderCumulativeHours(entries, today)",
+  "renderCumulativeHoursError()",
   "scrollEntryActivityToCurrentMonth(days, today)",
-  "getEntryActivityDays(entries, today)",
+  "getCumulativeHourDays(entries, today)",
+  "getCumulativeHourWeeks(days, entries, today)",
+  "setActivityView(button.dataset.activityView)",
+  "renderCumulativeHourView()",
+  "getActivityFillLevel(week.hours, maxWeeklyHours)",
+  "getActivityFillLevel(week.cumulativeHours, maxCumulativeHours)",
+  "getCumulativeHourColor(day.hours)",
+  "showEntryActivityTooltip(cell, tooltipText, event)",
+  "document.body.appendChild(entryActivityTooltip)",
+  "cell.addEventListener(\"mousemove\", positionEntryActivityTooltip)",
+  "event.clientX + pointerOffset",
+  "event.clientY + pointerOffset",
+  "during week of",
+  "through week of",
   "getLatestSubmissionForMonth(submissions, currentMonth)",
   "setSnapshotIcon(\"calendar-x-2\", \"is-empty\")",
   "setSnapshotIcon(\"calendar-clock\", \"is-active\")",
@@ -116,7 +137,22 @@ assert.match(
 assert.match(
   html,
   /\.entry-activity-grid \{[\s\S]*?grid-template-rows: repeat\(7, 12px\);/,
-  "entry activity grid should use taller cells without vertical scrolling"
+  "cumulative hours grid should keep seven daily cells in every week column"
+);
+assert.match(
+  html,
+  /<div class="entry-activity-grid" id="entryActivityCalendar"><\/div>[\s\S]*?<div class="entry-activity-months" id="entryActivityMonths"/,
+  "cumulative hours should render month labels below the activity grid"
+);
+assert.match(
+  html,
+  /\.entry-activity-tooltip \{[\s\S]*?position: fixed;[\s\S]*?z-index: 2147483647;[\s\S]*?pointer-events: none;/,
+  "activity tooltips should float above the scrolling grid without intercepting input"
+);
+assert.match(
+  html,
+  /function renderCumulativeHoursError\(\) \{[\s\S]*?entryActivityScroll\.hidden = true;[\s\S]*?entryActivityError\.hidden = false;[\s\S]*?hideEntryActivityTooltip\(\);/,
+  "cumulative hours should expose a clear unavailable state when entries fail to load"
 );
 assert.match(
   html,
@@ -178,7 +214,9 @@ const dashboardHelpers = [
   "formatDateKey",
   "getUpcomingClassEntries",
   "getCurrentMonthStats",
-  "getEntryActivityDays",
+  "getCumulativeHourDays",
+  "getCumulativeHourWeeks",
+  "getActivityFillLevel",
   "getLatestSubmissionForMonth",
 ].map((name) => extractFunction(html, name)).join("\n");
 
@@ -190,7 +228,9 @@ const helperFactory = Function(`
     canSeeWebAdminDashboard,
     getUpcomingClassEntries,
     getCurrentMonthStats,
-    getEntryActivityDays,
+    getCumulativeHourDays,
+    getCumulativeHourWeeks,
+    getActivityFillLevel,
     getLatestSubmissionForMonth
   };
 `);
@@ -199,7 +239,9 @@ const {
   canSeeWebAdminDashboard,
   getUpcomingClassEntries,
   getCurrentMonthStats,
-  getEntryActivityDays,
+  getCumulativeHourDays,
+  getCumulativeHourWeeks,
+  getActivityFillLevel,
   getLatestSubmissionForMonth,
 } = helperFactory();
 
@@ -233,29 +275,44 @@ assert.deepEqual(
   "month stats should count active rows, unique non-claim schools, and time hours"
 );
 
-const activityDays = getEntryActivityDays(entries, new Date(2026, 4, 30, 12));
-assert.equal(activityDays.length, 371, "entry activity should render a fixed 53-week calendar");
+const activityDays = getCumulativeHourDays(entries, new Date(2026, 4, 30, 12));
+assert.equal(activityDays.length, 371, "cumulative hours should render a fixed 53-week calendar");
 const may26 = activityDays.find((day) => day.dateKey === "2026-05-26");
 const may27 = activityDays.find((day) => day.dateKey === "2026-05-27");
 const may29 = activityDays.find((day) => day.dateKey === "2026-05-29");
-assert.equal(may26.count, 1, "entry activity should count active rows on a date");
-assert.equal(may26.activeCount, 1, "entry activity should track active rows separately");
-assert.equal(may26.submittedCount, 0, "entry activity should not mark active-only dates as submitted");
-assert.equal(may27.count, 2, "entry activity should include active and submitted rows on a date");
-assert.equal(may27.activeCount, 1, "entry activity should keep active counts on mixed dates");
-assert.equal(may27.submittedCount, 1, "entry activity should track submitted rows for green styling");
-assert.equal(may29.count, 1, "entry activity should include active event/cost rows");
-assert.equal(activityDays[0].weekday, 0, "entry activity should start on Sunday for stable week columns");
+assert.equal(may26.hours, 2, "cumulative hours should sum active hours on a date");
+assert.equal(may27.hours, 1, "cumulative hours should include submitted hours and ignore zero-hour claims");
+assert.equal(may29.hours, 0, "cumulative hours should leave zero-hour event and cost rows unfilled");
+assert.equal(activityDays[0].weekday, 0, "cumulative hours should start on Sunday for stable week columns");
 assert.equal(
   activityDays.find((day) => day.dateKey === "2026-05-01").isMonthStart,
   true,
-  "entry activity should mark month boundaries"
+  "cumulative hours should mark month boundaries"
 );
 assert.equal(
   activityDays.find((day) => day.dateKey === "2026-05-01").monthLabel,
   "May",
-  "entry activity should label month boundaries"
+  "cumulative hours should label month boundaries"
 );
+
+const cumulativeEntries = [
+  { status: "active", type: "School Coaching", date: "2026-05-24", hours: 2 },
+  { status: "submitted", type: "Private", date: "2026-05-30", hours: 1.5 },
+  { status: "submitted", type: "Camp", date: "2024-01-10", hours: 4 },
+  { status: "active", type: "Claim", date: "2026-05-29", hours: 0 },
+  { status: "active", type: "Event", date: "2026-05-28", hours: -2 },
+  { status: "active", type: "School Coaching", date: "2026-05-31", hours: 9 },
+];
+const cumulativeDays = getCumulativeHourDays(cumulativeEntries, new Date(2026, 4, 30, 12));
+const cumulativeWeeks = getCumulativeHourWeeks(cumulativeDays, cumulativeEntries, new Date(2026, 4, 30, 12));
+assert.equal(cumulativeWeeks.length, 53, "weekly and cumulative views should preserve 53 stable week columns");
+assert.equal(cumulativeWeeks.at(-1).hours, 3.5, "weekly activity should include active and submitted hours through today");
+assert.equal(cumulativeWeeks.at(-1).cumulativeHours, 7.5, "cumulative activity should include history before the visible year");
+assert.equal(cumulativeWeeks.at(-1).cumulativeHours < 16.5, true, "future and non-positive rows should not affect cumulative activity");
+assert.equal(getActivityFillLevel(0, 7), 0, "empty weeks should leave all seven cells unfilled");
+assert.equal(getActivityFillLevel(1, 7), 1, "small positive weeks should remain visible");
+assert.equal(getActivityFillLevel(3.5, 7), 4, "weekly bars should scale proportionally across seven cells");
+assert.equal(getActivityFillLevel(7, 7), 7, "the maximum week should fill its full column");
 
 const submission = getLatestSubmissionForMonth([
   { id: "old", month: "2026-05", submitted_at: "2026-05-20T00:00:00Z" },

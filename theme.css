@@ -110,18 +110,13 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
-  background: var(--surface-strong);
-  box-shadow: var(--shadow-sm);
 }
 
 .cg-brand-logo img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .cg-nav {
@@ -321,7 +316,6 @@ textarea {
     width: 42px;
     height: 42px;
     min-width: 42px;
-    border-radius: 14px;
   }
 
   .cg-navbar .menu-button[data-has-profile-avatar="true"] {
@@ -759,8 +753,24 @@ textarea:focus {
 
 .chip,
 .calendar-chip {
+  width: calc(100% + 4px);
+  margin-inline: -2px;
   font-size: 6px;
   line-height: 1.1;
+}
+
+.chip strong,
+.calendar-chip strong {
+  display: block;
+  margin-right: 0;
+}
+
+@media (min-width: 761px) {
+  .chip,
+  .calendar-chip {
+    font-size: 10px;
+    line-height: 1.15;
+  }
 }
 
 body.is-entry-composer-modal-open .day,

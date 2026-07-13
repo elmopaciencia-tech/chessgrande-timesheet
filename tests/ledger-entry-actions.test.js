@@ -9,6 +9,22 @@ const pages = [
 ];
 const themeCss = fs.readFileSync(path.join(process.cwd(), "theme.css"), "utf8");
 
+assert.match(
+  themeCss,
+  /@media \(min-width: 761px\)\s*\{\s*\.chip,\s*\.calendar-chip\s*\{[^}]*font-size:\s*10px;[^}]*line-height:\s*1\.15;/s,
+  "all desktop calendar views should use larger readable chip text"
+);
+assert.match(
+  themeCss,
+  /\.chip strong,\s*\.calendar-chip strong\s*\{[^}]*display:\s*block;[^}]*margin-right:\s*0;/s,
+  "all calendar chips should place their time below the entry name"
+);
+assert.match(
+  themeCss,
+  /\.chip,\s*\.calendar-chip\s*\{[^}]*width:\s*calc\(100% \+ 4px\);[^}]*margin-inline:\s*-2px;/s,
+  "all calendar views should give chips slightly more horizontal room"
+);
+
 for (const [label, fileName] of pages) {
   const html = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
   const usesSeparateChipRemoveModal = fileName === "chess-timesheet.html" || fileName === "chess-timesheet-pay.html";
@@ -339,12 +355,22 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /<button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add">[\s\S]*quick-add-save-glyph[\s\S]*quick-add-save-label/s,
-      "employee composer should keep a labeled quick-add save button that can collapse to an icon on mobile"
+      /<button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add" data-cg-iconified="true">\s*<i class="cg-icon" data-lucide="save" aria-hidden="true"><\/i>\s*<\/button>/s,
+      "employee composer should use an accessible icon-only quick-add save button"
     );
     assert.match(
       html,
-      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)\s*46px;[\s\S]*#entryComposerPanel \.time-field input\[type="time"\],[\s\S]*#entryComposerPanel \.hours-field input\s*\{[^}]*min-inline-size:\s*0;[^}]*max-inline-size:\s*100%;[\s\S]*#entryComposerPanel \.quick-add-save-label\s*\{[^}]*display:\s*none;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+      /\.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)\s*52px;[^}]*align-items:\s*end;/s,
+      "employee composer should keep start time, hours, and quick-add save in one desktop row"
+    );
+    assert.match(
+      html,
+      /button\.quick-add-save\s*\{[^}]*width:\s*52px;[^}]*height:\s*52px;[^}]*border-radius:\s*999px;/s,
+      "employee composer should render quick-add save as a circular desktop icon button"
+    );
+    assert.match(
+      html,
+      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)\s*46px;[\s\S]*#entryComposerPanel \.time-field input\[type="time"\],[\s\S]*#entryComposerPanel \.hours-field input\s*\{[^}]*min-inline-size:\s*0;[^}]*max-inline-size:\s*100%;[\s\S]*#entryComposerPanel \.quick-add-save\s*\{[^}]*width:\s*46px;[^}]*border-radius:\s*999px;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
       "employee mobile composer should compact date and type, time and hours, icon quick add, and action buttons into shared rows"
     );
     assert.match(
@@ -362,6 +388,20 @@ for (const [label, fileName] of pages) {
     html,
     /calendar\.addEventListener\("keydown", onCalendarChipKeydown\)/,
     `${label} calendar should support keyboard context menu access`
+  );
+  assert.match(
+    html,
+    /function formatTimeRange\(entry\)[\s\S]*if \(entry\.type === "Claim"\)[\s\S]*const claimCost = getCostEntryValue\(entry\)[\s\S]*return claimCost > 0 \? formatCurrency\(claimCost\) : "Claim";/,
+    `${label} claim chips should show the claim cost instead of the proof filename`
+  );
+  assert.match(
+    html,
+    /function getCalendarEntryTitle\(entry\)[\s\S]*entry\?\.type === "Claim" && claimTitle[\s\S]*return claimTitle;/,
+    `${label} claim chips should use claim notes as their visible title`
+  );
+  assert.ok(
+    html.includes("escapeHtml(calendarTitle)"),
+    `${label} calendar chips should render the resolved title`
   );
   assert.match(
     html,

@@ -15,7 +15,7 @@ const pages = [
 const theme = fs.readFileSync(path.join(process.cwd(), "theme.css"), "utf8");
 const uiEffects = fs.readFileSync(path.join(process.cwd(), "ui-effects.js"), "utf8");
 
-assert.ok(fs.existsSync(path.join(process.cwd(), "assets", "cg-nav-logo.svg")), "global navbar SVG asset should exist");
+assert.ok(fs.existsSync(path.join(process.cwd(), "chess-grande-timesheet-logo.svg")), "global navbar SVG asset should exist");
 
 [
   ".cg-navbar",
@@ -87,7 +87,7 @@ pages.forEach((fileName) => {
 
   [
     'class="cg-brand-logo"',
-    'src="./assets/cg-nav-logo.svg"',
+    'src="./chess-grande-timesheet-logo.svg"',
     'href="./employee-dashboard.html"',
     'class="sr-only">Chess Grande</span>',
     ">Dashboard<",

@@ -1102,8 +1102,17 @@
 
     .time-fields-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: var(--space-4);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 52px;
+      gap: var(--space-3);
+      align-items: end;
+      overflow: hidden;
+    }
+
+    .time-fields-grid > div,
+    .time-fields-grid input {
+      min-width: 0;
+      min-inline-size: 0;
+      max-inline-size: 100%;
     }
 
     .hours-quick-add-row {
@@ -1326,22 +1335,22 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      align-self: end;
-      white-space: nowrap;
+      width: 52px;
+      min-width: 52px;
+      height: 52px;
       min-height: 52px;
-      padding-inline: 14px;
+      padding: 0;
+      border-radius: 999px;
+      align-self: end;
       background: var(--success);
       color: var(--surface-strong);
       border-color: color-mix(in srgb, var(--success) 78%, black 22%);
       box-shadow: var(--shadow-sm);
     }
 
-    .quick-add-save-glyph {
-      display: inline-block;
-      font-size: 1.18rem;
-      line-height: 1;
-      font-weight: 800;
+    button.quick-add-save .cg-icon {
+      width: 18px;
+      height: 18px;
     }
 
     .quick-add-list {
@@ -2452,8 +2461,7 @@
         margin-top: 10px;
       }
 
-      .quick-add-toggle,
-      .quick-add-save {
+      .quick-add-toggle {
         width: 100%;
       }
 
@@ -2591,10 +2599,6 @@
         min-height: 46px;
         padding: 0;
         border-radius: 999px;
-      }
-
-      #entryComposerPanel .quick-add-save-label {
-        display: none;
       }
 
       #entryComposerPanel .actions {
@@ -2895,6 +2899,13 @@
         gap: 7px;
       }
 
+      #entryComposerPanel .quick-add-save {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        min-height: 44px;
+      }
+
       #monthlyReviewPanel .panel-copy {
         font-size: 1rem;
       }
@@ -2909,7 +2920,7 @@
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
       <a class="cg-brand-logo" href="./employee-dashboard.html" aria-label="Chess Grande overview">
-        <img src="./assets/cg-nav-logo.svg" alt="" width="46" height="46">
+        <img src="./chess-grande-timesheet-logo.svg" alt="" width="46" height="46">
         <span class="sr-only">Chess Grande</span>
       </a>
       <nav class="cg-nav" aria-label="Primary navigation">
@@ -3263,9 +3274,8 @@
         <label for="hoursWorked">Hours Worked</label>
         <input id="hoursWorked" name="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
       </div>
-      <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add">
-        <span class="quick-add-save-glyph" aria-hidden="true">+</span>
-        <span class="quick-add-save-label">Save To Quick Add</span>
+      <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add" data-cg-iconified="true">
+        <i class="cg-icon" data-lucide="save" aria-hidden="true"></i>
       </button>
     </div>
   </template>
@@ -6191,6 +6201,7 @@
 
         (groupedByDate[key] || []).forEach((entry) => {
           const chip = document.createElement("div");
+          const calendarTitle = getCalendarEntryTitle(entry);
           chip.className = "chip";
           chip.dataset.entryId = entry.id || "";
           if (window.draftTimesheetStore.isSubmitted(entry)) {
@@ -6200,9 +6211,9 @@
           if (chip.classList.contains("has-calendar-color")) {
             chip.tabIndex = 0;
             chip.setAttribute("aria-haspopup", "menu");
-            chip.setAttribute("aria-label", `${entry.schoolName || "Entry"} actions`);
+            chip.setAttribute("aria-label", `${calendarTitle} actions`);
           }
-          chip.innerHTML = `<strong>${escapeHtml(entry.schoolName)}</strong>${formatTimeRange(entry)}`;
+          chip.innerHTML = `<strong>${escapeHtml(calendarTitle)}</strong>${formatTimeRange(entry)}`;
           items.appendChild(chip);
         });
 
@@ -6620,6 +6631,12 @@
       const date = new Date();
       date.setHours(hours, minutes, 0, 0);
       return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }
+
+    function getCalendarEntryTitle(entry) {
+      const claimTitle = String(entry?.claimNotes || "").trim();
+      if (entry?.type === "Claim" && claimTitle) return claimTitle;
+      return String(entry?.schoolName || "").trim() || (entry?.type === "Claim" ? "Claim" : "Entry");
     }
 
     function formatTimeRange(entry) {
