@@ -95,12 +95,113 @@
     .folder-icon::before { content: ""; position: absolute; top: -7px; left: 8px; width: 24px; height: 12px; border-radius: 8px 8px 0 0; background: var(--gold-deep); }
     .file-name { font-weight: 700; margin-bottom: 2px; }
     .file-sub, .file-meta { color: var(--muted); font-size: .9rem; line-height: 1.4; }
+    .file-hours { justify-self: stretch; text-align: center; }
     .file-paid-status { color: color-mix(in srgb, var(--brand) 62%, black 38%); font-size: .82rem; font-weight: 700; margin-top: 4px; }
     .file-role { font-weight: 700; text-transform: capitalize; color: var(--accent); }
     .file-pay { font-weight: 700; color: var(--ink); }
     .file-action-label { display: inline; }
     .status { min-height: 1.2rem; font-size: .92rem; margin-bottom: 14px; }
     .empty { padding: 28px; border-radius: 24px; background: color-mix(in srgb, var(--surface-muted) 74%, white 26%); border: 1px dashed color-mix(in srgb, var(--line) 82%, white 18%); text-align: center; }
+    .profile-directory-board { min-width: 0; overflow: hidden; border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 28px; background: color-mix(in srgb, var(--surface) 90%, white 10%); box-shadow: var(--shadow-md); }
+    .profile-directory-toolbar { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 18px; padding: 24px 28px 20px; border-bottom: 1px solid color-mix(in srgb, var(--line) 84%, white 16%); background: linear-gradient(135deg, color-mix(in srgb, var(--surface-strong) 94%, white 6%) 0%, color-mix(in srgb, var(--surface-muted) 72%, white 28%) 100%); }
+    .profile-directory-toolbar-copy { min-width: 0; flex: 1 1 320px; }
+    .profile-directory-toolbar-copy h2 { margin: 0; font-size: 1.38rem; letter-spacing: -.02em; }
+    .profile-directory-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .profile-directory-actions .button { min-height: 38px; padding: 9px 13px; font-size: .72rem; }
+    .profile-directory-actions .button[data-cg-iconified] { position: relative; gap: 0; padding-right: 30px; padding-left: 30px; line-height: 1.1; text-align: center; }
+    .profile-directory-actions .button[data-cg-iconified] > .cg-icon { position: absolute; top: 50%; left: 12px; width: 13px; height: 13px; transform: translateY(-50%); }
+    .profile-directory-controls { width: min(520px, 100%); display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .profile-directory-controls label { display: grid; gap: 7px; color: var(--muted); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .profile-directory-controls input, .profile-directory-controls select { width: 100%; min-height: 46px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-strong); color: var(--ink); }
+    .profile-directory-submission-filters { flex: 1 0 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); }
+    .profile-directory-submission-filters label { display: grid; gap: 6px; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .profile-directory-submission-filters select { width: 100%; min-width: 0; min-height: 42px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-strong); color: var(--ink); font-size: .82rem; }
+    .profile-directory-controls input:focus-visible, .profile-directory-controls select:focus-visible, .profile-directory-submission-filters select:focus-visible { outline: 0; border-color: color-mix(in srgb, var(--focus) 60%, white 40%); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 14%, white 86%); }
+    .profile-directory-status { min-height: 0; margin: 0; padding: 0 28px; }
+    .profile-directory-status:not(:empty) { min-height: 1.2rem; padding-top: 14px; padding-bottom: 2px; }
+    .profile-directory-head, .profile-directory-line { display: grid; grid-template-columns: minmax(230px, 1.55fr) minmax(145px, .78fr) minmax(140px, .72fr) minmax(180px, .9fr) 44px 34px; gap: 14px; align-items: center; }
+    .profile-directory-head { padding: 10px 20px; color: var(--muted); background: color-mix(in srgb, var(--surface-muted) 72%, white 28%); border-top: 1px solid color-mix(in srgb, var(--line) 88%, white 12%); border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); font-size: .7rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .profile-directory-list { min-height: 76px; }
+    .profile-directory-line { min-width: 0; padding: 13px 20px; border-bottom: 1px solid color-mix(in srgb, var(--line) 86%, white 14%); background: color-mix(in srgb, var(--surface-strong) 94%, white 6%); cursor: pointer; transition: background 160ms ease; }
+    .profile-directory-line:last-child { border-bottom: 0; }
+    .profile-directory-line:hover { background: color-mix(in srgb, var(--surface-accent) 28%, white 72%); }
+    .profile-directory-line:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 62%, white 38%); outline-offset: -3px; }
+    .profile-directory-line[data-expanded="true"] { background: color-mix(in srgb, var(--surface-accent) 42%, white 58%); }
+    .profile-directory-primary { min-width: 0; display: flex; align-items: center; gap: 11px; }
+    .profile-directory-avatar { position: relative; width: 38px; height: 38px; min-width: 38px; display: grid; place-items: center; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%); border-radius: 999px; background: color-mix(in srgb, var(--accent-soft) 72%, white 28%); color: var(--accent); font-size: .76rem; font-weight: 850; text-transform: uppercase; }
+    .profile-directory-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .profile-directory-identity { min-width: 0; }
+    .profile-directory-name { overflow: hidden; color: var(--ink); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-directory-contact, .profile-directory-hours { min-width: 0; color: var(--muted); font-size: .84rem; line-height: 1.35; overflow-wrap: anywhere; }
+    .profile-directory-seniority { min-width: 0; color: var(--ink-soft); font-size: .84rem; font-weight: 750; line-height: 1.3; }
+    .profile-directory-hours { display: flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: normal; white-space: nowrap; }
+    .profile-directory-month-status { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--muted) 24%, white 76%); border-radius: 999px; background: color-mix(in srgb, var(--muted) 9%, white 91%); color: var(--muted); }
+    .profile-directory-month-status .cg-icon { width: 12px; height: 12px; stroke-width: 2; }
+    .profile-directory-month-status.is-not-submitted { border-color: color-mix(in srgb, var(--clay) 38%, white 62%); background: var(--clay-soft); color: var(--clay); }
+    .profile-directory-month-status.is-unpaid { border-color: color-mix(in srgb, var(--gold-deep) 45%, white 55%); background: var(--gold); color: color-mix(in srgb, var(--gold-deep) 78%, black 22%); }
+    .profile-directory-month-status.is-paid { border-color: color-mix(in srgb, var(--accent) 28%, white 72%); background: var(--accent-soft); color: var(--accent-deep); }
+    .profile-directory-month-status.is-unavailable { border-style: dashed; background: transparent; color: var(--muted); }
+    .profile-directory-view-button { justify-self: end; width: 38px; min-height: 38px; padding: 0; border: 0; border-radius: 12px; background: var(--accent); color: var(--surface-strong); cursor: pointer; }
+    .profile-directory-view-button .cg-icon { width: 15px; height: 15px; }
+    .profile-directory-toggle-button { width: 34px; height: 34px; padding: 0; border: 1px solid color-mix(in srgb, var(--line) 78%, white 22%); border-radius: 999px; background: color-mix(in srgb, var(--surface-muted) 70%, white 30%); color: var(--ink-soft); cursor: pointer; }
+    .profile-directory-toggle-button .cg-icon { width: 16px; height: 16px; transition: transform 160ms ease; }
+    .profile-directory-line[data-expanded="true"] .profile-directory-toggle-button .cg-icon { transform: rotate(180deg); }
+    .profile-directory-submissions { grid-column: 1 / -1; display: grid; gap: 0; margin: 5px -8px -5px; overflow: hidden; border-top: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 0 0 16px 16px; background: color-mix(in srgb, var(--surface-muted) 66%, white 34%); cursor: default; animation: profile-submissions-in 150ms cubic-bezier(.2,.75,.25,1) both; }
+    .profile-directory-submissions-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 10px; color: var(--muted); font-size: .62rem; font-weight: 800; letter-spacing: .065em; text-transform: uppercase; }
+    .profile-directory-submission { position: relative; display: grid; grid-template-columns: 16px minmax(0, 1fr) 24px auto 14px; grid-template-areas: "calendar month payment pay arrow" ". details status status arrow"; gap: 2px 7px; align-items: center; min-width: 0; padding: 8px 10px; border: 0; border-top: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); border-radius: 0; background: color-mix(in srgb, var(--surface-strong) 74%, transparent 26%); color: inherit; transition: background 140ms ease, box-shadow 140ms ease; }
+    .profile-directory-submission:hover, .profile-directory-submission:focus-within { outline: 0; background: color-mix(in srgb, var(--surface-accent) 30%, white 70%); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 72%, white 28%); }
+    .profile-directory-submission-link { position: absolute; inset: 0; z-index: 1; display: block; border-radius: inherit; }
+    .profile-directory-submission-link:focus-visible { outline: 2px solid color-mix(in srgb, var(--focus) 68%, white 32%); outline-offset: -2px; }
+    .profile-directory-submission-calendar { grid-area: calendar; display: grid; place-items: center; color: var(--muted); }
+    .profile-directory-submission-calendar .cg-icon, .profile-directory-submission-details .cg-icon, .profile-directory-submission-open .cg-icon { width: 13px; height: 13px; }
+    .profile-directory-submission-month { grid-area: month; min-width: 0; }
+    .profile-directory-submission-month strong { display: block; overflow: hidden; color: var(--ink); font-size: .78rem; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-directory-submission-details { grid-area: details; min-width: 0; display: flex; align-items: center; gap: 5px; overflow: hidden; color: var(--muted); font-size: .66rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .profile-directory-submission-details-text { overflow: hidden; text-overflow: ellipsis; }
+    .profile-directory-submission-pay { grid-area: pay; color: var(--ink); font-size: .8rem; font-weight: 850; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .profile-directory-paid-button, .profile-directory-paid-spacer { grid-area: payment; width: 24px; height: 24px; }
+    .profile-directory-paid-button[data-cg-iconified] { position: relative; z-index: 2; display: grid; place-items: center; gap: 0; padding: 0; border: 1px solid color-mix(in srgb, var(--success) 36%, white 64%); border-radius: 999px; background: color-mix(in srgb, var(--success) 18%, white 82%); color: color-mix(in srgb, var(--success) 68%, black 32%); cursor: pointer; transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 140ms ease; }
+    .profile-directory-paid-button[data-cg-iconified]:hover { border-color: var(--success); background: var(--success); color: var(--surface-strong); transform: translateY(-1px); }
+    .profile-directory-paid-button .cg-icon { width: 13px; height: 13px; stroke-width: 2.4; }
+    .profile-directory-paid-button[disabled] { cursor: wait; transform: none; }
+    .profile-directory-paid-button.is-saving .cg-icon { opacity: 0; }
+    .profile-directory-paid-button.is-saving::after { content: ""; position: absolute; width: 10px; height: 10px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 999px; animation: profile-payment-spin 600ms linear infinite; }
+    .profile-directory-submission-status { grid-area: status; justify-self: end; max-width: 100%; overflow: hidden; padding: 3px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--muted); font-size: .6rem; font-weight: 800; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-directory-submission-status.is-paid { background: color-mix(in srgb, var(--brand) 18%, white 82%); color: color-mix(in srgb, var(--brand) 62%, black 38%); }
+    .profile-directory-submission-open { grid-area: arrow; align-self: center; display: grid; place-items: center; color: var(--muted); transition: color 140ms ease, transform 140ms ease; }
+    .profile-directory-submission:hover .profile-directory-submission-open, .profile-directory-submission:focus-within .profile-directory-submission-open { color: var(--accent); transform: translate(2px, -2px); }
+    .profile-directory-submissions-empty { padding: 12px; color: var(--muted); font-size: .78rem; text-align: center; }
+    .profile-directory-empty { margin: 18px; }
+    .profile-modal { width: min(760px, 100%); max-height: calc(100dvh - 48px); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
+    .profile-modal .modal-head { margin-bottom: 16px; }
+    .profile-modal-heading { display: flex; align-items: center; gap: 13px; }
+    .profile-modal-avatar { width: 52px; height: 52px; min-width: 52px; font-size: .9rem; }
+    .profile-modal-title-block { min-width: 0; }
+    .profile-modal-title-block h2 { font-size: 1.15rem; }
+    .profile-modal-title-block .panel-eyebrow { margin-bottom: 4px; font-size: .64rem; }
+    .profile-modal-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 3px; color: var(--muted); font-size: .7rem; font-weight: 700; }
+    .profile-modal-content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+    .profile-compact-sheet { overflow: hidden; border: 1px solid color-mix(in srgb, var(--line) 84%, white 16%); border-radius: 16px; background: color-mix(in srgb, var(--surface-muted) 48%, white 52%); }
+    .profile-compact-row { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); padding: 9px 14px; border-bottom: 1px solid color-mix(in srgb, var(--line) 86%, white 14%); }
+    .profile-compact-row:last-child { border-bottom: 0; }
+    .profile-compact-row-split { grid-template-columns: minmax(0, 1.45fr) minmax(150px, .75fr); padding: 0; }
+    .profile-compact-cell { min-width: 0; padding: 9px 14px; }
+    .profile-compact-cell + .profile-compact-cell { border-left: 1px solid color-mix(in srgb, var(--line) 86%, white 14%); }
+    .profile-compact-label { display: block; margin-bottom: 2px; color: var(--muted); font-size: .62rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .profile-compact-value { display: block; color: var(--ink); font-size: .82rem; font-weight: 750; line-height: 1.3; overflow-wrap: anywhere; }
+    .profile-edit-row { grid-template-columns: minmax(0, 1fr) minmax(160px, .48fr); align-items: center; gap: 16px; background: color-mix(in srgb, var(--accent-soft) 26%, white 74%); }
+    .profile-rate-input { min-width: 0; display: flex; align-items: center; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 45%, white 55%); border-radius: 12px; background: var(--surface-strong); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft) 55%, transparent 45%); }
+    .profile-rate-input span { padding-left: 11px; color: var(--muted); font-size: .82rem; font-weight: 800; }
+    .profile-rate-input input { width: 100%; min-width: 0; min-height: 40px; padding: 8px 11px 8px 6px; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: .86rem; font-weight: 800; }
+    .profile-overview-band { display: grid; grid-template-columns: minmax(0, .8fr) minmax(220px, 1.2fr); margin-top: 12px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%); border-radius: 16px; background: color-mix(in srgb, var(--accent-soft) 52%, white 48%); }
+    .profile-summary-item { min-width: 0; display: grid; align-content: center; padding: 11px 14px; }
+    .profile-summary-item + .profile-summary-item { border-left: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%); }
+    .profile-summary-hours .profile-compact-value { color: var(--accent-deep); font-size: 1rem; font-variant-numeric: tabular-nums; }
+    .profile-seniority-field select { width: 100%; min-height: 42px; margin-top: 4px; padding: 8px 34px 8px 11px; border: 1px solid color-mix(in srgb, var(--accent) 48%, white 52%); border-radius: 12px; background-color: var(--surface-strong); color: var(--ink); font-size: .86rem; font-weight: 800; cursor: pointer; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft) 55%, transparent 45%); }
+    .profile-modal-footer { padding-top: 12px; background: var(--surface-strong); }
+    .profile-modal-footer .modal-actions { margin-top: 8px; }
+    .profile-modal-footer .delete-button { min-height: 42px; font-size: .84rem; }
+    .profile-modal .modal-actions { grid-template-columns: 1fr; }
     .modal-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(23,26,25,.5); z-index: 1100; }
     .modal-overlay[hidden] { display: none; }
     .modal { width: min(720px, 100%); padding: 24px; box-shadow: var(--shadow-lg); }
@@ -127,6 +228,11 @@
       .stat-value { font-size: 1.45rem; }
       #totalSubmittedPay { font-size: clamp(1rem, 4vw, 1.45rem); }
       .file-item { grid-template-columns: 58px minmax(0, 1fr) minmax(100px, auto) minmax(110px, auto) minmax(120px, auto) auto; align-items: center; }
+      .profile-directory-toolbar { align-items: stretch; flex-direction: column; }
+      .profile-directory-toolbar-copy { flex: none; }
+      .profile-directory-controls { width: 100%; }
+      .profile-directory-submission-filters { flex: none; width: 100%; }
+      .profile-directory-head, .profile-directory-line { grid-template-columns: minmax(175px, 1.35fr) minmax(115px, .72fr) minmax(100px, .65fr) minmax(135px, .82fr) 40px 30px; gap: 10px; }
     }
     @media (min-width: 561px) and (max-width: 760px) {
       .filters {
@@ -152,24 +258,22 @@
         font-size: .9rem;
       }
       .file-item {
-        grid-template-columns: 48px minmax(110px, 1.15fr) minmax(68px, .55fr) minmax(88px, .72fr) minmax(94px, .78fr);
-        grid-template-areas:
-          "avatar identity hours rate pay"
-          "avatar identity actions actions actions";
-        gap: 10px 12px;
+        grid-template-columns: 40px minmax(82px, 1fr) 58px 74px 84px 74px;
+        grid-template-areas: "avatar identity hours rate pay actions";
+        gap: 6px;
         align-items: center;
-        padding: 14px;
+        padding: 10px 12px;
       }
       .file-avatar-img,
       .folder-icon {
         grid-area: avatar;
-        width: 44px;
-        height: 44px;
+        width: 38px;
+        height: 38px;
       }
       .file-identity { grid-area: identity; min-width: 0; }
-      .file-hours { grid-area: hours; }
+      .file-hours { grid-area: hours; justify-self: stretch; text-align: center; }
       .file-rate { grid-area: rate; }
-      .file-pay { grid-area: pay; white-space: nowrap; font-size: 1rem; }
+      .file-pay { grid-area: pay; white-space: nowrap; font-size: .88rem; }
       .file-name,
       .file-sub,
       .file-meta,
@@ -181,15 +285,18 @@
       .file-sub {
         white-space: nowrap;
       }
+      .file-name { font-size: .84rem; }
+      .file-sub { font-size: .76rem; }
       .file-meta {
         white-space: nowrap;
-        font-size: .82rem;
+        font-size: .72rem;
       }
       .file-paid-status { display: none; }
       .file-item-actions {
         grid-area: actions;
         justify-self: end;
         flex-wrap: nowrap;
+        gap: 6px;
       }
       .file-item-actions .paid-button,
       .file-item-actions .delete-button {
@@ -201,6 +308,18 @@
       .hero, .panel, .modal { padding: 20px; }
       .app-header-inner { min-height: 66px; padding: 0 16px; }
       .modal-grid, .modal-actions { grid-template-columns: 1fr; }
+      .profile-directory-toolbar { padding: 20px; }
+      .profile-directory-status { padding-left: 20px; padding-right: 20px; }
+      .profile-directory-head { display: none; }
+      .profile-directory-line { grid-template-columns: minmax(0, 1.35fr) minmax(132px, .65fr) 34px; grid-template-areas: "identity seniority toggle" "hours contact toggle" "action action toggle"; gap: 8px 12px; padding: 15px 20px; }
+      .profile-directory-primary { grid-area: identity; }
+      .profile-directory-seniority { grid-area: seniority; justify-self: end; text-align: right; }
+      .profile-directory-hours { grid-area: hours; }
+      .profile-directory-contact { grid-area: contact; text-align: right; }
+      .profile-directory-view-button { grid-area: action; justify-self: end; }
+      .profile-directory-toggle-button { grid-area: toggle; align-self: center; }
+      .profile-modal .modal-actions { grid-template-columns: 1fr; }
+      .profile-modal { max-height: calc(100dvh - 32px); }
       .file-item-actions .paid-button,
       .file-item-actions .delete-button {
         width: 44px;
@@ -224,8 +343,48 @@
       .hero-stats .stat-label { font-size: .66rem; letter-spacing: .06em; }
       #totalSubmittedPay { font-size: clamp(.88rem, 4.2vw, 1.2rem); }
     }
+    @media (min-width: 561px) and (max-width: 760px) {
+      .file-item-actions .paid-button,
+      .file-item-actions .delete-button {
+        width: 34px;
+        min-width: 34px;
+        min-height: 34px;
+      }
+      .profile-directory-line {
+        grid-template-columns: minmax(86px, 1.05fr) 76px 62px minmax(120px, 1.35fr) 32px 28px;
+        grid-template-areas: "identity seniority hours contact action toggle";
+        gap: 6px;
+        padding: 10px 12px;
+      }
+      .profile-directory-primary { gap: 6px; }
+      .profile-directory-avatar { width: 30px; height: 30px; min-width: 30px; font-size: .64rem; }
+      .profile-directory-name { font-size: .72rem; }
+      .profile-directory-seniority,
+      .profile-directory-hours,
+      .profile-directory-contact {
+        justify-self: stretch;
+        overflow: hidden;
+        font-size: .68rem;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .profile-directory-hours { justify-content: center; text-align: center; }
+      .profile-directory-month-status { width: 16px; height: 16px; flex-basis: 16px; }
+      .profile-directory-month-status .cg-icon { width: 10px; height: 10px; }
+      .profile-directory-view-button { justify-self: end; width: 32px; min-height: 32px; padding: 0; }
+      .profile-directory-view-button .cg-icon { width: 13px; height: 13px; }
+      .profile-directory-toggle-button { width: 28px; height: 28px; }
+      .profile-directory-submissions { margin: 3px -4px -3px; }
+      .profile-directory-submission { padding: 7px 8px; }
+      .profile-directory-submission-month strong, .profile-directory-submission-pay { font-size: .7rem; }
+      .profile-directory-submission-details, .profile-directory-submission-status { font-size: .6rem; }
+    }
     @media (max-width: 560px) {
       .panel-header { display: grid; grid-template-columns: 1fr; }
+      .hero-stat { align-self: center; padding: 7px 8px; gap: 1px; }
+      .hero-stat .stat-label { margin-bottom: 1px; font-size: .54rem; }
+      .hero-stat .stat-value, #totalSubmittedPay { font-size: .9rem; }
       .panel-actions {
         width: 100%;
         display: grid;
@@ -248,6 +407,79 @@
       .filters { grid-template-columns: 1fr; }
       .file-item { grid-template-columns: 1fr; align-items: start; }
       .file-item-actions { justify-self: start; }
+      .profile-directory-toolbar { padding: 16px; }
+      .profile-directory-toolbar-copy .panel-eyebrow { margin-bottom: 4px; font-size: .6rem; }
+      .profile-directory-toolbar-copy h2 { font-size: 1.1rem; }
+      .profile-directory-toolbar-copy .panel-copy { font-size: .78rem; line-height: 1.35; }
+      .profile-directory-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+      .profile-directory-actions .button { min-width: 0; min-height: 36px; padding: 8px 6px; font-size: .62rem; line-height: 1.1; text-align: center; }
+      .profile-directory-actions .button[data-cg-iconified] { padding-right: 22px; padding-left: 22px; }
+      .profile-directory-actions .button[data-cg-iconified] > .cg-icon { left: 8px; width: 11px; height: 11px; }
+      .profile-directory-controls { grid-template-columns: 1fr; gap: 8px; }
+      .profile-directory-controls label { gap: 5px; font-size: .62rem; }
+      .profile-directory-controls input,
+      .profile-directory-controls select { min-height: 42px; padding: 8px 10px; font-size: .76rem; }
+      .profile-directory-submission-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; padding-top: 10px; }
+      .profile-directory-submission-filters label { gap: 4px; font-size: .58rem; }
+      .profile-directory-submission-filters select { min-height: 38px; padding: 7px 9px; font-size: .7rem; }
+      .profile-directory-line {
+        grid-template-columns: 26px minmax(0, 1fr) 58px 24px 24px;
+        grid-template-areas: "avatar identity hours action toggle" "avatar seniority seniority seniority seniority" "avatar contact contact contact contact";
+        gap: 0 4px;
+        align-items: center;
+        padding: 9px 8px;
+      }
+      .profile-directory-primary { display: contents; }
+      .profile-directory-avatar { grid-area: avatar; align-self: start; width: 26px; height: 26px; min-width: 26px; font-size: .54rem; }
+      .profile-directory-identity { grid-area: identity; align-self: center; overflow: hidden; transform: translate(2px, -2px); }
+      .profile-directory-name { font-size: .7rem; }
+      .profile-directory-seniority,
+      .profile-directory-hours,
+      .profile-directory-contact {
+        justify-self: stretch;
+        overflow: hidden;
+        font-size: .64rem;
+        line-height: 1.1;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .profile-directory-seniority,
+      .profile-directory-contact { box-sizing: border-box; padding-left: 0; transform: translate(2px, -8px); }
+      .profile-directory-hours { gap: 3px; justify-content: center; font-size: .62rem; text-align: center; transform: translateX(-5px); }
+      .profile-directory-month-status { width: 14px; height: 14px; flex-basis: 14px; }
+      .profile-directory-month-status .cg-icon { width: 9px; height: 9px; }
+      .profile-directory-contact { font-size: .64rem; }
+      .profile-directory-view-button { justify-self: end; width: 24px; min-height: 24px; margin: 0; padding: 0; border-radius: 8px; }
+      .profile-directory-view-button .cg-icon { width: 11px; height: 11px; }
+      .profile-directory-toggle-button { width: 24px; height: 24px; }
+      .profile-directory-toggle-button .cg-icon { width: 11px; height: 11px; }
+      .profile-directory-submissions-head { padding: 6px 8px; font-size: .58rem; }
+      .profile-directory-submission { grid-template-columns: 13px minmax(0, 1fr) 21px auto 12px; gap: 1px 5px; padding: 7px 8px; }
+      .profile-directory-paid-button, .profile-directory-paid-spacer { width: 21px; height: 21px; }
+      .profile-directory-paid-button .cg-icon { width: 11px; height: 11px; }
+      .profile-directory-submission-calendar .cg-icon, .profile-directory-submission-details .cg-icon, .profile-directory-submission-open .cg-icon { width: 11px; height: 11px; }
+      .profile-directory-submission-month strong, .profile-directory-submission-pay { font-size: .68rem; }
+      .profile-directory-submission-details, .profile-directory-submission-status { font-size: .56rem; }
+      .profile-directory-submission-status { padding: 2px 4px; }
+      .profile-compact-row-split, .profile-overview-band { grid-template-columns: 1fr; }
+      .profile-compact-cell + .profile-compact-cell, .profile-summary-item + .profile-summary-item { border-left: 0; border-top: 1px solid color-mix(in srgb, var(--line) 86%, white 14%); }
+      .profile-edit-row { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    @keyframes profile-submissions-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes profile-payment-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .profile-directory-submissions { animation: none; }
+      .profile-directory-submission, .profile-directory-submission-open { transition: none; }
+      .profile-directory-paid-button.is-saving::after { animation: none; }
     }
 
 </style><link rel="stylesheet" href="./theme.css"><script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script><script src="./ui-effects.js?v=20260606-nav" defer></script></head><body><a class="skip-link" href="#main-content">Skip to main content</a>
@@ -290,7 +522,58 @@
         </div>
       </div>
     </div>
-  </header><main class="page" id="main-content"><section class="hero"><div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div><div class="hero-stats" aria-label="Dashboard summary"><div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission queue</p><h2>Submitted Entries</h2><p class="panel-copy">Open any submission to inspect the employee’s full monthly payroll view, or filter the queue first to narrow the review slice.</p></div><div class="panel-actions"><button class="button" id="sendNoticeButton" type="button">Send Notice to Employee</button><a class="button" href="./manager-drafts.html">Draft Timesheet for Employee</a></div></div><div class="filters"><div class="filter-card"><div class="filter-title">Visible Years</div><select class="filter-select" id="yearFilters"></select></div><div class="filter-card"><div class="filter-title">Visible Months</div><select class="filter-select" id="monthFilters"></select></div><div class="filter-card"><div class="filter-title">Payment Status</div><select class="filter-select" id="paidFilters"></select></div></div><div id="fileList" class="file-list"></div></section></main>
+  </header>
+  <main class="page" id="main-content">
+    <section class="hero">
+      <div class="hero-copy"><p class="eyebrow">Manager View</p><h1>Payroll Submissions</h1></div>
+      <div class="hero-stats" aria-label="Dashboard summary">
+        <div class="hero-stat"><span class="stat-label">Submissions</span><span class="stat-value" id="submissionCount">0</span></div>
+        <div class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay</span><span class="stat-value" id="totalSubmittedPay">$0.00</span></div>
+      </div>
+    </section>
+    <section class="profile-directory-board" id="profileDirectorySection" aria-labelledby="profileDirectoryTitle">
+      <div class="profile-directory-toolbar">
+        <div class="profile-directory-toolbar-copy">
+          <p class="panel-eyebrow">Team directory</p>
+          <h2 id="profileDirectoryTitle">User Profiles</h2>
+          <p class="panel-copy">Review payroll details, submitted hours, and employee roles.</p>
+          <div class="profile-directory-actions">
+            <button class="button" id="profileDirectorySendNoticeButton" type="button">Send Notice to Employee</button>
+            <a class="button" href="./manager-drafts.html">Draft Timesheet for Employee</a>
+          </div>
+        </div>
+        <div class="profile-directory-controls">
+          <label for="profileDirectorySearch">Search users
+            <input id="profileDirectorySearch" type="search" placeholder="Name, username, role, bank...">
+          </label>
+        </div>
+        <div class="profile-directory-submission-filters" aria-label="Directory filters">
+          <label for="profileDirectoryYearFilter">Visible year
+            <select id="profileDirectoryYearFilter"></select>
+          </label>
+          <label for="profileDirectoryMonthFilter">Visible month
+            <select id="profileDirectoryMonthFilter"></select>
+          </label>
+          <label for="profileDirectoryPaidFilter">Payment status
+            <select id="profileDirectoryPaidFilter"></select>
+          </label>
+          <label for="profileDirectorySeniorityFilter">Role
+            <select id="profileDirectorySeniorityFilter">
+              <option value="">All Roles</option>
+              <option value="trainee">Trainee</option>
+              <option value="chess_coach">Chess Coach</option>
+              <option value="senior_chess_coach">Senior Chess Coach</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="status profile-directory-status" id="profileDirectoryStatus" role="status">Loading profiles...</div>
+      <div class="profile-directory-head" aria-hidden="true">
+        <div>Name</div><div>Role</div><div>Cumulative submitted hours</div><div>Contact</div><div></div><div></div>
+      </div>
+      <div id="profileDirectoryList" class="profile-directory-list"></div>
+    </section>
+  </main>
   <div class="modal-overlay" id="noticeModalOverlay" role="dialog" aria-modal="true" aria-labelledby="noticeModalTitle" hidden>
     <section class="modal notice-modal">
       <div class="modal-head">
@@ -324,6 +607,58 @@
       <div class="status" id="noticeModalStatus"></div>
     </section>
   </div>
+  <div class="modal-overlay" id="profileModalOverlay" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle" hidden>
+    <section class="modal profile-modal" id="profileModal">
+      <div class="modal-head">
+        <div class="profile-modal-heading">
+          <div class="profile-directory-avatar profile-modal-avatar" id="profileModalAvatar" aria-hidden="true">
+            <span id="profileModalAvatarInitials">U</span>
+            <img id="profileModalAvatarImage" src="" alt="" hidden>
+          </div>
+          <div class="profile-modal-title-block">
+            <p class="panel-eyebrow">Payroll profile</p>
+            <h2 id="profileModalTitle">User Profile</h2>
+            <div class="profile-modal-meta">
+              <span>Joined <span id="profileModalJoined">-</span></span>
+            </div>
+          </div>
+        </div>
+        <button class="icon-close" id="profileModalCloseButton" type="button" aria-label="Close user profile">x</button>
+      </div>
+      <div class="profile-modal-content">
+        <div class="profile-compact-sheet">
+          <div class="profile-compact-row"><span class="profile-compact-label">Username</span><strong class="profile-compact-value" id="profileModalUsername">-</strong></div>
+          <div class="profile-compact-row"><span class="profile-compact-label">Phone number</span><strong class="profile-compact-value" id="profileModalPhone">-</strong></div>
+          <div class="profile-compact-row"><span class="profile-compact-label">Bank account number</span><strong class="profile-compact-value" id="profileModalBankAccount">-</strong></div>
+          <label class="profile-compact-row profile-edit-row" for="profileModalHourlyRate">
+            <span class="profile-compact-label">Rate per hour</span>
+            <span class="profile-rate-input"><span aria-hidden="true">S$</span><input id="profileModalHourlyRate" type="number" min="0" step="0.01" inputmode="decimal" aria-label="Rate per hour"></span>
+          </label>
+          <div class="profile-compact-row profile-compact-row-split">
+            <div class="profile-compact-cell"><span class="profile-compact-label">Bank</span><strong class="profile-compact-value" id="profileModalBankName">-</strong></div>
+            <div class="profile-compact-cell"><span class="profile-compact-label">Account type</span><strong class="profile-compact-value" id="profileModalAccountType">-</strong></div>
+          </div>
+        </div>
+        <div class="profile-overview-band">
+          <div class="profile-summary-item profile-summary-hours"><span class="profile-compact-label">Cumulative submitted hours</span><strong class="profile-compact-value" id="profileModalCumulativeHours">-</strong></div>
+          <label class="profile-summary-item profile-seniority-field" for="profileModalSeniority">
+            <span class="profile-compact-label">Role</span>
+            <select id="profileModalSeniority">
+              <option value="trainee">Trainee</option>
+              <option value="chess_coach">Chess Coach</option>
+              <option value="senior_chess_coach">Senior Chess Coach</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="profile-modal-footer">
+        <div class="modal-status" id="profileModalStatus" role="status"></div>
+        <div class="modal-actions" id="profileModalActions">
+          <button class="delete-button" id="profileModalCancelButton" type="button">Close</button>
+        </div>
+      </div>
+    </section>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-client.js"></script>
   <script src="./claim-proof-storage.js"></script>
@@ -333,12 +668,11 @@
   <script src="./employee-notice-store.js"></script>
   <script>
     const filterStorageKey = "chessGrandeManagerDashboardFilters";
-    const fileList = document.getElementById("fileList");
     const submissionCount = document.getElementById("submissionCount");
     const totalSubmittedPay = document.getElementById("totalSubmittedPay");
-    const yearFilters = document.getElementById("yearFilters");
-    const monthFilters = document.getElementById("monthFilters");
-    const paidFilters = document.getElementById("paidFilters");
+    const profileDirectoryYearFilter = document.getElementById("profileDirectoryYearFilter");
+    const profileDirectoryMonthFilter = document.getElementById("profileDirectoryMonthFilter");
+    const profileDirectoryPaidFilter = document.getElementById("profileDirectoryPaidFilter");
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
@@ -347,7 +681,7 @@
     const userMenuButton = document.getElementById("userMenuButton");
     const userMenuButtonLabel = document.getElementById("userMenuButtonLabel");
     const userMenuPanel = document.getElementById("userMenuPanel");
-    const sendNoticeButton = document.getElementById("sendNoticeButton");
+    const profileDirectorySendNoticeButton = document.getElementById("profileDirectorySendNoticeButton");
     const noticeModalOverlay = document.getElementById("noticeModalOverlay");
     const noticeModalClose = document.getElementById("noticeModalClose");
     const noticeCancelButton = document.getElementById("noticeCancelButton");
@@ -358,9 +692,40 @@
     const selectAllNoticeEmployees = document.getElementById("selectAllNoticeEmployees");
     const noticeSendButton = document.getElementById("noticeSendButton");
     const noticeModalStatus = document.getElementById("noticeModalStatus");
+    const profileDirectorySearch = document.getElementById("profileDirectorySearch");
+    const profileDirectorySeniorityFilter = document.getElementById("profileDirectorySeniorityFilter");
+    const profileDirectoryStatus = document.getElementById("profileDirectoryStatus");
+    const profileDirectoryList = document.getElementById("profileDirectoryList");
+    const profileModalOverlay = document.getElementById("profileModalOverlay");
+    const profileModal = document.getElementById("profileModal");
+    const profileModalCloseButton = document.getElementById("profileModalCloseButton");
+    const profileModalCancelButton = document.getElementById("profileModalCancelButton");
+    const profileModalStatus = document.getElementById("profileModalStatus");
+    const profileModalTitle = document.getElementById("profileModalTitle");
+    const profileModalAvatarInitials = document.getElementById("profileModalAvatarInitials");
+    const profileModalAvatarImage = document.getElementById("profileModalAvatarImage");
+    const profileModalUsername = document.getElementById("profileModalUsername");
+    const profileModalJoined = document.getElementById("profileModalJoined");
+    const profileModalPhone = document.getElementById("profileModalPhone");
+    const profileModalBankAccount = document.getElementById("profileModalBankAccount");
+    const profileModalBankName = document.getElementById("profileModalBankName");
+    const profileModalAccountType = document.getElementById("profileModalAccountType");
+    const profileModalHourlyRate = document.getElementById("profileModalHourlyRate");
+    const profileModalCumulativeHours = document.getElementById("profileModalCumulativeHours");
+    const profileModalSeniority = document.getElementById("profileModalSeniority");
     let currentManagerId = null;
     let noticeUsers = [];
     let selectedNoticeUserIds = new Set();
+    let profileDirectoryProfiles = [];
+    let profileDirectoryProfilesLoaded = false;
+    let profileDirectoryProfilesError = null;
+    let profileDirectoryHoursAvailable = false;
+    let profileDirectoryHoursByEmployee = new Map();
+    let profileDirectorySubmissions = [];
+    let expandedProfileId = null;
+    let activeDirectoryProfile = null;
+    let profileModalLastFocusedElement = null;
+    let profileModalIsSaving = false;
 
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
@@ -378,7 +743,8 @@
       webAdminNavItem.hidden = !(profile && profile.role === "webadmin");
       setupUserMenu();
       setupNoticeModal();
-      await render();
+      setupProfileDirectory();
+      await Promise.all([render(), loadProfileDirectoryProfiles()]);
       hydrateHeaderAvatar();
     }
 
@@ -424,7 +790,7 @@
     }
 
     function setupNoticeModal() {
-      sendNoticeButton.addEventListener("click", openNoticeModal);
+      profileDirectorySendNoticeButton.addEventListener("click", openNoticeModal);
       noticeModalClose.addEventListener("click", closeNoticeModal);
       noticeCancelButton.addEventListener("click", closeNoticeModal);
       noticeModalOverlay.addEventListener("click", (event) => {
@@ -562,6 +928,477 @@
       }
     }
 
+    function setupProfileDirectory() {
+      profileDirectorySearch.addEventListener("input", renderProfileDirectory);
+      profileDirectorySeniorityFilter.addEventListener("change", renderProfileDirectory);
+      profileModalCloseButton.addEventListener("click", closeProfileModal);
+      profileModalCancelButton.addEventListener("click", closeProfileModal);
+      profileModalSeniority.addEventListener("change", saveProfilePayrollSettings);
+      profileModalHourlyRate.addEventListener("change", saveProfilePayrollSettings);
+      profileModalOverlay.addEventListener("mousedown", (event) => {
+        if (event.target === profileModalOverlay) closeProfileModal();
+      });
+      document.addEventListener("keydown", onProfileModalKeydown);
+    }
+
+    async function loadProfileDirectoryProfiles() {
+      profileDirectoryProfilesLoaded = false;
+      profileDirectoryProfilesError = null;
+      profileDirectoryStatus.textContent = "Loading profiles...";
+      renderProfileDirectory();
+
+      const { data, error } = await window.supabaseClient
+        .from("profiles")
+        .select("id, full_name, username, phone_number, bank_account_number, bank_name, account_type, hourly_rate, avatar_r2_key, role, seniority_level, created_at")
+        .order("full_name", { ascending: true });
+
+      profileDirectoryProfilesLoaded = true;
+      profileDirectoryProfilesError = error || null;
+      profileDirectoryProfiles = error ? [] : (data || []);
+      renderProfileDirectory();
+    }
+
+    function buildCumulativeHoursByEmployee(submissions) {
+      const hoursByEmployee = new Map();
+      (submissions || []).forEach((submission) => {
+        const employeeId = String(submission.employee_id || "").trim();
+        if (!employeeId) return;
+        const hours = Number(submission.total_hours);
+        if (!Number.isFinite(hours)) return;
+        hoursByEmployee.set(employeeId, (hoursByEmployee.get(employeeId) || 0) + hours);
+      });
+      return hoursByEmployee;
+    }
+
+    function resolveDirectoryMonthlyStatusPeriod(filters, now = new Date()) {
+      const selectedYear = Number(filters?.selectedYear);
+      const selectedMonth = Number(filters?.selectedMonth);
+      const year = Number.isInteger(selectedYear) && selectedYear > 0
+        ? selectedYear
+        : now.getFullYear();
+      const month = Number.isInteger(selectedMonth) && selectedMonth >= 1 && selectedMonth <= 12
+        ? selectedMonth
+        : now.getMonth() + 1;
+      return {
+        year,
+        month,
+        label: `${monthNames[month - 1]} ${year}`,
+      };
+    }
+
+    function buildMonthlySubmissionStatusByEmployee(submissions, period) {
+      const statusByEmployee = new Map();
+      (submissions || []).forEach((submission) => {
+        const employeeId = String(submission.employeeId || "").trim();
+        if (!employeeId) return;
+        const currentStatus = statusByEmployee.get(employeeId);
+        if (!submission.paidAt) {
+          statusByEmployee.set(employeeId, "unpaid");
+          return;
+        }
+        const isSelectedPeriod = Number(submission.year) === period.year
+          && Number(submission.monthNumber) === period.month;
+        if (isSelectedPeriod && currentStatus !== "unpaid") {
+          statusByEmployee.set(employeeId, "paid");
+        }
+      });
+      return statusByEmployee;
+    }
+
+    function renderDirectoryMonthlyStatus(status, periodLabel) {
+      const statusMeta = {
+        "not-submitted": {
+          className: "is-not-submitted",
+          label: `No submission for ${periodLabel}`,
+          icon: '<path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m14 14-4 4"></path><path d="m10 14 4 4"></path>',
+        },
+        unpaid: {
+          className: "is-unpaid",
+          label: "At least one submission is awaiting payment",
+          icon: '<path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path>',
+        },
+        paid: {
+          className: "is-paid",
+          label: `${periodLabel} submission paid`,
+          icon: '<path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path>',
+        },
+        unavailable: {
+          className: "is-unavailable",
+          label: "Monthly submission status unavailable",
+          icon: '<circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-2.9 2.5-2.9 4"></path><path d="M12 18h.01"></path>',
+        },
+      };
+      const meta = statusMeta[status] || statusMeta.unavailable;
+      return `<span class="profile-directory-month-status ${meta.className}" role="img" aria-label="${escapeHtml(meta.label)}" title="${escapeHtml(meta.label)}"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${meta.icon}</svg></span>`;
+    }
+
+    function filterDirectoryProfiles(profiles, query, seniority) {
+      const normalizedQuery = String(query || "").trim().toLowerCase();
+      const normalizedSeniority = String(seniority || "").trim().toLowerCase();
+      return (profiles || [])
+        .filter((profile) => {
+          const profileSeniority = String(profile.seniority_level || "chess_coach").trim().toLowerCase();
+          if (normalizedSeniority && profileSeniority !== normalizedSeniority) return false;
+          if (!normalizedQuery) return true;
+          const haystack = [
+            profile.id,
+            profile.full_name,
+            profile.username,
+            profile.role,
+            formatSeniorityLabel(profile.seniority_level || "chess_coach"),
+            profile.phone_number,
+            profile.bank_account_number,
+            profile.bank_name,
+            profile.account_type,
+            profile.hourly_rate,
+          ].map((value) => String(value || "").toLowerCase()).join(" ");
+          return haystack.includes(normalizedQuery);
+        })
+        .sort((a, b) => {
+          const aName = String(a.full_name || a.username || a.id || "");
+          const bName = String(b.full_name || b.username || b.id || "");
+          return aName.localeCompare(bName, undefined, { sensitivity: "base" });
+        });
+    }
+
+    function renderProfileDirectory() {
+      if (!profileDirectoryProfilesLoaded) {
+        profileDirectoryStatus.textContent = "Loading profiles...";
+        profileDirectoryList.innerHTML = '<div class="empty profile-directory-empty">Loading profiles...</div>';
+        return;
+      }
+
+      if (profileDirectoryProfilesError) {
+        profileDirectoryStatus.textContent = "";
+        profileDirectoryList.innerHTML = `<div class="empty profile-directory-empty">Could not load profiles: ${escapeHtml(profileDirectoryProfilesError.message || "unknown error")}</div>`;
+        return;
+      }
+
+      const visibleProfiles = filterDirectoryProfiles(
+        profileDirectoryProfiles,
+        profileDirectorySearch.value,
+        profileDirectorySeniorityFilter.value
+      );
+      const monthlyStatusPeriod = resolveDirectoryMonthlyStatusPeriod(loadFilters());
+      const monthlyStatusByEmployee = profileDirectoryHoursAvailable
+        ? buildMonthlySubmissionStatusByEmployee(profileDirectorySubmissions, monthlyStatusPeriod)
+        : new Map();
+      profileDirectoryStatus.textContent = profileDirectoryHoursAvailable
+        ? ""
+        : "Profiles loaded, but cumulative submitted hours are unavailable.";
+
+      if (!visibleProfiles.length) {
+        profileDirectoryList.innerHTML = '<div class="empty profile-directory-empty">No users match the current search or role filter.</div>';
+        return;
+      }
+
+      profileDirectoryList.innerHTML = visibleProfiles.map((profile) => {
+        const displayName = profile.full_name || profile.username || "Unnamed user";
+        const isExpanded = expandedProfileId === profile.id;
+        const submissionsId = `profile-submissions-${profile.id}`;
+        const seniority = formatSeniorityLabel(profile.seniority_level || "chess_coach");
+        const cumulativeHours = profileDirectoryHoursAvailable
+          ? `${trimHours(profileDirectoryHoursByEmployee.get(profile.id) || 0)} hrs`
+          : "Unavailable";
+        const monthlyStatus = profileDirectoryHoursAvailable
+          ? monthlyStatusByEmployee.get(String(profile.id)) || "not-submitted"
+          : "unavailable";
+        const contactLine = [
+          profile.phone_number || "No phone",
+          [profile.bank_name || "No bank", profile.account_type || "-"].join(" · "),
+        ].join(" · ");
+        return `
+          <article class="profile-directory-line" data-profile-id="${escapeHtml(profile.id)}" data-expanded="${isExpanded}">
+            <div class="profile-directory-primary">
+              <div class="profile-directory-avatar" aria-hidden="true">
+                <span>${escapeHtml(getInitials(displayName))}</span>
+                <img class="profile-directory-avatar-image" src="" alt="" hidden>
+              </div>
+              <div class="profile-directory-identity">
+                <div class="profile-directory-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</div>
+              </div>
+            </div>
+            <div class="profile-directory-seniority" title="${escapeHtml(seniority)}">${escapeHtml(seniority)}</div>
+            <div class="profile-directory-hours">${renderDirectoryMonthlyStatus(monthlyStatus, monthlyStatusPeriod.label)}<span>${escapeHtml(cumulativeHours)}</span></div>
+            <div class="profile-directory-contact" title="${escapeHtml(contactLine)}">${escapeHtml(contactLine)}</div>
+            <button class="profile-directory-view-button" type="button" data-profile-id="${escapeHtml(profile.id)}" data-cg-iconified="true" aria-label="View ${escapeHtml(displayName)} profile"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+            <button class="profile-directory-toggle-button" type="button" data-profile-id="${escapeHtml(profile.id)}" data-cg-iconified="true" aria-expanded="${isExpanded}" aria-controls="${escapeHtml(submissionsId)}" aria-label="${isExpanded ? "Hide" : "Show"} submissions for ${escapeHtml(displayName)}"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"></path></svg></button>
+            ${isExpanded ? renderDirectorySubmissionMenu(profile, submissionsId) : ""}
+          </article>
+        `;
+      }).join("");
+
+      profileDirectoryList.querySelectorAll(".profile-directory-view-button").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const profile = profileDirectoryProfiles.find((item) => item.id === button.dataset.profileId);
+          if (profile) openProfileModal(profile, button);
+        });
+      });
+      profileDirectoryList.querySelectorAll(".profile-directory-toggle-button").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggleProfileDirectorySubmissions(button.dataset.profileId, true);
+        });
+      });
+      profileDirectoryList.querySelectorAll(".profile-directory-paid-button").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          markDirectorySubmissionPaid(button.dataset.submissionId, button);
+        });
+      });
+      profileDirectoryList.querySelectorAll(".profile-directory-line").forEach((row) => {
+        row.addEventListener("click", (event) => {
+          if (event.target.closest("button, a, .profile-directory-submissions")) return;
+          toggleProfileDirectorySubmissions(row.dataset.profileId, false);
+        });
+      });
+      hydrateProfileDirectoryAvatars(visibleProfiles);
+    }
+
+    function toggleProfileDirectorySubmissions(profileId, restoreFocus) {
+      expandedProfileId = expandedProfileId === profileId ? null : profileId;
+      renderProfileDirectory();
+      if (!restoreFocus) return;
+      requestAnimationFrame(() => {
+        const button = [...profileDirectoryList.querySelectorAll(".profile-directory-toggle-button")]
+          .find((item) => item.dataset.profileId === profileId);
+        if (button) button.focus();
+      });
+    }
+
+    function renderDirectorySubmissionMenu(profile, submissionsId) {
+      if (!profileDirectoryHoursAvailable) {
+        return `<div class="profile-directory-submissions" id="${escapeHtml(submissionsId)}"><div class="profile-directory-submissions-empty">Submissions are currently unavailable.</div></div>`;
+      }
+
+      const employeeSubmissions = profileDirectorySubmissions.filter((submission) => submission.employeeId === profile.id);
+      if (!employeeSubmissions.length) {
+        return `<div class="profile-directory-submissions" id="${escapeHtml(submissionsId)}"><div class="profile-directory-submissions-empty">No payroll submissions for this profile.</div></div>`;
+      }
+      const filters = loadFilters();
+      const submissions = employeeSubmissions.filter((submission) => submissionMatchesFilters(submission, filters));
+      if (!submissions.length) {
+        return `<div class="profile-directory-submissions" id="${escapeHtml(submissionsId)}"><div class="profile-directory-submissions-empty">No submissions match the current year, month, or payment-status filters.</div></div>`;
+      }
+
+      const totalHours = submissions.reduce((sum, submission) => sum + Number(submission.totalHours || 0), 0);
+      const totalPay = submissions.reduce((sum, submission) => sum + Number(submission.totalPay || 0), 0);
+      const submissionLabel = submissions.length === 1 ? "1 submission" : `${submissions.length} submissions`;
+      return `
+        <div class="profile-directory-submissions" id="${escapeHtml(submissionsId)}">
+          <div class="profile-directory-submissions-head"><span>${submissionLabel}</span><span>${trimHours(totalHours)} hrs · ${formatCurrency(totalPay)}</span></div>
+          ${submissions.map((submission) => {
+            const monthLabel = submission.monthLabel || submission.month || "Unknown month";
+            const paymentDetail = submission.paidAt ? formatPaidStatus(submission.paidAt) : "Awaiting payment";
+            return `
+              <div class="profile-directory-submission">
+                <a class="profile-directory-submission-link" href="./manager-entry.html?id=${encodeURIComponent(submission.id)}" aria-label="Open ${escapeHtml(getSubmissionLabel(submission))}"></a>
+                <span class="profile-directory-submission-calendar" aria-hidden="true"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg></span>
+                <span class="profile-directory-submission-month"><strong title="${escapeHtml(monthLabel)}">${escapeHtml(monthLabel)}</strong></span>
+                ${submission.paidAt
+                  ? '<span class="profile-directory-paid-spacer" aria-hidden="true"></span>'
+                  : `<button class="profile-directory-paid-button" type="button" data-cg-iconified="true" data-submission-id="${escapeHtml(submission.id)}" aria-label="Mark ${escapeHtml(monthLabel)} as paid" title="Mark ${escapeHtml(monthLabel)} as paid"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 12 4 4L19 6"></path></svg></button>`}
+                <span class="profile-directory-submission-pay">${formatCurrency(submission.totalPay || 0)}</span>
+                <span class="profile-directory-submission-open" aria-hidden="true"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></span>
+                <span class="profile-directory-submission-details"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="profile-directory-submission-details-text">${trimHours(submission.totalHours || 0)} hrs <span aria-hidden="true">·</span> ${formatCurrency(submission.hourlyRate || 0)}/hr</span></span>
+                <span class="profile-directory-submission-status${submission.paidAt ? " is-paid" : ""}" title="${escapeHtml(paymentDetail)}">${escapeHtml(paymentDetail)}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    async function markDirectorySubmissionPaid(submissionId, button) {
+      const submission = profileDirectorySubmissions.find((item) => item.id === submissionId);
+      if (!submission || submission.paidAt || !currentManagerId || button.disabled) return;
+
+      const monthLabel = submission.monthLabel || submission.month || "this month";
+      const employeeName = submission.employeeName || "this employee";
+      const confirmed = window.confirm(`Mark ${employeeName}'s ${monthLabel} submission as paid?`);
+      if (!confirmed) return;
+
+      button.disabled = true;
+      button.classList.add("is-saving");
+      button.setAttribute("aria-busy", "true");
+      profileDirectoryStatus.textContent = "";
+
+      try {
+        const paidAt = new Date().toISOString();
+        const { data, error } = await window.supabaseClient
+          .from("payroll_submissions")
+          .update({ paid_at: paidAt, paid_by: currentManagerId })
+          .eq("id", submission.id)
+          .is("paid_at", null)
+          .select("id, paid_at, paid_by")
+          .maybeSingle();
+
+        if (error) throw error;
+        if (!data) throw new Error("This submission was already updated or could not be marked paid.");
+
+        await render();
+        profileDirectoryStatus.textContent = `${employeeName}'s ${monthLabel} submission was marked paid.`;
+        requestAnimationFrame(() => {
+          const toggleButton = [...profileDirectoryList.querySelectorAll(".profile-directory-toggle-button")]
+            .find((item) => item.dataset.profileId === submission.employeeId);
+          if (toggleButton) toggleButton.focus();
+        });
+      } catch (error) {
+        console.error("Failed to mark payroll submission as paid:", error);
+        profileDirectoryStatus.textContent = `Could not mark ${monthLabel} as paid: ${error.message || "unknown error"}`;
+        button.disabled = false;
+        button.classList.remove("is-saving");
+        button.removeAttribute("aria-busy");
+      }
+    }
+
+    function openProfileModal(profile, sourceButton) {
+      activeDirectoryProfile = profile;
+      profileModalLastFocusedElement = sourceButton || document.activeElement;
+      const displayName = profile.full_name || profile.username || "Unnamed user";
+      profileModalTitle.textContent = displayName;
+      profileModalAvatarInitials.textContent = getInitials(displayName);
+      profileModalAvatarImage.hidden = true;
+      profileModalAvatarImage.removeAttribute("src");
+      profileModalAvatarImage.alt = "";
+      profileModalUsername.textContent = profile.username || "Not provided";
+      profileModalJoined.textContent = formatJoinedDate(profile.created_at);
+      profileModalPhone.textContent = profile.phone_number || "Not provided";
+      profileModalBankAccount.textContent = profile.bank_account_number || "Not provided";
+      profileModalBankName.textContent = profile.bank_name || "Not provided";
+      profileModalAccountType.textContent = profile.account_type || "Not provided";
+      profileModalSeniority.value = profile.seniority_level || "chess_coach";
+      profileModalHourlyRate.value = formatEditableHourlyRate(profile.hourly_rate);
+      profileModalCumulativeHours.textContent = profileDirectoryHoursAvailable
+        ? `${trimHours(profileDirectoryHoursByEmployee.get(profile.id) || 0)} hours`
+        : "Unavailable";
+      profileModalStatus.textContent = "";
+      profileModalStatus.style.color = "var(--muted)";
+
+      profileModalOverlay.hidden = false;
+      document.body.style.overflow = "hidden";
+      hydrateProfileModalAvatar(profile);
+      requestAnimationFrame(() => {
+        profileModalSeniority.focus();
+      });
+    }
+
+    function closeProfileModal() {
+      if (profileModalIsSaving || profileModalOverlay.hidden) return;
+      profileModalOverlay.hidden = true;
+      document.body.style.overflow = "";
+      activeDirectoryProfile = null;
+      if (profileModalLastFocusedElement && typeof profileModalLastFocusedElement.focus === "function") {
+        profileModalLastFocusedElement.focus();
+      }
+      profileModalLastFocusedElement = null;
+    }
+
+    function onProfileModalKeydown(event) {
+      if (profileModalOverlay.hidden) return;
+      if (event.key === "Escape" && !profileModalIsSaving) {
+        event.preventDefault();
+        closeProfileModal();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = [...profileModal.querySelectorAll("button, input, select, [href], [tabindex]:not([tabindex='-1'])")]
+        .filter((element) => !element.disabled && !element.hidden && element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    async function saveProfilePayrollSettings() {
+      if (!activeDirectoryProfile || profileModalIsSaving) return;
+      const previousSeniority = activeDirectoryProfile.seniority_level || "chess_coach";
+      const previousHourlyRate = Number(activeDirectoryProfile.hourly_rate || 0);
+      const nextSeniority = profileModalSeniority.value;
+      const nextHourlyRate = Number(profileModalHourlyRate.value);
+
+      if (!Number.isFinite(nextHourlyRate) || nextHourlyRate < 0) {
+        profileModalHourlyRate.value = formatEditableHourlyRate(previousHourlyRate);
+        profileModalStatus.style.color = "var(--clay)";
+        profileModalStatus.textContent = "Rate per hour must be zero or greater.";
+        return;
+      }
+
+      profileModalIsSaving = true;
+      profileModalSeniority.disabled = true;
+      profileModalHourlyRate.disabled = true;
+      profileModalStatus.style.color = "var(--muted)";
+      profileModalStatus.textContent = "Saving payroll profile...";
+
+      const { error } = await window.supabaseClient
+        .rpc("set_profile_payroll_settings", {
+          target_profile_id: activeDirectoryProfile.id,
+          new_seniority_level: nextSeniority,
+          new_hourly_rate: nextHourlyRate,
+        });
+
+      profileModalIsSaving = false;
+      profileModalSeniority.disabled = false;
+      profileModalHourlyRate.disabled = false;
+      if (error) {
+        console.error("Failed to update payroll profile settings:", error);
+        profileModalSeniority.value = previousSeniority;
+        profileModalHourlyRate.value = formatEditableHourlyRate(previousHourlyRate);
+        profileModalStatus.style.color = "var(--clay)";
+        profileModalStatus.textContent = `Could not save payroll profile: ${error.message || "unknown error"}`;
+        return;
+      }
+
+      activeDirectoryProfile.seniority_level = nextSeniority;
+      activeDirectoryProfile.hourly_rate = nextHourlyRate;
+      profileModalHourlyRate.value = formatEditableHourlyRate(nextHourlyRate);
+      profileModalStatus.style.color = "var(--accent)";
+      profileModalStatus.textContent = "Payroll profile saved automatically.";
+      renderProfileDirectory();
+    }
+
+    async function hydrateProfileDirectoryAvatars(profiles) {
+      if (!window.profileAvatar || typeof window.profileAvatar.resolveAvatarUrl !== "function") return;
+      await Promise.all((profiles || []).map(async (profile) => {
+        if (!profile.avatar_r2_key) return;
+        const image = profileDirectoryList.querySelector(
+          `.profile-directory-line[data-profile-id="${profile.id}"] .profile-directory-avatar-image`
+        );
+        if (!image) return;
+        try {
+          const url = await window.profileAvatar.resolveAvatarUrl(profile.avatar_r2_key);
+          if (!url || !image.isConnected) return;
+          image.src = url;
+          image.alt = `${profile.full_name || "User"} avatar`;
+          image.hidden = false;
+        } catch (error) {
+          console.warn("Could not load directory avatar:", error);
+        }
+      }));
+    }
+
+    async function hydrateProfileModalAvatar(profile) {
+      if (!profile.avatar_r2_key || !window.profileAvatar || typeof window.profileAvatar.resolveAvatarUrl !== "function") return;
+      const profileId = profile.id;
+      try {
+        const url = await window.profileAvatar.resolveAvatarUrl(profile.avatar_r2_key);
+        if (!url || !activeDirectoryProfile || activeDirectoryProfile.id !== profileId) return;
+        profileModalAvatarImage.src = url;
+        profileModalAvatarImage.alt = `${profile.full_name || "User"} avatar`;
+        profileModalAvatarImage.hidden = false;
+      } catch (error) {
+        console.warn("Could not load profile avatar:", error);
+      }
+    }
+
     async function loadSubmissions() {
       const { data, error } = await window.supabaseClient
         .from("payroll_submissions")
@@ -575,15 +1412,19 @@
 
       if (error) {
         console.error("Failed to load payroll submissions:", error);
+        profileDirectoryHoursAvailable = false;
+        profileDirectoryHoursByEmployee = new Map();
+        profileDirectorySubmissions = [];
+        expandedProfileId = null;
+        renderProfileDirectory();
         submissionCount.textContent = "0";
         totalSubmittedPay.textContent = formatSummaryCurrency(0);
-        fileList.innerHTML = "";
-        const message = document.createElement("div");
-        message.className = "empty";
-        message.textContent = `Could not load submissions: ${error.message || "unknown error"}`;
-        fileList.appendChild(message);
+        renderFilterControls([], loadFilters());
         return;
       }
+
+      profileDirectoryHoursAvailable = true;
+      profileDirectoryHoursByEmployee = buildCumulativeHoursByEmployee(data);
 
       const submissions = data
         .map((submission) => ({
@@ -612,161 +1453,28 @@
           return (a.employeeName || "").localeCompare(b.employeeName || "");
         });
 
+      profileDirectorySubmissions = submissions;
+      renderProfileDirectory();
+
       const filters = loadFilters();
       renderFilterControls(submissions, filters);
 
-      const visibleSubmissions = submissions.filter((submission) => {
-        const yearVisible = !filters.selectedYear || String(submission.year) === filters.selectedYear;
-        const monthVisible = !filters.selectedMonth || String(submission.monthNumber) === filters.selectedMonth;
-        const paymentStatusVisible =
-          !filters.selectedPaidStatus
-          || (filters.selectedPaidStatus === "paid" && Boolean(submission.paidAt))
-          || (filters.selectedPaidStatus === "unpaid" && !submission.paidAt);
-        return yearVisible && monthVisible && paymentStatusVisible;
-      });
+      const visibleSubmissions = submissions.filter((submission) => submissionMatchesFilters(submission, filters));
 
       submissionCount.textContent = visibleSubmissions.length;
       totalSubmittedPay.textContent = formatSummaryCurrency(
         visibleSubmissions.reduce((sum, item) => sum + Number(item.totalPay || 0), 0)
       );
+    }
 
-      fileList.innerHTML = "";
-
-      if (!visibleSubmissions.length) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent = submissions.length
-          ? "No submissions match the current year, month, or payment-status filters."
-          : "No employee submissions yet.";
-        fileList.appendChild(empty);
-        return;
-      }
-
-      visibleSubmissions.forEach((submission) => {
-        const link = document.createElement("article");
-        link.className = `file-item${submission.paidAt ? " is-paid" : ""}`;
-        link.tabIndex = 0;
-        link.setAttribute("role", "link");
-        link.dataset.href = `./manager-entry.html?id=${encodeURIComponent(submission.id)}`;
-        const submissionLabel = getSubmissionLabel(submission);
-        link.setAttribute("aria-label", `Open ${submissionLabel}`);
-        const paidStatus = submission.paidAt ? formatPaidStatus(submission.paidAt) : "";
-        const paidButtonAttrs = submission.paidAt
-          ? `disabled aria-label="${escapeHtml(`${submissionLabel} is already marked paid`)}" title="${escapeHtml(paidStatus)}"`
-          : `data-paid-id="${escapeHtml(submission.id)}" aria-label="${escapeHtml(`Mark ${submissionLabel} as paid`)}"`;
-        link.innerHTML = `
-          <img class="file-avatar-img" src="" alt="" width="44" height="44" style="display:none;width:44px;height:44px;border-radius:999px;object-fit:cover;flex-shrink:0;">
-          <div class="folder-icon" aria-hidden="true"></div>
-          <div class="file-identity">
-            <div class="file-name">${escapeHtml(submission.employeeName || "Unnamed Employee")}</div>
-            <div class="file-sub">${escapeHtml(submission.monthLabel || submission.month || "")}</div>
-            ${paidStatus ? `<div class="file-paid-status">${escapeHtml(paidStatus)}</div>` : ""}
-          </div>
-          <div class="file-meta file-hours">${trimHours(submission.totalHours || 0)} hrs</div>
-          <div class="file-meta file-rate">${formatCurrency(submission.hourlyRate || 0)}/hr</div>
-          <div class="file-pay">${formatCurrency(submission.totalPay || 0)}</div>
-          <div class="file-item-actions">
-            <button class="paid-button" type="button" ${paidButtonAttrs}><span class="file-action-label">Paid</span></button>
-            <button class="delete-button" type="button" data-id="${escapeHtml(submission.id)}" aria-label="${escapeHtml(`Delete ${submissionLabel}`)}"><span class="file-action-label">Delete</span></button>
-          </div>
-        `;
-        link.addEventListener("click", (event) => {
-          if (event.target.closest("button")) return;
-          window.location.href = link.dataset.href;
-        });
-        link.addEventListener("keydown", (event) => {
-          if (event.target.closest("button")) return;
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            window.location.href = link.dataset.href;
-          }
-        });
-        fileList.appendChild(link);
-      });
-
-      fileList.querySelectorAll(".paid-button:not([disabled])").forEach((button) => {
-        button.addEventListener("click", async (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          const submission = submissions.find((item) => item.id === button.dataset.paidId);
-          const label = getSubmissionLabel(submission);
-          const confirmed = confirm(`Mark ${label} as paid?`);
-          if (!confirmed) return;
-
-          if (!currentManagerId) {
-            alert("Could not mark submission as paid: manager session was not found.");
-            return;
-          }
-
-          button.disabled = true;
-          const paidButtonLabel = button.querySelector(".file-action-label");
-          if (paidButtonLabel) paidButtonLabel.textContent = "Saving...";
-
-          const { data: updatedSubmission, error: updateError } = await window.supabaseClient
-            .from("payroll_submissions")
-            .update({
-              paid_at: new Date().toISOString(),
-              paid_by: currentManagerId,
-            })
-            .eq("id", button.dataset.paidId)
-            .is("paid_at", null)
-            .select("id, paid_at")
-            .maybeSingle();
-
-          if (updateError) {
-            console.error("Failed to mark submission as paid:", updateError);
-            alert(`Could not mark submission as paid: ${updateError.message || "unknown error"}`);
-            button.disabled = false;
-            if (paidButtonLabel) paidButtonLabel.textContent = "Paid";
-            return;
-          }
-
-          if (!updatedSubmission) {
-            alert("This submission was already marked paid or is no longer available.");
-          } else if (window.employeeNoticeStore && typeof window.employeeNoticeStore.createPaymentNotice === "function") {
-            try {
-              await window.employeeNoticeStore.createPaymentNotice({
-                ...submission,
-                paidAt: updatedSubmission.paid_at || new Date().toISOString(),
-              }, { createdBy: currentManagerId });
-            } catch (noticeError) {
-              console.error("Failed to create payment notice:", noticeError);
-              alert(`Marked as paid, but the employee notice was not sent: ${noticeError.message || "unknown error"}`);
-            }
-          }
-
-          await render();
-        });
-      });
-
-      fileList.querySelectorAll(".delete-button").forEach((button) => {
-        button.addEventListener("click", async (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          const submission = submissions.find((item) => item.id === button.dataset.id);
-          const label = getSubmissionLabel(submission);
-
-          const confirmed = confirm(`Delete ${label}?`);
-          if (!confirmed) return;
-
-          const { error: deleteError } = await window.supabaseClient
-            .from("payroll_submissions")
-            .delete()
-            .eq("id", button.dataset.id);
-
-          if (deleteError) {
-            console.error("Failed to delete submission:", deleteError);
-            alert(`Could not delete submission: ${deleteError.message || "unknown error"}`);
-            return;
-          }
-
-          await render();
-        });
-      });
-
-      hydrateFileListAvatars(visibleSubmissions);
+    function submissionMatchesFilters(submission, filters) {
+      const yearVisible = !filters.selectedYear || String(submission.year) === filters.selectedYear;
+      const monthVisible = !filters.selectedMonth || String(submission.monthNumber) === filters.selectedMonth;
+      const paymentStatusVisible =
+        !filters.selectedPaidStatus
+        || (filters.selectedPaidStatus === "paid" && Boolean(submission.paidAt))
+        || (filters.selectedPaidStatus === "unpaid" && !submission.paidAt);
+      return yearVisible && monthVisible && paymentStatusVisible;
     }
 
     function renderFilterControls(submissions, filters) {
@@ -776,7 +1484,7 @@
         .sort((a, b) => a - b);
 
       renderFilterSelect({
-        container: yearFilters,
+        container: profileDirectoryYearFilter,
         values: years,
         selectedValue: filters.selectedYear,
         placeholder: "All Years",
@@ -785,7 +1493,7 @@
       });
 
       renderFilterSelect({
-        container: monthFilters,
+        container: profileDirectoryMonthFilter,
         values: months,
         selectedValue: filters.selectedMonth,
         placeholder: "All Months",
@@ -794,7 +1502,7 @@
       });
 
       renderFilterSelect({
-        container: paidFilters,
+        container: profileDirectoryPaidFilter,
         values: ["unpaid", "paid"],
         selectedValue: filters.selectedPaidStatus,
         placeholder: "All Statuses",
@@ -875,7 +1583,9 @@
     }
 
     function trimHours(value) {
-      return Number(value).toFixed(2).replace(/\\.00$/, "").replace(/(\\.\\d)0$/, "$1");
+      const hours = Number(value);
+      if (!Number.isFinite(hours)) return "0";
+      return hours.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
     }
 
     function formatCurrency(value) {
@@ -894,6 +1604,40 @@
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(Math.abs(amount))}`;
+    }
+
+    function formatSeniorityLabel(value) {
+      const seniority = String(value || "").trim().toLowerCase();
+      if (seniority === "trainee") return "Trainee";
+      if (seniority === "chess_coach") return "Chess Coach";
+      if (seniority === "senior_chess_coach") return "Senior Chess Coach";
+      return "Not applicable";
+    }
+
+    function formatEditableHourlyRate(value) {
+      const hourlyRate = Number(value);
+      return Number.isFinite(hourlyRate) && hourlyRate >= 0 ? hourlyRate.toFixed(2) : "0.00";
+    }
+
+    function formatJoinedDate(value) {
+      if (!value) return "Not available";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Not available";
+      return new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(date);
+    }
+
+    function getInitials(value) {
+      const parts = String(value || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      if (!parts.length) return "U";
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return `${parts[0][0] || ""}${parts[1][0] || ""}`.toUpperCase();
     }
 
     function formatRoleLabel(value) {
@@ -918,14 +1662,6 @@
       }
     }
 
-    function hydrateFileListAvatars(submissions) {
-      if (!window.profileAvatar || typeof window.profileAvatar.hydrateAvatarsForItems !== "function") return;
-      if (!submissions || !submissions.length) return;
-      window.profileAvatar.hydrateAvatarsForItems(submissions, function (item) {
-        var linkEl = document.querySelector('.file-item[data-href*="' + encodeURIComponent(item.id) + '"]');
-        return linkEl && linkEl.querySelector(".file-avatar-img");
-      });
-    }
   </script>
 </body>
 </html>

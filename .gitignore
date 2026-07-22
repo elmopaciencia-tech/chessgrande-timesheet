@@ -5,3 +5,11 @@ node_modules
 !.dev.vars.example
 .env*
 !.env.example
+
+# Local development and browser artifacts
+.DS_Store
+.playwright-mcp/
+output/playwright/
+/Chess Grande Time Sheet March 2026.xlsx
+supabase/.temp/
+supabase/migrations/

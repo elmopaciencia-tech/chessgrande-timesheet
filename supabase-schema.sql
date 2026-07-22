@@ -46,8 +46,13 @@ create table if not exists public.profiles (
   bank_account_number text,
   bank_name text,
   account_type text,
+  hourly_rate numeric(10,2) not null default 0 check (hourly_rate >= 0),
   avatar_r2_key text,
   role text not null default 'employee' check (role in ('employee', 'manager', 'webadmin')),
+  seniority_level text default 'chess_coach' check (
+    seniority_level is null
+    or seniority_level in ('trainee', 'chess_coach', 'senior_chess_coach')
+  ),
   created_at timestamptz not null default now()
 );
 
@@ -58,6 +63,7 @@ comment on column public.profiles.phone_number is 'Optional profile phone number
 comment on column public.profiles.bank_account_number is 'Optional bank account number used for payroll.';
 comment on column public.profiles.bank_name is 'Optional bank name for payroll.';
 comment on column public.profiles.account_type is 'Optional account type (e.g. savings/current).';
+comment on column public.profiles.hourly_rate is 'Default payroll rate per hour.';
 
 -- For existing projects, safely add profile customization columns if missing.
 alter table public.profiles add column if not exists username text;
@@ -65,7 +71,71 @@ alter table public.profiles add column if not exists phone_number text;
 alter table public.profiles add column if not exists bank_account_number text;
 alter table public.profiles add column if not exists bank_name text;
 alter table public.profiles add column if not exists account_type text;
+alter table public.profiles add column if not exists hourly_rate numeric(10,2);
 alter table public.profiles add column if not exists avatar_r2_key text;
+alter table public.profiles add column if not exists seniority_level text;
+comment on column public.profiles.seniority_level is 'Coaching role: trainee, chess_coach, or senior_chess_coach.';
+
+-- Every profile can carry a coaching role, regardless of its application access role.
+update public.profiles
+set seniority_level = 'chess_coach'
+where seniority_level is null;
+
+update public.profiles
+set hourly_rate = 0
+where hourly_rate is null;
+
+alter table public.profiles alter column seniority_level set default 'chess_coach';
+alter table public.profiles alter column hourly_rate set default 0;
+alter table public.profiles alter column hourly_rate set not null;
+alter table public.profiles drop constraint if exists profiles_seniority_level_check;
+alter table public.profiles
+add constraint profiles_seniority_level_check
+check (
+  seniority_level is null
+  or seniority_level in ('trainee', 'chess_coach', 'senior_chess_coach')
+);
+alter table public.profiles drop constraint if exists profiles_hourly_rate_check;
+alter table public.profiles
+add constraint profiles_hourly_rate_check check (hourly_rate >= 0);
+
+create or replace function public.enforce_profile_seniority()
+returns trigger
+language plpgsql
+set search_path = pg_catalog, public
+as $$
+begin
+  if new.seniority_level is null then
+    new.seniority_level := 'chess_coach';
+  end if;
+  return new;
+end;
+$$;
+
+revoke all on function public.enforce_profile_seniority() from public;
+revoke all on function public.enforce_profile_seniority() from anon;
+revoke all on function public.enforce_profile_seniority() from authenticated;
+
+drop trigger if exists profiles_enforce_seniority on public.profiles;
+create trigger profiles_enforce_seniority
+before insert or update of role, seniority_level on public.profiles
+for each row execute function public.enforce_profile_seniority();
+
+-- Keep ordinary profile fields editable through the existing RLS policies, but
+-- reserve seniority_level changes for the restricted RPC below.
+revoke update on public.profiles from authenticated;
+grant update (
+  id,
+  full_name,
+  username,
+  phone_number,
+  bank_account_number,
+  bank_name,
+  account_type,
+  hourly_rate,
+  avatar_r2_key,
+  role
+) on public.profiles to authenticated;
 
 create schema if not exists authz;
 revoke all on schema authz from public;
@@ -103,6 +173,62 @@ grant execute on function authz.current_profile_role() to authenticated;
 grant execute on function authz.current_profile_role() to service_role;
 grant execute on function authz.has_app_role(text[]) to authenticated;
 grant execute on function authz.has_app_role(text[]) to service_role;
+
+-- Managers and webadmins can change payroll role and rate for any profile.
+-- Keeping this as a narrow security-definer RPC avoids granting broad profile updates.
+drop function if exists public.set_employee_seniority(uuid, text);
+create or replace function public.set_profile_payroll_settings(
+  target_profile_id uuid,
+  new_seniority_level text,
+  new_hourly_rate numeric
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  updated_seniority text;
+  updated_hourly_rate numeric;
+begin
+  if not authz.has_app_role(array['manager', 'webadmin']) then
+    raise exception 'Only managers and webadmins can change payroll profile settings.'
+      using errcode = '42501';
+  end if;
+
+  if new_seniority_level is null
+    or new_seniority_level not in ('trainee', 'chess_coach', 'senior_chess_coach') then
+    raise exception 'Invalid coaching role.'
+      using errcode = '22023';
+  end if;
+
+  if new_hourly_rate is null or new_hourly_rate < 0 then
+    raise exception 'Hourly rate must be zero or greater.'
+      using errcode = '22023';
+  end if;
+
+  update public.profiles
+  set seniority_level = new_seniority_level,
+      hourly_rate = new_hourly_rate
+  where id = target_profile_id
+  returning seniority_level, hourly_rate into updated_seniority, updated_hourly_rate;
+
+  if updated_seniority is null then
+    raise exception 'Profile was not found.'
+      using errcode = 'P0002';
+  end if;
+
+  return jsonb_build_object(
+    'seniority_level', updated_seniority,
+    'hourly_rate', updated_hourly_rate
+  );
+end;
+$$;
+
+revoke all on function public.set_profile_payroll_settings(uuid, text, numeric) from public;
+revoke all on function public.set_profile_payroll_settings(uuid, text, numeric) from anon;
+revoke all on function public.set_profile_payroll_settings(uuid, text, numeric) from authenticated;
+grant execute on function public.set_profile_payroll_settings(uuid, text, numeric) to authenticated;
 
 -- -------------------------------------------------------------------
 -- 2) Payroll submissions table

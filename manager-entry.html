@@ -343,7 +343,7 @@
         min-width: 0;
         padding: 2px 3px;
         border-radius: 7px;
-        font-size: 6px;
+        font-size: 9px;
         line-height: 1.1;
         overflow: hidden;
         text-overflow: clip;
@@ -482,13 +482,146 @@
       .action-column .calendar-actions { margin-top: 14px; }
     }
 
+    /* Match the employee timesheet's edge-to-edge mobile layout. */
+    @media (max-width: 760px) {
+      body.mobile-full-bleed {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+      }
+
+      body.mobile-full-bleed .app-header,
+      body.mobile-full-bleed .hero,
+      body.mobile-full-bleed #managerCalendarPanel,
+      body.mobile-full-bleed #managerActivityPanel,
+      body.mobile-full-bleed #managerDetailsPanel {
+        width: 100vw;
+        max-width: 100vw;
+        margin-right: calc(50% - 50vw);
+        margin-left: calc(50% - 50vw);
+        border-radius: 0;
+      }
+
+      body.mobile-full-bleed .app-header-inner {
+        padding-left: calc(var(--space-4) + max(12px, env(safe-area-inset-left)));
+        padding-right: calc(var(--space-4) + max(12px, env(safe-area-inset-right)));
+      }
+
+      body.mobile-full-bleed .hero {
+        padding-left: calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
+        padding-right: calc(var(--space-5) + max(12px, env(safe-area-inset-right)));
+      }
+
+      body.mobile-full-bleed .hero-copy {
+        margin-left: calc(max(var(--space-5), env(safe-area-inset-left)) - var(--space-5) - max(12px, env(safe-area-inset-left)) - 1px);
+        margin-right: calc(max(var(--space-5), env(safe-area-inset-right)) - var(--space-5) - max(12px, env(safe-area-inset-right)) - 1px);
+      }
+
+      body.mobile-full-bleed .hero-copy header {
+        justify-items: center;
+        text-align: center;
+      }
+
+      body.mobile-full-bleed .hero-title-line {
+        display: block;
+      }
+
+      body.mobile-full-bleed .hero-title-accent {
+        color: var(--clay);
+      }
+
+      body.mobile-full-bleed .hero-month {
+        margin-left: calc(-1 * (var(--space-5) + 1px));
+        margin-right: calc(-1 * (var(--space-5) + 1px));
+      }
+
+      body.mobile-full-bleed .hero-month .month-box-header strong {
+        padding-left: 4px;
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel,
+      body.mobile-full-bleed #managerActivityPanel {
+        padding: var(--space-6) 0;
+        border-right: 0;
+        border-left: 0;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel {
+        overflow: clip;
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel > .panel-header,
+      body.mobile-full-bleed #managerActivityPanel > .panel-header {
+        padding-left: max(var(--space-5), env(safe-area-inset-left));
+        padding-right: max(var(--space-5), env(safe-area-inset-right));
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel .calendar-grid {
+        width: 100%;
+        padding-left: max(4px, env(safe-area-inset-left));
+        padding-right: max(4px, env(safe-area-inset-right));
+        gap: 3px;
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel .day {
+        min-width: 0;
+        min-height: clamp(104px, 24vw, 132px);
+        aspect-ratio: auto;
+        padding: clamp(5px, 1.8vw, 8px);
+        gap: 4px;
+        overflow: visible;
+        border-radius: 10px;
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel .weekday {
+        letter-spacing: .04em;
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel .day-items {
+        gap: 3px;
+        min-height: 0;
+        overflow: visible;
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel .chip {
+        min-width: 0;
+        padding: 3px 4px;
+        font-size: 9px;
+        overflow: visible;
+        text-overflow: unset;
+        overflow-wrap: anywhere;
+      }
+
+      body.mobile-full-bleed #managerCalendarPanel .chip strong {
+        display: block;
+        overflow: visible;
+        text-overflow: unset;
+        overflow-wrap: anywhere;
+      }
+
+      body.mobile-full-bleed #managerActivityPanel #schoolGroups {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+      }
+
+      body.mobile-full-bleed #managerDetailsPanel {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+      }
+
+      body.mobile-full-bleed #managerDetailsPanel > .panel-header {
+        padding-left: calc(max(var(--space-5), env(safe-area-inset-left)) - max(12px, env(safe-area-inset-left)));
+        padding-right: calc(max(var(--space-5), env(safe-area-inset-right)) - max(12px, env(safe-area-inset-right)));
+      }
+    }
+
     .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
   <script src="./ui-effects.js?v=20260606-nav" defer></script>
 </head>
-<body>
+<body class="mobile-full-bleed">
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
@@ -535,7 +668,7 @@
       <div class="hero-copy">
         <header>
           <p class="eyebrow">Manager View</p>
-          <h1 id="heroTitle">Payroll Entry</h1>
+          <h1 id="heroTitle"><span class="hero-title-line">Payroll</span> <span class="hero-title-line hero-title-accent">Entry</span></h1>
         </header>
       </div>
       <aside class="hero-month">
@@ -543,7 +676,7 @@
         <div class="hero-stats" aria-label="Submission summary"><div class="hero-stat"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div><div class="hero-stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Pay</span><span class="stat-value" id="totalPayCount">S$0.00</span></div></div>
       </aside>
     </section>
-    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted activity</p><h2>Entries By Activity</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, month, rate, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Rate</span><span id="payRate">S$0.00</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
+    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel" id="managerCalendarPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel" id="managerActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted activity</p><h2>Entries By Activity</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel" id="managerDetailsPanel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, month, rate, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Rate</span><span id="payRate">S$0.00</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
   </main>
 
   <div class="chip-context-menu" id="chipContextMenu" role="menu" hidden>
@@ -890,7 +1023,7 @@
         return (a.startTime || "").localeCompare(b.startTime || "");
       });
 
-      heroTitle.textContent = submission.employeeName || "Payroll Entry";
+      renderHeroTitle(submission.employeeName || "Payroll Entry");
       monthValue.textContent = submission.monthLabel || formatMonthLabel(submission.month || "");
       entryCount.textContent = entries.length;
       hoursCount.textContent = trimHours(submission.totalHours || 0);
@@ -908,6 +1041,24 @@
 
       renderCalendar(entries, submission.month || "");
       renderGroups(entries, submission);
+    }
+
+    function renderHeroTitle(value) {
+      const words = String(value || "Payroll Entry").trim().split(/\s+/).filter(Boolean);
+      const accentWord = words.pop() || "Entry";
+      const leadText = words.join(" ");
+      const accent = document.createElement("span");
+      accent.className = "hero-title-line hero-title-accent";
+      accent.textContent = accentWord;
+
+      heroTitle.replaceChildren();
+      if (leadText) {
+        const lead = document.createElement("span");
+        lead.className = "hero-title-line";
+        lead.textContent = leadText;
+        heroTitle.append(lead, " ");
+      }
+      heroTitle.appendChild(accent);
     }
 
     function renderCalendar(activeEntries, monthValueRaw) {

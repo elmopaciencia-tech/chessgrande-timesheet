@@ -460,6 +460,10 @@
       .stat-value { font-size: 1.24rem; }
     }
     @media (max-width: 760px) {
+      body {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+      }
       .page { gap: var(--space-4); }
       .app-header-inner { min-height: 62px; padding: 0 var(--space-3); }
       .hero, .panel { padding: var(--space-5); }
@@ -511,7 +515,7 @@
         min-width: 0;
         padding: 2px 3px;
         border-radius: 7px;
-        font-size: 6px;
+        font-size: 9px;
         line-height: 1.1;
         overflow: hidden;
         text-overflow: clip;
@@ -631,6 +635,101 @@
       .pay-card-section + .pay-card-section { padding-top: 5px; }
       .pay-line { padding: 4px 0; }
       .pay-line-field input { max-width: 160px; min-height: 34px; padding: 5px 8px; }
+
+      body.mobile-full-bleed .app-header,
+      body.mobile-full-bleed .hero,
+      body.mobile-full-bleed #payCalendarPanel,
+      body.mobile-full-bleed #payActivityPanel,
+      body.mobile-full-bleed #payProfilePanel {
+        width: 100vw;
+        max-width: 100vw;
+        margin-right: calc(50% - 50vw);
+        margin-left: calc(50% - 50vw);
+        border-radius: 0;
+      }
+
+      body.mobile-full-bleed .app-header-inner {
+        padding-left: calc(16px + max(12px, env(safe-area-inset-left)));
+        padding-right: calc(16px + max(12px, env(safe-area-inset-right)));
+      }
+
+      body.mobile-full-bleed .hero,
+      body.mobile-full-bleed #payActivityPanel,
+      body.mobile-full-bleed #payProfilePanel {
+        padding-left: calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
+        padding-right: calc(var(--space-5) + max(12px, env(safe-area-inset-right)));
+      }
+
+      body.mobile-full-bleed .hero-copy {
+        margin-left: calc(max(20px, env(safe-area-inset-left)) - var(--space-5) - max(12px, env(safe-area-inset-left)) - 1px);
+        margin-right: calc(max(20px, env(safe-area-inset-right)) - var(--space-5) - max(12px, env(safe-area-inset-right)) - 1px);
+      }
+
+      body.mobile-full-bleed .hero-copy header {
+        justify-items: center;
+        text-align: center;
+      }
+
+      body.mobile-full-bleed .hero-title-line {
+        display: block;
+      }
+
+      body.mobile-full-bleed .hero-title-accent {
+        color: var(--clay);
+      }
+
+      body.mobile-full-bleed .hero-month {
+        margin-left: calc(-1 * (var(--space-5) + 1px));
+        margin-right: calc(-1 * (var(--space-5) + 1px));
+      }
+
+      body.mobile-full-bleed .hero-month .month-box-header strong {
+        padding-left: 4px;
+      }
+
+      body.mobile-full-bleed #payActivityPanel > .panel-header,
+      body.mobile-full-bleed #payProfilePanel > .panel-header {
+        margin-left: calc(max(20px, env(safe-area-inset-left)) - var(--space-5) - max(12px, env(safe-area-inset-left)) - 1px);
+        margin-right: calc(max(20px, env(safe-area-inset-right)) - var(--space-5) - max(12px, env(safe-area-inset-right)) - 1px);
+      }
+
+      body.mobile-full-bleed #schoolGroups {
+        margin-left: calc(-1 * (var(--space-5) + 1px));
+        margin-right: calc(-1 * (var(--space-5) + 1px));
+      }
+
+      body.mobile-full-bleed #payCalendarPanel {
+        padding: var(--space-5) 0;
+        overflow: clip;
+        border-right: 0;
+        border-left: 0;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+      }
+
+      body.mobile-full-bleed #payCalendarPanel .panel-header {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+      }
+
+      body.mobile-full-bleed #payCalendarPanel .calendar-grid {
+        width: 100%;
+        padding-left: max(4px, env(safe-area-inset-left));
+        padding-right: max(4px, env(safe-area-inset-right));
+        gap: 3px;
+      }
+
+      body.mobile-full-bleed #payCalendarPanel .day {
+        min-width: 0;
+        border-radius: 10px;
+      }
+
+      body.mobile-full-bleed #payCalendarPanel .weekday {
+        letter-spacing: 0.04em;
+      }
+
+      body.mobile-full-bleed #payCalendarPanel .chip {
+        font-size: 9px;
+      }
     }
 
     @media (max-width: 420px) {
@@ -868,7 +967,7 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
   <script src="./ui-effects.js?v=20260606-nav" defer></script>
 </head>
-<body>
+<body class="mobile-full-bleed">
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="app-header">
     <div class="app-header-inner cg-navbar">
@@ -915,7 +1014,7 @@
       <div class="hero-copy">
         <header>
           <p class="eyebrow">Monthly Payroll View</p>
-          <h1>Chess Grande Pay Summary</h1>
+          <h1><span class="hero-title-line">Chess Grande</span> <span class="hero-title-line hero-title-accent">Pay Summary</span></h1>
         </header>
       </div>
       <aside class="hero-month">
@@ -929,10 +1028,10 @@
     <div class="workspace">
       <div class="layout">
         <div class="review-column">
-          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Activity summary</p><h2>Entries By Activity</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
+          <section class="panel" id="payCalendarPanel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel" id="payActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Activity summary</p><h2>Entries By Activity</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
         </div>
         <aside class="action-column">
-          <section class="panel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. Edit payment details from your profile menu.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
+          <section class="panel" id="payProfilePanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. Edit payment details from your profile menu.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
         </aside>
       </div>
     </div>
@@ -1356,7 +1455,7 @@
         bankAccount: currentProfile?.bank_account_number || "",
         bankName: currentProfile?.bank_name || "",
         accountType: currentProfile?.account_type || "",
-        hourlyRate: Number(localProfile.hourlyRate || 0),
+        hourlyRate: Number(currentProfile?.hourly_rate ?? localProfile.hourlyRate ?? 0),
       };
       writeJsonToStorage(payStorageKey, profile);
     }
@@ -1386,6 +1485,7 @@
       }
 
       currentProfile = data || null;
+      hourlyRateDisplay.textContent = formatCurrency(currentProfile?.hourly_rate ?? localProfile.hourlyRate ?? 0);
       fullNameInput.value = currentProfile?.full_name || "";
       bankAccountInput.value = currentProfile?.bank_account_number || "";
       bankNameInput.value = currentProfile?.bank_name || "";

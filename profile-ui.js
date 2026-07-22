@@ -537,7 +537,7 @@
     }
 
     const payrollProfile = readPayrollProfile();
-    hourlyRateInput.value = payrollProfile.hourlyRate || "";
+    hourlyRateInput.value = data?.hourly_rate ?? payrollProfile.hourlyRate ?? "";
 
     if (data && data.avatar_r2_key && window.profileAvatar && typeof window.profileAvatar.resolveAvatarUrl === "function") {
       var avatarUrl = await window.profileAvatar.resolveAvatarUrl(data.avatar_r2_key);
@@ -595,6 +595,7 @@
           bank_account_number: bankAccountNumber || null,
           bank_name: bankName || null,
           account_type: accountType || null,
+          hourly_rate: hourlyRate,
         },
         { onConflict: "id" }
       )
@@ -602,7 +603,7 @@
       .single();
 
     if (error) {
-      if (/(phone_number|bank_account_number|bank_name|account_type)/i.test(error.message || "")) {
+      if (/(phone_number|bank_account_number|bank_name|account_type|hourly_rate)/i.test(error.message || "")) {
         statusEl.textContent = "Could not save profile: run the latest SQL migration to add new profile columns.";
       } else {
         statusEl.textContent = `Could not save profile: ${error.message || "unknown error"}`;
