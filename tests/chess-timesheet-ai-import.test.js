@@ -50,6 +50,21 @@ function extractFunction(source, name) {
 }
 
 const aiFunctionNames = [
+  "convertXlsxFileToWorkbookText",
+  "buildAiWorkbookInterpretation",
+  "buildAiLegacyFlatSessionInterpretation",
+  "buildAiSessionInterpretation",
+  "getAiSectionColumnMap",
+  "findAiSectionHeaderRow",
+  "buildAiClaimInterpretation",
+  "getAiCellText",
+  "normalizeWorkbookNumber",
+  "normalizeWorkbookTime",
+  "normalizeWorkbookDate",
+  "normalizeWorkbookYear",
+  "formatDateParts",
+  "formatUtcDate",
+  "getWorkbookMonthStartDate",
   "parseAiImportJson",
   "repairAiImportJsonText",
   "validateAiDraftImportPlan",
@@ -76,6 +91,7 @@ function buildAiHarness() {
     const window = globalThis.window;
     const monthPicker = { value: "2026-06" };
     const defaultCalendarColor = "#B4CFA4";
+    const aiWorkbookTextLimit = 52000;
     const aiAllowedEntryTypes = new Set(["School Coaching", "Replacement", "Claim", "Camp", "Private", "Event"]);
     const aiRequiredEntryFields = ["date", "type", "schoolName", "startTime", "endTime", "hours", "replacementName", "customRate", "claimNotes", "claimCost", "calendarColor"];
     const aiRequiredPayFields = ["standardRate", "schoolHours", "schoolPay", "importableClaimTotal", "importableTotal", "warningClaimTotal", "workbookClaimTotal", "workbookGrandTotal"];
@@ -92,8 +108,11 @@ function buildAiHarness() {
     function formatCurrency(value) {
       return "S$" + Number(value || 0).toFixed(2);
     }
+    function formatDateInput() {
+      return "2026-06-01";
+    }
     ${aiFunctionNames.map((name) => extractFunction(html, name)).join("\n")}
-    return { parseAiImportJson, validateAiDraftImportPlan, getAiWarningTitle, formatAiWarningMessage };
+    return { convertXlsxFileToWorkbookText, parseAiImportJson, validateAiDraftImportPlan, getAiWarningTitle, formatAiWarningMessage };
   `;
   return Function(script)();
 }
@@ -111,7 +130,7 @@ const harness = buildAiHarness();
 const hero = html.match(/<section class="hero">[\s\S]*?<\/section>/)?.[0] || "";
 assert.match(
   hero,
-  /<h1>Chess Grande Timesheet<\/h1>[\s\S]*href="#aiXlsxImportPanel"[\s\S]*Import from Excel/,
+  /<h1>[\s\S]*Chess Grande[\s\S]*Timesheet[\s\S]*<\/h1>[\s\S]*href="#aiXlsxImportPanel"[\s\S]*Import from Excel/,
   "employee hero should show Import from Excel directly below the title"
 );
 
@@ -181,6 +200,48 @@ assert.doesNotMatch(
 ].forEach((forbiddenSnippet) => {
   assert.ok(!html.includes(forbiddenSnippet), `employee page should not expose ${forbiddenSnippet}`);
 });
+
+globalThis.window.XLSX = {
+  read() {
+    return {
+      SheetNames: ["March"],
+      Sheets: {
+        March: {
+          "!ref": "B8:O11",
+          B8: { v: "No" },
+          C8: { v: "School/Location" },
+          F8: { v: "Date" },
+          N8: { v: "No. of Hours" },
+          B9: { v: 1, w: "1" },
+          C9: { v: "CG Replacement" },
+          D9: { v: 930, w: "0930" },
+          E9: { v: 1100, w: "1100" },
+          F9: { v: "1" },
+          G9: { v: "8" },
+          N9: { v: 1.5, w: "1.5" },
+          O11: { t: "e", v: 15, w: "#VALUE!" },
+        },
+      },
+    };
+  },
+  utils: {
+    decode_range() {
+      return { s: { r: 7, c: 1 }, e: { r: 10, c: 14 } };
+    },
+    encode_cell({ r, c }) {
+      return `${String.fromCharCode(65 + c)}${r + 1}`;
+    },
+  },
+};
+
+const workbookText = await harness.convertXlsxFileToWorkbookText({
+  async arrayBuffer() {
+    return new ArrayBuffer(8);
+  },
+}, "2026-03");
+assert.match(workbookText, /sourceRow=9[\s\S]*section=schools[\s\S]*type=School Coaching[\s\S]*name=CG Replacement[\s\S]*hours=1\.5[\s\S]*dates=2026-03-01,2026-03-08/, "employee workbook converter should prefer the current template over legacy row-number parsing");
+assert.doesNotMatch(workbookText, /template=legacyFlat/, "employee workbook converter should not treat row numbers as legacy dates");
+assert.doesNotMatch(workbookText, /#VALUE!/, "employee workbook converter should omit Excel error cells from AI input");
 
 const repairedJson = harness.parseAiImportJson(`{
   "month": "2026-03",

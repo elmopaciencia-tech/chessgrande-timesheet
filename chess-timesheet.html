@@ -5348,7 +5348,7 @@
           for (let columnIndex = range.s.c; columnIndex <= range.e.c; columnIndex += 1) {
             const address = window.XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
             const cell = sheet[address];
-            if (!cell || cell.v == null || String(cell.v).trim() === "") continue;
+            if (!cell || cell.t === "e" || cell.v == null || String(cell.v).trim() === "") continue;
             const value = String(cell.w || cell.v).replace(/\s+/g, " ").trim();
             cells.push(`${address}=${value}`);
           }
@@ -5384,12 +5384,6 @@
         if (rowText.includes("claims")) section = "claim";
         if (rowText.includes("schools") && rowNumber < 30) section = "schools";
 
-        const legacyLine = buildAiLegacyFlatSessionInterpretation(sheet, rowNumber, selectedMonth);
-        if (legacyLine) {
-          interpreted.push(legacyLine);
-          continue;
-        }
-
         if (section === "claim") {
           const claimLine = buildAiClaimInterpretation(sheet, rowNumber, selectedMonth);
           if (claimLine) interpreted.push(claimLine);
@@ -5397,13 +5391,25 @@
         }
 
         const sessionLine = buildAiSessionInterpretation(sheet, rowNumber, section, selectedMonth);
-        if (sessionLine) interpreted.push(sessionLine);
+        if (sessionLine) {
+          interpreted.push(sessionLine);
+          continue;
+        }
+
+        const legacyLine = buildAiLegacyFlatSessionInterpretation(sheet, rowNumber, selectedMonth);
+        if (legacyLine) interpreted.push(legacyLine);
       }
       return interpreted;
     }
 
     function buildAiLegacyFlatSessionInterpretation(sheet, rowNumber, selectedMonth) {
-      const date = normalizeWorkbookDate(getAiCellText(sheet, `B${rowNumber}`), selectedMonth);
+      const dateText = getAiCellText(sheet, `B${rowNumber}`);
+      const numericDate = /^\d+(?:\.\d+)?$/.test(dateText) ? Number(dateText) : null;
+      const hasExplicitDate = (numericDate != null && numericDate > 30000)
+        || /^\d{1,2}\/\d{1,2}(?:\/\d{2,4})?$/.test(dateText)
+        || /^\d{4}-\d{2}-\d{2}$/.test(dateText);
+      if (!hasExplicitDate) return "";
+      const date = normalizeWorkbookDate(dateText, selectedMonth);
       const name = getAiCellText(sheet, `C${rowNumber}`);
       const startTime = normalizeWorkbookTime(getAiCellText(sheet, `D${rowNumber}`));
       const endTime = normalizeWorkbookTime(getAiCellText(sheet, `E${rowNumber}`));
@@ -5442,7 +5448,7 @@
         .filter(Boolean);
       if (!dates.length) return "";
 
-      const type = section === "private" ? "Private" : section === "event" ? "Event" : name.toLowerCase().includes("replacement") ? "Replacement" : "School Coaching";
+      const type = section === "private" ? "Private" : section === "event" ? "Event" : "School Coaching";
       const rate = section === "private" || section === "event" ? normalizeWorkbookNumber(getAiCellText(sheet, `${sectionColumns.rate}${rowNumber}`)) : null;
       const calculatedEnd = calculateAiEndTimeFromHours(startTime, hours);
       const duration = endTime ? calculateAiDurationHours(startTime, endTime) : null;
@@ -5508,7 +5514,7 @@
 
     function getAiCellText(sheet, address) {
       const cell = sheet[address];
-      if (!cell || cell.v == null || String(cell.v).trim() === "") return "";
+      if (!cell || cell.t === "e" || cell.v == null || String(cell.v).trim() === "") return "";
       return String(cell.w || cell.v).replace(/\s+/g, " ").trim();
     }
 

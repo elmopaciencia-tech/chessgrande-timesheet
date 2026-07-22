@@ -337,11 +337,19 @@ globalThis.window.XLSX = {
           A3: { v: "Claim" },
           C3: { v: 27.8, w: "27.80" },
           B6: { v: "Schools (MOE Schools/ International Schools/Ingenius/ Sunflower/ SCF)" },
+          B11: { v: 3, w: "3" },
           C11: { v: "CG Grade 3" },
           D11: { v: 1530, w: "1530" },
           E11: { v: 1200, w: "1200" },
-          F11: { v: "11/1" },
+          F11: { v: "11" },
+          G11: { v: "25" },
           N11: { v: 1.5, w: "1.5" },
+          B12: { v: 4, w: "4" },
+          C12: { v: "CG Replacement" },
+          D12: { v: 1330, w: "1330" },
+          E12: { v: 1500, w: "1500" },
+          F12: { v: "12/1" },
+          N12: { v: 1.5, w: "1.5" },
           B35: { v: "Private Lessons" },
           B36: { v: "No" },
           C36: { v: "Student Name" },
@@ -363,6 +371,7 @@ globalThis.window.XLSX = {
           C65: { v: "Grab from CG to SCF" },
           D65: { v: 8.7, w: "8.70" },
           H65: { v: 46032 },
+          O63: { t: "e", v: 15, w: "#VALUE!" },
         },
       },
     };
@@ -388,10 +397,13 @@ assert.match(workbookText, /ROW 1: A1=Date \| B1=School/, "workbook converter sh
 assert.match(workbookText, /ROW 2: C2=0930/, "workbook converter should preserve visible cell text");
 assert.match(workbookText, /INTERPRETED TIMESHEET ROWS/, "workbook converter should add interpreted row hints");
 assert.match(workbookText, /sourceRow=11[\s\S]*CG Grade 3[\s\S]*startTime=15:30[\s\S]*endTime=12:00[\s\S]*calculatedEndFromHours=17:00/, "workbook converter should flag time and hours conflicts");
-assert.match(workbookText, /sourceRow=11[\s\S]*dates=2026-01-11/, "workbook converter should use file month for day\/month cells even when active view differs");
+assert.match(workbookText, /sourceRow=11[\s\S]*dates=2026-01-11,2026-01-25/, "workbook converter should use file month for day cells even when active view differs");
+assert.doesNotMatch(workbookText, /sourceRow=11[\s\S]*template=legacyFlat/, "workbook converter should not treat the current template row number as a legacy date");
+assert.match(workbookText, /sourceRow=12[\s\S]*section=schools[\s\S]*type=School Coaching[\s\S]*name=CG Replacement/, "replacement-looking school names should stay school coaching entries");
 assert.match(workbookText, /sourceRow=37[\s\S]*section=private[\s\S]*Jean \+ 3[\s\S]*hours=1[\s\S]*rate=60[\s\S]*dates=2026-01-02,2026-01-09/, "workbook converter should read private rate from M and hours from N");
 assert.doesNotMatch(workbookText, /sourceRow=37[\s\S]*hours=60/, "workbook converter should not treat private rate as hours");
 assert.match(workbookText, /sourceRow=65[\s\S]*Grab from CG to SCF[\s\S]*date=2026-01-10/, "workbook converter should convert Excel date serial claims");
+assert.doesNotMatch(workbookText, /#VALUE!/, "workbook converter should omit Excel error cells from AI input");
 
 globalThis.window.XLSX.read = () => mismatchedWorkbook;
 globalThis.window.XLSX.utils.decode_range = () => ({ s: { r: 7, c: 1 }, e: { r: 36, c: 14 } });
