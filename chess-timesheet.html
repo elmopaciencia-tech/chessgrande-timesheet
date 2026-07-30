@@ -555,6 +555,23 @@
       gap: var(--space-3);
       align-items: end;
     }
+    .ai-import-panel.is-parsing .ai-import-grid {
+      pointer-events: none;
+      user-select: none;
+    }
+    .ai-import-panel.is-parsing .ai-upload-help,
+    .ai-import-panel.is-parsing .ai-upload-selected {
+      opacity: 0.46;
+      filter: grayscale(0.72);
+    }
+    .ai-import-panel.is-parsing .ai-import-actions {
+      pointer-events: none;
+      user-select: none;
+    }
+    .ai-import-panel.is-parsing .ai-import-status {
+      opacity: 1;
+      filter: none;
+    }
     .ai-upload-card {
       display: grid;
       gap: 12px;
@@ -582,6 +599,55 @@
       border-color: color-mix(in srgb, var(--accent) 64%, var(--line) 36%);
       background: color-mix(in srgb, var(--accent-soft) 42%, var(--surface-strong) 58%);
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+    .ai-upload-dropzone.has-file {
+      border-style: solid;
+      border-color: color-mix(in srgb, var(--line-strong) 82%, white 18%);
+      background: color-mix(in srgb, var(--surface-muted) 88%, white 12%);
+      pointer-events: none;
+      cursor: default;
+    }
+    .ai-upload-dropzone.has-file .ai-upload-label {
+      color: var(--ink);
+    }
+    .ai-upload-dropzone.is-parsing {
+      border-style: solid;
+      border-color: color-mix(in srgb, var(--accent) 54%, var(--line) 46%);
+      background: color-mix(in srgb, var(--accent-soft) 34%, var(--surface-strong) 66%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+      opacity: 1;
+      filter: none;
+    }
+    .ai-upload-dropzone.is-parsing .ai-upload-dropzone-inner {
+      display: none;
+    }
+    .ai-upload-parse-status {
+      display: flex;
+      width: 100%;
+      max-width: 720px;
+      align-items: center;
+      justify-content: center;
+    }
+    .ai-upload-parse-status[hidden] {
+      display: none;
+    }
+    .ai-upload-parse-status .ai-loading-breadcrumb {
+      width: 100%;
+    }
+    .ai-upload-parse-status {
+      position: relative;
+      z-index: 1;
+    }
+    .ai-upload-ready-note {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+    .ai-upload-ready-note[hidden] {
+      display: none;
     }
     .ai-upload-dropzone-inner {
       width: 100%;
@@ -693,9 +759,19 @@
     }
     .ai-import-status {
       min-height: 1.25rem;
+      padding-top: 0;
+      margin-bottom: 0;
       color: var(--muted);
       font-size: 0.88rem;
       line-height: 1.4;
+      font-weight: 700;
+    }
+    .ai-import-status-list {
+      margin: 0;
+      padding-inline-start: 0;
+      display: grid;
+      gap: 0;
+      list-style: none;
     }
     .ai-import-status.error { color: #9f2f1f; }
     .ai-import-status.success { color: var(--accent); }
@@ -705,6 +781,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
       min-height: 24px;
       color: var(--muted);
       font-size: 0.9rem;
@@ -741,6 +818,23 @@
       height: 16px;
       flex: 0 0 auto;
       color: color-mix(in srgb, var(--muted) 70%, white 30%);
+    }
+    .ai-loading-progress {
+      flex: 1 1 180px;
+      min-width: 150px;
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--surface-muted);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 82%, white 18%);
+    }
+    .ai-loading-progress-fill {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width 260ms cubic-bezier(0.22, 1, 0.36, 1);
     }
     @keyframes ai-draw-stroke {
       0% {
@@ -779,6 +873,19 @@
       container-type: inline-size;
     }
     .ai-import-preview[hidden] { display: none; }
+    .ai-import-preview-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding-top: var(--space-2);
+      border-top: 1px solid color-mix(in srgb, var(--line) 78%, white 22%);
+    }
+    .ai-import-preview-head h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.12rem, 1rem + 0.5vw, 1.45rem);
+      line-height: 1.2;
+    }
     .ai-import-summary {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3648,11 +3755,13 @@
                     <i class="ai-upload-icon" data-lucide="upload-cloud" aria-hidden="true"></i>
                     <div class="ai-upload-text">
                       <label class="ai-upload-label" for="aiXlsxFile">
-                        <span>Drop or choose an XLSX file</span>
+                        <span id="aiUploadPromptText">Drop or choose an XLSX file</span>
+                        <small class="ai-upload-ready-note" id="aiUploadReadyMessage" hidden>File loaded. Click Parse Excel to start.</small>
                         <input class="ai-upload-input" id="aiXlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                       </label>
                     </div>
                   </div>
+                  <div class="ai-upload-parse-status" id="aiUploadParseStatus" role="status" aria-live="polite" hidden></div>
                 </div>
                 <p class="ai-upload-help">XLSX only · Max 10 MB.</p>
                 <div class="ai-upload-selected" id="aiSelectedFileCard" hidden>
@@ -3670,6 +3779,9 @@
               <div class="ai-import-status" id="aiImportStatus" role="status" aria-live="polite"></div>
             </div>
             <div class="ai-import-preview" id="aiImportPreview" hidden>
+              <div class="ai-import-preview-head">
+                <h3 id="aiImportPreviewTitle">Imported Entries — Selected Month</h3>
+              </div>
               <div class="ai-import-summary" id="aiImportSummary"></div>
               <div class="ai-import-table-wrap" id="aiImportTableWrap"></div>
               <ul class="ai-import-warnings" id="aiImportWarnings"></ul>
@@ -3977,6 +4089,9 @@
     const imageLightboxClose = document.getElementById("imageLightboxClose");
     const aiXlsxFile = document.getElementById("aiXlsxFile");
     const aiUploadDropzone = document.querySelector(".ai-upload-dropzone");
+    const aiUploadParseStatus = document.getElementById("aiUploadParseStatus");
+    const aiUploadPromptText = document.getElementById("aiUploadPromptText");
+    const aiUploadReadyMessage = document.getElementById("aiUploadReadyMessage");
     const aiSelectedFileCard = document.getElementById("aiSelectedFileCard");
     const aiSelectedFileName = document.getElementById("aiSelectedFileName");
     const aiSelectedFileMeta = document.getElementById("aiSelectedFileMeta");
@@ -3984,6 +4099,7 @@
     const aiClearImportButton = document.getElementById("aiClearImportButton");
     const aiImportStatus = document.getElementById("aiImportStatus");
     const aiImportPreview = document.getElementById("aiImportPreview");
+    const aiImportPreviewTitle = document.getElementById("aiImportPreviewTitle");
     const aiImportSummary = document.getElementById("aiImportSummary");
     const aiImportTableWrap = document.getElementById("aiImportTableWrap");
     const aiImportWarnings = document.getElementById("aiImportWarnings");
@@ -3992,6 +4108,8 @@
     const claimProofBucket = "claim-proofs";
     const defaultCalendarColor = "#B4CFA4";
     const aiWorkbookTextLimit = 52000;
+    const aiParseEstimatedDurationMs = 40000;
+    const aiParseProgressCap = 80;
     const aiAllowedEntryTypes = new Set(["School Coaching", "Replacement", "Claim", "Camp", "Private", "Event"]);
     const aiRequiredEntryFields = ["date", "type", "schoolName", "startTime", "endTime", "hours", "replacementName", "customRate", "claimNotes", "claimCost", "calendarColor"];
     const aiRequiredPayFields = ["standardRate", "schoolHours", "schoolPay", "importableClaimTotal", "importableTotal", "warningClaimTotal", "workbookClaimTotal", "workbookGrandTotal"];
@@ -4052,6 +4170,9 @@
     let aiImportBusy = false;
     let aiImportParseRequestId = 0;
     let aiImportParseInFlight = false;
+    let aiParseProgressAnimationFrame = 0;
+    let aiParseProgressStartedAt = 0;
+    let aiParseProgressValue = 0;
 
     initApp();
 
@@ -4239,10 +4360,10 @@
     bindAction(calendarColorToggle, toggleCalendarColorMenu);
     bindQuickAddSaveButton();
     clearEntryButton.addEventListener("click", clearEntryComposer);
-    aiXlsxFile.addEventListener("change", () => {
-      syncAiSelectedFile();
-      resetAiImportPreview(aiXlsxFile.files?.[0] ? "Excel file selected. Parse it when you are ready." : "");
-    });
+      aiXlsxFile.addEventListener("change", () => {
+        syncAiSelectedFile();
+        resetAiImportPreview("");
+      });
     if (aiUploadDropzone) {
       ["dragenter", "dragover"].forEach((eventName) => {
         aiUploadDropzone.addEventListener(eventName, (event) => {
@@ -5603,13 +5724,35 @@
       aiImportStatus.className = type ? `ai-import-status ${type}` : "ai-import-status";
       if (options.loading) {
         aiImportStatus.classList.add("loading");
-        aiImportStatus.appendChild(renderAiLoadingStatus(message || "Parsing workbook"));
+        aiImportStatus.appendChild(renderAiLoadingStatus(message || "Parsing workbook", options.progress));
         return;
       }
-      aiImportStatus.textContent = message || "";
+      renderAiImportStatusMessage(message);
     }
 
-    function renderAiLoadingStatus(text) {
+    function renderAiImportStatusMessage(message) {
+      const normalizedMessage = String(message || "").trim();
+      if (!normalizedMessage) return;
+
+      const sentences = normalizedMessage.match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g)
+        ?.map((sentence) => sentence.trim())
+        .filter(Boolean) || [];
+      if (sentences.length < 2) {
+        aiImportStatus.textContent = normalizedMessage;
+        return;
+      }
+
+      const statusList = document.createElement("ul");
+      statusList.className = "ai-import-status-list";
+      sentences.forEach((sentence) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = sentence;
+        statusList.appendChild(listItem);
+      });
+      aiImportStatus.appendChild(statusList);
+    }
+
+    function renderAiLoadingStatus(text, progress = 0) {
       const namespace = "http://www.w3.org/2000/svg";
       const wrapper = document.createElement("span");
       wrapper.className = "ai-loading-breadcrumb";
@@ -5634,6 +5777,19 @@
       label.className = "ai-loading-text";
       label.textContent = text;
 
+      const progressBar = document.createElement("span");
+      progressBar.className = "ai-loading-progress";
+      progressBar.setAttribute("role", "progressbar");
+      progressBar.setAttribute("aria-label", "Workbook parsing progress");
+      progressBar.setAttribute("aria-valuemin", "0");
+      progressBar.setAttribute("aria-valuemax", "100");
+      const normalizedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+      progressBar.setAttribute("aria-valuenow", String(normalizedProgress));
+      const progressFill = document.createElement("span");
+      progressFill.className = "ai-loading-progress-fill";
+      progressFill.style.width = `${normalizedProgress}%`;
+      progressBar.appendChild(progressFill);
+
       const chevron = document.createElementNS(namespace, "svg");
       chevron.setAttribute("viewBox", "0 0 24 24");
       chevron.setAttribute("fill", "none");
@@ -5647,15 +5803,85 @@
       chevronPath.setAttribute("d", "m9 18 6-6-6-6");
       chevron.appendChild(chevronPath);
 
-      wrapper.append(loader, label, chevron);
+      wrapper.append(loader, label, progressBar, chevron);
       return wrapper;
     }
 
     function setAiImportBusy(isBusy) {
       aiImportBusy = isBusy;
       aiParseXlsxButton.disabled = isBusy;
+      aiClearImportButton.disabled = isBusy;
       aiConfirmImportButton.disabled = isBusy || aiEditingImportIndex >= 0 || !aiPendingImportPlan?.entries?.length;
-      aiParseXlsxButton.textContent = isBusy ? "Importing..." : "Parse Excel";
+      aiParseXlsxButton.textContent = isBusy ? "Parsing..." : "Parse Excel";
+      aiXlsxImportPanel.classList.toggle("is-parsing", isBusy);
+      aiXlsxImportPanel.setAttribute("aria-busy", String(isBusy));
+      aiUploadDropzone.classList.toggle("is-parsing", isBusy);
+      aiUploadDropzone.setAttribute("aria-busy", String(isBusy));
+      if (isBusy) {
+        aiUploadParseStatus.hidden = false;
+        aiUploadParseStatus.replaceChildren(renderAiLoadingStatus("Starting workbook parse…", 0));
+        startAiParseProgress();
+      } else {
+        stopAiParseProgress();
+        aiUploadParseStatus.hidden = true;
+        aiUploadParseStatus.replaceChildren();
+      }
+      syncAiUploadAvailability();
+    }
+
+    function syncAiUploadAvailability() {
+      const hasFile = Boolean(aiXlsxFile.files?.[0]);
+      const isDisabled = aiImportBusy || hasFile;
+      aiXlsxFile.disabled = isDisabled;
+      aiUploadDropzone.setAttribute("aria-disabled", String(isDisabled));
+    }
+
+    function updateAiParseProgress(value) {
+      const progress = Math.max(0, Math.min(100, Number(value) || 0));
+      aiParseProgressValue = progress;
+      const progressBar = aiUploadParseStatus.querySelector(".ai-loading-progress");
+      const progressFill = aiUploadParseStatus.querySelector(".ai-loading-progress-fill");
+      if (!progressBar || !progressFill) return;
+      progressBar.setAttribute("aria-valuenow", String(progress));
+      progressFill.style.width = `${progress}%`;
+    }
+
+    function startAiParseProgress() {
+      stopAiParseProgress();
+      aiParseProgressStartedAt = Date.now();
+      aiParseProgressValue = 0;
+      updateAiParseProgress(0);
+      const tick = () => {
+        if (!aiImportBusy || aiUploadParseStatus.hidden) {
+          aiParseProgressAnimationFrame = 0;
+          return;
+        }
+        const elapsed = Math.max(0, Date.now() - aiParseProgressStartedAt);
+        const estimatedProgress = Math.min(aiParseProgressCap, (elapsed / aiParseEstimatedDurationMs) * aiParseProgressCap);
+        updateAiParseProgress(estimatedProgress);
+        if (estimatedProgress >= aiParseProgressCap) {
+          aiParseProgressAnimationFrame = 0;
+          return;
+        }
+        aiParseProgressAnimationFrame = window.requestAnimationFrame(tick);
+      };
+      aiParseProgressAnimationFrame = window.requestAnimationFrame(tick);
+    }
+
+    function stopAiParseProgress() {
+      if (aiParseProgressAnimationFrame) {
+        window.cancelAnimationFrame(aiParseProgressAnimationFrame);
+        aiParseProgressAnimationFrame = 0;
+      }
+    }
+
+    function setAiParseProgress(message, value) {
+      const label = aiUploadParseStatus.querySelector(".ai-loading-text");
+      if (label) label.textContent = message;
+      if (Number(value) >= 100) {
+        stopAiParseProgress();
+        updateAiParseProgress(100);
+      }
     }
 
     function renderIcons() {
@@ -5685,12 +5911,16 @@
       }
 
       syncAiSelectedFile();
-      resetAiImportPreview("Excel file selected. Parse it when you are ready.");
+      resetAiImportPreview("");
     }
 
     function syncAiSelectedFile() {
       const file = aiXlsxFile.files?.[0];
       aiSelectedFileCard.hidden = !file;
+      aiUploadDropzone.classList.toggle("has-file", Boolean(file));
+      aiUploadPromptText.textContent = file ? "Workbook ready to parse" : "Drop or choose an XLSX file";
+      aiUploadReadyMessage.hidden = !file;
+      syncAiUploadAvailability();
       if (!file) {
         aiSelectedFileName.textContent = "No file selected";
         aiSelectedFileMeta.textContent = "0 KB";
@@ -5773,6 +6003,7 @@
       const parseRequestId = beginAiImportParseRequest();
       setAiImportBusy(true);
       try {
+        setAiParseProgress("Checking workbook month…", 12);
         const importContext = await inferAiImportMonth(file, monthPicker.value);
         if (!isAiImportParseRequestCurrent(parseRequestId)) return;
         monthPicker.value = importContext.month;
@@ -5780,19 +6011,20 @@
         syncDateFieldToMonth();
         syncPayrollLink();
         render();
-        setAiImportStatus(`Switched to ${formatMonthLabel(importContext.month)}. Preparing workbook...`);
+        setAiParseProgress(`Preparing ${formatMonthLabel(importContext.month)}…`, 32);
         await pauseAiImportAfterMonthSwitch();
         if (!isAiImportParseRequestCurrent(parseRequestId)) return;
-        setAiImportStatus("Converting workbook to text...");
+        setAiParseProgress("Converting workbook to text…", 48);
         const workbookText = await convertXlsxFileToWorkbookText(file, importContext.month);
         if (!isAiImportParseRequestCurrent(parseRequestId)) return;
-        setAiImportStatus("Importing...", "", { loading: true });
+        setAiParseProgress("Reading timesheet entries…", 68);
         const content = await callTimesheetXlsxParseWorker({
           fileName: file.name,
           workbookText,
           selectedMonth: importContext.month,
         });
         if (!isAiImportParseRequestCurrent(parseRequestId)) return;
+        setAiParseProgress("Validating imported entries…", 88);
         const parsed = parseAiImportJson(content);
         const plan = validateAiDraftImportPlan(parsed, {
           expectedMonth: importContext.month,
@@ -5807,6 +6039,7 @@
           render();
         }
         renderAiImportPreview(plan);
+        setAiParseProgress("Workbook ready for review.", 100);
         const claimProofNotice = plan.entries.some((entry) => entry.type === "Claim")
           ? " Imported claims still need proof before payroll submission."
           : "";
@@ -6587,6 +6820,7 @@
 
     function renderAiImportPreview(plan) {
       aiImportPreview.hidden = false;
+      aiImportPreviewTitle.textContent = `Imported Entries — ${formatMonthLabel(plan.month)}`;
       aiConfirmImportButton.disabled = aiEditingImportIndex >= 0 || !plan.entries.length;
       const pay = plan.payCalculation;
       aiImportSummary.innerHTML = [
@@ -6596,7 +6830,7 @@
         renderAiImportStat("Total", formatCurrency(pay.importableTotal)),
       ].join("");
       aiImportTableWrap.innerHTML = renderAiImportTable(plan.entries);
-      aiImportWarnings.innerHTML = renderAiImportWarnings(plan.warnings);
+      aiImportWarnings.innerHTML = renderAiImportWarnings(plan.warnings, plan.entries);
     }
 
     function renderAiImportStat(label, value) {
@@ -6846,26 +7080,59 @@
       };
     }
 
-    function renderAiImportWarnings(warnings) {
+    function renderAiImportWarnings(warnings, entries = []) {
       if (!warnings.length) return "";
       return warnings.map((warning) => `
         <li class="ai-import-warning">
-          <strong>${escapeHtml(getAiWarningTitle(warning))}</strong>
+          <strong>${escapeHtml(getAiWarningTitle(warning, getAiWarningEntryContext(warning, entries)))}</strong>
           <span>${escapeHtml(formatAiWarningMessage(warning))}</span>
         </li>
       `).join("");
     }
 
-    function getAiWarningTitle(warning) {
-      const row = warning?.sourceRow ? `row ${warning.sourceRow}` : "this row";
+    function getAiWarningEntryContext(warning, entries = []) {
+      const entryReviewId = String(warning?.entryReviewId || "").trim();
+      const sourceRef = String(warning?.sourceRef || "").trim();
+      const sourceRow = Number(warning?.sourceRow);
+      const candidates = (entries || []).filter((entry) => {
+        if (entryReviewId && entry?.reviewId === entryReviewId) return true;
+        if (sourceRef && entry?.sourceRef === sourceRef) return true;
+        return !sourceRef && Number.isFinite(sourceRow) && Number(entry?.sourceRow) === sourceRow;
+      });
+      const entry = candidates.length === 1 ? candidates[0] : null;
+      if (!entry) return "";
+      const name = String(entry.schoolName || entry.claimNotes || (entry.type === "Claim" ? "Claim" : "Entry")).trim() || "Entry";
+      const date = entry.date ? formatAiWarningDate(entry.date) : "Date unavailable";
+      const start = entry.startTime ? formatTime(entry.startTime) : "";
+      const end = entry.endTime ? formatTime(entry.endTime) : "";
+      const time = start && end ? `${start}–${end}` : "Time unavailable";
+      return `${name} · ${date} · ${time}`;
+    }
+
+    function formatAiWarningDate(value) {
+      const date = new Date(`${String(value || "").trim()}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return String(value || "Date unavailable");
+      return date.toLocaleDateString(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+
+    function getAiWarningTitle(warning, entryContext = "") {
+      if (entryContext) return entryContext;
       const type = String(warning?.type || "").trim().toLowerCase();
       if (type === "timehoursmismatch") {
-        return `Time and hours need review (${row})`;
+        return "Time and hours need review";
       }
       if (type === "claimwithoutdate") {
-        return `Claim needs a date (${row})`;
+        return "Claim needs a date";
       }
-      return `Check ${row}`;
+      if (type === "dateconflict" || /interpreted date .*conflicts with raw workbook date/i.test(String(warning?.reason || ""))) {
+        return "Date interpretation needs review";
+      }
+      return "Entry needs review";
     }
 
     function formatAiWarningMessage(warning) {
@@ -6879,7 +7146,13 @@
         const amount = warning?.claimCost != null ? ` (${formatCurrency(warning.claimCost)})` : "";
         return `This claim has an amount${amount} but no usable date. Add the date in the workbook or enter the claim manually.${notes ? ` Notes: ${notes}` : ""}`;
       }
-      return reason || "This row needs review before it can be imported.";
+      if (type === "dateconflict" || /interpreted date .*conflicts with raw workbook date/i.test(reason)) {
+        const safeReason = (reason || "The interpreted date conflicts with the raw workbook date.")
+          .replace(/\bthis row\b/gi, "this entry")
+          .replace(/\brow \d+\b/gi, "this entry");
+        return `${safeReason} Please verify this entry before importing.`;
+      }
+      return reason.replace(/\bthis row\b/gi, "this entry").replace(/\brow \d+\b/gi, "this entry") || "This entry needs review before it can be imported.";
     }
 
     function formatTimeHoursMismatchWarning(reason) {
@@ -6894,7 +7167,7 @@
       if (rowHours) details.push(`the hours cell says ${rowHours}`);
       const comparison = details.length ? ` (${details.join(", but ")}).` : ".";
       const correction = adjustedEnd ? ` The preview adjusted the end time to ${adjustedEnd}.` : "";
-      return `The time range and hours do not match${comparison}${correction} Please check this row before importing.`;
+      return `The time range and hours do not match${comparison}${correction} Please check this entry before importing.`;
     }
 
     async function executeAiImportPlan() {

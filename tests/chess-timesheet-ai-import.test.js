@@ -88,6 +88,8 @@ const aiFunctionNames = [
   "revalidateAiImportWarningsForEntry",
   "isAiImportEventCostEntry",
   "isAiImportTimeHoursMismatch",
+  "getAiWarningEntryContext",
+  "formatAiWarningDate",
   "getAiWarningTitle",
   "formatAiWarningMessage",
   "formatTimeHoursMismatchWarning",
@@ -151,6 +153,7 @@ function buildAiHarness(source = html) {
       buildAiWorkbookInterpretation,
       parseAiImportJson,
       validateAiDraftImportPlan,
+      getAiWarningEntryContext,
       getAiWarningTitle,
       formatAiWarningMessage,
       getAiImportTableColumns,
@@ -194,6 +197,7 @@ assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel sho
   'id="aiXlsxFile"',
   'class="ai-upload-card"',
   'class="ai-upload-dropzone"',
+  'id="aiUploadParseStatus"',
   "max-width: none;",
   "width: 100%;",
   "grid-template-columns: auto minmax(0, 1fr);",
@@ -212,7 +216,9 @@ assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel sho
   "#aiParseXlsxButton",
   'id="aiParseXlsxButton"',
   'id="aiImportPreview"',
+  'id="aiImportPreviewTitle"',
   'id="aiConfirmImportButton"',
+  ".ai-import-status-list",
   "function renderIcons()",
   "function selectAiImportFile(files)",
   'aiUploadDropzone.addEventListener("drop"',
@@ -225,8 +231,8 @@ assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel sho
   "convertXlsxFileToWorkbookText(file, importContext.month)",
   "callTimesheetXlsxParseWorker",
   "/api/timesheet-xlsx-parse",
-  "setAiImportStatus(\"Importing...\", \"\", { loading: true })",
-  'aiParseXlsxButton.textContent = isBusy ? "Importing..." : "Parse Excel"',
+  "setAiParseProgress(\"Reading timesheet entries…\", 68)",
+  'aiParseXlsxButton.textContent = isBusy ? "Parsing..." : "Parse Excel"',
   "ai-import-status.warning",
   "plan.warnings.length ? \"warning\" : \"success\"",
   "window.draftTimesheetStore.insertEntriesWithDiagnostics(aiPendingImportPlan.entries",
@@ -245,9 +251,91 @@ assert.ok(importPanelIndex > schoolLedgerIndex, "employee Excel import panel sho
 ].forEach((snippet) => {
   assert.ok(html.includes(snippet), `employee Excel import should include ${snippet}`);
 });
+assert.match(
+  html,
+  /id="aiUploadPromptText">Drop or choose an XLSX file[\s\S]*id="aiUploadReadyMessage"[^>]*hidden[^>]*>File loaded\. Click Parse Excel to start\./,
+  "employee Excel import should show a ready-to-parse prompt when a file is loaded"
+);
+assert.match(
+  html,
+  /\.ai-upload-dropzone\.has-file\s*\{[^}]*border-style:\s*solid;[^}]*background:[^}]*var\(--surface-muted\)[^}]*pointer-events:\s*none;/,
+  "employee Excel import should mute and disable the drop zone after a file is loaded"
+);
+assert.match(
+  html,
+  /function syncAiUploadAvailability\(\)[\s\S]*const hasFile = Boolean\(aiXlsxFile\.files\?\.\[0\]\)[\s\S]*const isDisabled = aiImportBusy \|\| hasFile[\s\S]*aiXlsxFile\.disabled = isDisabled[\s\S]*setAttribute\("aria-disabled", String\(isDisabled\)\)/,
+  "employee Excel import should disable the file picker and expose the loaded state as aria-disabled"
+);
+assert.match(
+  html,
+  /\.ai-import-panel\.is-parsing \.ai-import-grid\s*\{[^}]*pointer-events:\s*none;[^}]*user-select:\s*none;/,
+  "employee Excel parsing should disable its upload controls"
+);
+assert.match(
+  html,
+  /\.ai-import-panel\.is-parsing \.ai-upload-help,[\s\S]*\.ai-import-panel\.is-parsing \.ai-upload-selected\s*\{[^}]*opacity:[^}]*filter:\s*grayscale\(/,
+  "employee Excel parsing should mute the non-status upload details"
+);
+assert.match(
+  html,
+  /\.ai-upload-dropzone\.is-parsing\s*\{[^}]*opacity:\s*1;[^}]*filter:\s*none;[\s\S]*\.ai-upload-dropzone\.is-parsing \.ai-upload-dropzone-inner\s*\{[^}]*display:\s*none;[\s\S]*\.ai-upload-parse-status\[hidden\]/,
+  "employee Excel parsing should replace the ready state with a crisp loading state inside the drop zone"
+);
+assert.doesNotMatch(
+  html,
+  /ai-upload-border-glow|ai-upload-dropzone\.is-parsing::after/,
+  "employee Excel parsing should not add a distracting animated border"
+);
+assert.match(
+  html,
+  /\.ai-import-status\s*\{[^}]*padding-top:\s*0;[^}]*margin-bottom:\s*0;[^}]*font-weight:\s*700;/,
+  "employee Excel import status should be bold with the requested spacing"
+);
+assert.ok(
+  html.includes("function renderAiImportStatusMessage(message)")
+    && html.includes("normalizedMessage.match(/[^.!?]+")
+    && html.includes('className = "ai-import-status-list"')
+    && html.includes("document.createElement(\"li\")"),
+  "employee Excel import status should render sentence-level bullet points"
+);
+assert.match(
+  html,
+  /\.ai-import-status-list\s*\{[^}]*padding-inline-start:\s*0;[^}]*list-style:\s*none;/,
+  "employee Excel import status should hide list bullets while preserving point formatting"
+);
+assert.match(
+  html,
+  /\.ai-import-panel\.is-parsing \.ai-import-actions\s*\{[^}]*pointer-events:\s*none;[^}]*user-select:\s*none;[\s\S]*\.ai-import-panel\.is-parsing \.ai-import-status\s*\{[^}]*opacity:\s*1;[^}]*filter:\s*none;/,
+  "employee Excel parsing should keep the live progress status crisp while controls are disabled"
+);
+assert.match(
+  html,
+  /function setAiImportBusy\(isBusy\)[\s\S]*aiClearImportButton\.disabled = isBusy[\s\S]*classList\.toggle\("is-parsing", isBusy\)[\s\S]*setAttribute\("aria-busy", String\(isBusy\)\)[\s\S]*syncAiUploadAvailability\(\)/,
+  "employee Excel parsing should synchronize disabled, muted, and busy states"
+);
+assert.match(
+  html,
+  /\.ai-loading-progress-fill\s*\{[^}]*display:\s*block;[^}]*transition:\s*width[\s\S]*function renderAiLoadingStatus\(text, progress = 0\)[\s\S]*className = "ai-loading-progress"[\s\S]*role", "progressbar"[\s\S]*aria-valuenow[\s\S]*className = "ai-loading-progress-fill"[\s\S]*style\.width[\s\S]*function setAiImportBusy\(isBusy\)[\s\S]*aiUploadParseStatus\.replaceChildren\(renderAiLoadingStatus[\s\S]*function startAiParseProgress\(\)[\s\S]*aiParseProgressCap[\s\S]*aiParseEstimatedDurationMs[\s\S]*window\.requestAnimationFrame\(tick\)[\s\S]*function setAiParseProgress\(message, value\)[\s\S]*aiUploadParseStatus\.querySelector\("\.ai-loading-text"\)/,
+  "employee Excel parsing should show the estimated progress bar inside the drop zone"
+);
+assert.match(
+  html,
+  /const aiParseEstimatedDurationMs = 40000[\s\S]*const aiParseProgressCap = 80[\s\S]*setAiParseProgress\("Checking workbook month…", 12\)[\s\S]*setAiParseProgress\("Converting workbook to text…", 48\)[\s\S]*setAiParseProgress\("Reading timesheet entries…", 68\)[\s\S]*setAiParseProgress\("Validating imported entries…", 88\)[\s\S]*setAiParseProgress\("Workbook ready for review\."[,)]/,
+  "employee Excel parsing should advance status phases while the estimate caps at 80 percent"
+);
+assert.doesNotMatch(
+  html,
+  /aiParseModal|Excel file selected\. Parse it when you are ready\./,
+  "employee Excel import should not block the whole screen or repeat the redundant file-selected status"
+);
 assert.ok(
   !html.includes("aiRemoveSelectedFileButton"),
   "employee Excel import should use the large Clear button as its only file-removal control"
+);
+assert.match(
+  html,
+  /function renderAiImportPreview\(plan\)[\s\S]*aiImportPreviewTitle\.textContent = `Imported Entries — \$\{formatMonthLabel\(plan\.month\)\}`;/,
+  "employee Excel import should label the preview with its imported month and year"
 );
 for (const [label, source] of [["employee timesheet", html]]) {
   [
@@ -641,12 +729,43 @@ const friendlyMismatchWarning = {
   type: "TimeHoursMismatch",
   reason: "Interpreted duration from WARNING=timeHoursMismatch durationFromTimes=1 conflicts with row hours=60. Using correction endTime from calculatedEndFromHours (01:00).",
 };
-assert.equal(harness.getAiWarningTitle(friendlyMismatchWarning), "Time and hours need review (row 37)");
+assert.equal(harness.getAiWarningTitle(friendlyMismatchWarning), "Time and hours need review");
 const friendlyMismatchText = harness.formatAiWarningMessage(friendlyMismatchWarning);
 assert.match(friendlyMismatchText, /The time range and hours do not match/);
-assert.match(friendlyMismatchText, /Please check this row before importing/);
+assert.match(friendlyMismatchText, /Please check this entry before importing/);
+assert.doesNotMatch(friendlyMismatchText, /\brow\b/i, "employee warning copy should not expose workbook row references");
 assert.ok(!friendlyMismatchText.includes("durationFromTimes"), "employee warning should hide parser field names");
 assert.ok(!friendlyMismatchText.includes("calculatedEndFromHours"), "employee warning should hide correction field names");
+
+const dateConflictWarning = {
+  sourceRow: 6,
+  sourceRef: "April!R6",
+  type: "DateConflict",
+  reason: "Interpreted date 2024-01-04 conflicts with raw workbook date 4/1/24; used the raw date as April 1, 2024.",
+};
+const dateConflictEntry = {
+  reviewId: "April!R6#entry-1",
+  sourceRef: "April!R6",
+  sourceRow: 6,
+  schoolName: "NUS High",
+  date: "2024-04-01",
+  startTime: "16:00",
+  endTime: "18:00",
+  type: "School Coaching",
+};
+const dateConflictContext = harness.getAiWarningEntryContext(dateConflictWarning, [dateConflictEntry]);
+assert.match(
+  dateConflictContext,
+  /NUS High · .*Apr 1, 2024 · 4:00 PM–6:00 PM/,
+  "date conflict warnings should identify the entry, date, and time"
+);
+assert.match(harness.getAiWarningTitle(dateConflictWarning, dateConflictContext), /NUS High/);
+assert.equal(
+  harness.getAiWarningTitle(dateConflictWarning, dateConflictContext).includes("row"),
+  false,
+  "date conflict warning titles should not mention workbook rows"
+);
+assert.match(harness.formatAiWarningMessage(dateConflictWarning), /Please verify this entry before importing/);
 
 const secondaryParityPlan = secondaryHarness.validateAiDraftImportPlan({
   month: "2026-03",
