@@ -679,36 +679,10 @@
     }
     .ai-upload-file-meta {
       display: flex;
-      justify-content: space-between;
-      gap: 10px;
       margin: 4px 0 0;
       color: var(--muted);
       font-size: 0.78rem;
       line-height: 1.35;
-    }
-    .ai-upload-remove {
-      position: absolute;
-      right: 7px;
-      top: 7px;
-      width: 32px;
-      height: 32px;
-      min-height: 32px;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      border-radius: 9px;
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-    }
-    .ai-upload-remove:hover {
-      background: color-mix(in srgb, var(--surface-strong) 84%, white 16%);
-      color: var(--ink);
-    }
-    .ai-upload-remove svg {
-      width: 16px;
-      height: 16px;
     }
     .ai-import-actions,
     .ai-import-confirm-actions {
@@ -802,6 +776,7 @@
       display: grid;
       gap: var(--space-3);
       padding-top: var(--space-2);
+      container-type: inline-size;
     }
     .ai-import-preview[hidden] { display: none; }
     .ai-import-summary {
@@ -830,18 +805,82 @@
       font-size: 1rem;
     }
     .ai-import-table-wrap {
-      overflow-x: auto;
-      border-radius: 18px;
-      border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
-      background: var(--surface-strong);
+      overflow: visible;
+    }
+    .ai-import-groups {
+      display: grid;
+      gap: var(--space-5);
+    }
+    .ai-import-school-card {
+      padding: var(--space-5);
+      background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+    }
+    .ai-import-school-card .school-head h3 {
+      overflow-wrap: anywhere;
     }
     .ai-import-table {
-      min-width: 720px;
+      width: 100%;
+      min-width: 560px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: auto;
+    }
+    .ai-import-table.has-claims {
+      min-width: 620px;
     }
     .ai-import-table th,
     .ai-import-table td {
-      padding: 10px 12px;
-      vertical-align: top;
+      padding: 12px 14px;
+      vertical-align: middle;
+    }
+    .ai-import-table th {
+      background: color-mix(in srgb, var(--surface-muted) 74%, white 26%);
+      font-size: 0.7rem;
+      letter-spacing: 0.075em;
+    }
+    .ai-import-table tbody tr {
+      transition: background-color 140ms ease;
+    }
+    .ai-import-table tbody tr:nth-child(even) {
+      background: color-mix(in srgb, var(--surface-muted) 42%, white 58%);
+    }
+    .ai-import-table tbody tr:hover {
+      background: color-mix(in srgb, var(--calendar) 72%, white 28%);
+    }
+    .ai-import-type-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--calendar) 74%, white 26%);
+      color: var(--ink);
+      font-size: 0.76rem;
+      font-weight: 750;
+      line-height: 1.2;
+    }
+    .ai-import-hours,
+    .ai-import-time,
+    .ai-import-claim {
+      white-space: nowrap;
+    }
+    .ai-import-entry-actions {
+      width: 86px;
+      min-width: 86px;
+      text-align: right;
+    }
+    .ai-import-entry-actions .entry-actions-inner {
+      min-height: 34px;
+    }
+    .ai-import-entry-actions .entry-action-button {
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      min-height: 32px;
+    }
+    .ai-import-empty {
+      margin: 10px;
+      padding: 28px 18px;
     }
     .ai-import-warnings {
       display: grid;
@@ -883,6 +922,38 @@
       appearance: none;
       background-image: none;
       padding-right: 16px;
+    }
+
+    #entryDate.is-calendar-date-updated {
+      animation: calendar-date-updated 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes calendar-date-updated {
+      0% {
+        transform: translateY(0) scale(1);
+        border-color: var(--line);
+        box-shadow: none;
+      }
+      42% {
+        transform: translateY(-2px) scale(1.015);
+        border-color: var(--focus);
+        background: color-mix(in srgb, var(--surface-strong) 84%, var(--clay-soft) 16%);
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--focus) 18%, transparent);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        border-color: var(--line);
+        box-shadow: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #entryDate.is-calendar-date-updated {
+        animation: none;
+        border-color: var(--focus);
+        background: color-mix(in srgb, var(--surface-strong) 84%, var(--clay-soft) 16%);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent);
+      }
     }
 
     #entryDate::-webkit-calendar-picker-indicator,
@@ -1481,18 +1552,11 @@
       border-color: color-mix(in srgb, var(--accent) 18%, white 82%);
     }
 
-    #clearMonth {
+    #clearEntry {
       background: #b42318;
       color: var(--surface-strong);
       border-color: #8f1d14;
       box-shadow: var(--shadow-sm);
-    }
-
-    #clearMonth.is-cancel-edit {
-      background: var(--surface-strong);
-      color: var(--accent);
-      border-color: color-mix(in srgb, var(--accent) 28%, white 72%);
-      box-shadow: none;
     }
 
     .ghost {
@@ -1705,6 +1769,34 @@
       background: color-mix(in srgb, var(--accent-soft) 46%, var(--surface-strong) 54%);
     }
 
+    .day.is-composer-date-updated {
+      animation: calendar-day-date-updated 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes calendar-day-date-updated {
+      0% {
+        transform: translateY(0) scale(1);
+      }
+      42% {
+        transform: translateY(-2px) scale(1.025);
+        border-color: var(--focus);
+        background: color-mix(in srgb, var(--calendar) 76%, var(--clay-soft) 24%);
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--focus) 18%, transparent);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .day.is-composer-date-updated {
+        animation: none;
+        border-color: var(--focus);
+        background: color-mix(in srgb, var(--calendar) 76%, var(--clay-soft) 24%);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 16%, transparent);
+      }
+    }
+
     .day.is-repeat-selectable {
       cursor: pointer;
       user-select: none;
@@ -1798,6 +1890,9 @@
 
     .chip.has-calendar-color {
       cursor: context-menu;
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      user-select: none;
     }
 
     .chip-context-menu {
@@ -3029,6 +3124,386 @@
         font-size: 9px;
       }
     }
+
+    @media (max-width: 760px) {
+      #aiXlsxImportPanel #aiImportTableWrap {
+        margin-right: calc(-1 * (28px + 1px));
+        margin-left: calc(-1 * (28px + 1px));
+      }
+    }
+
+    @container (max-width: 640px) {
+      .ai-import-table-wrap {
+        overflow: visible;
+      }
+
+      .ai-import-groups {
+        gap: var(--space-5);
+      }
+
+      .ai-import-school-card {
+        overflow: hidden;
+        padding: clamp(12px, 3.5vw, 20px);
+      }
+
+      .ai-import-school-card .school-head {
+        margin-bottom: 12px;
+      }
+
+      .ai-import-table,
+      .ai-import-table.has-claims {
+        display: table;
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+        border-collapse: collapse;
+        font-size: clamp(0.68rem, 2.55vw, 0.86rem);
+      }
+
+      .ai-import-table thead {
+        display: table-header-group;
+      }
+
+      .ai-import-table tbody {
+        display: table-row-group;
+      }
+
+      .ai-import-table tbody tr {
+        display: table-row;
+        background: transparent;
+      }
+
+      .ai-import-table tbody tr:nth-child(even),
+      .ai-import-table tbody tr:hover {
+        background: transparent;
+      }
+
+      .ai-import-table th,
+      .ai-import-table td {
+        display: table-cell;
+        padding: clamp(5px, 1.5vw, 9px) clamp(3px, 1.1vw, 7px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1.18;
+        vertical-align: middle;
+      }
+
+      .ai-import-table th {
+        background: transparent;
+        font-size: clamp(0.62rem, 2.7vw, 0.74rem);
+        letter-spacing: 0.035em;
+      }
+
+      .ai-import-table td::before {
+        content: none;
+        display: none;
+      }
+
+      .ai-import-type-badge {
+        display: inline;
+        min-height: 0;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+      }
+
+      .ai-import-table.is-time-ledger {
+        --ai-import-date-col: clamp(48px, 14vw, 70px);
+        --ai-import-type-col: clamp(64px, 20vw, 94px);
+        --ai-import-hours-col: clamp(30px, 8vw, 42px);
+        --ai-import-actions-col: clamp(64px, 17vw, 78px);
+      }
+
+      .ai-import-table.is-time-ledger th:nth-child(1),
+      .ai-import-table.is-time-ledger td:nth-child(1) { width: var(--ai-import-date-col); }
+      .ai-import-table.is-time-ledger th:nth-child(2),
+      .ai-import-table.is-time-ledger td:nth-child(2) { width: var(--ai-import-type-col); }
+      .ai-import-table.is-time-ledger th:nth-child(3),
+      .ai-import-table.is-time-ledger td:nth-child(3) { width: var(--ai-import-hours-col); }
+      .ai-import-table.is-time-ledger th:nth-child(4),
+      .ai-import-table.is-time-ledger td:nth-child(4) { width: calc(100% - var(--ai-import-date-col) - var(--ai-import-type-col) - var(--ai-import-hours-col) - var(--ai-import-actions-col)); }
+      .ai-import-table.is-time-ledger th:nth-child(5),
+      .ai-import-table.is-time-ledger td:nth-child(5) { width: var(--ai-import-actions-col); }
+
+      .ai-import-table.is-time-ledger td:nth-child(1),
+      .ai-import-table.is-time-ledger td:nth-child(2),
+      .ai-import-table.is-time-ledger td:nth-child(4) {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .ai-import-table.is-cost-ledger {
+        --ai-import-cost-date-col: clamp(56px, 16vw, 76px);
+        --ai-import-claim-col: clamp(58px, 15vw, 76px);
+        --ai-import-cost-actions-col: clamp(64px, 17vw, 78px);
+      }
+
+      .ai-import-table.is-cost-ledger th:nth-child(1),
+      .ai-import-table.is-cost-ledger td:nth-child(1) { width: var(--ai-import-cost-date-col); }
+      .ai-import-table.is-cost-ledger th:nth-child(2),
+      .ai-import-table.is-cost-ledger td:nth-child(2) { width: calc(100% - var(--ai-import-cost-date-col) - var(--ai-import-claim-col) - var(--ai-import-cost-actions-col)); }
+      .ai-import-table.is-cost-ledger th:nth-child(3),
+      .ai-import-table.is-cost-ledger td:nth-child(3) { width: var(--ai-import-claim-col); }
+      .ai-import-table.is-cost-ledger th:nth-child(4),
+      .ai-import-table.is-cost-ledger td:nth-child(4) { width: var(--ai-import-cost-actions-col); }
+
+      .ai-import-table.is-cost-ledger td:nth-child(1),
+      .ai-import-table.is-cost-ledger td:nth-child(2) {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .ai-import-entry-actions {
+        width: auto;
+        min-width: 0;
+      }
+
+      .ai-import-entry-actions .entry-actions-inner {
+        height: auto;
+        min-height: 28px;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .ai-import-entry-actions .entry-action-button {
+        width: 28px;
+        min-width: 28px;
+        height: 28px;
+        min-height: 28px;
+      }
+
+      .ai-import-entry-actions .entry-action-button svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    @container (max-width: 420px) {
+      .ai-import-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+
+    /* Accepted live direction: The Masthead Ledger. */
+    .hero-v1 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+      gap: 28px;
+      align-items: end;
+      padding: 34px 34px 28px;
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--surface-strong) 80%, white 20%) 0%,
+        color-mix(in srgb, var(--surface-muted) 68%, white 32%) 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--line) 70%, white 30%);
+      border-radius: 28px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: visible;
+    }
+
+    .hero-v1::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 42%),
+        radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--clay) 8%, transparent), transparent 40%);
+      pointer-events: none;
+    }
+
+    .hero-v1 .v1-masthead {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 16px;
+      align-content: end;
+    }
+
+    .hero-v1 .v1-title {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 400;
+      font-size: calc(clamp(2.4rem, 6.4vw, 5rem) * 1.05);
+      line-height: 0.94;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+      color: var(--ink);
+    }
+
+    .hero-v1 .v1-title .v1-accent {
+      color: var(--clay);
+      font-style: italic;
+    }
+
+    .hero-v1 .v1-rule {
+      height: 3px;
+      width: 100%;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid color-mix(in srgb, var(--line-strong) 60%, white 40%);
+      background: transparent;
+    }
+
+    .hero-v1 .v1-tally {
+      list-style: none;
+      margin: 0;
+      padding: 14px 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      align-items: baseline;
+    }
+
+    .hero-v1 .v1-metric {
+      display: grid;
+      gap: 2px;
+      padding: 0 26px;
+      border-left: 1px solid color-mix(in srgb, var(--line-strong) 70%, white 30%);
+    }
+
+    .hero-v1 .v1-metric:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .hero-v1 .v1-metric-label {
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .hero-v1 .v1-metric-value {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(1.7rem * 1.05);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hero-v1 .v1-desk {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 14px;
+      align-content: end;
+      padding: 18px;
+      background: color-mix(in srgb, var(--surface-strong) 86%, white 14%);
+      border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: visible;
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger {
+      min-height: 52px;
+      padding: 12px 14px;
+      border-color: var(--line-strong);
+      background: var(--surface-strong);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+      font-weight: 750;
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger:hover,
+    .hero-v1 .v1-desk .month-picker-trigger:focus-visible {
+      border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger[aria-expanded="true"] {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger svg {
+      color: var(--accent);
+    }
+
+    .hero-v1 .v1-desk .month-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .hero-v1 .v1-desk .month-box-header strong {
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+
+    .hero-v1 .v1-desk .month-box-header label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .hero-v1 .v1-import {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 11px 20px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: var(--surface-strong);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 800;
+      justify-self: stretch;
+      transition: transform 180ms var(--motion-ease), background 180ms var(--motion-ease);
+    }
+
+    .hero-v1 .v1-import:hover {
+      transform: translateY(-1px);
+      background: var(--accent-deep);
+    }
+
+    @media (max-width: 960px) {
+      .hero-v1 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-v1 .v1-desk {
+        align-self: auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .hero-v1 {
+        padding: var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .hero-v1 .v1-desk {
+        padding: var(--space-3);
+      }
+
+      body.mobile-full-bleed .hero-v1 {
+        width: 100vw;
+        max-width: 100vw;
+        margin-right: calc(50% - 50vw);
+        margin-left: calc(50% - 50vw);
+        border-radius: 0;
+        padding-left: calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
+        padding-right: calc(var(--space-5) + max(12px, env(safe-area-inset-right)));
+      }
+
+      body.mobile-full-bleed .hero-v1 .v1-desk {
+        margin-left: calc(-1 * (var(--space-5) + 1px));
+        margin-right: calc(-1 * (var(--space-5) + 1px));
+      }
+    }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
@@ -3077,14 +3552,17 @@
     </div>
   </header>
   <main class="page" id="main-content">
-    <section class="hero">
-      <div class="hero-copy">
-        <header>
-          <h1><span class="hero-title-line">Chess Grande</span> <span class="hero-title-line hero-title-accent">Timesheet</span></h1>
-          <a class="hero-import-button" href="#aiXlsxImportPanel">Import from Excel</a>
-        </header>
+    <section class="hero hero-v1">
+      <div class="v1-masthead">
+        <h1 class="v1-title"><span>Chess Grande</span> <span class="v1-accent">Timesheet</span></h1>
+        <div class="v1-rule" aria-hidden="true"></div>
+        <ul class="v1-tally" aria-label="Month summary">
+          <li class="v1-metric"><span class="v1-metric-label">Schools</span><span class="v1-metric-value" id="schoolCount">11</span></li>
+          <li class="v1-metric"><span class="v1-metric-label">Entries</span><span class="v1-metric-value" id="entryCount">24</span></li>
+          <li class="v1-metric"><span class="v1-metric-label">Hours</span><span class="v1-metric-value" id="hoursCount">38.5</span></li>
+        </ul>
       </div>
-      <aside class="hero-month">
+      <aside class="v1-desk">
         <div class="month-box">
           <div class="month-box-header">
             <strong>Working month</strong>
@@ -3093,49 +3571,25 @@
           <input id="monthPicker" type="month">
           <div class="month-picker" id="monthPickerControl">
             <button class="month-picker-trigger" id="monthPickerTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="monthPickerPanel" aria-labelledby="monthPickerLabelText monthPickerLabel">
-              <span id="monthPickerLabel">Select month</span>
-              <i data-lucide="calendar" aria-hidden="true"></i>
+                <span id="monthPickerLabel">July 2026</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
             </button>
             <div class="month-picker-popover" id="monthPickerPanel" role="dialog" aria-label="Select working month" hidden>
               <div class="month-picker-nav">
-                <button class="month-picker-nav-button" id="monthPickerPrev" type="button" aria-label="Previous month"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+                <button class="month-picker-nav-button" id="monthPickerPrev" type="button" aria-label="Previous month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
                 <div id="monthPickerFallback">
                   <select id="monthNameSelect" aria-label="Viewing month name">
-                    <option value="01">January</option>
-                    <option value="02">February</option>
-                    <option value="03">March</option>
-                    <option value="04">April</option>
-                    <option value="05">May</option>
-                    <option value="06">June</option>
-                    <option value="07">July</option>
-                    <option value="08">August</option>
-                    <option value="09">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
+                    <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
                   </select>
                   <select id="monthYearSelect" aria-label="Viewing month year"></select>
                 </div>
-                <button class="month-picker-nav-button" id="monthPickerNext" type="button" aria-label="Next month"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+                <button class="month-picker-nav-button" id="monthPickerNext" type="button" aria-label="Next month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
               </div>
               <div class="month-picker-grid" id="monthPickerGrid" role="grid" aria-label="Months"></div>
             </div>
           </div>
         </div>
-        <div class="hero-stats" aria-label="Month summary">
-          <div class="hero-stat">
-            <span class="stat-label">Schools</span>
-            <span class="stat-value" id="schoolCount">0</span>
-          </div>
-          <div class="hero-stat">
-            <span class="stat-label">Entries</span>
-            <span class="stat-value" id="entryCount">0</span>
-          </div>
-          <div class="hero-stat">
-            <span class="stat-label">Hours</span>
-            <span class="stat-value" id="hoursCount">0</span>
-          </div>
-        </div>
+        <a class="v1-import" href="#aiXlsxImportPanel">Import from Excel</a>
       </aside>
     </section>
 
@@ -3198,9 +3652,8 @@
                   <span class="ai-upload-file-icon" aria-hidden="true"><i data-lucide="file-spreadsheet"></i></span>
                   <div>
                     <p class="ai-upload-file-name" id="aiSelectedFileName">No file selected</p>
-                    <p class="ai-upload-file-meta"><span id="aiSelectedFileMeta">0 KB</span><span>Ready</span></p>
+                    <p class="ai-upload-file-meta"><span id="aiSelectedFileMeta">0 KB</span></p>
                   </div>
-                  <button class="ai-upload-remove" id="aiRemoveSelectedFileButton" type="button" aria-label="Remove selected Excel file"><i data-lucide="x" aria-hidden="true"></i></button>
                 </div>
               </div>
             </div>
@@ -3300,7 +3753,7 @@
 
               <div class="actions">
                 <button class="primary" type="submit" id="addEntry">Save Entry</button>
-                <button class="secondary" type="button" id="clearMonth" disabled>Clear Month</button>
+                <button class="secondary" type="button" id="clearEntry">Clear Entry</button>
               </div>
               <div class="hint">
                 End time is calculated from start time + hours. Events need a name, notes, and cost. Claims need proof.
@@ -3335,6 +3788,7 @@
       <div class="chip-context-actions" data-chip-menu-panel="actions">
         <button type="button" role="menuitem" data-chip-action="go">Go To Entry</button>
         <button type="button" role="menuitem" data-chip-action="edit">Edit Entry</button>
+        <button type="button" role="menuitem" data-chip-action="copy">Copy This Entry</button>
         <button type="button" role="menuitem" data-chip-action="remove">Remove Entry</button>
       </div>
     </div>
@@ -3474,7 +3928,7 @@
     const hoursCount = document.getElementById("hoursCount");
     const addEntryButton = document.getElementById("addEntry");
     const seedDemoButton = document.getElementById("seedDemo");
-    const clearMonthButton = document.getElementById("clearMonth");
+    const clearEntryButton = document.getElementById("clearEntry");
     const quickAddToggle = document.getElementById("quickAddToggle");
     const quickAddMenu = document.getElementById("quickAddMenu");
     const quickAddList = document.getElementById("quickAddList");
@@ -3519,7 +3973,6 @@
     const aiSelectedFileCard = document.getElementById("aiSelectedFileCard");
     const aiSelectedFileName = document.getElementById("aiSelectedFileName");
     const aiSelectedFileMeta = document.getElementById("aiSelectedFileMeta");
-    const aiRemoveSelectedFileButton = document.getElementById("aiRemoveSelectedFileButton");
     const aiParseXlsxButton = document.getElementById("aiParseXlsxButton");
     const aiClearImportButton = document.getElementById("aiClearImportButton");
     const aiImportStatus = document.getElementById("aiImportStatus");
@@ -3546,17 +3999,22 @@
     const entryComposerDefaultCopy = "Add a session, claim, or event cost. Use Repeat for multiple dates.";
     const entryComposerEditTitle = "Edit an Entry";
     const entryComposerEditCopy = "Update the entry, then save or cancel.";
+    const entryComposerImportEditTitle = "Edit Imported Entry";
+    const entryComposerImportEditCopy = "Update this preview row. It will not be saved until you import the entries.";
 
     let entries = [];
     let quickAddTemplates = [];
     let currentUser = null;
     let editingEntryId = "";
+    let aiEditingImportIndex = -1;
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
     let isHydratingClaimProofUrls = false;
     let quickAddStatusTimer = 0;
     let saveQuickAddButton = null;
     let entryDatePickerOpenedAt = 0;
+    let entryDateUpdateAnimationTimer = 0;
+    let entryDateUpdateDayCell = null;
     const pendingRepeatDates = new Set();
     const repeatDragState = {
       active: false,
@@ -3564,7 +4022,16 @@
       pointerId: null,
       dates: new Set(),
     };
+    const chipLongPressState = {
+      pointerId: null,
+      chip: null,
+      startX: 0,
+      startY: 0,
+      timer: 0,
+    };
     let suppressNextRepeatClick = false;
+    let suppressNextChipClick = false;
+    let suppressNextChipClickTimer = 0;
     let chipContextMenuTrigger = null;
     let dateContextMenuTrigger = null;
     let chipRemoveModalLastFocus = null;
@@ -3576,6 +4043,8 @@
     let entryComposerSettleFrame = 0;
     let aiPendingImportPlan = null;
     let aiImportBusy = false;
+    let aiImportParseRequestId = 0;
+    let aiImportParseInFlight = false;
 
     initApp();
 
@@ -3762,7 +4231,7 @@
     bindAction(quickAddToggle, toggleQuickAddMenu);
     bindAction(calendarColorToggle, toggleCalendarColorMenu);
     bindQuickAddSaveButton();
-    clearMonthButton.addEventListener("click", handleClearMonthButtonClick);
+    clearEntryButton.addEventListener("click", clearEntryComposer);
     aiXlsxFile.addEventListener("change", () => {
       syncAiSelectedFile();
       resetAiImportPreview(aiXlsxFile.files?.[0] ? "Excel file selected. Parse it when you are ready." : "");
@@ -3795,11 +4264,11 @@
     aiClearImportButton.addEventListener("click", () => {
       clearAiSelectedFile("Import cleared.");
     });
-    aiRemoveSelectedFileButton.addEventListener("click", () => clearAiSelectedFile("Selected file removed."));
     aiCancelImportButton.addEventListener("click", () => resetAiImportPreview("Import cancelled."));
     aiConfirmImportButton.addEventListener("click", () => {
       void executeAiImportPlan();
     });
+    aiImportTableWrap.addEventListener("click", onAiImportTableAction);
     quickAddList.addEventListener("click", onQuickAddListClick);
     calendarColorOptions.addEventListener("change", () => {
       syncCalendarColorToggle();
@@ -3819,9 +4288,15 @@
     calendar.addEventListener("pointermove", onCalendarRepeatPointerMove);
     calendar.addEventListener("pointerup", finishCalendarRepeatDrag);
     calendar.addEventListener("pointercancel", cancelCalendarRepeatDrag);
+    calendar.addEventListener("pointerdown", onCalendarChipLongPressStart);
+    calendar.addEventListener("pointermove", onCalendarChipLongPressMove);
+    calendar.addEventListener("pointerup", finishCalendarChipLongPress);
+    calendar.addEventListener("pointercancel", cancelCalendarChipLongPress);
     calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
     calendar.addEventListener("contextmenu", onCalendarDateContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
+    calendar.addEventListener("click", suppressCalendarClickAfterChipLongPress, true);
+    calendar.addEventListener("click", onDesktopCalendarDateClick);
     calendar.addEventListener("click", onMobileCalendarDateClick);
     calendar.addEventListener("keydown", onMobileCalendarDateKeydown);
     chipContextMenu.addEventListener("click", onChipContextMenuClick);
@@ -4027,6 +4502,31 @@
       if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
       event.preventDefault();
       openEntryComposerModalForDate(dayCell.dataset.entryDate, dayCell);
+    }
+
+    function onDesktopCalendarDateClick(event) {
+      if (isMobileComposerMode() || isRecurringInput.checked || event.defaultPrevented) return;
+      if (event.target instanceof Element && event.target.closest(".chip")) return;
+      const dayCell = getCalendarContextDay(event.target);
+      if (!dayCell || !dayCell.dataset.entryDate?.startsWith(monthPicker.value)) return;
+      entryDateInput.value = dayCell.dataset.entryDate;
+      entryDateInput.dispatchEvent(new Event("input", { bubbles: true }));
+      animateEntryDateUpdate(dayCell);
+    }
+
+    function animateEntryDateUpdate(dayCell) {
+      window.clearTimeout(entryDateUpdateAnimationTimer);
+      entryDateInput.classList.remove("is-calendar-date-updated");
+      entryDateUpdateDayCell?.classList.remove("is-composer-date-updated");
+      entryDateUpdateDayCell = dayCell;
+      void entryDateInput.offsetWidth;
+      entryDateInput.classList.add("is-calendar-date-updated");
+      entryDateUpdateDayCell.classList.add("is-composer-date-updated");
+      entryDateUpdateAnimationTimer = window.setTimeout(() => {
+        entryDateInput.classList.remove("is-calendar-date-updated");
+        entryDateUpdateDayCell?.classList.remove("is-composer-date-updated");
+        entryDateUpdateDayCell = null;
+      }, reducedMotionQuery.matches ? 240 : 360);
     }
 
     function onMobileCalendarDateKeydown(event) {
@@ -4262,6 +4762,66 @@
       openChipContextMenu(event, chip);
     }
 
+    function onCalendarChipLongPressStart(event) {
+      if (event.pointerType !== "touch") return;
+      const chip = getCalendarContextChip(event.target);
+      if (!chip) return;
+
+      resetCalendarChipLongPress();
+      chipLongPressState.pointerId = event.pointerId;
+      chipLongPressState.chip = chip;
+      chipLongPressState.startX = event.clientX;
+      chipLongPressState.startY = event.clientY;
+      chipLongPressState.timer = window.setTimeout(() => {
+        if (chipLongPressState.pointerId !== event.pointerId || chipLongPressState.chip !== chip) return;
+        suppressNextChipClick = true;
+        window.clearTimeout(suppressNextChipClickTimer);
+        suppressNextChipClickTimer = window.setTimeout(() => {
+          suppressNextChipClick = false;
+        }, 800);
+        openChipContextMenu(event, chip, {
+          x: chipLongPressState.startX + 8,
+          y: chipLongPressState.startY + 8,
+        });
+      }, 550);
+    }
+
+    function onCalendarChipLongPressMove(event) {
+      if (event.pointerId !== chipLongPressState.pointerId) return;
+      const distance = Math.hypot(
+        event.clientX - chipLongPressState.startX,
+        event.clientY - chipLongPressState.startY
+      );
+      if (distance > 10) resetCalendarChipLongPress();
+    }
+
+    function finishCalendarChipLongPress(event) {
+      if (event.pointerId !== chipLongPressState.pointerId) return;
+      resetCalendarChipLongPress();
+    }
+
+    function cancelCalendarChipLongPress(event) {
+      if (event.pointerId !== chipLongPressState.pointerId) return;
+      resetCalendarChipLongPress();
+    }
+
+    function resetCalendarChipLongPress() {
+      window.clearTimeout(chipLongPressState.timer);
+      chipLongPressState.pointerId = null;
+      chipLongPressState.chip = null;
+      chipLongPressState.startX = 0;
+      chipLongPressState.startY = 0;
+      chipLongPressState.timer = 0;
+    }
+
+    function suppressCalendarClickAfterChipLongPress(event) {
+      if (!suppressNextChipClick) return;
+      suppressNextChipClick = false;
+      window.clearTimeout(suppressNextChipClickTimer);
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
     function onCalendarDateContextMenu(event) {
       if (event.defaultPrevented) return;
       const dayCell = getCalendarContextDay(event.target);
@@ -4374,7 +4934,19 @@
         scrollToLedgerEntry(entryId);
       } else if (action === "edit") {
         triggerLedgerEntryAction(action, entryId);
+      } else if (action === "copy") {
+        copyEntryToComposer(entryId);
       }
+    }
+
+    function copyEntryToComposer(entryId) {
+      const entry = entries.find((item) => item.id === entryId);
+      if (!entry) return;
+
+      resetEntryComposer();
+      populateEntryComposer(entry);
+      render();
+      focusEditedEntryComposer(entry);
     }
 
     function onDateContextMenuClick(event) {
@@ -4579,7 +5151,7 @@
 
     function syncRepeatSelectionBar() {
       if (!repeatSelectionBar || !repeatSelectionSummary) return;
-      const shouldShow = isMobileComposerMode() && isRecurringInput.checked && !editingEntryId && !isCostEntryType(entryTypeSelect.value);
+      const shouldShow = isMobileComposerMode() && isRecurringInput.checked && !isEditingAnyEntry() && !isCostEntryType(entryTypeSelect.value);
       repeatSelectionBar.hidden = !shouldShow;
       repeatSelectionBar.setAttribute("aria-hidden", shouldShow ? "false" : "true");
       if (!shouldShow) return;
@@ -4589,7 +5161,7 @@
 
     function syncRepeatDateSummary() {
       if (!repeatDateSummary || !repeatDateSummaryCount || !repeatDateSummaryList) return;
-      const shouldShow = isRecurringInput.checked && !editingEntryId && !isCostEntryType(entryTypeSelect.value);
+      const shouldShow = isRecurringInput.checked && !isEditingAnyEntry() && !isCostEntryType(entryTypeSelect.value);
       repeatDateSummary.hidden = !shouldShow;
       repeatDateSummary.setAttribute("aria-hidden", shouldShow ? "false" : "true");
       if (!shouldShow) {
@@ -4645,7 +5217,7 @@
         customRateInput.value = "";
       }
 
-      const shouldHideRecurring = isCostEntry || Boolean(editingEntryId);
+      const shouldHideRecurring = isCostEntry || isEditingAnyEntry();
       recurringRow.hidden = shouldHideRecurring;
       recurringRow.style.display = shouldHideRecurring ? "none" : "flex";
       recurringRow.setAttribute("aria-hidden", shouldHideRecurring ? "true" : "false");
@@ -5051,7 +5623,7 @@
     function setAiImportBusy(isBusy) {
       aiImportBusy = isBusy;
       aiParseXlsxButton.disabled = isBusy;
-      aiConfirmImportButton.disabled = isBusy || !aiPendingImportPlan?.entries?.length;
+      aiConfirmImportButton.disabled = isBusy || aiEditingImportIndex >= 0 || !aiPendingImportPlan?.entries?.length;
       aiParseXlsxButton.textContent = isBusy ? "Importing..." : "Parse Excel";
     }
 
@@ -5113,7 +5685,33 @@
       return `${Math.max(1, Math.round(size / 1024))} KB`;
     }
 
-    function resetAiImportPreview(message = "") {
+    function beginAiImportParseRequest() {
+      aiImportParseRequestId += 1;
+      aiImportParseInFlight = true;
+      return aiImportParseRequestId;
+    }
+
+    function invalidateAiImportParseRequest() {
+      aiImportParseRequestId += 1;
+      return aiImportParseRequestId;
+    }
+
+    function isAiImportParseRequestCurrent(requestId) {
+      return requestId === aiImportParseRequestId;
+    }
+
+    function resetAiImportPreview(message = "", options = {}) {
+      if (options.invalidateParse !== false) {
+        const wasParsing = aiImportParseInFlight;
+        invalidateAiImportParseRequest();
+        if (wasParsing) {
+          aiImportParseInFlight = false;
+          setAiImportBusy(false);
+        }
+      }
+      if (aiEditingImportIndex >= 0) {
+        resetEntryComposer();
+      }
       aiPendingImportPlan = null;
       aiImportPreview.hidden = true;
       aiImportSummary.innerHTML = "";
@@ -5141,9 +5739,11 @@
         return;
       }
 
+      const parseRequestId = beginAiImportParseRequest();
       setAiImportBusy(true);
       try {
         const importContext = await inferAiImportMonth(file, monthPicker.value);
+        if (!isAiImportParseRequestCurrent(parseRequestId)) return;
         monthPicker.value = importContext.month;
         syncFallbackFromMonthValue(monthPicker.value);
         syncDateFieldToMonth();
@@ -5151,14 +5751,17 @@
         render();
         setAiImportStatus(`Switched to ${formatMonthLabel(importContext.month)}. Preparing workbook...`);
         await pauseAiImportAfterMonthSwitch();
+        if (!isAiImportParseRequestCurrent(parseRequestId)) return;
         setAiImportStatus("Converting workbook to text...");
         const workbookText = await convertXlsxFileToWorkbookText(file, importContext.month);
+        if (!isAiImportParseRequestCurrent(parseRequestId)) return;
         setAiImportStatus("Importing...", "", { loading: true });
         const content = await callTimesheetXlsxParseWorker({
           fileName: file.name,
           workbookText,
           selectedMonth: importContext.month,
         });
+        if (!isAiImportParseRequestCurrent(parseRequestId)) return;
         const parsed = parseAiImportJson(content);
         const plan = validateAiDraftImportPlan(parsed, {
           expectedMonth: importContext.month,
@@ -5178,10 +5781,14 @@
           : "";
         setAiImportStatus(`Parsed ${plan.entries.length} entries with ${plan.warnings.length} warning${plan.warnings.length === 1 ? "" : "s"}. Review before importing.${claimProofNotice}`, plan.warnings.length ? "warning" : "success");
       } catch (error) {
-        resetAiImportPreview();
+        if (!isAiImportParseRequestCurrent(parseRequestId)) return;
+        resetAiImportPreview("", { invalidateParse: false });
         setAiImportStatus(error?.message || "Import failed.", "error");
       } finally {
-        setAiImportBusy(false);
+        if (isAiImportParseRequestCurrent(parseRequestId)) {
+          aiImportParseInFlight = false;
+          setAiImportBusy(false);
+        }
       }
     }
 
@@ -5356,7 +5963,7 @@
             lines.push(`ROW ${rowIndex + 1}: ${cells.join(" | ")}`);
           }
         }
-        const interpretedRows = buildAiWorkbookInterpretation(sheet, range, importMonth);
+        const interpretedRows = buildAiWorkbookInterpretation(sheet, range, importMonth, sheetName);
         if (interpretedRows.length) {
           lines.splice(2, 0, "INTERPRETED TIMESHEET ROWS (use these first; raw rows follow):", ...interpretedRows);
         }
@@ -5373,36 +5980,38 @@
       return workbookText;
     }
 
-    function buildAiWorkbookInterpretation(sheet, range, selectedMonth) {
+    function buildAiWorkbookInterpretation(sheet, range, selectedMonth, sheetName = "Sheet") {
       const interpreted = [];
       let section = "schools";
       for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex += 1) {
         const rowNumber = rowIndex + 1;
-        const rowText = ["B", "C", "Q"].map((column) => getAiCellText(sheet, `${column}${rowNumber}`)).join(" ").toLowerCase();
+        const sourceRef = `${encodeURIComponent(String(sheetName || "Sheet"))}!R${rowNumber}`;
+        const rowText = ["B", "C"].map((column) => getAiCellText(sheet, `${column}${rowNumber}`)).join(" ").toLowerCase();
+        if (rowText.includes("weekly classes") || rowText.includes("camps")) section = "camp";
         if (rowText.includes("private lessons")) section = "private";
         if (rowText.includes("events")) section = "event";
         if (rowText.includes("claims")) section = "claim";
         if (rowText.includes("schools") && rowNumber < 30) section = "schools";
 
         if (section === "claim") {
-          const claimLine = buildAiClaimInterpretation(sheet, rowNumber, selectedMonth);
+          const claimLine = buildAiClaimInterpretation(sheet, rowNumber, selectedMonth, sourceRef);
           if (claimLine) interpreted.push(claimLine);
           continue;
         }
 
-        const sessionLine = buildAiSessionInterpretation(sheet, rowNumber, section, selectedMonth);
+        const sessionLine = buildAiSessionInterpretation(sheet, rowNumber, section, selectedMonth, sourceRef);
         if (sessionLine) {
           interpreted.push(sessionLine);
           continue;
         }
 
-        const legacyLine = buildAiLegacyFlatSessionInterpretation(sheet, rowNumber, selectedMonth);
+        const legacyLine = buildAiLegacyFlatSessionInterpretation(sheet, rowNumber, selectedMonth, sourceRef);
         if (legacyLine) interpreted.push(legacyLine);
       }
       return interpreted;
     }
 
-    function buildAiLegacyFlatSessionInterpretation(sheet, rowNumber, selectedMonth) {
+    function buildAiLegacyFlatSessionInterpretation(sheet, rowNumber, selectedMonth, sourceRef = `Sheet!R${rowNumber}`) {
       const dateText = getAiCellText(sheet, `B${rowNumber}`);
       const numericDate = /^\d+(?:\.\d+)?$/.test(dateText) ? Number(dateText) : null;
       const hasExplicitDate = (numericDate != null && numericDate > 30000)
@@ -5419,6 +6028,7 @@
       const duration = calculateAiDurationHours(startTime, endTime);
       const mismatch = Math.abs(duration - hours) > 0.03;
       return [
+        `sourceRef=${sourceRef}`,
         `sourceRow=${rowNumber}`,
         "template=legacyFlat",
         "section=schools",
@@ -5433,7 +6043,7 @@
       ].filter(Boolean).join(" | ");
     }
 
-    function buildAiSessionInterpretation(sheet, rowNumber, section, selectedMonth) {
+    function buildAiSessionInterpretation(sheet, rowNumber, section, selectedMonth, sourceRef = `Sheet!R${rowNumber}`) {
       const name = getAiCellText(sheet, `C${rowNumber}`);
       const startTime = normalizeWorkbookTime(getAiCellText(sheet, `D${rowNumber}`));
       const endTime = normalizeWorkbookTime(getAiCellText(sheet, `E${rowNumber}`));
@@ -5448,12 +6058,19 @@
         .filter(Boolean);
       if (!dates.length) return "";
 
-      const type = section === "private" ? "Private" : section === "event" ? "Event" : "School Coaching";
+      const type = section === "private"
+        ? "Private"
+        : section === "event"
+          ? "Event"
+          : section === "camp"
+            ? "Camp"
+            : "School Coaching";
       const rate = section === "private" || section === "event" ? normalizeWorkbookNumber(getAiCellText(sheet, `${sectionColumns.rate}${rowNumber}`)) : null;
       const calculatedEnd = calculateAiEndTimeFromHours(startTime, hours);
       const duration = endTime ? calculateAiDurationHours(startTime, endTime) : null;
       const mismatch = duration != null && Math.abs(duration - hours) > 0.03;
       return [
+        `sourceRef=${sourceRef}`,
         `sourceRow=${rowNumber}`,
         `section=${section}`,
         `type=${type}`,
@@ -5495,13 +6112,14 @@
       return rowNumber - 1;
     }
 
-    function buildAiClaimInterpretation(sheet, rowNumber, selectedMonth) {
+    function buildAiClaimInterpretation(sheet, rowNumber, selectedMonth, sourceRef = `Sheet!R${rowNumber}`) {
       const item = getAiCellText(sheet, `C${rowNumber}`);
       const amount = normalizeWorkbookNumber(getAiCellText(sheet, `D${rowNumber}`));
       if (!item || amount == null) return "";
       const date = normalizeWorkbookDate(getAiCellText(sheet, `H${rowNumber}`), selectedMonth);
       const defaultedDate = date || getWorkbookMonthStartDate(selectedMonth);
       return [
+        `sourceRef=${sourceRef}`,
         `sourceRow=${rowNumber}`,
         "section=claim",
         "type=Claim",
@@ -5687,8 +6305,12 @@
           entryWarnings.push(normalizeAiEntryValidationWarning(error, entry, index));
         }
       });
-      const mergedWarnings = mergeAiWarnings(warnings, entryWarnings);
-      const payCalculation = normalizeAiPayCalculation(plan.payCalculation);
+      const mergedWarnings = mergeAiWarnings(warnings, entryWarnings)
+        .map((warning) => attachAiWarningToEntry(warning, importEntries));
+      const payCalculation = recalculateAiImportPayCalculation(
+        importEntries,
+        normalizeAiPayCalculation(plan.payCalculation)
+      );
       if (!importEntries.length && !mergedWarnings.length) {
         throw new Error("Parser response did not include entries or warnings.");
       }
@@ -5723,6 +6345,9 @@
       const claimCost = entry.claimCost == null || entry.claimCost === ""
         ? null
         : normalizeAiNumber(entry.claimCost, `Entry ${index + 1} claimCost`, { min: 0 });
+      const sourceRow = getAiEntrySourceRow(entry, index);
+      const sourceRef = getAiEntrySourceRef(entry, index);
+      const reviewId = getAiEntryReviewId(entry, index);
 
       if (type === "Claim") {
         if (String(entry.schoolName || "") !== "Claims") {
@@ -5748,7 +6373,9 @@
         if (Math.abs(durationHours - hours) > 0.03) {
           const correctedEndTime = calculateAiEndTimeFromHours(startTime, hours);
           warnings.push({
-            sourceRow: getAiEntrySourceRow(entry, index),
+            sourceRow,
+            sourceRef,
+            entryReviewId: reviewId,
             type: "TimeHoursMismatch",
             reason: `The workbook time range did not match the hours. durationFromTimes=${durationHours} row hours=${hours}. Using correction endTime from calculatedEndFromHours (${correctedEndTime}).`,
             claimNotes: "",
@@ -5759,6 +6386,9 @@
       }
 
       return {
+        sourceRow,
+        sourceRef,
+        reviewId,
         date,
         type,
         schoolName: String(entry.schoolName || "").trim(),
@@ -5782,9 +6412,33 @@
       return Number.isFinite(parsed) && parsed > 0 ? parsed : index + 1;
     }
 
+    function getAiEntrySourceRef(entry, index) {
+      const sourceRef = String(entry?.sourceRef || "").trim().slice(0, 200);
+      return sourceRef || `Row!R${getAiEntrySourceRow(entry, index)}`;
+    }
+
+    function getAiEntryReviewId(entry, index) {
+      return `${getAiEntrySourceRef(entry, index)}#entry-${index + 1}`;
+    }
+
+    function attachAiWarningToEntry(warning, entries) {
+      if (!warning || warning.entryReviewId) return warning;
+      const sourceRef = String(warning.sourceRef || "").trim();
+      const sourceRow = Number(warning.sourceRow);
+      const candidates = (entries || []).filter((entry) => {
+        if (sourceRef) return entry.sourceRef === sourceRef;
+        return Number.isFinite(sourceRow) && Number(entry.sourceRow) === sourceRow;
+      });
+      return candidates.length === 1
+        ? { ...warning, entryReviewId: candidates[0].reviewId }
+        : warning;
+    }
+
     function normalizeAiEntryValidationWarning(error, entry, index) {
       return {
         sourceRow: getAiEntrySourceRow(entry, index),
+        sourceRef: getAiEntrySourceRef(entry, index),
+        entryReviewId: getAiEntryReviewId(entry, index),
         type: "EntryNeedsReview",
         reason: error?.message || `Entry ${index + 1} could not be imported automatically.`,
         claimNotes: String(entry?.claimNotes || "").trim(),
@@ -5797,7 +6451,7 @@
       const merged = [];
       warningGroups.flat().forEach((warning) => {
         if (!warning) return;
-        const key = `${warning.sourceRow || ""}:${String(warning.type || "").toLowerCase()}:${String(warning.reason || "").slice(0, 80)}`;
+        const key = `${warning.entryReviewId || warning.sourceRef || warning.sourceRow || ""}:${String(warning.type || "").toLowerCase()}:${String(warning.reason || "").slice(0, 80)}`;
         if (seen.has(key)) return;
         seen.add(key);
         merged.push(warning);
@@ -5815,6 +6469,8 @@
       const sourceRow = normalizeAiNumber(warning.sourceRow, `Warning ${index + 1} sourceRow`, { min: 1 });
       return {
         sourceRow,
+        sourceRef: String(warning.sourceRef || "").trim().slice(0, 200),
+        entryReviewId: "",
         type: String(warning.type || "Warning").trim(),
         reason: String(warning.reason || "").trim(),
         claimNotes: String(warning.claimNotes || "").trim(),
@@ -5900,7 +6556,7 @@
 
     function renderAiImportPreview(plan) {
       aiImportPreview.hidden = false;
-      aiConfirmImportButton.disabled = !plan.entries.length;
+      aiConfirmImportButton.disabled = aiEditingImportIndex >= 0 || !plan.entries.length;
       const pay = plan.payCalculation;
       aiImportSummary.innerHTML = [
         renderAiImportStat("Entries", plan.entries.length),
@@ -5916,24 +6572,247 @@
       return `<div class="ai-import-stat"><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`;
     }
 
+    function getAiImportTableColumns(importEntries) {
+      const entriesToReview = importEntries || [];
+      const hasClaims = entriesToReview.some((entry) => entry?.type === "Claim");
+      const hasEventCosts = entriesToReview.some(isAiImportEventCostEntry);
+      const hasTimeEntries = entriesToReview.some((entry) => entry?.type !== "Claim" && !isAiImportEventCostEntry(entry));
+      const columns = ["date", "type"];
+      if (hasTimeEntries) columns.push("hours", "time");
+      if (hasClaims) columns.push("claim");
+      if (hasEventCosts) columns.push("eventCost");
+      columns.push("actions");
+      return columns;
+    }
+
     function renderAiImportTable(importEntries) {
-      if (!importEntries.length) return '<div class="empty">No importable entries found.</div>';
-      const rows = importEntries.map((entry) => `
-        <tr>
-          <td>${escapeHtml(formatLongDate(entry.date))}</td>
-          <td>${escapeHtml(entry.schoolName || "Claims")}</td>
-          <td>${escapeHtml(entry.type)}</td>
-          <td>${escapeHtml(trimHours(entry.hours))}</td>
-          <td>${entry.type === "Claim" ? "Proof needed" : `${escapeHtml(entry.startTime)}-${escapeHtml(entry.endTime)}`}</td>
-          <td>${entry.type === "Claim" ? escapeHtml(formatCurrency(entry.claimCost || 0)) : ""}</td>
-        </tr>
-      `).join("");
-      return `
-        <table class="ai-import-table">
-          <thead><tr><th>Date</th><th>School</th><th>Type</th><th>Hours</th><th>Time</th><th>Claim</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
+      if (!importEntries.length) {
+        return '<div class="empty ai-import-empty">No entries remain in this preview. Parse the workbook again to restore them.</div>';
+      }
+      const headerLabels = {
+        date: "Date",
+        type: "Type",
+        hours: "Hours",
+        time: "Time",
+        claim: "Claim",
+        eventCost: "Event Cost",
+        actions: '<span class="sr-only">Actions</span>',
+      };
+      const groupedEntries = new Map();
+      importEntries.forEach((entry, index) => {
+        const groupName = entry.type === "Claim"
+          ? "Claims"
+          : String(entry.schoolName || "Untitled activity").trim();
+        if (!groupedEntries.has(groupName)) groupedEntries.set(groupName, []);
+        groupedEntries.get(groupName).push({ entry, index });
+      });
+
+      const groups = Array.from(groupedEntries.entries())
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([groupName, indexedEntries]) => {
+          const groupEntries = indexedEntries.map(({ entry }) => entry);
+          const columns = getAiImportTableColumns(groupEntries);
+          const hasClaims = columns.includes("claim");
+          const hasEventCosts = columns.includes("eventCost");
+          const hasCosts = hasClaims || hasEventCosts;
+          const hasTimeEntries = columns.includes("time");
+          const tableMode = hasCosts && hasTimeEntries
+            ? "is-mixed-ledger"
+            : hasCosts
+              ? "is-cost-ledger"
+              : "is-time-ledger";
+          const headers = columns.map((column) => `<th scope="col">${headerLabels[column]}</th>`).join("");
+          const totalHours = groupEntries.reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
+          const totalCosts = groupEntries.reduce((sum, entry) => (
+            entry.type === "Claim" || isAiImportEventCostEntry(entry)
+              ? sum + Number(entry.claimCost || 0)
+              : sum
+          ), 0);
+          const metaParts = [`${groupEntries.length} entr${groupEntries.length === 1 ? "y" : "ies"}`];
+          if (totalHours > 0) metaParts.push(`${trimHours(totalHours)} hrs`);
+          if (totalCosts > 0) metaParts.push(formatCurrency(totalCosts));
+
+          const rows = indexedEntries.map(({ entry, index }) => {
+            const isClaim = entry.type === "Claim";
+            const isEventCost = isAiImportEventCostEntry(entry);
+            const isCostEntry = isClaim || isEventCost;
+            const typeLabel = entry.type === "Replacement" && entry.replacementName
+              ? `Replacement for ${entry.replacementName}`
+              : entry.type === "Private" && Number(entry.customRate) > 0
+                ? `Private @ ${formatCurrency(entry.customRate)}/hr`
+                : entry.type;
+            const hoursCell = hasTimeEntries
+              ? `<td class="ai-import-hours" data-label="Hours">${isCostEntry ? "—" : escapeHtml(trimHours(entry.hours))}</td>`
+              : "";
+            const timeCell = hasTimeEntries
+              ? `<td class="ai-import-time" data-label="Time">${isCostEntry ? "—" : escapeHtml(formatTimeRange(entry))}</td>`
+              : "";
+            const claimCell = hasClaims
+              ? `<td class="ai-import-claim" data-label="Claim">${isClaim ? escapeHtml(formatCurrency(entry.claimCost || 0)) : "—"}</td>`
+              : "";
+            const eventCostCell = hasEventCosts
+              ? `<td class="ai-import-event-cost" data-label="Event Cost">${isEventCost ? escapeHtml(formatCurrency(entry.claimCost || 0)) : "—"}</td>`
+              : "";
+            return `
+              <tr data-ai-import-index="${index}">
+                <td class="ai-import-date" data-label="Date">${escapeHtml(formatLongDate(entry.date))}</td>
+                <td class="ai-import-type" data-label="Type"><span class="ai-import-type-badge">${escapeHtml(typeLabel)}</span></td>
+                ${hoursCell}
+                ${timeCell}
+                ${claimCell}
+                ${eventCostCell}
+                <td class="entry-actions ai-import-entry-actions" data-label="Actions">
+                  <div class="entry-actions-inner">
+                    <button class="entry-action-button entry-edit-button" type="button" data-ai-import-action="edit" data-ai-import-index="${index}" aria-label="Edit imported entry ${index + 1}" data-tooltip="Edit Entry">${editEntryIconSvg}</button>
+                    <button class="entry-action-button entry-remove-button" type="button" data-ai-import-action="remove" data-ai-import-index="${index}" aria-label="Remove imported entry ${index + 1}" data-tooltip="Remove Entry">${trashEntryIconSvg}</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join("");
+
+          return `
+            <article class="school-card ai-import-school-card">
+              <div class="school-head">
+                <h3>${escapeHtml(groupName)}</h3>
+                <div class="school-meta">${escapeHtml(metaParts.join(" • "))}</div>
+              </div>
+              <table class="ai-import-table ${tableMode}${hasCosts ? " has-claims" : ""}">
+                <thead><tr>${headers}</tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </article>
+          `;
+        }).join("");
+
+      return `<div class="ai-import-groups">${groups}</div>`;
+    }
+
+    function onAiImportTableAction(event) {
+      const button = event.target instanceof Element ? event.target.closest("[data-ai-import-action]") : null;
+      if (!button || aiImportBusy) return;
+      const index = Number(button.dataset.aiImportIndex);
+      if (!Number.isInteger(index)) return;
+      if (button.dataset.aiImportAction === "edit") {
+        editAiImportEntry(index);
+      } else if (button.dataset.aiImportAction === "remove") {
+        removeAiImportEntry(index);
+      }
+    }
+
+    function removeAiImportEntry(index) {
+      if (!aiPendingImportPlan?.entries?.[index]) return;
+      const [removedEntry] = aiPendingImportPlan.entries.splice(index, 1);
+      removeAiImportWarningsForEntry(removedEntry);
+      if (aiEditingImportIndex === index) {
+        resetEntryComposer();
+      } else if (aiEditingImportIndex > index) {
+        aiEditingImportIndex -= 1;
+        form.dataset.editingImportEntry = String(aiEditingImportIndex);
+      }
+      refreshAiImportPlanAfterReviewChange();
+      const label = removedEntry.schoolName || removedEntry.claimNotes || "Entry";
+      setAiImportStatus(`${label} removed from the preview. Parse the workbook again to restore it.`, "success");
+    }
+
+    function removeAiImportWarningsForEntry(entry) {
+      if (!aiPendingImportPlan) return;
+      aiPendingImportPlan.warnings = filterAiImportWarningsForRemovedEntry(
+        aiPendingImportPlan.warnings,
+        entry
+      );
+    }
+
+    function filterAiImportWarningsForRemovedEntry(warnings, entry) {
+      const reviewId = String(entry?.reviewId || "");
+      if (!reviewId) return [...(warnings || [])];
+      return (warnings || []).filter((warning) => String(warning.entryReviewId || "") !== reviewId);
+    }
+
+    function revalidateAiImportWarningsForEntry(warnings, previousEntry, updatedEntry, entries) {
+      const reviewId = String(previousEntry?.reviewId || "");
+      const sourceRef = String(previousEntry?.sourceRef || "");
+      const sourceMatches = (entries || []).filter((entry) => (
+        entry?.sourceRef === sourceRef && entry?.reviewId !== reviewId
+      ));
+      return (warnings || []).filter((warning) => {
+        const isDirectMatch = reviewId && warning.entryReviewId === reviewId;
+        const isOnlySourceMatch = !warning.entryReviewId
+          && sourceRef
+          && warning.sourceRef === sourceRef
+          && sourceMatches.length === 0;
+        if (!isDirectMatch && !isOnlySourceMatch) return true;
+        if (String(warning.type || "").toLowerCase() === "timehoursmismatch") {
+          return isAiImportTimeHoursMismatch(updatedEntry);
+        }
+        if (String(warning.type || "").toLowerCase() === "entryneedsreview") {
+          return false;
+        }
+        return true;
+      });
+    }
+
+    function isAiImportEventCostEntry(entry) {
+      return entry?.type === "Event"
+        && (
+          Number(entry?.claimCost || 0) > 0
+          || String(entry?.claimNotes || "").trim().length > 0
+        );
+    }
+
+    function isAiImportTimeHoursMismatch(entry) {
+      if (!entry || entry.type === "Claim" || isAiImportEventCostEntry(entry)) return false;
+      if (!entry.startTime || !entry.endTime || Number(entry.hours) <= 0) return true;
+      return Math.abs(calculateAiDurationHours(entry.startTime, entry.endTime) - Number(entry.hours)) > 0.03;
+    }
+
+    function refreshAiImportPlanAfterReviewChange() {
+      if (!aiPendingImportPlan) return;
+      aiPendingImportPlan.payCalculation = recalculateAiImportPayCalculation(
+        aiPendingImportPlan.entries,
+        aiPendingImportPlan.payCalculation
+      );
+      renderAiImportPreview(aiPendingImportPlan);
+    }
+
+    function recalculateAiImportPayCalculation(importEntries, payCalculation = {}) {
+      const standardRate = Number(payCalculation.standardRate || 0);
+      let schoolHours = 0;
+      let schoolPay = 0;
+      let importableClaimTotal = 0;
+
+      (importEntries || []).forEach((entry) => {
+        const type = String(entry?.type || "");
+        const hours = Math.max(0, Number(entry?.hours || 0));
+        const claimCost = Math.max(0, Number(entry?.claimCost || 0));
+        if (type === "Claim") {
+          importableClaimTotal += claimCost;
+          return;
+        }
+        if (isAiImportEventCostEntry(entry)) {
+          schoolPay += claimCost;
+          return;
+        }
+        schoolHours += hours;
+        const rowRate = type === "Private" && Number(entry?.customRate) > 0
+          ? Number(entry.customRate)
+          : standardRate;
+        schoolPay += hours * rowRate;
+      });
+
+      const roundMoney = (value) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+      const roundedSchoolPay = roundMoney(schoolPay);
+      const roundedClaimTotal = roundMoney(importableClaimTotal);
+      return {
+        standardRate,
+        schoolHours: roundMoney(schoolHours),
+        schoolPay: roundedSchoolPay,
+        importableClaimTotal: roundedClaimTotal,
+        importableTotal: roundMoney(roundedSchoolPay + roundedClaimTotal),
+        warningClaimTotal: Math.max(0, Number(payCalculation.warningClaimTotal || 0)),
+        workbookClaimTotal: Math.max(0, Number(payCalculation.workbookClaimTotal || 0)),
+        workbookGrandTotal: Math.max(0, Number(payCalculation.workbookGrandTotal || 0)),
+      };
     }
 
     function renderAiImportWarnings(warnings) {
@@ -5988,7 +6867,7 @@
     }
 
     async function executeAiImportPlan() {
-      if (!aiPendingImportPlan || aiImportBusy) return;
+      if (!aiPendingImportPlan || aiImportBusy || aiEditingImportIndex >= 0) return;
       if (!currentUser?.id) {
         setAiImportStatus("Could not find your current session.", "error");
         return;
@@ -6054,9 +6933,11 @@
       const isRecurring = isRecurringInput.checked;
       const claimProofFile = claimProofInput && claimProofInput.files && claimProofInput.files[0];
       const existingEntry = editingEntryId ? entries.find((item) => item.id === editingEntryId) : null;
-      const hasStoredClaimProof = Boolean(existingEntry?.claimImagePath || existingEntry?.claimProofDataUrl);
+      const aiImportEntry = getAiEditingImportEntry();
+      const sourceEntry = aiImportEntry || existingEntry;
+      const hasStoredClaimProof = Boolean(sourceEntry?.claimImagePath || sourceEntry?.claimProofDataUrl);
 
-      if (editingEntryId && !existingEntry) {
+      if (isEditingAnyEntry() && !sourceEntry) {
         alert("Could not find the entry you were editing. Please choose it from the ledger again.");
         resetEntryComposer();
         return;
@@ -6065,7 +6946,7 @@
       if (!isCostEntry && (!schoolName || !startTime || !hoursWorked)) return;
       if (isEvent && !schoolName) return;
       if (isCostEntry && !claimNotes) return;
-      if (isClaim && !claimProofFile && !hasStoredClaimProof) return;
+      if (isClaim && !claimProofFile && !hasStoredClaimProof && !aiImportEntry) return;
       if (entryType === "Replacement" && !replacementName) return;
 
       if (!isCostEntry && hoursWorked <= 0) {
@@ -6076,14 +6957,14 @@
         alert(`${isEvent ? "Event" : "Claim"} cost needs to be greater than zero.`);
         return;
       }
-      if (!editingEntryId && isRecurring && !isCostEntry && !pendingRepeatDates.size) {
+      if (!isEditingAnyEntry() && isRecurring && !isCostEntry && !pendingRepeatDates.size) {
         alert("Choose at least one repeat date on the calendar before saving.");
         return;
       }
       const endTime = isCostEntry ? "" : calculateEndTime(startTime, hoursWorked);
-      let claimProofDataUrl = isClaim ? existingEntry?.claimProofDataUrl || "" : null;
-      let claimImagePath = isClaim ? existingEntry?.claimImagePath || "" : "";
-      let claimProofName = isClaim ? existingEntry?.claimProofName || "" : "";
+      let claimProofDataUrl = isClaim ? sourceEntry?.claimProofDataUrl || "" : null;
+      let claimImagePath = isClaim ? sourceEntry?.claimImagePath || "" : "";
+      let claimProofName = isClaim ? sourceEntry?.claimProofName || "" : "";
       if (isClaim && claimProofFile) {
         try {
           const uploadResult = await uploadClaimProofToStorage(claimProofFile, monthPicker.value);
@@ -6113,13 +6994,19 @@
         claimProofDataUrl,
       };
 
-      const newEntries = !editingEntryId && isRecurring && !isCostEntry
+      const newEntries = !isEditingAnyEntry() && isRecurring && !isCostEntry
         ? buildEntriesForSelectedRepeatDates(baseEntry)
         : [baseEntry];
 
       addEntryButton.disabled = true;
       try {
-        if (editingEntryId) {
+        if (aiImportEntry) {
+          if (updateAiImportEntryFromForm(baseEntry)) {
+            resetEntryComposer();
+            closeEntryComposerModal();
+          }
+          return;
+        } else if (editingEntryId) {
           await window.draftTimesheetStore.updateEntry(editingEntryId, {
             ...existingEntry,
             ...baseEntry,
@@ -6148,7 +7035,7 @@
     }
 
     function resetEntryComposer() {
-      exitEntryEditMode();
+      exitEntryEditModes();
       form.reset();
       clearRepeatSelection();
       syncRepeatSelectionUi();
@@ -6159,25 +7046,75 @@
     }
 
     function enterEntryEditMode(entryId) {
+      aiEditingImportIndex = -1;
+      form.removeAttribute("data-editing-import-entry");
       editingEntryId = entryId;
       form.dataset.editingEntry = entryId;
       addEntryButton.textContent = "Update Entry";
+      aiConfirmImportButton.disabled = aiImportBusy || !aiPendingImportPlan?.entries?.length;
       syncEntryComposerMode();
-      syncClearMonthButton();
     }
 
-    function exitEntryEditMode() {
+    function enterAiImportEditMode(index) {
       editingEntryId = "";
       form.removeAttribute("data-editing-entry");
-      addEntryButton.textContent = "Save Entry";
+      aiEditingImportIndex = index;
+      form.dataset.editingImportEntry = String(index);
+      addEntryButton.textContent = "Update Preview";
+      aiConfirmImportButton.disabled = true;
       syncEntryComposerMode();
-      syncClearMonthButton();
+    }
+
+    function exitEntryEditModes() {
+      editingEntryId = "";
+      aiEditingImportIndex = -1;
+      form.removeAttribute("data-editing-entry");
+      form.removeAttribute("data-editing-import-entry");
+      addEntryButton.textContent = "Save Entry";
+      aiConfirmImportButton.disabled = aiImportBusy || !aiPendingImportPlan?.entries?.length;
+      syncEntryComposerMode();
     }
 
     function cancelEntryEdit() {
-      if (!editingEntryId) return false;
+      if (!isEditingAnyEntry()) return false;
       resetEntryComposer();
       render();
+      return true;
+    }
+
+    function isEditingAnyEntry() {
+      return Boolean(editingEntryId) || aiEditingImportIndex >= 0;
+    }
+
+    function getAiEditingImportEntry() {
+      if (!Number.isInteger(aiEditingImportIndex) || aiEditingImportIndex < 0) return null;
+      return aiPendingImportPlan?.entries?.[aiEditingImportIndex] || null;
+    }
+
+    function updateAiImportEntryFromForm(baseEntry) {
+      const existingImportEntry = getAiEditingImportEntry();
+      if (!existingImportEntry || !aiPendingImportPlan) return false;
+      if (!baseEntry.date.startsWith(`${aiPendingImportPlan.month}-`)) {
+        alert(`Imported entries must stay within ${formatMonthLabel(aiPendingImportPlan.month)}.`);
+        return false;
+      }
+      aiPendingImportPlan.entries[aiEditingImportIndex] = {
+        ...existingImportEntry,
+        ...baseEntry,
+        sourceRow: existingImportEntry.sourceRow,
+        sourceRef: existingImportEntry.sourceRef,
+        reviewId: existingImportEntry.reviewId,
+        status: "active",
+      };
+      aiPendingImportPlan.warnings = revalidateAiImportWarningsForEntry(
+        aiPendingImportPlan.warnings,
+        existingImportEntry,
+        aiPendingImportPlan.entries[aiEditingImportIndex],
+        aiPendingImportPlan.entries
+      );
+      refreshAiImportPlanAfterReviewChange();
+      const label = baseEntry.schoolName || baseEntry.claimNotes || "Entry";
+      setAiImportStatus(`${label} updated in the preview. Review the changes before importing.`, "success");
       return true;
     }
 
@@ -6221,35 +7158,30 @@
       closeChipContextMenu();
       syncRepeatSelectionUi();
       const activeEntries = getEntriesForMonth(monthPicker.value);
-      syncClearMonthButton(activeEntries);
       updateSummary(activeEntries);
       renderCalendar(activeEntries, monthPicker.value);
       renderGroups(activeEntries);
       void hydrateClaimProofUrls(activeEntries);
     }
 
-    function syncClearMonthButton(activeEntries) {
-      const isEditing = Boolean(editingEntryId);
-      clearMonthButton.textContent = isEditing ? "Cancel Edit" : "Clear Month";
-      clearMonthButton.classList.toggle("is-cancel-edit", isEditing);
-      clearMonthButton.setAttribute("aria-label", isEditing ? "Cancel editing entry" : "Clear month");
-      if (isEditing) {
-        clearMonthButton.disabled = false;
-        return;
-      }
-
-      const monthEntries = Array.isArray(activeEntries) ? activeEntries : getEntriesForMonth(monthPicker.value);
-      clearMonthButton.disabled = !monthEntries.some((entry) => window.draftTimesheetStore.isActive(entry));
-    }
-
     function syncEntryComposerMode() {
-      const isEditing = Boolean(editingEntryId);
+      const isEditingSavedEntry = Boolean(editingEntryId);
+      const isEditingImportEntry = aiEditingImportIndex >= 0;
+      const isEditing = isEditingSavedEntry || isEditingImportEntry;
       entryComposerPanel?.classList.toggle("is-editing-entry", isEditing);
       if (entryComposerTitle) {
-        entryComposerTitle.textContent = isEditing ? entryComposerEditTitle : entryComposerDefaultTitle;
+        entryComposerTitle.textContent = isEditingImportEntry
+          ? entryComposerImportEditTitle
+          : isEditingSavedEntry
+            ? entryComposerEditTitle
+            : entryComposerDefaultTitle;
       }
       if (entryComposerCopy) {
-        entryComposerCopy.textContent = isEditing ? entryComposerEditCopy : entryComposerDefaultCopy;
+        entryComposerCopy.textContent = isEditingImportEntry
+          ? entryComposerImportEditCopy
+          : isEditingSavedEntry
+            ? entryComposerEditCopy
+            : entryComposerDefaultCopy;
       }
     }
 
@@ -6450,6 +7382,22 @@
       if (!entry || window.draftTimesheetStore.isSubmitted(entry)) return;
 
       enterEntryEditMode(id);
+      populateEntryComposer(entry);
+      render();
+      focusEditedEntryComposer(entry);
+    }
+
+    function editAiImportEntry(index) {
+      const entry = aiPendingImportPlan?.entries?.[index];
+      if (!entry || aiImportBusy) return;
+
+      enterAiImportEditMode(index);
+      populateEntryComposer(entry);
+      focusEditedEntryComposer(entry);
+    }
+
+    function populateEntryComposer(entry) {
+      if (!entry) return;
 
       const entryMonth = (entry.date || "").slice(0, 7);
       if (/^\d{4}-\d{2}$/.test(entryMonth) && entryMonth !== monthPicker.value) {
@@ -6480,7 +7428,9 @@
       }
 
       syncQuickAddSaveButton();
-      render();
+    }
+
+    function focusEditedEntryComposer(entry) {
       if (isMobileComposerMode()) {
         openEntryComposerModal({ preserveFields: true });
         return;
@@ -6508,28 +7458,9 @@
       }
     }
 
-    function handleClearMonthButtonClick() {
-      if (cancelEntryEdit()) return;
-      void clearCurrentMonth();
-    }
-
-    async function clearCurrentMonth() {
-      const monthValue = monthPicker.value;
-      const monthEntries = getEntriesForMonth(monthValue);
-      const removableEntries = monthEntries.filter((entry) => window.draftTimesheetStore.isActive(entry));
-      if (!removableEntries.length) return;
-
-      const confirmed = confirm(`Remove all ${removableEntries.length} active entries from ${calendarTitle.textContent}? Submitted rows will remain visible.`);
-      if (!confirmed) return;
-
-      clearMonthButton.disabled = true;
-      try {
-        await window.draftTimesheetStore.deleteEntries(removableEntries.map((entry) => entry.id));
-        entries = await loadEntries();
-        render();
-      } catch (error) {
-        alert(error?.message || "Could not clear the selected month.");
-      }
+    function clearEntryComposer() {
+      resetEntryComposer();
+      render();
     }
 
     async function seedDemoData() {
@@ -6784,7 +7715,8 @@
       }
       if (entry.claimProofDataUrl) {
         const altText = entry.claimProofName ? escapeHtml(entry.claimProofName) : "Proof";
-        return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
+        const imageSrc = escapeHtml(entry.claimProofDataUrl);
+        return `<button type="button" class="entry-image-button" data-lightbox-src="${imageSrc}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${imageSrc}" alt="${altText}"></button>`;
       }
       return `<div class="entry-image-placeholder"></div>`;
     }
@@ -6902,7 +7834,8 @@
       const claimProofField = document.getElementById("claimProofField");
       const notesLabel = document.querySelector('label[for="claimNotes"]');
       const costLabel = document.querySelector('label[for="claimCost"]');
-      const existingEntry = editingEntryId ? entries.find((entry) => entry.id === editingEntryId) : null;
+      const existingEntry = getAiEditingImportEntry()
+        || (editingEntryId ? entries.find((entry) => entry.id === editingEntryId) : null);
       const hasStoredClaimProof = Boolean(existingEntry?.claimImagePath || existingEntry?.claimProofDataUrl);
 
       if (notesLabel) notesLabel.textContent = isEvent ? "Notes" : "Claim Notes";
@@ -6916,12 +7849,13 @@
         claimCostInput.placeholder = isEvent ? "e.g. 80.00" : "e.g. 14.50";
       }
       if (claimProofField) {
-        claimProofField.hidden = isEvent;
-        claimProofField.style.display = isEvent ? "none" : "";
+        const shouldHideProof = isEvent || aiEditingImportIndex >= 0;
+        claimProofField.hidden = shouldHideProof;
+        claimProofField.style.display = shouldHideProof ? "none" : "";
       }
       if (claimProofInput) {
-        claimProofInput.required = !isEvent && !hasStoredClaimProof;
-        if (isEvent) {
+        claimProofInput.required = !isEvent && !hasStoredClaimProof && aiEditingImportIndex < 0;
+        if (isEvent || aiEditingImportIndex >= 0) {
           claimProofInput.value = "";
         }
       }

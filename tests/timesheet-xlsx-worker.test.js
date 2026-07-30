@@ -27,6 +27,8 @@ const wrangler = fs.readFileSync(
   "column L is Rate/customRate and column M is No. of Hours",
   "column M is Rate/customRate and column N is No. of Hours",
   "trust hours= for entry hours and rate= for customRate",
+  '"sourceRef": "encoded-sheet-name!R<row-number>"',
+  "Copy sourceRef and sourceRow from each interpreted row",
 ].forEach((snippet) => {
   assert.ok(worker.includes(snippet), `timesheet XLSX Worker parser should include ${snippet}`);
 });

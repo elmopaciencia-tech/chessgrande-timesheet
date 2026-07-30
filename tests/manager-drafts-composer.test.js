@@ -20,6 +20,11 @@ assert.match(html, /#draftList\s+\.school-card:hover/, "draft school cards shoul
 assert.match(html, /id="chipContextMenu"[\s\S]*data-chip-action="go"[\s\S]*data-chip-action="edit"[\s\S]*data-chip-action="remove"/, "manager draft calendar chips should expose the context menu actions");
 assert.match(html, /id="chipRemoveModal"[\s\S]*role="dialog"[\s\S]*Remove this entry\?[\s\S]*data-chip-remove-confirm="cancel"[\s\S]*data-chip-remove-confirm="remove"/, "manager draft chip remove should confirm in a popup dialog");
 assert.match(html, /tr\.is-entry-target-highlight td[\s\S]*@keyframes entry-target-highlight/, "manager draft ledger rows should animate when a chip jumps to them");
+assert.match(
+  html,
+  /@media \(max-width: 760px\)[\s\S]*\.calendar-chip,[\s\S]*\.calendar-chip strong\s*\{[^}]*font-size:\s*9px;/s,
+  "manager draft calendar should use the shared 9px mobile entry size"
+);
 
 [
   '<option value="School Coaching">School Coaching</option>',

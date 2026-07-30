@@ -50,8 +50,9 @@ assert.ok(
   "box-shadow: none;",
   "transform: none;",
   'const payrollProfile = readPayrollProfile();',
-  'hourlyRateInput.value = payrollProfile.hourlyRate || "";',
+  'hourlyRateInput.value = data?.hourly_rate ?? payrollProfile.hourlyRate ?? "";',
   "writePayrollProfile({ hourlyRate });",
+  "hourly_rate: hourlyRate",
 ].forEach((snippet) => {
   assert.ok(source.includes(snippet), `profile modal should include ${snippet}`);
 });

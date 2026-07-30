@@ -962,7 +962,291 @@
         display: none !important;
       }
     }
-  </style>
+
+    /* Accepted live direction: Signature type ramp. */
+    .typeset-v3 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    .typeset-v3 h1 {
+      max-width: 13ch;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(clamp(2.3rem, 4.4vw, 3.9rem) * 1.05);
+      font-weight: 700;
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+    }
+
+    .typeset-v3 .eyebrow,
+    .typeset-v3 .panel-eyebrow {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(0.76rem * 1.05);
+      font-weight: 700;
+      letter-spacing: 0.16em;
+    }
+
+    .typeset-v3 .panel h2 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(1.34rem * 1.05);
+      font-weight: 700;
+      line-height: 1.16;
+      letter-spacing: -0.015em;
+    }
+
+    .typeset-v3 .panel-copy {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(0.96rem * 1.05);
+      line-height: 1.5;
+    }
+
+    .typeset-v3 .stat-label,
+    .typeset-v3 .pay-line > span:first-child {
+      font-size: calc(0.86rem * 1.05);
+    }
+
+    .typeset-v3 .stat-value,
+    .typeset-v3 .pay-line strong {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: calc(1.34rem * 1.05);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .typeset-v3 #payTotal {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: inherit;
+    }
+
+    .typeset-v3 .pay-card-title {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(0.98rem * 1.05);
+      font-weight: 700;
+    }
+
+    .typeset-v3 .pay-card-copy,
+    .typeset-v3 .status-message {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(0.84rem * 1.05);
+      line-height: 1.36;
+    }
+
+    /* Match the primary timesheet masthead while retaining payroll-specific totals. */
+    .hero-v1 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+      gap: 28px;
+      align-items: end;
+      padding: 34px 34px 28px;
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--surface-strong) 80%, white 20%) 0%,
+        color-mix(in srgb, var(--surface-muted) 68%, white 32%) 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--line) 70%, white 30%);
+      border-radius: 28px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: visible;
+    }
+
+    .hero-v1::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 42%),
+        radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--clay) 8%, transparent), transparent 40%);
+      pointer-events: none;
+    }
+
+    .hero-v1 .v1-masthead {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 16px;
+      align-content: end;
+    }
+
+    .hero-v1 .v1-kicker {
+      margin: 0;
+      color: var(--clay);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.26em;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    .hero-v1 .v1-title {
+      margin: 0;
+      max-width: none;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 400;
+      font-size: calc(clamp(2.4rem, 6.4vw, 5rem) * 1.05);
+      line-height: 0.94;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+      color: var(--ink);
+    }
+
+    .hero-v1 .v1-title .v1-accent {
+      color: var(--clay);
+      font-style: italic;
+    }
+
+    .hero-v1 .v1-rule {
+      width: 100%;
+      height: 3px;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid color-mix(in srgb, var(--line-strong) 60%, white 40%);
+      background: transparent;
+    }
+
+    .hero-v1 .v1-tally {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0;
+      margin: 0;
+      padding: 14px 0 0;
+      list-style: none;
+    }
+
+    .hero-v1 .v1-metric {
+      display: grid;
+      gap: 2px;
+      padding: 0 26px;
+      border-left: 1px solid color-mix(in srgb, var(--line-strong) 70%, white 30%);
+    }
+
+    .hero-v1 .v1-metric:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .hero-v1 .v1-metric-label {
+      color: var(--muted);
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .hero-v1 .v1-metric-value {
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: calc(1.7rem * 1.05);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .hero-v1 .v1-desk {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 14px;
+      align-content: end;
+      padding: 18px;
+      background: color-mix(in srgb, var(--surface-strong) 86%, white 14%);
+      border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: visible;
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger {
+      min-height: 52px;
+      padding: 12px 14px;
+      border-color: var(--line-strong);
+      background: var(--surface-strong);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+      font-weight: 750;
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger:hover,
+    .hero-v1 .v1-desk .month-picker-trigger:focus-visible {
+      border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger[aria-expanded="true"] {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .hero-v1 .v1-desk .month-picker-trigger svg {
+      color: var(--accent);
+    }
+
+    .hero-v1 .v1-desk .month-box-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .hero-v1 .v1-desk .month-box-header strong {
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+
+    .hero-v1 .v1-desk .month-box-header label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 960px) {
+      .hero-v1 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-v1 .v1-desk {
+        align-self: auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .hero-v1 {
+        gap: var(--space-4);
+        padding: var(--space-5);
+      }
+
+      .hero-v1 .v1-title {
+        max-width: none;
+      }
+
+      .hero-v1 .v1-metric {
+        padding: 0 clamp(12px, 4vw, 26px);
+      }
+
+      .hero-v1 .v1-metric:first-child {
+        padding-left: 0;
+      }
+
+      .hero-v1 .v1-desk {
+        padding: var(--space-3);
+      }
+
+      body.mobile-full-bleed .hero-v1 {
+        width: 100vw;
+        max-width: 100vw;
+        margin-right: calc(50% - 50vw);
+        margin-left: calc(50% - 50vw);
+        padding-left: calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
+        padding-right: calc(var(--space-5) + max(12px, env(safe-area-inset-right)));
+        border-radius: 0;
+      }
+
+      body.mobile-full-bleed .hero-v1 .v1-desk {
+        margin-right: calc(-1 * (var(--space-5) + 1px));
+        margin-left: calc(-1 * (var(--space-5) + 1px));
+      }
+    }
+ </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
   <script src="./ui-effects.js?v=20260606-nav" defer></script>
@@ -1009,18 +1293,44 @@
       </div>
     </div>
   </header>
-  <main class="page" id="main-content">
-    <section class="hero">
-      <div class="hero-copy">
-        <header>
-          <p class="eyebrow">Monthly Payroll View</p>
-          <h1><span class="hero-title-line">Chess Grande</span> <span class="hero-title-line hero-title-accent">Pay Summary</span></h1>
-        </header>
+  <main class="page typeset-v3" id="main-content">
+    <section class="hero hero-v1">
+      <div class="v1-masthead">
+        <p class="v1-kicker" id="payViewEyebrow">Monthly Payroll View</p>
+        <h1 class="v1-title"><span>Chess Grande</span> <span class="v1-accent">Pay Summary</span></h1>
+        <div class="v1-rule" aria-hidden="true"></div>
+        <ul class="v1-tally" aria-label="Month summary">
+          <li class="v1-metric"><span class="v1-metric-label" id="rateCountLabel">Hourly Rate</span><span class="v1-metric-value" id="rateCount">S$0.00</span></li>
+          <li class="v1-metric"><span class="v1-metric-label">Total Hours</span><span class="v1-metric-value" id="hoursCount">0</span></li>
+          <li class="v1-metric"><span class="v1-metric-label">Calculated Pay</span><span class="v1-metric-value" id="summaryPay">S$0.00</span></li>
+        </ul>
       </div>
-      <aside class="hero-month">
-        <div class="month-box"><div class="month-box-header"><strong>Working month</strong><label id="monthPickerLabelText" for="monthPickerTrigger">Select month</label></div><input id="monthPicker" type="month"><div class="month-picker" id="monthPickerControl"><button class="month-picker-trigger" id="monthPickerTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="monthPickerPanel" aria-labelledby="monthPickerLabelText monthPickerLabel"><span id="monthPickerLabel">Select month</span><i data-lucide="calendar" aria-hidden="true"></i></button><div class="month-picker-popover" id="monthPickerPanel" role="dialog" aria-label="Select working month" hidden><div class="month-picker-nav"><button class="month-picker-nav-button" id="monthPickerPrev" type="button" aria-label="Previous month"><i data-lucide="chevron-left" aria-hidden="true"></i></button><div id="monthPickerFallback"><select id="monthNameSelect" aria-label="Viewing month name"><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><select id="monthYearSelect" aria-label="Viewing month year"></select></div><button class="month-picker-nav-button" id="monthPickerNext" type="button" aria-label="Next month"><i data-lucide="chevron-right" aria-hidden="true"></i></button></div><div class="month-picker-grid" id="monthPickerGrid" role="grid" aria-label="Months"></div></div></div></div>
-        <div class="hero-stats" aria-label="Month summary">
-          <div class="hero-stat"><span class="stat-label">Hourly Rate</span><span class="stat-value" id="rateCount">S$0.00</span></div><div class="hero-stat"><span class="stat-label">Total Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Calculated Pay</span><span class="stat-value" id="summaryPay">S$0.00</span></div>
+      <aside class="v1-desk">
+        <div class="month-box">
+          <div class="month-box-header">
+            <strong>Working month</strong>
+            <label id="monthPickerLabelText" for="monthPickerTrigger">Select month</label>
+          </div>
+          <input id="monthPicker" type="month">
+          <div class="month-picker" id="monthPickerControl">
+            <button class="month-picker-trigger" id="monthPickerTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="monthPickerPanel" aria-labelledby="monthPickerLabelText monthPickerLabel">
+              <span id="monthPickerLabel">Select month</span>
+              <i data-lucide="calendar" aria-hidden="true"></i>
+            </button>
+            <div class="month-picker-popover" id="monthPickerPanel" role="dialog" aria-label="Select working month" hidden>
+              <div class="month-picker-nav">
+                <button class="month-picker-nav-button" id="monthPickerPrev" type="button" aria-label="Previous month"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+                <div id="monthPickerFallback">
+                  <select id="monthNameSelect" aria-label="Viewing month name">
+                    <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                  </select>
+                  <select id="monthYearSelect" aria-label="Viewing month year"></select>
+                </div>
+                <button class="month-picker-nav-button" id="monthPickerNext" type="button" aria-label="Next month"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+              </div>
+              <div class="month-picker-grid" id="monthPickerGrid" role="grid" aria-label="Months"></div>
+            </div>
+          </div>
         </div>
       </aside>
     </section>
@@ -1031,7 +1341,7 @@
           <section class="panel" id="payCalendarPanel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel" id="payActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Activity summary</p><h2>Entries By Activity</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
         </div>
         <aside class="action-column">
-          <section class="panel" id="payProfilePanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. Edit payment details from your profile menu.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="pay-card-section"><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
+          <section class="panel" id="payProfilePanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy" id="payProfileCopy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. Edit payment details from your profile menu.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span id="payRateLabel">Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="pay-card-section"><div class="pay-line"><span id="payPeriodLabel">Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
         </aside>
       </div>
     </div>
@@ -1075,7 +1385,7 @@
           <div class="submission-export-detail-row"><dt>Account Type</dt><dd id="exportPayAccountType">-</dd></div>
           <div class="submission-export-detail-row"><dt>Bank Account</dt><dd id="exportPayBank">-</dd></div>
           <div class="submission-export-detail-row"><dt>Month</dt><dd id="exportPayMonth">-</dd></div>
-          <div class="submission-export-detail-row"><dt>Rate</dt><dd id="exportPayRate">S$0.00</dd></div>
+          <div class="submission-export-detail-row"><dt id="exportPayRateLabel">Rate</dt><dd id="exportPayRate">S$0.00</dd></div>
           <div class="submission-export-detail-row"><dt>Total Hours</dt><dd id="exportPayHours">0</dd></div>
           <div class="submission-export-detail-row"><dt>Calculated Pay</dt><dd id="exportPayTotal">S$0.00</dd></div>
         </dl>
@@ -1219,6 +1529,7 @@
   <script src="./supabase-client.js"></script>
   <script src="./calendar-colors.js"></script>
   <script src="./draft-timesheet-store.js"></script>
+  <script src="./trainee-pay-policy.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
   <script src="./auth.js"></script>
@@ -1251,6 +1562,8 @@
     const bankAccountInput = document.getElementById("bankAccount");
     const bankNameInput = document.getElementById("bankName");
     const accountTypeInput = document.getElementById("accountType");
+    const payProfileCopy = document.getElementById("payProfileCopy");
+    const payRateLabel = document.getElementById("payRateLabel");
     const hourlyRateDisplay = document.getElementById("hourlyRate");
     const submitToServerButton = document.getElementById("submitToServer");
     const exportSubmissionButton = document.getElementById("exportSubmissionButton");
@@ -1265,9 +1578,12 @@
     const userMenuPanel = document.getElementById("userMenuPanel");
     const submitStatus = document.getElementById("submitStatus");
     const exportStatus = document.getElementById("exportStatus");
+    const payViewEyebrow = document.getElementById("payViewEyebrow");
     const summaryPay = document.getElementById("summaryPay");
     const hoursCount = document.getElementById("hoursCount");
+    const rateCountLabel = document.getElementById("rateCountLabel");
     const rateCount = document.getElementById("rateCount");
+    const payPeriodLabel = document.getElementById("payPeriodLabel");
     const payMonth = document.getElementById("payMonth");
     const payHours = document.getElementById("payHours");
     const payTotal = document.getElementById("payTotal");
@@ -1318,6 +1634,7 @@
     const exportPayAccountType = document.getElementById("exportPayAccountType");
     const exportPayBank = document.getElementById("exportPayBank");
     const exportPayMonth = document.getElementById("exportPayMonth");
+    const exportPayRateLabel = document.getElementById("exportPayRateLabel");
     const exportPayRate = document.getElementById("exportPayRate");
     const exportPayHours = document.getElementById("exportPayHours");
     const exportPayTotal = document.getElementById("exportPayTotal");
@@ -1333,6 +1650,7 @@
     let entries = [];
     let currentUser = null;
     let currentProfile = null;
+    let traineeSubmissions = [];
     let lightboxLastFocus = null;
     let lightboxPreviousOverflow = "";
     let editModalLastFocus = null;
@@ -1348,6 +1666,7 @@
     initApp();
     window.addEventListener("profile-updated", async () => {
       await loadProfileIntoForm();
+      await loadTraineeSubmissions();
       render();
     });
 
@@ -1365,6 +1684,7 @@
       setupMonthPickerUi();
       initializeMonth();
       await loadProfileIntoForm();
+      await loadTraineeSubmissions();
       setupEntryEditModal();
       setupChipContextMenu();
       initImageViewer();
@@ -1423,6 +1743,10 @@
     payForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (isSubmitting) return;
+      if (isWeeklyStipendProfile()) {
+        await submitTraineeWeeklyPayroll();
+        return;
+      }
       await submitPayrollToSupabase();
     });
     exportSubmissionButton.addEventListener("click", () => {
@@ -1456,6 +1780,8 @@
         bankName: currentProfile?.bank_name || "",
         accountType: currentProfile?.account_type || "",
         hourlyRate: Number(currentProfile?.hourly_rate ?? localProfile.hourlyRate ?? 0),
+        payPolicy: currentProfile?.pay_policy || localProfile.payPolicy || "monthly_hourly",
+        weeklyStipendAmount: Number(currentProfile?.weekly_stipend_amount ?? localProfile.weeklyStipendAmount ?? 0),
       };
       writeJsonToStorage(payStorageKey, profile);
     }
@@ -1485,7 +1811,10 @@
       }
 
       currentProfile = data || null;
-      hourlyRateDisplay.textContent = formatCurrency(currentProfile?.hourly_rate ?? localProfile.hourlyRate ?? 0);
+      const displayedRate = isWeeklyStipendProfile()
+        ? currentProfile?.weekly_stipend_amount
+        : currentProfile?.hourly_rate ?? localProfile.hourlyRate ?? 0;
+      hourlyRateDisplay.textContent = formatCurrency(displayedRate || 0);
       fullNameInput.value = currentProfile?.full_name || "";
       bankAccountInput.value = currentProfile?.bank_account_number || "";
       bankNameInput.value = currentProfile?.bank_name || "";
@@ -1494,6 +1823,115 @@
       bankNameInput.classList.toggle("missing-profile", !bankNameInput.value.trim());
       accountTypeInput.classList.toggle("missing-profile", !accountTypeInput.value.trim());
       saveProfile();
+    }
+
+    function isWeeklyStipendProfile() {
+      return Boolean(
+        window.traineePayPolicy
+        && window.traineePayPolicy.isWeeklyStipendProfile(currentProfile)
+      );
+    }
+
+    function getSingaporeDateValue(date = new Date()) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Singapore",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(date);
+      const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+      return `${values.year}-${values.month}-${values.day}`;
+    }
+
+    async function loadTraineeSubmissions() {
+      traineeSubmissions = [];
+      if (!isWeeklyStipendProfile() || !currentUser || !window.traineePayPolicy) return;
+
+      const { data, error } = await window.supabaseClient
+        .from("payroll_submissions")
+        .select("*")
+        .eq("employee_id", currentUser.id)
+        .order("submitted_at", { ascending: false });
+
+      if (error) {
+        console.error("Could not load trainee submissions:", error);
+        return;
+      }
+
+      traineeSubmissions = data || [];
+    }
+
+    async function submitTraineeWeeklyPayroll() {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      submitToServerButton.disabled = true;
+
+      try {
+        if (!currentProfile?.full_name || !currentProfile?.bank_account_number) {
+          submitStatus.textContent = "Update your name and bank account details before submitting.";
+          return;
+        }
+
+        const weeklyStipend = Number(currentProfile?.weekly_stipend_amount || 0);
+
+        entries = await loadEntries();
+        const activeEntries = getEntriesForMonth(monthPicker.value)
+          .filter((entry) => window.draftTimesheetStore.isActive(entry));
+        const grouped = window.traineePayPolicy.groupEntriesByWeek(activeEntries);
+        const today = getSingaporeDateValue();
+        const readyWeeks = [...grouped.values()].filter(({ period, entries: weekEntries }) => {
+          const summary = window.traineePayPolicy.calculateWeeklySummary(weekEntries, weeklyStipend);
+          return summary.qualifies && window.traineePayPolicy.isWeekClosed(period.end, today);
+        });
+
+        if (!readyWeeks.length) {
+          const hasProjectedWork = activeEntries.some(window.traineePayPolicy.isQualifyingWorkEntry);
+          submitStatus.textContent = hasProjectedWork
+            ? "Your current qualifying week is projected. It can be submitted after Sunday."
+            : "No completed qualifying weeks are ready to submit in this month.";
+          return;
+        }
+
+        const claimsMissingProof = readyWeeks
+          .flatMap((week) => week.entries)
+          .filter(isClaimMissingProof);
+        if (claimsMissingProof.length) {
+          submitStatus.textContent = "Some claims in a ready week still need proof images before submission.";
+          return;
+        }
+
+        submitStatus.textContent = readyWeeks.length === 1
+          ? "Submitting trainee week..."
+          : `Submitting ${readyWeeks.length} ready trainee weeks...`;
+        const submittedWeeks = [];
+
+        for (const { period } of readyWeeks) {
+          const { data, error } = await window.supabaseClient
+            .rpc("submit_trainee_weekly_payroll", {
+              requested_period_start: period.start,
+            });
+          if (error) {
+            throw new Error(error.message || `Could not submit ${period.label}.`);
+          }
+          submittedWeeks.push(data);
+        }
+
+        entries = await loadEntries();
+        await loadTraineeSubmissions();
+        render();
+        submitStatus.textContent = submittedWeeks.length === 1
+          ? `Submitted ${submittedWeeks[0]?.month_label || readyWeeks[0].period.label}.`
+          : `Submitted ${submittedWeeks.length} completed trainee weeks.`;
+      } catch (error) {
+        console.error("Unexpected trainee weekly submission error:", error);
+        submitStatus.textContent = `Could not submit trainee payroll: ${error.message || "unknown error"}`;
+        entries = await loadEntries().catch(() => entries);
+        await loadTraineeSubmissions();
+        render();
+      } finally {
+        isSubmitting = false;
+        submitToServerButton.disabled = false;
+      }
     }
 
     async function submitPayrollToSupabase() {
@@ -1526,6 +1964,12 @@
         (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
         0
       );
+      const reimbursementPay = activeEntries.reduce(
+        (sum, entry) => sum + (isCostEntry(entry) ? getCostEntryValue(entry) : 0),
+        0
+      );
+      const [periodYear, periodMonth] = selectedMonth.split("-").map(Number);
+      const periodEnd = `${selectedMonth}-${String(new Date(periodYear, periodMonth, 0).getDate()).padStart(2, "0")}`;
 
       if (!currentProfile?.full_name || !currentProfile?.bank_account_number || !hourlyRate) {
         submitStatus.textContent = "Update your profile (name and bank account details) and hourly rate before submitting.";
@@ -1553,8 +1997,15 @@
           account_type: currentProfile.account_type || null,
           month: selectedMonth,
           month_label: monthLabel,
+          period_type: "monthly",
+          period_start: `${selectedMonth}-01`,
+          period_end: periodEnd,
+          pay_policy: "monthly_hourly",
           hourly_rate: hourlyRate,
+          weekly_stipend_amount: 0,
           total_hours: totalHours,
+          base_pay: Math.max(0, totalPay - reimbursementPay),
+          reimbursement_pay: reimbursementPay,
           total_pay: totalPay,
         })
         .select("id, month_label, employee_name")
@@ -1692,6 +2143,7 @@
         }
 
         entries = await loadEntries();
+        await loadTraineeSubmissions();
         render();
         exportStatus.textContent = `Removed ${submissionRow.month_label || monthLabel} submission. Your timesheet rows are editable again.`;
       } catch (error) {
@@ -1743,7 +2195,9 @@
           bankName: submissionRow.bank_name,
           accountType: submissionRow.account_type,
           bankAccount: submissionRow.bank_account,
+          payPolicy: submissionRow.pay_policy || "monthly_hourly",
           hourlyRate: submissionRow.hourly_rate,
+          weeklyStipendAmount: submissionRow.weekly_stipend_amount,
           totalHours: submissionRow.total_hours,
           totalPay: submissionRow.total_pay,
           entries: entriesForExport,
@@ -1819,7 +2273,12 @@
       exportPayAccountType.textContent = submission.accountType || "Please Setup in Profile";
       exportPayBank.textContent = submission.bankAccount || "-";
       exportPayMonth.textContent = monthLabel;
-      exportPayRate.textContent = formatCurrency(submission.hourlyRate || 0);
+      exportPayRateLabel.textContent = submission.payPolicy === "weekly_stipend" ? "Weekly stipend" : "Rate";
+      exportPayRate.textContent = formatCurrency(
+        submission.payPolicy === "weekly_stipend"
+          ? submission.weeklyStipendAmount || 0
+          : submission.hourlyRate || 0
+      );
       exportPayHours.textContent = trimHours(submission.totalHours || 0);
       exportPayTotal.textContent = formatCurrency(submission.totalPay || 0);
 
@@ -1975,22 +2434,81 @@
       const monthEntries = getEntriesForMonth(monthPicker.value);
       const summaryEntries = monthEntries.filter(isPayrollSummaryEntry);
       const totalHours = summaryEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
-      const hourlyRate = Number(profile.hourlyRate || 0);
-      const totalPay = summaryEntries.reduce(
-        (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
-        0
-      );
 
-      summaryPay.textContent = formatCompactDollar(totalPay);
-      hoursCount.textContent = trimHours(totalHours);
-      rateCount.textContent = formatCompactDollar(hourlyRate);
-      payMonth.textContent = formatMonthLabel(monthPicker.value);
-      payHours.textContent = trimHours(totalHours);
-      payTotal.textContent = formatCurrency(totalPay);
+      if (isWeeklyStipendProfile()) {
+        const traineeSummary = calculateTraineePaySummary(summaryEntries);
+        payViewEyebrow.textContent = "Trainee weekly payroll";
+        document.title = "Chess Grande Trainee Weekly Pay";
+        summaryPay.textContent = formatCompactDollar(traineeSummary.totalPay);
+        hoursCount.textContent = trimHours(totalHours);
+        rateCountLabel.textContent = "Weekly stipend";
+        rateCount.textContent = formatCompactDollar(currentProfile?.weekly_stipend_amount || 0);
+        payProfileCopy.textContent = "Review each Monday–Sunday stipend period and submit completed qualifying weeks.";
+        payRateLabel.textContent = "Pay Per Week";
+        hourlyRateDisplay.textContent = formatCurrency(currentProfile?.weekly_stipend_amount || 0);
+        payPeriodLabel.textContent = "Selected month";
+        payMonth.textContent = formatMonthLabel(monthPicker.value);
+        payHours.textContent = trimHours(totalHours);
+        payTotal.textContent = formatCurrency(traineeSummary.totalPay);
+        submitToServerButton.textContent = "Submit Ready Weeks";
+      } else {
+        payViewEyebrow.textContent = "Monthly payroll view";
+        document.title = "Chess Grande Monthly Pay";
+        const hourlyRate = Number(profile.hourlyRate || 0);
+        const totalPay = summaryEntries.reduce(
+          (sum, entry) => sum + calculateEntryPay(entry, hourlyRate),
+          0
+        );
+
+        summaryPay.textContent = formatCompactDollar(totalPay);
+        hoursCount.textContent = trimHours(totalHours);
+        rateCountLabel.textContent = "Hourly Rate";
+        rateCount.textContent = formatCompactDollar(hourlyRate);
+        payProfileCopy.textContent = "Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.";
+        payRateLabel.textContent = "Pay Per Hour";
+        hourlyRateDisplay.textContent = formatCurrency(hourlyRate);
+        payPeriodLabel.textContent = "Month";
+        payMonth.textContent = formatMonthLabel(monthPicker.value);
+        payHours.textContent = trimHours(totalHours);
+        payTotal.textContent = formatCurrency(totalPay);
+        submitToServerButton.textContent = "Submit Payroll";
+        submitToServerButton.setAttribute("aria-label", "Submit Payroll");
+      }
 
       renderCalendar(monthEntries, monthPicker.value);
       renderGroups(monthEntries);
       void hydrateClaimProofUrls(monthEntries);
+    }
+
+    function calculateTraineePaySummary(summaryEntries) {
+      const weeklyStipend = Number(currentProfile?.weekly_stipend_amount || 0);
+      const today = getSingaporeDateValue();
+      const groups = window.traineePayPolicy.groupEntriesByWeek(summaryEntries);
+      let totalPay = 0;
+      let readyWeekCount = 0;
+
+      groups.forEach(({ period, entries: weekEntries }) => {
+        const summary = window.traineePayPolicy.calculateWeeklySummary(weekEntries, weeklyStipend);
+        const submission = traineeSubmissions.find((item) => (
+          (item.period_start || item.periodStart) === period.start
+          && (item.pay_policy || item.payPolicy || "weekly_stipend") === "weekly_stipend"
+        ));
+        const displayedPay = submission ? Number(submission.total_pay || submission.totalPay || 0) : summary.totalPay;
+        totalPay += displayedPay;
+
+        if (!submission && summary.qualifies && window.traineePayPolicy.isWeekClosed(period.end, today)) {
+          readyWeekCount += 1;
+        }
+      });
+
+      submitToServerButton.setAttribute(
+        "aria-label",
+        readyWeekCount > 0
+          ? `Submit ${readyWeekCount} ready trainee ${readyWeekCount === 1 ? "week" : "weeks"}`
+          : "No completed trainee weeks ready to submit"
+      );
+
+      return { totalPay, readyWeekCount };
     }
 
     function isPayrollSummaryEntry(entry) {
@@ -2892,7 +3410,8 @@
       }
       if (entry.claimProofDataUrl) {
         const altText = entry.claimProofName ? escapeHtml(entry.claimProofName) : "Proof";
-        return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
+        const imageSrc = escapeHtml(entry.claimProofDataUrl);
+        return `<button type="button" class="entry-image-button" data-lightbox-src="${imageSrc}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${imageSrc}" alt="${altText}"></button>`;
       }
       return `<div class="entry-image-placeholder"></div>`;
     }

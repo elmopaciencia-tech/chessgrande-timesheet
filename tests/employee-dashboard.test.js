@@ -126,6 +126,21 @@ assert.ok(
 );
 assert.match(
   html,
+  /<section class="hero hero-v1">[\s\S]*class="hero-copy v1-masthead"[\s\S]*class="v1-title" id="dashboardGreeting"[\s\S]*class="v1-rule"[\s\S]*class="snapshot-card v1-desk"[\s\S]*id="nextClassTitle"/,
+  "employee dashboard should reuse the timesheet masthead while retaining the live next-class snapshot"
+);
+assert.match(
+  html,
+  /function updateGreeting\(profile\)[\s\S]*titleLead\.textContent = name \? "Hello," : "Employee";[\s\S]*titleAccent\.textContent = name \|\| "Dashboard";[\s\S]*dashboardGreeting\.replaceChildren\(titleLead, titleAccent\)/,
+  "employee dashboard should safely render the employee name as the masthead accent"
+);
+assert.match(
+  html,
+  /\.hero\.hero-v1\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) minmax\(300px, 380px\);[\s\S]*\.hero-v1 \.v1-title\s*\{[^}]*font-family:\s*Georgia,[\s\S]*\.hero-v1 \.v1-desk\s*\{[^}]*box-shadow:\s*var\(--shadow-sm\);/is,
+  "employee dashboard should match the timesheet masthead proportions, title, and desk-card treatment"
+);
+assert.match(
+  html,
   /\.submission-panel \.quick-link \{[\s\S]*?box-shadow: none;/,
   "submission quick link should use a flatter treatment"
 );

@@ -24,6 +24,14 @@ const CORS_HEADERS = {
 };
 
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8 MB
+const ALLOWED_UPLOAD_CONTENT_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/heic",
+  "image/heif",
+]);
 const MIN_READ_TTL = 60;
 const MAX_READ_TTL = 60 * 60;
 const WORKER_URL_PLACEHOLDER = "your-subdomain.workers.dev";
@@ -80,7 +88,8 @@ export default {
       if (error instanceof ErrorResponse) {
         return withCors(jsonResponse(error.status, { error: error.message }));
       }
-      return withCors(jsonResponse(500, { error: error?.message || "Unexpected worker error" }));
+      console.error("Unexpected Worker error:", error);
+      return withCors(jsonResponse(500, { error: "Unexpected worker error." }));
     }
   },
 };
@@ -119,6 +128,9 @@ async function handleUploadToken(request, env) {
   }
   if (!sizeBytes || sizeBytes > MAX_UPLOAD_BYTES) {
     return jsonResponse(400, { error: "Invalid file size. Max upload size is 8 MB." });
+  }
+  if (!ALLOWED_UPLOAD_CONTENT_TYPES.has(contentType.toLowerCase())) {
+    return jsonResponse(400, { error: "Only supported image files can be uploaded." });
   }
 
   if (!isRoleAllowed(profile?.role)) {
@@ -168,10 +180,14 @@ async function handleUpload(request, env) {
   if (expectedBytes > 0 && expectedBytes !== contentLength) {
     return jsonResponse(400, { error: "Uploaded file size does not match granted size." });
   }
+  const contentType = String(payload.contentType || "").toLowerCase();
+  if (!ALLOWED_UPLOAD_CONTENT_TYPES.has(contentType)) {
+    return jsonResponse(400, { error: "Unsupported upload content type." });
+  }
 
   await env.CLAIM_PROOFS_BUCKET.put(payload.objectKey, body, {
     httpMetadata: {
-      contentType: payload.contentType || "application/octet-stream",
+      contentType,
     },
   });
 
@@ -267,6 +283,7 @@ async function handleRead(request, env) {
   const headers = new Headers();
   object.writeHttpMetadata(headers);
   headers.set("Cache-Control", "private, max-age=60");
+  headers.set("X-Content-Type-Options", "nosniff");
   return new Response(object.body, {
     status: 200,
     headers,
@@ -371,8 +388,8 @@ async function handleTimesheetXlsxParse(request, env) {
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new ErrorResponse(response.status, `OpenRouter ${response.status}: ${text.slice(0, 260)}`);
+    console.error("OpenRouter timesheet parse failed:", response.status);
+    throw new ErrorResponse(502, "The timesheet import service is temporarily unavailable.");
   }
 
   const payload = await response.json();
@@ -408,6 +425,8 @@ function buildTimesheetXlsxImportPrompt({ fileName, workbookText, selectedMonth 
     "",
     "Every entry MUST include this exact full shape:",
     "{",
+    '  "sourceRef": "encoded-sheet-name!R<row-number>",',
+    '  "sourceRow": number,',
     '  "date": "YYYY-MM-DD",',
     '  "type": "School Coaching" | "Replacement" | "Claim" | "Camp" | "Private" | "Event",',
     '  "schoolName": string,',
@@ -423,6 +442,7 @@ function buildTimesheetXlsxImportPrompt({ fileName, workbookText, selectedMonth 
     "",
     "Parsing rules:",
     "- Use the INTERPRETED TIMESHEET ROWS section first; raw rows are backup evidence.",
+    "- Copy sourceRef and sourceRow from each interpreted row into every entry created from that row.",
     "- Do not invent missing dates, times, names, hours, or costs.",
     '- School/location rows become type "School Coaching" unless an explicit separate type section says otherwise.',
     "- If one row has multiple date cells, create one entry per date.",
@@ -448,6 +468,7 @@ function buildTimesheetXlsxImportPrompt({ fileName, workbookText, selectedMonth 
     "",
     "Warning schema:",
     "{",
+    '  "sourceRef": "encoded-sheet-name!R<row-number>",',
     '  "sourceRow": number,',
     '  "type": string,',
     '  "reason": string,',
@@ -467,10 +488,10 @@ function buildTimesheetXlsxImportPrompt({ fileName, workbookText, selectedMonth 
     "- payCalculation must never be empty. Use 0 only when a value truly cannot be found.",
     "",
     "Validation requirement:",
-    "- every entry has all required keys;",
+    "- every entry has all required keys, including sourceRef and sourceRow;",
     '- every Claim entry has schoolName "Claims", hours 0, blank times, claimNotes, and claimCost;',
     "- every non-claim time entry has a time range whose duration matches hours;",
-    "- every warning has sourceRow and reason;",
+    "- every warning has sourceRef, sourceRow, and reason;",
     "- payCalculation has all required numeric fields.",
     "",
     `Selected month: ${selectedMonth || "not selected"}`,

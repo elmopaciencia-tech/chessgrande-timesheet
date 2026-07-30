@@ -747,6 +747,170 @@
     @media (max-width: 400px) {
       .app-header-title { white-space: normal; max-width: 150px; line-height: 1.25; }
     }
+
+    /* Match the primary timesheet masthead while retaining dashboard data. */
+    .hero.hero-v1 {
+      position: relative;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+      gap: 28px;
+      padding: 34px 34px 28px;
+      align-items: end;
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--surface-strong) 80%, white 20%) 0%,
+        color-mix(in srgb, var(--surface-muted) 68%, white 32%) 100%
+      );
+      border-color: color-mix(in srgb, var(--line) 70%, white 30%);
+      overflow: visible;
+    }
+
+    .hero.hero-v1::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 42%),
+        radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--clay) 8%, transparent), transparent 40%);
+      pointer-events: none;
+    }
+
+    .hero-v1 .v1-masthead {
+      position: relative;
+      z-index: 1;
+      align-content: end;
+      gap: 16px;
+    }
+
+    .hero-v1 .v1-title {
+      max-width: none;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: calc(clamp(2.4rem, 6.4vw, 5rem) * 1.05);
+      font-weight: 400;
+      line-height: 0.94;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .hero-v1 .v1-title-line,
+    .hero-v1 .v1-accent {
+      display: block;
+    }
+
+    .hero-v1 .v1-accent {
+      color: var(--clay);
+      font-style: italic;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-v1 .v1-rule {
+      width: 100%;
+      height: 3px;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid color-mix(in srgb, var(--line-strong) 60%, white 40%);
+      background: transparent;
+    }
+
+    .hero-v1 .v1-desk {
+      position: relative;
+      z-index: 1;
+      min-height: 0;
+      padding: 18px;
+      border-color: color-mix(in srgb, var(--line) 74%, white 26%);
+      background: color-mix(in srgb, var(--surface-strong) 86%, white 14%);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero-v1 .snapshot-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+    }
+
+    .hero-v1 .snapshot-title {
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    @media (max-width: 960px) {
+      .hero.hero-v1 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero.hero-v1 {
+        gap: var(--space-4, 16px);
+        padding: 20px;
+        border-radius: 22px;
+      }
+
+      .hero-v1 .v1-title {
+        font-size: calc(clamp(2.4rem, 14vw, 4.5rem) * 1.05);
+      }
+
+      .hero-v1 .v1-desk {
+        padding: 12px;
+      }
+    }
+
+    /* Accepted Notices delight direction. */
+    .notices-delight-v2 {
+      position: relative;
+      background: var(--surface-strong);
+    }
+
+    .notices-delight-v2 .panel-header {
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .notices-delight-v2 .v2-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+    }
+
+    .notices-delight-v2 .v2-kicker {
+      color: var(--clay);
+      font-size: 1rem;
+      font-style: italic;
+    }
+
+    .notices-delight-v2 .notice-list {
+      gap: 0;
+      margin-top: 2px;
+    }
+
+    .notices-delight-v2 .notice-item {
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      transition: padding 220ms var(--motion-ease), background 220ms ease;
+    }
+
+    .notices-delight-v2 .notice-item:last-child {
+      border-bottom: 0;
+    }
+
+    .notices-delight-v2 .notice-item:hover {
+      padding-inline: 18px 10px;
+      background: color-mix(in srgb, var(--clay-soft) 34%, transparent);
+    }
+
+    .notices-delight-v2 .notice-actions {
+      opacity: 0.38;
+      transform: translateX(8px);
+      transition: opacity 180ms ease, transform 180ms var(--motion-ease);
+    }
+
+    .notices-delight-v2 .notice-item:hover .notice-actions,
+    .notices-delight-v2 .notice-item:focus-within .notice-actions {
+      opacity: 1;
+      transform: none;
+    }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
@@ -796,20 +960,22 @@
   </header>
 
   <main class="page" id="main-content">
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Dashboard</p>
-        <h1 id="dashboardGreeting">Employee Dashboard</h1>
-      </div>
-      <aside class="snapshot-card" aria-label="Next class">
-        <span class="snapshot-icon is-empty" id="nextClassIcon" aria-hidden="true"><i data-lucide="calendar-x-2"></i></span>
-        <div>
-          <p class="snapshot-label">Next Class</p>
-          <p class="snapshot-title" id="nextClassTitle">Loading...</p>
-          <p class="snapshot-meta" id="nextClassMeta"></p>
+
+    <section class="hero hero-v1">
+        <div class="hero-copy v1-masthead">
+          <h1 class="v1-title" id="dashboardGreeting"><span class="v1-title-line">Employee</span><span class="v1-accent">Dashboard</span></h1>
+          <div class="v1-rule" aria-hidden="true"></div>
         </div>
-      </aside>
+        <aside class="snapshot-card v1-desk" aria-label="Next class">
+          <span class="snapshot-icon is-empty" id="nextClassIcon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-x-2" aria-hidden="true" focusable="false"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"></path><path d="M3 10h5"></path><path d="m17 22 5-5"></path><path d="m17 17 5 5"></path></svg></span>
+          <div>
+            <p class="snapshot-label">Next Class</p>
+            <p class="snapshot-title" id="nextClassTitle">Loading...</p>
+            <p class="snapshot-meta" id="nextClassMeta"></p>
+          </div>
+        </aside>
     </section>
+
 
     <div class="dashboard-grid">
       <div class="column">
@@ -876,12 +1042,13 @@
       </div>
 
       <aside class="column">
-        <section class="panel" aria-labelledby="noticeTitle">
+        <section class="panel notices-delight-v2" aria-labelledby="noticeTitle">
           <div class="panel-header">
-            <div>
+            <div class="v2-heading">
               <h2 id="noticeTitle">Notices</h2>
+              <span class="v2-kicker" id="noticeKicker">all caught up</span>
             </div>
-            <span class="badge is-due" id="unreadNoticeCount">0 unread</span>
+            <span class="badge is-muted" id="unreadNoticeCount">0 unread</span>
           </div>
           <div class="notice-list" id="noticeList"></div>
           <div class="status" id="noticeStatus"></div>
@@ -953,6 +1120,7 @@
     const submissionStatusBadge = document.getElementById("submissionStatusBadge");
     const submissionStatusIcon = document.getElementById("submissionStatusIcon");
     const unreadNoticeCount = document.getElementById("unreadNoticeCount");
+    const noticeKicker = document.getElementById("noticeKicker");
     const noticeList = document.getElementById("noticeList");
     const noticeStatus = document.getElementById("noticeStatus");
     const paymentHistory = document.getElementById("paymentHistory");
@@ -1064,7 +1232,13 @@
 
     function updateGreeting(profile) {
       const name = String(profile?.full_name || "").trim();
-      dashboardGreeting.textContent = name ? `Hello, ${name}` : "Employee Dashboard";
+      const titleLead = document.createElement("span");
+      titleLead.className = "v1-title-line";
+      titleLead.textContent = name ? "Hello," : "Employee";
+      const titleAccent = document.createElement("span");
+      titleAccent.className = "v1-accent";
+      titleAccent.textContent = name || "Dashboard";
+      dashboardGreeting.replaceChildren(titleLead, titleAccent);
     }
 
     async function loadDashboardData(employeeId) {
@@ -1361,6 +1535,7 @@
       const unreadCount = visibleNotices.filter((notice) => !notice.isRead).length;
       unreadNoticeCount.textContent = `${unreadCount} unread`;
       unreadNoticeCount.className = unreadCount ? "badge is-due" : "badge is-muted";
+      noticeKicker.textContent = unreadCount ? "needs attention" : "all caught up";
       noticeList.innerHTML = "";
       noticeStatus.textContent = error ? `Could not load notices: ${error.message || "unknown error"}` : "";
 

@@ -47,6 +47,9 @@ create table if not exists public.profiles (
   bank_name text,
   account_type text,
   hourly_rate numeric(10,2) not null default 0 check (hourly_rate >= 0),
+  pay_policy text not null default 'monthly_hourly' check (pay_policy in ('monthly_hourly', 'weekly_stipend')),
+  weekly_stipend_amount numeric(10,2) not null default 0 check (weekly_stipend_amount >= 0),
+  promotion_hours_target numeric(10,2) not null default 0 check (promotion_hours_target >= 0),
   avatar_r2_key text,
   role text not null default 'employee' check (role in ('employee', 'manager', 'webadmin')),
   seniority_level text default 'chess_coach' check (
@@ -64,6 +67,9 @@ comment on column public.profiles.bank_account_number is 'Optional bank account 
 comment on column public.profiles.bank_name is 'Optional bank name for payroll.';
 comment on column public.profiles.account_type is 'Optional account type (e.g. savings/current).';
 comment on column public.profiles.hourly_rate is 'Default payroll rate per hour.';
+comment on column public.profiles.pay_policy is 'Manager-controlled compensation policy: monthly_hourly or weekly_stipend.';
+comment on column public.profiles.weekly_stipend_amount is 'Manager-controlled fixed stipend for each qualifying trainee week.';
+comment on column public.profiles.promotion_hours_target is 'Manager-controlled confirmed-hours target for trainee promotion review.';
 
 -- For existing projects, safely add profile customization columns if missing.
 alter table public.profiles add column if not exists username text;
@@ -72,6 +78,9 @@ alter table public.profiles add column if not exists bank_account_number text;
 alter table public.profiles add column if not exists bank_name text;
 alter table public.profiles add column if not exists account_type text;
 alter table public.profiles add column if not exists hourly_rate numeric(10,2);
+alter table public.profiles add column if not exists pay_policy text;
+alter table public.profiles add column if not exists weekly_stipend_amount numeric(10,2);
+alter table public.profiles add column if not exists promotion_hours_target numeric(10,2);
 alter table public.profiles add column if not exists avatar_r2_key text;
 alter table public.profiles add column if not exists seniority_level text;
 comment on column public.profiles.seniority_level is 'Coaching role: trainee, chess_coach, or senior_chess_coach.';
@@ -85,9 +94,29 @@ update public.profiles
 set hourly_rate = 0
 where hourly_rate is null;
 
+update public.profiles
+set pay_policy = case
+  when seniority_level = 'trainee' then 'weekly_stipend'
+  else 'monthly_hourly'
+end;
+
+update public.profiles
+set weekly_stipend_amount = 0
+where weekly_stipend_amount is null;
+
+update public.profiles
+set promotion_hours_target = 0
+where promotion_hours_target is null;
+
 alter table public.profiles alter column seniority_level set default 'chess_coach';
 alter table public.profiles alter column hourly_rate set default 0;
 alter table public.profiles alter column hourly_rate set not null;
+alter table public.profiles alter column pay_policy set default 'monthly_hourly';
+alter table public.profiles alter column pay_policy set not null;
+alter table public.profiles alter column weekly_stipend_amount set default 0;
+alter table public.profiles alter column weekly_stipend_amount set not null;
+alter table public.profiles alter column promotion_hours_target set default 0;
+alter table public.profiles alter column promotion_hours_target set not null;
 alter table public.profiles drop constraint if exists profiles_seniority_level_check;
 alter table public.profiles
 add constraint profiles_seniority_level_check
@@ -98,6 +127,23 @@ check (
 alter table public.profiles drop constraint if exists profiles_hourly_rate_check;
 alter table public.profiles
 add constraint profiles_hourly_rate_check check (hourly_rate >= 0);
+alter table public.profiles drop constraint if exists profiles_pay_policy_check;
+alter table public.profiles
+add constraint profiles_pay_policy_check
+check (pay_policy in ('monthly_hourly', 'weekly_stipend'));
+alter table public.profiles drop constraint if exists profiles_pay_policy_seniority_check;
+alter table public.profiles
+add constraint profiles_pay_policy_seniority_check
+check (
+  (seniority_level = 'trainee' and pay_policy = 'weekly_stipend')
+  or (seniority_level is distinct from 'trainee' and pay_policy = 'monthly_hourly')
+);
+alter table public.profiles drop constraint if exists profiles_weekly_stipend_amount_check;
+alter table public.profiles
+add constraint profiles_weekly_stipend_amount_check check (weekly_stipend_amount >= 0);
+alter table public.profiles drop constraint if exists profiles_promotion_hours_target_check;
+alter table public.profiles
+add constraint profiles_promotion_hours_target_check check (promotion_hours_target >= 0);
 
 create or replace function public.enforce_profile_seniority()
 returns trigger
@@ -133,8 +179,7 @@ grant update (
   bank_name,
   account_type,
   hourly_rate,
-  avatar_r2_key,
-  role
+  avatar_r2_key
 ) on public.profiles to authenticated;
 
 create schema if not exists authz;
@@ -174,22 +219,92 @@ grant execute on function authz.current_profile_role() to service_role;
 grant execute on function authz.has_app_role(text[]) to authenticated;
 grant execute on function authz.has_app_role(text[]) to service_role;
 
--- Managers and webadmins can change payroll role and rate for any profile.
--- Keeping this as a narrow security-definer RPC avoids granting broad profile updates.
-drop function if exists public.set_employee_seniority(uuid, text);
-create or replace function public.set_profile_payroll_settings(
+-- Application roles are privileged. Keep them out of ordinary profile updates
+-- and expose only this webadmin-gated transition.
+drop function if exists public.set_profile_app_role(uuid, text);
+create or replace function public.set_profile_app_role(
   target_profile_id uuid,
-  new_seniority_level text,
-  new_hourly_rate numeric
+  new_role text
 )
 returns jsonb
 language plpgsql
 security definer
-set search_path = pg_catalog, public
+set search_path = ''
+as $$
+declare
+  current_target_role text;
+begin
+  if not authz.has_app_role(array['webadmin']) then
+    raise exception 'Only webadmins can change application roles.'
+      using errcode = '42501';
+  end if;
+
+  if new_role is null or new_role not in ('employee', 'manager', 'webadmin') then
+    raise exception 'Application role must be employee, manager, or webadmin.'
+      using errcode = '22023';
+  end if;
+
+  lock table public.profiles in share row exclusive mode;
+
+  select role
+  into current_target_role
+  from public.profiles
+  where id = target_profile_id
+  for update;
+
+  if not found then
+    raise exception 'Profile was not found.'
+      using errcode = 'P0002';
+  end if;
+
+  if current_target_role = 'webadmin'
+    and new_role <> 'webadmin'
+    and (select count(*) from public.profiles where role = 'webadmin') <= 1 then
+    raise exception 'The last webadmin cannot be demoted.'
+      using errcode = '22023';
+  end if;
+
+  update public.profiles
+  set role = new_role
+  where id = target_profile_id;
+
+  return jsonb_build_object(
+    'id', target_profile_id,
+    'role', new_role
+  );
+end;
+$$;
+
+revoke all on function public.set_profile_app_role(uuid, text) from public;
+revoke all on function public.set_profile_app_role(uuid, text) from anon;
+revoke all on function public.set_profile_app_role(uuid, text) from authenticated;
+grant execute on function public.set_profile_app_role(uuid, text) to authenticated;
+
+-- Managers and webadmins can change payroll role and compensation policy for any profile.
+-- Keeping this as a narrow security-definer RPC avoids granting broad profile updates.
+drop function if exists public.set_employee_seniority(uuid, text);
+drop function if exists public.set_profile_payroll_settings(uuid, text, numeric);
+drop function if exists public.set_profile_payroll_settings(uuid, text, numeric, text, numeric, numeric);
+create or replace function public.set_profile_payroll_settings(
+  target_profile_id uuid,
+  new_seniority_level text,
+  new_hourly_rate numeric,
+  new_pay_policy text,
+  new_weekly_stipend_amount numeric,
+  new_promotion_hours_target numeric
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
 as $$
 declare
   updated_seniority text;
   updated_hourly_rate numeric;
+  locked_pay_policy text;
+  updated_pay_policy text;
+  updated_weekly_stipend_amount numeric;
+  updated_promotion_hours_target numeric;
 begin
   if not authz.has_app_role(array['manager', 'webadmin']) then
     raise exception 'Only managers and webadmins can change payroll profile settings.'
@@ -207,11 +322,45 @@ begin
       using errcode = '22023';
   end if;
 
+  locked_pay_policy := case
+    when new_seniority_level = 'trainee' then 'weekly_stipend'
+    else 'monthly_hourly'
+  end;
+
+  if new_pay_policy is distinct from locked_pay_policy then
+    raise exception 'Pay structure is locked by role: trainees use weekly stipend; coaches use monthly hourly.'
+      using errcode = '22023';
+  end if;
+
+  if new_weekly_stipend_amount is null or new_weekly_stipend_amount < 0 then
+    raise exception 'Weekly stipend must be zero or greater.'
+      using errcode = '22023';
+  end if;
+
+  if new_promotion_hours_target is null or new_promotion_hours_target < 0 then
+    raise exception 'Promotion target must be zero or greater.'
+      using errcode = '22023';
+  end if;
+
   update public.profiles
   set seniority_level = new_seniority_level,
-      hourly_rate = new_hourly_rate
+      hourly_rate = new_hourly_rate,
+      pay_policy = locked_pay_policy,
+      weekly_stipend_amount = new_weekly_stipend_amount,
+      promotion_hours_target = new_promotion_hours_target
   where id = target_profile_id
-  returning seniority_level, hourly_rate into updated_seniority, updated_hourly_rate;
+  returning
+    seniority_level,
+    hourly_rate,
+    pay_policy,
+    weekly_stipend_amount,
+    promotion_hours_target
+  into
+    updated_seniority,
+    updated_hourly_rate,
+    updated_pay_policy,
+    updated_weekly_stipend_amount,
+    updated_promotion_hours_target;
 
   if updated_seniority is null then
     raise exception 'Profile was not found.'
@@ -220,20 +369,23 @@ begin
 
   return jsonb_build_object(
     'seniority_level', updated_seniority,
-    'hourly_rate', updated_hourly_rate
+    'hourly_rate', updated_hourly_rate,
+    'pay_policy', updated_pay_policy,
+    'weekly_stipend_amount', updated_weekly_stipend_amount,
+    'promotion_hours_target', updated_promotion_hours_target
   );
 end;
 $$;
 
-revoke all on function public.set_profile_payroll_settings(uuid, text, numeric) from public;
-revoke all on function public.set_profile_payroll_settings(uuid, text, numeric) from anon;
-revoke all on function public.set_profile_payroll_settings(uuid, text, numeric) from authenticated;
-grant execute on function public.set_profile_payroll_settings(uuid, text, numeric) to authenticated;
+revoke all on function public.set_profile_payroll_settings(uuid, text, numeric, text, numeric, numeric) from public;
+revoke all on function public.set_profile_payroll_settings(uuid, text, numeric, text, numeric, numeric) from anon;
+revoke all on function public.set_profile_payroll_settings(uuid, text, numeric, text, numeric, numeric) from authenticated;
+grant execute on function public.set_profile_payroll_settings(uuid, text, numeric, text, numeric, numeric) to authenticated;
 
 -- -------------------------------------------------------------------
 -- 2) Payroll submissions table
 -- -------------------------------------------------------------------
--- One row per employee per submitted month snapshot.
+-- One row per employee per submitted monthly or weekly payroll snapshot.
 create table if not exists public.payroll_submissions (
   id uuid primary key default gen_random_uuid(),
   employee_id uuid not null references public.profiles(id) on delete cascade,
@@ -243,15 +395,23 @@ create table if not exists public.payroll_submissions (
   bank_account text not null,
   month text not null,           -- format: YYYY-MM
   month_label text not null,     -- e.g. "May 2026"
+  period_type text not null default 'monthly' check (period_type in ('monthly', 'weekly')),
+  period_start date,
+  period_end date,
+  pay_policy text not null default 'monthly_hourly' check (pay_policy in ('monthly_hourly', 'weekly_stipend')),
   hourly_rate numeric(10,2) not null check (hourly_rate >= 0),
+  weekly_stipend_amount numeric(10,2) not null default 0 check (weekly_stipend_amount >= 0),
+  promotion_hours_target numeric(10,2) not null default 0 check (promotion_hours_target >= 0),
   total_hours numeric(10,2) not null check (total_hours >= 0),
+  base_pay numeric(12,2) not null default 0 check (base_pay >= 0),
+  reimbursement_pay numeric(12,2) not null default 0 check (reimbursement_pay >= 0),
   total_pay numeric(12,2) not null check (total_pay >= 0),
   submitted_at timestamptz not null default now(),
   paid_at timestamptz,
   paid_by uuid references public.profiles(id) on delete set null
 );
 
-comment on table public.payroll_submissions is 'Submitted monthly payroll snapshots by employees.';
+comment on table public.payroll_submissions is 'Submitted monthly or weekly payroll snapshots by employees.';
 
 create index if not exists payroll_submissions_employee_id_idx
   on public.payroll_submissions (employee_id);
@@ -265,12 +425,140 @@ create index if not exists payroll_submissions_paid_at_idx
 -- For existing projects, safely add newly-added submission fields if missing.
 alter table public.payroll_submissions add column if not exists bank_name text;
 alter table public.payroll_submissions add column if not exists account_type text;
+alter table public.payroll_submissions add column if not exists period_type text;
+alter table public.payroll_submissions add column if not exists period_start date;
+alter table public.payroll_submissions add column if not exists period_end date;
+alter table public.payroll_submissions add column if not exists pay_policy text;
+alter table public.payroll_submissions add column if not exists weekly_stipend_amount numeric(10,2);
+alter table public.payroll_submissions add column if not exists promotion_hours_target numeric(10,2);
+alter table public.payroll_submissions add column if not exists base_pay numeric(12,2);
+alter table public.payroll_submissions add column if not exists reimbursement_pay numeric(12,2);
 alter table public.payroll_submissions add column if not exists paid_at timestamptz;
 alter table public.payroll_submissions add column if not exists paid_by uuid references public.profiles(id) on delete set null;
 
+update public.payroll_submissions
+set period_type = coalesce(period_type, 'monthly'),
+    pay_policy = coalesce(pay_policy, 'monthly_hourly'),
+    weekly_stipend_amount = coalesce(weekly_stipend_amount, 0),
+    promotion_hours_target = coalesce(promotion_hours_target, 0),
+    base_pay = coalesce(base_pay, total_pay),
+    reimbursement_pay = coalesce(reimbursement_pay, 0);
+
+alter table public.payroll_submissions alter column period_type set default 'monthly';
+alter table public.payroll_submissions alter column period_type set not null;
+alter table public.payroll_submissions alter column pay_policy set default 'monthly_hourly';
+alter table public.payroll_submissions alter column pay_policy set not null;
+alter table public.payroll_submissions alter column weekly_stipend_amount set default 0;
+alter table public.payroll_submissions alter column weekly_stipend_amount set not null;
+alter table public.payroll_submissions alter column promotion_hours_target set default 0;
+alter table public.payroll_submissions alter column promotion_hours_target set not null;
+alter table public.payroll_submissions alter column base_pay set default 0;
+alter table public.payroll_submissions alter column base_pay set not null;
+alter table public.payroll_submissions alter column reimbursement_pay set default 0;
+alter table public.payroll_submissions alter column reimbursement_pay set not null;
+alter table public.payroll_submissions drop constraint if exists payroll_submissions_period_type_check;
+alter table public.payroll_submissions
+add constraint payroll_submissions_period_type_check check (period_type in ('monthly', 'weekly'));
+alter table public.payroll_submissions drop constraint if exists payroll_submissions_pay_policy_check;
+alter table public.payroll_submissions
+add constraint payroll_submissions_pay_policy_check check (pay_policy in ('monthly_hourly', 'weekly_stipend'));
+alter table public.payroll_submissions drop constraint if exists payroll_submissions_weekly_stipend_amount_check;
+alter table public.payroll_submissions
+add constraint payroll_submissions_weekly_stipend_amount_check check (weekly_stipend_amount >= 0);
+alter table public.payroll_submissions drop constraint if exists payroll_submissions_promotion_hours_target_check;
+alter table public.payroll_submissions
+add constraint payroll_submissions_promotion_hours_target_check check (promotion_hours_target >= 0);
+alter table public.payroll_submissions drop constraint if exists payroll_submissions_base_pay_check;
+alter table public.payroll_submissions
+add constraint payroll_submissions_base_pay_check check (base_pay >= 0);
+alter table public.payroll_submissions drop constraint if exists payroll_submissions_reimbursement_pay_check;
+alter table public.payroll_submissions
+add constraint payroll_submissions_reimbursement_pay_check check (reimbursement_pay >= 0);
+alter table public.payroll_submissions drop constraint if exists payroll_submissions_period_dates_check;
+alter table public.payroll_submissions
+add constraint payroll_submissions_period_dates_check
+check (
+  (period_type = 'monthly' and (period_start is null or period_end is null or period_start <= period_end))
+  or (period_type = 'weekly' and period_start is not null and period_end = period_start + 6)
+);
+
+create unique index if not exists payroll_submissions_employee_weekly_stipend_unique_idx
+  on public.payroll_submissions (employee_id, period_start)
+  where period_type = 'weekly' and pay_policy = 'weekly_stipend';
+
 revoke update on public.payroll_submissions from anon, authenticated;
 grant update (paid_at, paid_by) on public.payroll_submissions to authenticated;
-grant update (total_hours, total_pay) on public.payroll_submissions to authenticated;
+grant update (total_hours, base_pay, reimbursement_pay, total_pay) on public.payroll_submissions to authenticated;
+
+-- Price unpaid trainee submissions that were created before a manager configured
+-- the stipend. Existing nonzero snapshots and paid submissions remain immutable.
+create or replace function public.backfill_unpriced_trainee_submissions()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.payroll_submissions as submission
+  set
+    weekly_stipend_amount = case
+      when submission.weekly_stipend_amount = 0
+        and new.weekly_stipend_amount > 0
+      then new.weekly_stipend_amount
+      else submission.weekly_stipend_amount
+    end,
+    promotion_hours_target = case
+      when submission.promotion_hours_target = 0
+        and new.promotion_hours_target > 0
+      then new.promotion_hours_target
+      else submission.promotion_hours_target
+    end,
+    base_pay = case
+      when submission.weekly_stipend_amount = 0
+        and new.weekly_stipend_amount > 0
+        and submission.total_hours > 0
+      then new.weekly_stipend_amount
+      else submission.base_pay
+    end,
+    total_pay = case
+      when submission.weekly_stipend_amount = 0
+        and new.weekly_stipend_amount > 0
+        and submission.total_hours > 0
+      then new.weekly_stipend_amount + submission.reimbursement_pay
+      else submission.total_pay
+    end
+  where submission.employee_id = new.id
+    and submission.period_type = 'weekly'
+    and submission.pay_policy = 'weekly_stipend'
+    and submission.paid_at is null
+    and (
+      (
+        submission.weekly_stipend_amount = 0
+        and new.weekly_stipend_amount > 0
+      )
+      or (
+        submission.promotion_hours_target = 0
+        and new.promotion_hours_target > 0
+      )
+    );
+
+  return new;
+end;
+$$;
+
+revoke all on function public.backfill_unpriced_trainee_submissions() from public;
+revoke all on function public.backfill_unpriced_trainee_submissions() from anon;
+revoke all on function public.backfill_unpriced_trainee_submissions() from authenticated;
+
+drop trigger if exists profiles_backfill_unpriced_trainee_submissions on public.profiles;
+create trigger profiles_backfill_unpriced_trainee_submissions
+after update of weekly_stipend_amount, promotion_hours_target on public.profiles
+for each row
+when (
+  old.weekly_stipend_amount is distinct from new.weekly_stipend_amount
+  or old.promotion_hours_target is distinct from new.promotion_hours_target
+)
+execute function public.backfill_unpriced_trainee_submissions();
 
 -- -------------------------------------------------------------------
 -- 3) Payroll entries table
@@ -411,6 +699,515 @@ create trigger draft_timesheet_entries_set_updated_at
 before update on public.draft_timesheet_entries
 for each row
 execute function public.set_updated_at();
+
+-- Submit one employee month as an atomic, trusted snapshot. Compensation is
+-- always read from the manager-controlled profile; clients provide only a month.
+drop function if exists public.submit_employee_monthly_payroll(date);
+create or replace function public.submit_employee_monthly_payroll(requested_month date)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  caller_id uuid := auth.uid();
+  period_start_date date;
+  period_end_date date;
+  configured_profile public.profiles%rowtype;
+  created_submission public.payroll_submissions%rowtype;
+  work_hours numeric := 0;
+  base_total numeric := 0;
+  reimbursement_total numeric := 0;
+  included_entry_count integer := 0;
+begin
+  if caller_id is null then
+    raise exception 'Authentication is required to submit payroll.'
+      using errcode = '42501';
+  end if;
+
+  if requested_month is null then
+    raise exception 'A payroll month is required.'
+      using errcode = '22023';
+  end if;
+
+  period_start_date := date_trunc('month', requested_month)::date;
+  period_end_date := (period_start_date + interval '1 month - 1 day')::date;
+
+  select *
+  into configured_profile
+  from public.profiles
+  where id = caller_id;
+
+  if not found then
+    raise exception 'Payroll profile was not found.'
+      using errcode = 'P0002';
+  end if;
+
+  if configured_profile.pay_policy <> 'monthly_hourly'
+    or configured_profile.seniority_level = 'trainee' then
+    raise exception 'This profile is not configured for monthly hourly payroll.'
+      using errcode = '42501';
+  end if;
+
+  if btrim(coalesce(configured_profile.full_name, '')) = ''
+    or btrim(coalesce(configured_profile.bank_account_number, '')) = ''
+    or configured_profile.hourly_rate <= 0 then
+    raise exception 'Name, bank account details, and a manager-configured hourly rate are required.'
+      using errcode = '22023';
+  end if;
+
+  select
+    coalesce(sum(
+      case
+        when lower(d.type) not in ('claim', 'event') then d.hours
+        else 0
+      end
+    ), 0),
+    coalesce(sum(
+      case
+        when lower(d.type) not in ('claim', 'event')
+        then d.hours * configured_profile.hourly_rate
+        else 0
+      end
+    ), 0),
+    coalesce(sum(
+      case
+        when lower(d.type) in ('claim', 'event')
+        then case
+          when coalesce(d.claim_amount_cents, 0) > 0
+            then d.claim_amount_cents::numeric / 100
+          else coalesce(d.claim_cost, 0)
+        end
+        else 0
+      end
+    ), 0),
+    count(*)
+  into work_hours, base_total, reimbursement_total, included_entry_count
+  from public.draft_timesheet_entries d
+  where d.employee_id = caller_id
+    and d.status = 'active'
+    and d.date between period_start_date and period_end_date;
+
+  if included_entry_count = 0 then
+    raise exception 'Add at least one active entry before submitting this month.'
+      using errcode = '22023';
+  end if;
+
+  if exists (
+    select 1
+    from public.draft_timesheet_entries d
+    where d.employee_id = caller_id
+      and d.status = 'active'
+      and d.date between period_start_date and period_end_date
+      and lower(d.type) = 'claim'
+      and btrim(coalesce(
+        nullif(d.claim_image_url, ''),
+        nullif(d.claim_image_path, ''),
+        nullif(d.claim_proof_data_url, ''),
+        ''
+      )) = ''
+  ) then
+    raise exception 'Every claim needs a proof image before submission.'
+      using errcode = '22023';
+  end if;
+
+  insert into public.payroll_submissions (
+    employee_id,
+    employee_name,
+    bank_name,
+    account_type,
+    bank_account,
+    month,
+    month_label,
+    period_type,
+    period_start,
+    period_end,
+    pay_policy,
+    hourly_rate,
+    weekly_stipend_amount,
+    promotion_hours_target,
+    total_hours,
+    base_pay,
+    reimbursement_pay,
+    total_pay
+  )
+  values (
+    caller_id,
+    configured_profile.full_name,
+    configured_profile.bank_name,
+    configured_profile.account_type,
+    configured_profile.bank_account_number,
+    to_char(period_start_date, 'YYYY-MM'),
+    to_char(period_start_date, 'FMMonth YYYY'),
+    'monthly',
+    period_start_date,
+    period_end_date,
+    'monthly_hourly',
+    configured_profile.hourly_rate,
+    0,
+    configured_profile.promotion_hours_target,
+    round(work_hours, 2),
+    round(base_total, 2),
+    round(reimbursement_total, 2),
+    round(base_total + reimbursement_total, 2)
+  )
+  returning * into created_submission;
+
+  insert into public.payroll_entries (
+    submission_id,
+    school_name,
+    date,
+    type,
+    start_time,
+    end_time,
+    hours,
+    replacement_name,
+    custom_rate,
+    claim_notes,
+    claim_image_url,
+    calendar_color
+  )
+  select
+    created_submission.id,
+    d.school_name,
+    d.date,
+    d.type,
+    case
+      when d.hours > 0 and coalesce(d.start_time, '') ~ '^[0-9]{1,2}:[0-9]{2}'
+        then d.start_time::time
+      else null
+    end,
+    case
+      when d.hours > 0 and coalesce(d.end_time, '') ~ '^[0-9]{1,2}:[0-9]{2}'
+        then d.end_time::time
+      else null
+    end,
+    d.hours,
+    d.replacement_name,
+    null,
+    case
+      when (
+        case
+          when coalesce(d.claim_amount_cents, 0) > 0
+            then d.claim_amount_cents::numeric / 100
+          else coalesce(d.claim_cost, 0)
+        end
+      ) > 0
+      then '['
+        || case when lower(d.type) = 'event' then 'EventCost' else 'ClaimCost' end
+        || ':'
+        || to_char(
+          case
+            when coalesce(d.claim_amount_cents, 0) > 0
+              then d.claim_amount_cents::numeric / 100
+            else coalesce(d.claim_cost, 0)
+          end,
+          'FM999999990.00'
+        )
+        || '] '
+        || coalesce(nullif(d.notes, ''), d.claim_notes, '')
+      else coalesce(nullif(d.notes, ''), d.claim_notes)
+    end,
+    coalesce(
+      nullif(d.claim_image_url, ''),
+      nullif(d.claim_image_path, ''),
+      nullif(d.claim_proof_data_url, '')
+    ),
+    d.calendar_color
+  from public.draft_timesheet_entries d
+  where d.employee_id = caller_id
+    and d.status = 'active'
+    and d.date between period_start_date and period_end_date;
+
+  update public.draft_timesheet_entries
+  set status = 'submitted',
+      submission_id = created_submission.id,
+      updated_by = caller_id,
+      updated_at = now()
+  where employee_id = caller_id
+    and status = 'active'
+    and date between period_start_date and period_end_date;
+
+  return jsonb_build_object(
+    'id', created_submission.id,
+    'month', created_submission.month,
+    'month_label', created_submission.month_label,
+    'employee_name', created_submission.employee_name,
+    'total_hours', created_submission.total_hours,
+    'base_pay', created_submission.base_pay,
+    'reimbursement_pay', created_submission.reimbursement_pay,
+    'total_pay', created_submission.total_pay,
+    'entry_count', included_entry_count,
+    'submitted_at', created_submission.submitted_at
+  );
+end;
+$$;
+
+revoke all on function public.submit_employee_monthly_payroll(date) from public;
+revoke all on function public.submit_employee_monthly_payroll(date) from anon;
+revoke all on function public.submit_employee_monthly_payroll(date) from authenticated;
+grant execute on function public.submit_employee_monthly_payroll(date) to authenticated;
+
+-- Submit one completed Monday-Sunday trainee week as an atomic, trusted snapshot.
+-- The function reads the manager-controlled profile rate and never accepts pay
+-- amounts from the browser.
+drop function if exists public.submit_trainee_weekly_payroll(date);
+create or replace function public.submit_trainee_weekly_payroll(
+  requested_period_start date
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  caller_id uuid := auth.uid();
+  requested_period_end date := requested_period_start + 6;
+  singapore_today date := (now() at time zone 'Asia/Singapore')::date;
+  configured_profile public.profiles%rowtype;
+  created_submission public.payroll_submissions%rowtype;
+  qualifying_work_hours numeric := 0;
+  reimbursement_total numeric := 0;
+  included_entry_count integer := 0;
+  period_label text;
+begin
+  if caller_id is null then
+    raise exception 'Authentication is required to submit trainee payroll.'
+      using errcode = '42501';
+  end if;
+
+  if requested_period_start is null
+    or extract(isodow from requested_period_start) <> 1 then
+    raise exception 'Trainee payroll weeks must start on Monday.'
+      using errcode = '22023';
+  end if;
+
+  if singapore_today <= requested_period_end then
+    raise exception 'This trainee payroll week has not ended yet.'
+      using errcode = '22023';
+  end if;
+
+  select *
+  into configured_profile
+  from public.profiles
+  where id = caller_id;
+
+  if not found then
+    raise exception 'Payroll profile was not found.'
+      using errcode = 'P0002';
+  end if;
+
+  if configured_profile.seniority_level <> 'trainee'
+    or configured_profile.pay_policy <> 'weekly_stipend' then
+    raise exception 'This profile is not configured for trainee weekly stipend payroll.'
+      using errcode = '42501';
+  end if;
+
+  if btrim(coalesce(configured_profile.full_name, '')) = ''
+    or btrim(coalesce(configured_profile.bank_account_number, '')) = '' then
+    raise exception 'Name and bank account details are required before submission.'
+      using errcode = '22023';
+  end if;
+
+  select
+    coalesce(sum(
+      case
+        when d.hours > 0 and lower(d.type) <> 'claim' then d.hours
+        else 0
+      end
+    ), 0),
+    coalesce(sum(
+      case
+        when lower(d.type) in ('claim', 'event')
+        then case
+          when coalesce(d.claim_amount_cents, 0) > 0
+            then d.claim_amount_cents::numeric / 100
+          else coalesce(d.claim_cost, 0)
+        end
+        else 0
+      end
+    ), 0),
+    count(*)
+  into qualifying_work_hours, reimbursement_total, included_entry_count
+  from public.draft_timesheet_entries d
+  where d.employee_id = caller_id
+    and d.status = 'active'
+    and d.date between requested_period_start and requested_period_end;
+
+  if qualifying_work_hours <= 0 then
+    raise exception 'Add at least one positive-hour work entry before submitting this week.'
+      using errcode = '22023';
+  end if;
+
+  if exists (
+    select 1
+    from public.draft_timesheet_entries d
+    where d.employee_id = caller_id
+      and d.status = 'active'
+      and d.date between requested_period_start and requested_period_end
+      and lower(d.type) = 'claim'
+      and btrim(coalesce(
+        nullif(d.claim_image_url, ''),
+        nullif(d.claim_image_path, ''),
+        nullif(d.claim_proof_data_url, ''),
+        ''
+      )) = ''
+  ) then
+    raise exception 'Every claim needs a proof image before submission.'
+      using errcode = '22023';
+  end if;
+
+  period_label := case
+    when extract(year from requested_period_start) <> extract(year from requested_period_end)
+      then to_char(requested_period_start, 'FMDD Mon YYYY')
+        || '–'
+        || to_char(requested_period_end, 'FMDD Mon YYYY')
+    when extract(month from requested_period_start) <> extract(month from requested_period_end)
+      then to_char(requested_period_start, 'FMDD Mon')
+        || '–'
+        || to_char(requested_period_end, 'FMDD Mon YYYY')
+    else to_char(requested_period_start, 'FMDD')
+      || '–'
+      || to_char(requested_period_end, 'FMDD Mon YYYY')
+  end;
+
+  insert into public.payroll_submissions (
+    employee_id,
+    employee_name,
+    bank_name,
+    account_type,
+    bank_account,
+    month,
+    month_label,
+    period_type,
+    period_start,
+    period_end,
+    pay_policy,
+    hourly_rate,
+    weekly_stipend_amount,
+    promotion_hours_target,
+    total_hours,
+    base_pay,
+    reimbursement_pay,
+    total_pay
+  )
+  values (
+    caller_id,
+    configured_profile.full_name,
+    configured_profile.bank_name,
+    configured_profile.account_type,
+    configured_profile.bank_account_number,
+    to_char(requested_period_start, 'YYYY-MM'),
+    period_label,
+    'weekly',
+    requested_period_start,
+    requested_period_end,
+    'weekly_stipend',
+    0,
+    configured_profile.weekly_stipend_amount,
+    configured_profile.promotion_hours_target,
+    qualifying_work_hours,
+    configured_profile.weekly_stipend_amount,
+    reimbursement_total,
+    configured_profile.weekly_stipend_amount + reimbursement_total
+  )
+  returning * into created_submission;
+
+  insert into public.payroll_entries (
+    submission_id,
+    school_name,
+    date,
+    type,
+    start_time,
+    end_time,
+    hours,
+    replacement_name,
+    custom_rate,
+    claim_notes,
+    claim_image_url,
+    calendar_color
+  )
+  select
+    created_submission.id,
+    d.school_name,
+    d.date,
+    d.type,
+    case
+      when d.hours > 0 and coalesce(d.start_time, '') ~ '^[0-9]{1,2}:[0-9]{2}'
+        then d.start_time::time
+      else null
+    end,
+    case
+      when d.hours > 0 and coalesce(d.end_time, '') ~ '^[0-9]{1,2}:[0-9]{2}'
+        then d.end_time::time
+      else null
+    end,
+    d.hours,
+    d.replacement_name,
+    d.custom_rate,
+    case
+      when (
+        case
+          when coalesce(d.claim_amount_cents, 0) > 0
+            then d.claim_amount_cents::numeric / 100
+          else coalesce(d.claim_cost, 0)
+        end
+      ) > 0
+      then '['
+        || case when lower(d.type) = 'event' then 'EventCost' else 'ClaimCost' end
+        || ':'
+        || to_char(
+          case
+            when coalesce(d.claim_amount_cents, 0) > 0
+              then d.claim_amount_cents::numeric / 100
+            else coalesce(d.claim_cost, 0)
+          end,
+          'FM999999990.00'
+        )
+        || '] '
+        || coalesce(nullif(d.notes, ''), d.claim_notes, '')
+      else coalesce(nullif(d.notes, ''), d.claim_notes)
+    end,
+    coalesce(
+      nullif(d.claim_image_url, ''),
+      nullif(d.claim_image_path, ''),
+      nullif(d.claim_proof_data_url, '')
+    ),
+    d.calendar_color
+  from public.draft_timesheet_entries d
+  where d.employee_id = caller_id
+    and d.status = 'active'
+    and d.date between requested_period_start and requested_period_end;
+
+  update public.draft_timesheet_entries
+  set status = 'submitted',
+      submission_id = created_submission.id,
+      updated_by = caller_id,
+      updated_at = now()
+  where employee_id = caller_id
+    and status = 'active'
+    and date between requested_period_start and requested_period_end;
+
+  return jsonb_build_object(
+    'id', created_submission.id,
+    'month', created_submission.month,
+    'month_label', created_submission.month_label,
+    'period_start', created_submission.period_start,
+    'period_end', created_submission.period_end,
+    'total_hours', created_submission.total_hours,
+    'base_pay', created_submission.base_pay,
+    'reimbursement_pay', created_submission.reimbursement_pay,
+    'total_pay', created_submission.total_pay,
+    'entry_count', included_entry_count,
+    'submitted_at', created_submission.submitted_at
+  );
+end;
+$$;
+
+revoke all on function public.submit_trainee_weekly_payroll(date) from public;
+revoke all on function public.submit_trainee_weekly_payroll(date) from anon;
+revoke all on function public.submit_trainee_weekly_payroll(date) from authenticated;
+grant execute on function public.submit_trainee_weekly_payroll(date) to authenticated;
 
 -- -------------------------------------------------------------------
 -- 5) Quick-add templates table
@@ -578,8 +1375,10 @@ with check (authz.has_app_role(array['webadmin']));
 -- -------------------------------------------------------------------
 -- 9) Payroll submissions RLS policies
 -- -------------------------------------------------------------------
--- Employees can insert their own submissions.
+-- Employees can insert their own monthly submissions. Employee-authored monthly
+-- rates and totals are an intentional product feature.
 drop policy if exists "submissions_insert_own" on public.payroll_submissions;
+grant insert on public.payroll_submissions to authenticated;
 create policy "submissions_insert_own"
 on public.payroll_submissions
 for insert
@@ -603,14 +1402,18 @@ for select
 to authenticated
 using (authz.has_app_role(array['manager', 'webadmin']));
 
--- Managers and webadmins can delete any submission.
+-- Managers and webadmins can delete only unpaid submissions.
 drop policy if exists "submissions_delete_admin_all" on public.payroll_submissions;
 drop policy if exists "submissions_delete_manager_all" on public.payroll_submissions;
-create policy "submissions_delete_admin_all"
+drop policy if exists "payroll_submissions_manager_delete_unpaid" on public.payroll_submissions;
+create policy "payroll_submissions_manager_delete_unpaid"
 on public.payroll_submissions
 for delete
 to authenticated
-using (authz.has_app_role(array['manager', 'webadmin']));
+using (
+  paid_at is null
+  and authz.has_app_role(array['manager', 'webadmin'])
+);
 
 -- Employees can remove their own submitted month only while it is unpaid.
 drop policy if exists "submissions_delete_own_unpaid" on public.payroll_submissions;
@@ -626,11 +1429,15 @@ using (
 -- Managers and webadmins can mark a submission as paid.
 drop policy if exists "submissions_update_paid_admin_all" on public.payroll_submissions;
 drop policy if exists "submissions_update_paid_manager_all" on public.payroll_submissions;
-create policy "submissions_update_paid_admin_all"
+drop policy if exists "payroll_submissions_manager_mark_paid" on public.payroll_submissions;
+create policy "payroll_submissions_manager_mark_paid"
 on public.payroll_submissions
 for update
 to authenticated
-using (authz.has_app_role(array['manager', 'webadmin']))
+using (
+  paid_at is null
+  and authz.has_app_role(array['manager', 'webadmin'])
+)
 with check (
   paid_at is not null
   and paid_by = auth.uid()
@@ -640,18 +1447,26 @@ with check (
 -- Managers and webadmins can refresh totals after correcting submitted rows.
 drop policy if exists "submissions_update_totals_admin_all" on public.payroll_submissions;
 drop policy if exists "submissions_update_totals_manager_all" on public.payroll_submissions;
-create policy "submissions_update_totals_admin_all"
+drop policy if exists "payroll_submissions_manager_update_unpaid" on public.payroll_submissions;
+create policy "payroll_submissions_manager_update_unpaid"
 on public.payroll_submissions
 for update
 to authenticated
-using (authz.has_app_role(array['manager', 'webadmin']))
-with check (authz.has_app_role(array['manager', 'webadmin']));
+using (
+  paid_at is null
+  and authz.has_app_role(array['manager', 'webadmin'])
+)
+with check (
+  paid_at is null
+  and authz.has_app_role(array['manager', 'webadmin'])
+);
 
 -- -------------------------------------------------------------------
 -- 10) Payroll entries RLS policies
 -- -------------------------------------------------------------------
 -- Employees can insert entries only into their own submissions.
 drop policy if exists "entries_insert_for_own_submission" on public.payroll_entries;
+grant insert on public.payroll_entries to authenticated;
 create policy "entries_insert_for_own_submission"
 on public.payroll_entries
 for insert
@@ -689,24 +1504,50 @@ for select
 to authenticated
 using (authz.has_app_role(array['manager', 'webadmin']));
 
--- Managers and webadmins can delete any entry.
+-- Managers and webadmins can delete entries only while the parent is unpaid.
 drop policy if exists "entries_delete_admin_all" on public.payroll_entries;
 drop policy if exists "entries_delete_manager_all" on public.payroll_entries;
-create policy "entries_delete_admin_all"
+drop policy if exists "entries_delete_admin_unpaid" on public.payroll_entries;
+create policy "entries_delete_admin_unpaid"
 on public.payroll_entries
 for delete
 to authenticated
-using (authz.has_app_role(array['manager', 'webadmin']));
+using (
+  authz.has_app_role(array['manager', 'webadmin'])
+  and exists (
+    select 1
+    from public.payroll_submissions s
+    where s.id = submission_id
+      and s.paid_at is null
+  )
+);
 
--- Managers and webadmins can correct submitted entry details.
+-- Managers and webadmins can correct entry details only before payment.
 drop policy if exists "entries_update_admin_all" on public.payroll_entries;
 drop policy if exists "entries_update_manager_all" on public.payroll_entries;
-create policy "entries_update_admin_all"
+drop policy if exists "entries_update_admin_unpaid" on public.payroll_entries;
+create policy "entries_update_admin_unpaid"
 on public.payroll_entries
 for update
 to authenticated
-using (authz.has_app_role(array['manager', 'webadmin']))
-with check (authz.has_app_role(array['manager', 'webadmin']));
+using (
+  authz.has_app_role(array['manager', 'webadmin'])
+  and exists (
+    select 1
+    from public.payroll_submissions s
+    where s.id = submission_id
+      and s.paid_at is null
+  )
+)
+with check (
+  authz.has_app_role(array['manager', 'webadmin'])
+  and exists (
+    select 1
+    from public.payroll_submissions s
+    where s.id = submission_id
+      and s.paid_at is null
+  )
+);
 
 -- -------------------------------------------------------------------
 -- 11) Draft timesheet entries RLS policies
