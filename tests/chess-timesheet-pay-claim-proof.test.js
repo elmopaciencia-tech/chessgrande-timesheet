@@ -6,8 +6,13 @@ const html = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"
 
 assert.match(
   html,
-  /<section class="hero hero-v1">[\s\S]*<p class="v1-kicker" id="payViewEyebrow">[\s\S]*<h1 class="v1-title"><span>Chess Grande<\/span> <span class="v1-accent">Pay Summary<\/span><\/h1>[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"[\s\S]*class="v1-desk"[\s\S]*id="monthPickerControl"/,
+  /<section class="hero hero-v1">[\s\S]*<h1 class="v1-title"><span>Chess Grande<\/span> <span class="v1-accent">Pay Summary<\/span><\/h1>[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"[\s\S]*class="v1-desk"[\s\S]*id="monthPickerControl"/,
   "pay review should reuse the timesheet masthead with payroll totals and month controls"
+);
+assert.doesNotMatch(
+  html,
+  /id="payViewEyebrow"|Monthly Payroll View/,
+  "pay review should omit the redundant payroll-view eyebrow"
 );
 
 [

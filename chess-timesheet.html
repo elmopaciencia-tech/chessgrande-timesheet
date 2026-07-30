@@ -1891,8 +1891,15 @@
     .chip.has-calendar-color {
       cursor: context-menu;
       touch-action: manipulation;
-      -webkit-touch-callout: none;
-      user-select: none;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .chip.has-calendar-color,
+      .chip.has-calendar-color * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
     }
 
     .chip-context-menu {
@@ -4292,6 +4299,7 @@
     calendar.addEventListener("pointermove", onCalendarChipLongPressMove);
     calendar.addEventListener("pointerup", finishCalendarChipLongPress);
     calendar.addEventListener("pointercancel", cancelCalendarChipLongPress);
+    calendar.addEventListener("selectstart", onCalendarChipSelectStart);
     calendar.addEventListener("contextmenu", onCalendarChipContextMenu);
     calendar.addEventListener("contextmenu", onCalendarDateContextMenu);
     calendar.addEventListener("keydown", onCalendarChipKeydown);
@@ -4779,11 +4787,34 @@
         suppressNextChipClickTimer = window.setTimeout(() => {
           suppressNextChipClick = false;
         }, 800);
+        clearCalendarChipTextSelection(chip);
         openChipContextMenu(event, chip, {
           x: chipLongPressState.startX + 8,
           y: chipLongPressState.startY + 8,
         });
       }, 550);
+    }
+
+    function isTouchFirstCalendarDevice() {
+      return Boolean(
+        window.matchMedia
+        && window.matchMedia("(hover: none) and (pointer: coarse)").matches
+      );
+    }
+
+    function onCalendarChipSelectStart(event) {
+      if (!isTouchFirstCalendarDevice()) return;
+      const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+      if (!getCalendarContextChip(target)) return;
+      event.preventDefault();
+    }
+
+    function clearCalendarChipTextSelection(chip) {
+      if (!isTouchFirstCalendarDevice()) return;
+      const selection = window.getSelection?.();
+      if (!selection || selection.rangeCount === 0) return;
+      if (!chip.contains(selection.anchorNode) && !chip.contains(selection.focusNode)) return;
+      selection.removeAllRanges();
     }
 
     function onCalendarChipLongPressMove(event) {

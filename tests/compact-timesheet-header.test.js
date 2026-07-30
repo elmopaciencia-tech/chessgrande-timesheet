@@ -72,7 +72,6 @@ const compactPageExpectations = [
   {
     fileName: "chess-timesheet-pay.html",
     required: [
-      "Monthly Payroll View",
       '<section class="hero hero-v1">',
       '<h1 class="v1-title"><span>Chess Grande</span> <span class="v1-accent">Pay Summary</span></h1>',
       'class="v1-tally"',
@@ -85,6 +84,7 @@ const compactPageExpectations = [
       "S$0.00",
     ],
     removed: [
+      "Monthly Payroll View",
       "How this page works",
       "Review the selected month, then submit payroll.",
       "hero-guidance",
@@ -185,11 +185,18 @@ assert.match(
   /\.hero-v1\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) minmax\(300px, 380px\);[\s\S]*\.hero-v1 \.v1-title\s*\{[^}]*font-family:\s*Georgia,[^}]*font-weight:\s*400;[\s\S]*\.hero-v1 \.v1-metric-value\s*\{[^}]*font-family:\s*"Avenir Next",\s*"Segoe UI",\s*sans-serif;/is,
   "pay page should use the same editorial masthead proportions and title treatment as the timesheet"
 );
-assert.match(
-  payPage,
-  /\.hero-v1 \.v1-tally\s*\{[^}]*display:\s*flex;[^}]*flex-wrap:\s*wrap;[\s\S]*\.hero-v1 \.v1-metric-value\s*\{[^}]*white-space:\s*nowrap;/is,
-  "pay page payroll metrics should use the timesheet tally and keep currency values intact"
-);
+[
+  /\.hero-v1 \.v1-masthead\s*\{[^}]*container-type:\s*inline-size;/is,
+  /\.hero-v1 \.v1-tally\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);[^}]*padding:\s*0;/is,
+  /\.hero-v1 \.v1-metric\s*\{[^}]*min-width:\s*0;[^}]*padding:\s*0 clamp\(/is,
+  /\.hero-v1 \.v1-metric-value\s*\{[^}]*font-size:\s*clamp\([^}]*white-space:\s*nowrap;/is,
+].forEach((pattern) => {
+  assert.match(
+    payPage,
+    pattern,
+    "pay page payroll metrics should stay in one shrinkable row and keep currency values intact"
+  );
+});
 assert.doesNotMatch(
   payPage,
   /\.typeset-v3 #summaryPay\s*(?:,|\{)[^}]*font-family:\s*Georgia/is,

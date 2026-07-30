@@ -111,6 +111,28 @@ for (const [label, fileName] of pages) {
     /calendar\.addEventListener\("contextmenu", onCalendarChipContextMenu\)/,
     `${label} calendar should open the chip menu on right click`
   );
+  if (fileName === "chess-timesheet-pay.html") {
+    assert.match(
+      html,
+      /calendar\.addEventListener\("pointerdown", onCalendarChipLongPressStart\)[\s\S]*calendar\.addEventListener\("pointermove", onCalendarChipLongPressMove\)[\s\S]*calendar\.addEventListener\("pointerup", finishCalendarChipLongPress\)[\s\S]*calendar\.addEventListener\("pointercancel", cancelCalendarChipLongPress\)/,
+      "pay review calendar should wire a cancellable touch hold for chip actions"
+    );
+    assert.match(
+      html,
+      /function onCalendarChipLongPressStart\(event\)[\s\S]*event\.pointerType !== "touch"[\s\S]*window\.setTimeout\([\s\S]*openChipContextMenu\(event, chip,[\s\S]*550\)/,
+      "pay review touch hold should open the desktop chip context menu"
+    );
+    assert.match(
+      html,
+      /function onCalendarChipLongPressMove\(event\)[\s\S]*Math\.hypot\([\s\S]*distance > 10[\s\S]*resetCalendarChipLongPress\(\)/,
+      "pay review chip touch hold should cancel when the user scrolls or drags"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("click", suppressCalendarClickAfterChipLongPress, true\)[\s\S]*function suppressCalendarClickAfterChipLongPress\(event\)[\s\S]*event\.stopImmediatePropagation\(\)/,
+      "pay review chip touch hold should suppress its follow-up click"
+    );
+  }
   if (fileName === "chess-timesheet.html") {
     assert.match(
       html,
@@ -302,6 +324,21 @@ for (const [label, fileName] of pages) {
       html,
       /function onCalendarChipLongPressMove\(event\)[\s\S]*Math\.hypot\([\s\S]*distance > 10[\s\S]*resetCalendarChipLongPress\(\)/,
       "employee chip touch hold should cancel when the user scrolls or drags"
+    );
+    assert.match(
+      html,
+      /\.chip\.has-calendar-color\s*\{[^}]*touch-action:\s*manipulation;[^}]*\}[\s\S]*@media \(hover:\s*none\) and \(pointer:\s*coarse\)\s*\{[\s\S]*\.chip\.has-calendar-color,\s*\.chip\.has-calendar-color \*\s*\{[^}]*-webkit-touch-callout:\s*none;[^}]*-webkit-user-select:\s*none;[^}]*user-select:\s*none;/is,
+      "employee actionable chips should suppress WebKit text selection only on touch-first devices"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("selectstart", onCalendarChipSelectStart\)[\s\S]*function onCalendarChipSelectStart\(event\)[\s\S]*isTouchFirstCalendarDevice\(\)[\s\S]*getCalendarContextChip\(target\)[\s\S]*event\.preventDefault\(\)/,
+      "employee calendar should prevent selection starts only for actionable touch chips"
+    );
+    assert.match(
+      html,
+      /window\.setTimeout\(\(\) => \{[\s\S]*clearCalendarChipTextSelection\(chip\);[\s\S]*openChipContextMenu\(event, chip,[\s\S]*function clearCalendarChipTextSelection\(chip\)[\s\S]*selection\.rangeCount === 0[\s\S]*chip\.contains\(selection\.anchorNode\)[\s\S]*selection\.removeAllRanges\(\)/,
+      "employee touch hold should clear a chip-local selection before opening its context menu"
     );
     assert.match(
       html,

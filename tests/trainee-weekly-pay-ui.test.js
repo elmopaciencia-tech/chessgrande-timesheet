@@ -151,7 +151,6 @@ assert.match(
 
 [
   '<script src="./trainee-pay-policy.js"></script>',
-  'id="payViewEyebrow"',
   "isWeeklyStipendProfile",
   "calculateTraineePaySummary",
   "loadTraineeSubmissions",
@@ -160,7 +159,6 @@ assert.match(
   "requested_period_start:",
   "Submit Ready Weeks",
   'payRateLabel.textContent = "Pay Per Week"',
-  'payViewEyebrow.textContent = "Trainee weekly payroll"',
 ].forEach((snippet) => {
   assert.ok(pay.includes(snippet), `trainee pay page should include ${snippet}`);
 });
