@@ -135,7 +135,9 @@
     .profile-directory-contact, .profile-directory-hours { min-width: 0; color: var(--muted); font-size: .84rem; line-height: 1.35; overflow-wrap: anywhere; }
     .profile-directory-seniority { min-width: 0; color: var(--ink-soft); font-size: .84rem; font-weight: 750; line-height: 1.3; }
     .profile-directory-hours { display: flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: normal; white-space: nowrap; }
-    .profile-directory-month-status { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--muted) 24%, white 76%); border-radius: 999px; background: color-mix(in srgb, var(--muted) 9%, white 91%); color: var(--muted); }
+    .profile-directory-month-status { position: relative; width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--muted) 24%, white 76%); border-radius: 999px; background: color-mix(in srgb, var(--muted) 9%, white 91%); color: var(--muted); }
+    .profile-directory-month-status::after { position: absolute; bottom: calc(100% + 8px); left: 50%; z-index: 20; width: max-content; max-width: 190px; padding: 7px 9px; border-radius: 10px; background: var(--ink); color: var(--surface-strong); box-shadow: var(--shadow-sm); content: attr(data-tooltip); font-size: .68rem; font-weight: 700; line-height: 1.25; text-align: center; white-space: normal; opacity: 0; pointer-events: none; transform: translate(-50%, 4px); transition: opacity 140ms ease, transform 140ms cubic-bezier(.2,.75,.25,1); }
+    .profile-directory-month-status:hover::after, .profile-directory-month-status:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
     .profile-directory-month-status .cg-icon { width: 12px; height: 12px; stroke-width: 2; }
     .profile-directory-month-status.is-not-submitted { border-color: color-mix(in srgb, var(--clay) 38%, white 62%); background: var(--clay-soft); color: var(--clay); }
     .profile-directory-month-status.is-unpaid { border-color: color-mix(in srgb, var(--gold-deep) 45%, white 55%); background: var(--gold); color: color-mix(in srgb, var(--gold-deep) 78%, black 22%); }
@@ -148,7 +150,7 @@
     .profile-directory-line[data-expanded="true"] .profile-directory-toggle-button .cg-icon { transform: rotate(180deg); }
     .profile-directory-submissions { grid-column: 1 / -1; display: grid; gap: 0; margin: 5px -8px -5px; overflow: hidden; border-top: 1px solid color-mix(in srgb, var(--line) 80%, white 20%); border-radius: 0 0 16px 16px; background: color-mix(in srgb, var(--surface-muted) 66%, white 34%); cursor: default; animation: profile-submissions-in 150ms cubic-bezier(.2,.75,.25,1) both; }
     .profile-directory-submissions-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 10px; color: var(--muted); font-size: .62rem; font-weight: 800; letter-spacing: .065em; text-transform: uppercase; }
-    .profile-directory-submission { position: relative; display: grid; grid-template-columns: 16px minmax(0, 1fr) 24px auto 14px; grid-template-areas: "calendar month payment pay arrow" ". details status status arrow"; gap: 2px 7px; align-items: center; min-width: 0; padding: 8px 10px; border: 0; border-top: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); border-radius: 0; background: color-mix(in srgb, var(--surface-strong) 74%, transparent 26%); color: inherit; transition: background 140ms ease, box-shadow 140ms ease; }
+    .profile-directory-submission { position: relative; display: grid; grid-template-columns: 16px minmax(0, 1fr) 108px minmax(96px, max-content) 14px; grid-template-areas: "calendar month payment pay arrow" ". details payment status arrow"; gap: 2px 8px; align-items: center; min-width: 0; padding: 8px 10px; border: 0; border-top: 1px solid color-mix(in srgb, var(--line) 82%, white 18%); border-radius: 0; background: color-mix(in srgb, var(--surface-strong) 74%, transparent 26%); color: inherit; transition: background 140ms ease, box-shadow 140ms ease; }
     .profile-directory-submission:hover, .profile-directory-submission:focus-within { outline: 0; background: color-mix(in srgb, var(--surface-accent) 30%, white 70%); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 72%, white 28%); }
     .profile-directory-submission-link { position: absolute; inset: 0; z-index: 1; display: block; border-radius: inherit; }
     .profile-directory-submission-link:focus-visible { outline: 2px solid color-mix(in srgb, var(--focus) 68%, white 32%); outline-offset: -2px; }
@@ -159,13 +161,13 @@
     .profile-directory-submission-details { grid-area: details; min-width: 0; display: flex; align-items: center; gap: 5px; overflow: hidden; color: var(--muted); font-size: .66rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .profile-directory-submission-details-text { overflow: hidden; text-overflow: ellipsis; }
     .profile-directory-submission-pay { grid-area: pay; color: var(--ink); font-size: .8rem; font-weight: 850; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .profile-directory-paid-button, .profile-directory-paid-spacer { grid-area: payment; width: 24px; height: 24px; }
-    .profile-directory-paid-button[data-cg-iconified] { position: relative; z-index: 2; display: grid; place-items: center; gap: 0; padding: 0; border: 1px solid color-mix(in srgb, var(--success) 36%, white 64%); border-radius: 999px; background: color-mix(in srgb, var(--success) 18%, white 82%); color: color-mix(in srgb, var(--success) 68%, black 32%); cursor: pointer; transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 140ms ease; }
+    .profile-directory-paid-button, .profile-directory-paid-spacer { grid-area: payment; align-self: center; justify-self: center; width: 102px; height: 30px; }
+    .profile-directory-paid-button[data-cg-iconified] { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 0 10px; border: 1px solid color-mix(in srgb, var(--success) 36%, white 64%); border-radius: 999px; background: color-mix(in srgb, var(--success) 18%, white 82%); color: color-mix(in srgb, var(--success) 68%, black 32%); font-size: .68rem; font-weight: 800; line-height: 1; white-space: nowrap; cursor: pointer; transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 140ms ease; }
     .profile-directory-paid-button[data-cg-iconified]:hover { border-color: var(--success); background: var(--success); color: var(--surface-strong); transform: translateY(-1px); }
     .profile-directory-paid-button .cg-icon { width: 13px; height: 13px; stroke-width: 2.4; }
     .profile-directory-paid-button[disabled] { cursor: wait; transform: none; }
     .profile-directory-paid-button.is-saving .cg-icon { opacity: 0; }
-    .profile-directory-paid-button.is-saving::after { content: ""; position: absolute; width: 10px; height: 10px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 999px; animation: profile-payment-spin 600ms linear infinite; }
+    .profile-directory-paid-button.is-saving::after { content: ""; position: absolute; left: 10px; width: 10px; height: 10px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 999px; animation: profile-payment-spin 600ms linear infinite; }
     .profile-directory-submission-status { grid-area: status; justify-self: end; max-width: 100%; overflow: hidden; padding: 3px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--muted); font-size: .6rem; font-weight: 800; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
     .profile-directory-submission-status.is-paid { background: color-mix(in srgb, var(--brand) 18%, white 82%); color: color-mix(in srgb, var(--brand) 62%, black 38%); }
     .profile-directory-submission-open { grid-area: arrow; align-self: center; display: grid; place-items: center; color: var(--muted); transition: color 140ms ease, transform 140ms ease; }
@@ -193,6 +195,8 @@
     .profile-rate-input { min-width: 0; display: flex; align-items: center; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 45%, white 55%); border-radius: 12px; background: var(--surface-strong); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft) 55%, transparent 45%); }
     .profile-rate-input span { padding-left: 11px; color: var(--muted); font-size: .82rem; font-weight: 800; }
     .profile-rate-input input { width: 100%; min-width: 0; min-height: 40px; padding: 8px 11px 8px 6px; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: .86rem; font-weight: 800; }
+    .profile-pay-policy-select { width: 100%; min-height: 42px; padding: 8px 34px 8px 11px; border: 1px solid color-mix(in srgb, var(--accent) 45%, white 55%); border-radius: 12px; background: var(--surface-strong); color: var(--ink); font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft) 55%, transparent 45%); }
+    .profile-pay-policy-field[hidden] { display: none; }
     .profile-overview-band { display: grid; grid-template-columns: minmax(0, .8fr) minmax(220px, 1.2fr); margin-top: 12px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 18%, white 82%); border-radius: 16px; background: color-mix(in srgb, var(--accent-soft) 52%, white 48%); }
     .profile-summary-item { min-width: 0; display: grid; align-content: center; padding: 11px 14px; }
     .profile-summary-item + .profile-summary-item { border-left: 1px solid color-mix(in srgb, var(--accent) 16%, white 84%); }
@@ -455,8 +459,10 @@
       .profile-directory-toggle-button { width: 24px; height: 24px; }
       .profile-directory-toggle-button .cg-icon { width: 11px; height: 11px; }
       .profile-directory-submissions-head { padding: 6px 8px; font-size: .58rem; }
-      .profile-directory-submission { grid-template-columns: 13px minmax(0, 1fr) 21px auto 12px; gap: 1px 5px; padding: 7px 8px; }
+      .profile-directory-submission { grid-template-columns: 13px minmax(0, 1fr) 24px minmax(78px, max-content) 12px; gap: 1px 5px; padding: 7px 8px; }
       .profile-directory-paid-button, .profile-directory-paid-spacer { width: 21px; height: 21px; }
+      .profile-directory-paid-button[data-cg-iconified] { gap: 0; padding: 0; }
+      .profile-directory-paid-label { display: none; }
       .profile-directory-paid-button .cg-icon { width: 11px; height: 11px; }
       .profile-directory-submission-calendar .cg-icon, .profile-directory-submission-details .cg-icon, .profile-directory-submission-open .cg-icon { width: 11px; height: 11px; }
       .profile-directory-submission-month strong, .profile-directory-submission-pay { font-size: .68rem; }
@@ -630,9 +636,24 @@
           <div class="profile-compact-row"><span class="profile-compact-label">Username</span><strong class="profile-compact-value" id="profileModalUsername">-</strong></div>
           <div class="profile-compact-row"><span class="profile-compact-label">Phone number</span><strong class="profile-compact-value" id="profileModalPhone">-</strong></div>
           <div class="profile-compact-row"><span class="profile-compact-label">Bank account number</span><strong class="profile-compact-value" id="profileModalBankAccount">-</strong></div>
-          <label class="profile-compact-row profile-edit-row" for="profileModalHourlyRate">
+          <label class="profile-compact-row profile-edit-row" for="profileModalPayPolicy">
+            <span class="profile-compact-label">Pay structure</span>
+            <select class="profile-pay-policy-select" id="profileModalPayPolicy" disabled title="Pay structure is determined by role">
+              <option value="monthly_hourly">Monthly hourly</option>
+              <option value="weekly_stipend">Weekly stipend</option>
+            </select>
+          </label>
+          <label class="profile-compact-row profile-edit-row profile-pay-policy-field" id="profileModalHourlyRateRow" for="profileModalHourlyRate">
             <span class="profile-compact-label">Rate per hour</span>
             <span class="profile-rate-input"><span aria-hidden="true">S$</span><input id="profileModalHourlyRate" type="number" min="0" step="0.01" inputmode="decimal" aria-label="Rate per hour"></span>
+          </label>
+          <label class="profile-compact-row profile-edit-row profile-pay-policy-field" id="profileModalWeeklyStipendRow" for="profileModalWeeklyStipend" hidden>
+            <span class="profile-compact-label">Weekly stipend</span>
+            <span class="profile-rate-input"><span aria-hidden="true">S$</span><input id="profileModalWeeklyStipend" type="number" min="0" step="0.01" inputmode="decimal" aria-label="Weekly stipend"></span>
+          </label>
+          <label class="profile-compact-row profile-edit-row profile-pay-policy-field" id="profileModalPromotionTargetRow" for="profileModalPromotionTarget" hidden>
+            <span class="profile-compact-label">Promotion target</span>
+            <span class="profile-rate-input"><span aria-hidden="true">hrs</span><input id="profileModalPromotionTarget" type="number" min="0" step="0.25" inputmode="decimal" aria-label="Promotion target in confirmed hours"></span>
           </label>
           <div class="profile-compact-row profile-compact-row-split">
             <div class="profile-compact-cell"><span class="profile-compact-label">Bank</span><strong class="profile-compact-value" id="profileModalBankName">-</strong></div>
@@ -640,7 +661,7 @@
           </div>
         </div>
         <div class="profile-overview-band">
-          <div class="profile-summary-item profile-summary-hours"><span class="profile-compact-label">Cumulative submitted hours</span><strong class="profile-compact-value" id="profileModalCumulativeHours">-</strong></div>
+          <div class="profile-summary-item profile-summary-hours"><span class="profile-compact-label" id="profileModalHoursLabel">Cumulative submitted hours</span><strong class="profile-compact-value" id="profileModalCumulativeHours">-</strong></div>
           <label class="profile-summary-item profile-seniority-field" for="profileModalSeniority">
             <span class="profile-compact-label">Role</span>
             <select id="profileModalSeniority">
@@ -710,7 +731,14 @@
     const profileModalBankAccount = document.getElementById("profileModalBankAccount");
     const profileModalBankName = document.getElementById("profileModalBankName");
     const profileModalAccountType = document.getElementById("profileModalAccountType");
+    const profileModalPayPolicy = document.getElementById("profileModalPayPolicy");
+    const profileModalHourlyRateRow = document.getElementById("profileModalHourlyRateRow");
     const profileModalHourlyRate = document.getElementById("profileModalHourlyRate");
+    const profileModalWeeklyStipendRow = document.getElementById("profileModalWeeklyStipendRow");
+    const profileModalWeeklyStipend = document.getElementById("profileModalWeeklyStipend");
+    const profileModalPromotionTargetRow = document.getElementById("profileModalPromotionTargetRow");
+    const profileModalPromotionTarget = document.getElementById("profileModalPromotionTarget");
+    const profileModalHoursLabel = document.getElementById("profileModalHoursLabel");
     const profileModalCumulativeHours = document.getElementById("profileModalCumulativeHours");
     const profileModalSeniority = document.getElementById("profileModalSeniority");
     let currentManagerId = null;
@@ -721,6 +749,7 @@
     let profileDirectoryProfilesError = null;
     let profileDirectoryHoursAvailable = false;
     let profileDirectoryHoursByEmployee = new Map();
+    let profileDirectoryConfirmedHoursByEmployee = new Map();
     let profileDirectorySubmissions = [];
     let expandedProfileId = null;
     let activeDirectoryProfile = null;
@@ -933,8 +962,13 @@
       profileDirectorySeniorityFilter.addEventListener("change", renderProfileDirectory);
       profileModalCloseButton.addEventListener("click", closeProfileModal);
       profileModalCancelButton.addEventListener("click", closeProfileModal);
-      profileModalSeniority.addEventListener("change", saveProfilePayrollSettings);
+      profileModalSeniority.addEventListener("change", () => {
+        syncProfilePayPolicyFields();
+        saveProfilePayrollSettings();
+      });
       profileModalHourlyRate.addEventListener("change", saveProfilePayrollSettings);
+      profileModalWeeklyStipend.addEventListener("change", saveProfilePayrollSettings);
+      profileModalPromotionTarget.addEventListener("change", saveProfilePayrollSettings);
       profileModalOverlay.addEventListener("mousedown", (event) => {
         if (event.target === profileModalOverlay) closeProfileModal();
       });
@@ -949,7 +983,7 @@
 
       const { data, error } = await window.supabaseClient
         .from("profiles")
-        .select("id, full_name, username, phone_number, bank_account_number, bank_name, account_type, hourly_rate, avatar_r2_key, role, seniority_level, created_at")
+        .select("id, full_name, username, phone_number, bank_account_number, bank_name, account_type, hourly_rate, pay_policy, weekly_stipend_amount, promotion_hours_target, avatar_r2_key, role, seniority_level, created_at")
         .order("full_name", { ascending: true });
 
       profileDirectoryProfilesLoaded = true;
@@ -965,6 +999,20 @@
         if (!employeeId) return;
         const hours = Number(submission.total_hours);
         if (!Number.isFinite(hours)) return;
+        hoursByEmployee.set(employeeId, (hoursByEmployee.get(employeeId) || 0) + hours);
+      });
+      return hoursByEmployee;
+    }
+
+    function buildConfirmedHoursByEmployee(submissions) {
+      const hoursByEmployee = new Map();
+      (submissions || []).forEach((submission) => {
+        const employeeId = String(submission.employee_id || submission.employeeId || "").trim();
+        const payPolicy = String(submission.pay_policy || submission.payPolicy || "").trim().toLowerCase();
+        if (payPolicy && payPolicy !== "weekly_stipend") return;
+        if (!employeeId || !(submission.paid_at || submission.paidAt)) return;
+        const hours = Number(submission.total_hours ?? submission.totalHours);
+        if (!Number.isFinite(hours) || hours <= 0) return;
         hoursByEmployee.set(employeeId, (hoursByEmployee.get(employeeId) || 0) + hours);
       });
       return hoursByEmployee;
@@ -1014,7 +1062,7 @@
         },
         unpaid: {
           className: "is-unpaid",
-          label: "At least one submission is awaiting payment",
+          label: "Timesheet submitted, awaiting payment",
           icon: '<path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path>',
         },
         paid: {
@@ -1029,7 +1077,7 @@
         },
       };
       const meta = statusMeta[status] || statusMeta.unavailable;
-      return `<span class="profile-directory-month-status ${meta.className}" role="img" aria-label="${escapeHtml(meta.label)}" title="${escapeHtml(meta.label)}"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${meta.icon}</svg></span>`;
+      return `<span class="profile-directory-month-status ${meta.className}" role="img" tabindex="0" aria-label="${escapeHtml(meta.label)}" data-tooltip="${escapeHtml(meta.label)}"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${meta.icon}</svg></span>`;
     }
 
     function filterDirectoryProfiles(profiles, query, seniority) {
@@ -1192,6 +1240,9 @@
           ${submissions.map((submission) => {
             const monthLabel = submission.monthLabel || submission.month || "Unknown month";
             const paymentDetail = submission.paidAt ? formatPaidStatus(submission.paidAt) : "Awaiting payment";
+            const compensationDetail = submission.payPolicy === "weekly_stipend"
+              ? `Weekly stipend ${formatCurrency(submission.weeklyStipendAmount || 0)}`
+              : `${formatCurrency(submission.hourlyRate || 0)}/hr`;
             return `
               <div class="profile-directory-submission">
                 <a class="profile-directory-submission-link" href="./manager-entry.html?id=${encodeURIComponent(submission.id)}" aria-label="Open ${escapeHtml(getSubmissionLabel(submission))}"></a>
@@ -1199,10 +1250,10 @@
                 <span class="profile-directory-submission-month"><strong title="${escapeHtml(monthLabel)}">${escapeHtml(monthLabel)}</strong></span>
                 ${submission.paidAt
                   ? '<span class="profile-directory-paid-spacer" aria-hidden="true"></span>'
-                  : `<button class="profile-directory-paid-button" type="button" data-cg-iconified="true" data-submission-id="${escapeHtml(submission.id)}" aria-label="Mark ${escapeHtml(monthLabel)} as paid" title="Mark ${escapeHtml(monthLabel)} as paid"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 12 4 4L19 6"></path></svg></button>`}
+                  : `<button class="profile-directory-paid-button" type="button" data-cg-iconified="true" data-submission-id="${escapeHtml(submission.id)}" aria-label="Mark ${escapeHtml(monthLabel)} as paid" title="Mark ${escapeHtml(monthLabel)} as paid"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 12 4 4L19 6"></path></svg><span class="profile-directory-paid-label">Mark as Paid</span></button>`}
                 <span class="profile-directory-submission-pay">${formatCurrency(submission.totalPay || 0)}</span>
                 <span class="profile-directory-submission-open" aria-hidden="true"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></span>
-                <span class="profile-directory-submission-details"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="profile-directory-submission-details-text">${trimHours(submission.totalHours || 0)} hrs <span aria-hidden="true">·</span> ${formatCurrency(submission.hourlyRate || 0)}/hr</span></span>
+                <span class="profile-directory-submission-details"><svg class="cg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="profile-directory-submission-details-text">${trimHours(submission.totalHours || 0)} hrs <span aria-hidden="true">·</span> ${escapeHtml(compensationDetail)}</span></span>
                 <span class="profile-directory-submission-status${submission.paidAt ? " is-paid" : ""}" title="${escapeHtml(paymentDetail)}">${escapeHtml(paymentDetail)}</span>
               </div>
             `;
@@ -1238,8 +1289,27 @@
         if (error) throw error;
         if (!data) throw new Error("This submission was already updated or could not be marked paid.");
 
+        const updatedSubmission = data;
+        let noticeFailureMessage = "";
+        try {
+          await window.employeeNoticeStore.createPaymentNotice({
+            ...submission,
+            paidAt: updatedSubmission.paid_at || paidAt,
+          }, {
+            createdBy: currentManagerId,
+          });
+        } catch (noticeError) {
+          console.error("Payroll was marked paid, but the employee notice was not sent:", noticeError);
+          noticeFailureMessage = noticeError?.message || "unknown notice error";
+        }
+
         await render();
-        profileDirectoryStatus.textContent = `${employeeName}'s ${monthLabel} submission was marked paid.`;
+        if (noticeFailureMessage) {
+          profileDirectoryStatus.textContent = `${employeeName}'s ${monthLabel} submission was marked paid, but the employee notice was not sent: ${noticeFailureMessage}`;
+          window.alert(`Marked as paid, but the employee notice was not sent: ${noticeFailureMessage}`);
+        } else {
+          profileDirectoryStatus.textContent = `${employeeName}'s ${monthLabel} submission was marked paid and the employee was notified.`;
+        }
         requestAnimationFrame(() => {
           const toggleButton = [...profileDirectoryList.querySelectorAll(".profile-directory-toggle-button")]
             .find((item) => item.dataset.profileId === submission.employeeId);
@@ -1270,10 +1340,11 @@
       profileModalBankName.textContent = profile.bank_name || "Not provided";
       profileModalAccountType.textContent = profile.account_type || "Not provided";
       profileModalSeniority.value = profile.seniority_level || "chess_coach";
+      profileModalPayPolicy.value = getLockedPayPolicy(profileModalSeniority.value);
       profileModalHourlyRate.value = formatEditableHourlyRate(profile.hourly_rate);
-      profileModalCumulativeHours.textContent = profileDirectoryHoursAvailable
-        ? `${trimHours(profileDirectoryHoursByEmployee.get(profile.id) || 0)} hours`
-        : "Unavailable";
+      profileModalWeeklyStipend.value = formatEditableHourlyRate(profile.weekly_stipend_amount);
+      profileModalPromotionTarget.value = formatEditableHourlyRate(profile.promotion_hours_target);
+      syncProfilePayPolicyFields();
       profileModalStatus.textContent = "";
       profileModalStatus.style.color = "var(--muted)";
 
@@ -1318,23 +1389,77 @@
       }
     }
 
+    function getLockedPayPolicy(seniorityLevel) {
+      return String(seniorityLevel || "").trim().toLowerCase() === "trainee"
+        ? "weekly_stipend"
+        : "monthly_hourly";
+    }
+
+    function syncProfilePayPolicyFields() {
+      profileModalPayPolicy.value = getLockedPayPolicy(profileModalSeniority.value);
+      const isWeeklyStipend = profileModalPayPolicy.value === "weekly_stipend";
+      profileModalHourlyRateRow.hidden = isWeeklyStipend;
+      profileModalWeeklyStipendRow.hidden = !isWeeklyStipend;
+      profileModalPromotionTargetRow.hidden = !isWeeklyStipend;
+
+      if (!activeDirectoryProfile || !profileDirectoryHoursAvailable) {
+        profileModalHoursLabel.textContent = isWeeklyStipend
+          ? "Confirmed promotion hours"
+          : "Cumulative submitted hours";
+        profileModalCumulativeHours.textContent = "Unavailable";
+        return;
+      }
+
+      if (isWeeklyStipend) {
+        const confirmedHours = profileDirectoryConfirmedHoursByEmployee.get(activeDirectoryProfile.id) || 0;
+        const targetHours = Number(profileModalPromotionTarget.value || 0);
+        profileModalHoursLabel.textContent = "Confirmed promotion hours";
+        profileModalCumulativeHours.textContent = targetHours > 0
+          ? `${trimHours(confirmedHours)} / ${trimHours(targetHours)} hours`
+          : `${trimHours(confirmedHours)} hours · target not set`;
+      } else {
+        const submittedHours = profileDirectoryHoursByEmployee.get(activeDirectoryProfile.id) || 0;
+        profileModalHoursLabel.textContent = "Cumulative submitted hours";
+        profileModalCumulativeHours.textContent = `${trimHours(submittedHours)} hours`;
+      }
+    }
+
     async function saveProfilePayrollSettings() {
       if (!activeDirectoryProfile || profileModalIsSaving) return;
       const previousSeniority = activeDirectoryProfile.seniority_level || "chess_coach";
       const previousHourlyRate = Number(activeDirectoryProfile.hourly_rate || 0);
+      const previousWeeklyStipend = Number(activeDirectoryProfile.weekly_stipend_amount || 0);
+      const previousPromotionTarget = Number(activeDirectoryProfile.promotion_hours_target || 0);
       const nextSeniority = profileModalSeniority.value;
       const nextHourlyRate = Number(profileModalHourlyRate.value);
+      const nextPayPolicy = getLockedPayPolicy(nextSeniority);
+      const nextWeeklyStipend = Number(profileModalWeeklyStipend.value);
+      const nextPromotionTarget = Number(profileModalPromotionTarget.value);
 
-      if (!Number.isFinite(nextHourlyRate) || nextHourlyRate < 0) {
+      const valuesAreValid = [
+        nextHourlyRate,
+        nextWeeklyStipend,
+        nextPromotionTarget,
+      ].every((value) => Number.isFinite(value) && value >= 0);
+      if (!valuesAreValid) {
         profileModalHourlyRate.value = formatEditableHourlyRate(previousHourlyRate);
+        profileModalWeeklyStipend.value = formatEditableHourlyRate(previousWeeklyStipend);
+        profileModalPromotionTarget.value = formatEditableHourlyRate(previousPromotionTarget);
         profileModalStatus.style.color = "var(--clay)";
-        profileModalStatus.textContent = "Rate per hour must be zero or greater.";
+        profileModalStatus.textContent = "Payroll rates and promotion target must be zero or greater.";
         return;
       }
 
       profileModalIsSaving = true;
-      profileModalSeniority.disabled = true;
-      profileModalHourlyRate.disabled = true;
+      const payrollControls = [
+        profileModalSeniority,
+        profileModalHourlyRate,
+        profileModalWeeklyStipend,
+        profileModalPromotionTarget,
+      ];
+      payrollControls.forEach((control) => {
+        control.disabled = true;
+      });
       profileModalStatus.style.color = "var(--muted)";
       profileModalStatus.textContent = "Saving payroll profile...";
 
@@ -1343,15 +1468,23 @@
           target_profile_id: activeDirectoryProfile.id,
           new_seniority_level: nextSeniority,
           new_hourly_rate: nextHourlyRate,
+          new_pay_policy: nextPayPolicy,
+          new_weekly_stipend_amount: nextWeeklyStipend,
+          new_promotion_hours_target: nextPromotionTarget,
         });
 
       profileModalIsSaving = false;
-      profileModalSeniority.disabled = false;
-      profileModalHourlyRate.disabled = false;
+      payrollControls.forEach((control) => {
+        control.disabled = false;
+      });
       if (error) {
         console.error("Failed to update payroll profile settings:", error);
         profileModalSeniority.value = previousSeniority;
         profileModalHourlyRate.value = formatEditableHourlyRate(previousHourlyRate);
+        profileModalPayPolicy.value = getLockedPayPolicy(previousSeniority);
+        profileModalWeeklyStipend.value = formatEditableHourlyRate(previousWeeklyStipend);
+        profileModalPromotionTarget.value = formatEditableHourlyRate(previousPromotionTarget);
+        syncProfilePayPolicyFields();
         profileModalStatus.style.color = "var(--clay)";
         profileModalStatus.textContent = `Could not save payroll profile: ${error.message || "unknown error"}`;
         return;
@@ -1359,7 +1492,13 @@
 
       activeDirectoryProfile.seniority_level = nextSeniority;
       activeDirectoryProfile.hourly_rate = nextHourlyRate;
+      activeDirectoryProfile.pay_policy = nextPayPolicy;
+      activeDirectoryProfile.weekly_stipend_amount = nextWeeklyStipend;
+      activeDirectoryProfile.promotion_hours_target = nextPromotionTarget;
       profileModalHourlyRate.value = formatEditableHourlyRate(nextHourlyRate);
+      profileModalWeeklyStipend.value = formatEditableHourlyRate(nextWeeklyStipend);
+      profileModalPromotionTarget.value = formatEditableHourlyRate(nextPromotionTarget);
+      syncProfilePayPolicyFields();
       profileModalStatus.style.color = "var(--accent)";
       profileModalStatus.textContent = "Payroll profile saved automatically.";
       renderProfileDirectory();
@@ -1414,6 +1553,7 @@
         console.error("Failed to load payroll submissions:", error);
         profileDirectoryHoursAvailable = false;
         profileDirectoryHoursByEmployee = new Map();
+        profileDirectoryConfirmedHoursByEmployee = new Map();
         profileDirectorySubmissions = [];
         expandedProfileId = null;
         renderProfileDirectory();
@@ -1425,6 +1565,7 @@
 
       profileDirectoryHoursAvailable = true;
       profileDirectoryHoursByEmployee = buildCumulativeHoursByEmployee(data);
+      profileDirectoryConfirmedHoursByEmployee = buildConfirmedHoursByEmployee(data);
 
       const submissions = data
         .map((submission) => ({
@@ -1436,6 +1577,12 @@
           employeeName: submission.employee_name,
           bankAccount: submission.bank_account,
           hourlyRate: submission.hourly_rate,
+          payPolicy: submission.pay_policy || "monthly_hourly",
+          weeklyStipendAmount: submission.weekly_stipend_amount,
+          promotionHoursTarget: submission.promotion_hours_target,
+          periodType: submission.period_type || "monthly",
+          periodStart: submission.period_start,
+          periodEnd: submission.period_end,
           totalHours: submission.total_hours,
           totalPay: submission.total_pay,
           paidAt: submission.paid_at,

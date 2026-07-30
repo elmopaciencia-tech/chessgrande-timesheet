@@ -4,6 +4,12 @@ import path from "node:path";
 
 const html = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"), "utf8");
 
+assert.match(
+  html,
+  /<section class="hero hero-v1">[\s\S]*<p class="v1-kicker" id="payViewEyebrow">[\s\S]*<h1 class="v1-title"><span>Chess Grande<\/span> <span class="v1-accent">Pay Summary<\/span><\/h1>[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"[\s\S]*class="v1-desk"[\s\S]*id="monthPickerControl"/,
+  "pay review should reuse the timesheet masthead with payroll totals and month controls"
+);
+
 [
   "const claimsMissingProof = activeEntries.filter(isClaimMissingProof)",
   "Some imported claims still need proof images before submission.",
@@ -130,8 +136,8 @@ assert.ok(
 );
 assert.match(
   html,
-  /<div class="pay-line"><span>Pay Per Hour<\/span><span id="hourlyRate"/,
-  "pay card should show hourly rate as read-only profile data"
+  /<div class="pay-line"><span id="payRateLabel">Pay Per Hour<\/span><span id="hourlyRate"/,
+  "pay card should show the configured hourly or stipend rate as read-only profile data"
 );
 assert.ok(
   html.includes('const hourlyRateDisplay = document.getElementById("hourlyRate");'),
@@ -140,6 +146,15 @@ assert.ok(
 assert.ok(
   !html.includes("hourlyRateInput.addEventListener"),
   "pay page should not attach inline hourly-rate edit listeners"
+);
+assert.ok(
+  html.includes("hourlyRate: Number(currentProfile?.hourly_rate ?? localProfile.hourlyRate ?? 0)"),
+  "pay page should prefer the centrally managed profile hourly rate"
+);
+assert.ok(
+  html.includes("const displayedRate = isWeeklyStipendProfile()")
+    && html.includes("hourlyRateDisplay.textContent = formatCurrency(displayedRate || 0);"),
+  "pay page should display the manager-updated rate for the active pay policy"
 );
 assert.ok(
   html.includes("function isPayrollSummaryEntry(entry)"),
@@ -154,6 +169,11 @@ assert.match(
   html,
   /function render\(\)[\s\S]*const summaryEntries = monthEntries\.filter\(isPayrollSummaryEntry\)[\s\S]*const totalHours = summaryEntries\.reduce[\s\S]*const totalPay = summaryEntries\.reduce/,
   "payroll profile totals should include submitted entries when rendering"
+);
+assert.match(
+  html,
+  /\.typeset-v3 #payTotal\s*\{[^}]*font-family:\s*"Avenir Next",\s*"Segoe UI",\s*sans-serif;/,
+  "calculated pay should use the same sans-serif font as the rest of the payroll card"
 );
 
 assert.match(
@@ -226,5 +246,70 @@ assert.match(
   /\.submission-export \.submission-export-detail-row\s*\{[\s\S]*font-size:\s*7\.5pt;[\s\S]*line-height:\s*1\.16;/s,
   "print employee details should stay readable"
 );
+
+function extractNamedFunction(source, name) {
+  const start = source.indexOf(`function ${name}`);
+  assert.notEqual(start, -1, `expected to find function ${name}`);
+  const braceStart = source.indexOf("{", start);
+  let depth = 0;
+  let quote = "";
+  let escaped = false;
+  for (let index = braceStart; index < source.length; index += 1) {
+    const char = source[index];
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = "";
+      }
+      continue;
+    }
+    if (char === '"' || char === "'" || char === "`") {
+      quote = char;
+      continue;
+    }
+    if (char === "{") depth += 1;
+    if (char === "}") depth -= 1;
+    if (depth === 0) return source.slice(start, index + 1);
+  }
+  throw new Error(`Could not extract function ${name}`);
+}
+
+const maliciousProofUrl = 'https://invalid.example/proof" onerror="globalThis.claimProofXss = true';
+for (const fileName of [
+  "chess-timesheet.html",
+  "chess-timesheet-pay.html",
+  "manager-entry.html",
+]) {
+  const source = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
+  const renderImageCell = Function(`
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+    ${extractNamedFunction(source, "formatImageCell")}
+    return formatImageCell;
+  `)();
+  const markup = renderImageCell({
+    type: "Claim",
+    claimProofDataUrl: maliciousProofUrl,
+    claimProofName: "Proof",
+  });
+  assert.doesNotMatch(
+    markup,
+    /"\s+onerror=/i,
+    `${fileName} should not turn a stored claim-proof URL into an executable attribute`
+  );
+  assert.ok(
+    !markup.includes(maliciousProofUrl),
+    `${fileName} should HTML-escape a claim-proof URL before interpolation`
+  );
+}
 
 console.log("pay claim proof and export submission checks passed");

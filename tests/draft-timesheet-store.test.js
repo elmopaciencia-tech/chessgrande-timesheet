@@ -69,6 +69,37 @@ const coloredCoachingRow = store.toRow(
 
 assert.equal(coloredCoachingRow.calendar_color, "#A0C5E3");
 
+const iosPrivateRow = store.toRow(
+  {
+    employeeId: "employee-1",
+    schoolName: "Private Student",
+    date: "2026-07-01",
+    type: "Private",
+    startTime: "12:00",
+    endTime: "15:00",
+    hours: 3,
+    customRate: 3343,
+    status: "active",
+  },
+  {
+    employeeId: "employee-1",
+    createdBy: "employee-1",
+    updatedBy: "employee-1",
+  },
+  "iosColor"
+);
+
+assert.equal(
+  iosPrivateRow.custom_rate,
+  3343,
+  "iOS-compatible draft rows should persist the custom private hourly rate"
+);
+assert.equal(
+  store.toEntry(iosPrivateRow).customRate,
+  3343,
+  "a saved custom private rate should survive the storage round trip"
+);
+
 const claimRow = store.toRow(
   {
     employeeId: "employee-1",

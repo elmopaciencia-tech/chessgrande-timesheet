@@ -119,6 +119,16 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
+      /id="chipContextMenu"[\s\S]*data-chip-action="copy">Copy This Entry<\/button>/,
+      "employee calendar chip menu should expose a copy-entry action"
+    );
+    assert.match(
+      html,
+      /function onChipContextMenuClick\(event\)[\s\S]*action === "copy"[\s\S]*copyEntryToComposer\(entryId\)[\s\S]*function copyEntryToComposer\(entryId\)[\s\S]*resetEntryComposer\(\)[\s\S]*populateEntryComposer\(entry\)[\s\S]*render\(\)[\s\S]*focusEditedEntryComposer\(entry\)/,
+      "employee copy-entry action should populate a fresh composer draft and focus it"
+    );
+    assert.match(
+      html,
       /calendar\.addEventListener\("contextmenu", onCalendarDateContextMenu\)/,
       "employee calendar should open the date menu on right click"
     );
@@ -230,7 +240,7 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /const newEntries = !editingEntryId && isRecurring && !isCostEntry[\s\S]*\? buildEntriesForSelectedRepeatDates\(baseEntry\)[\s\S]*: \[baseEntry\]/,
+      /const newEntries = !isEditingAnyEntry\(\) && isRecurring && !isCostEntry[\s\S]*\? buildEntriesForSelectedRepeatDates\(baseEntry\)[\s\S]*: \[baseEntry\]/,
       "employee save flow should insert selected repeat dates"
     );
     assert.match(
@@ -260,7 +270,7 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /function syncReplacementField\(\)[\s\S]*const shouldHideRecurring = isCostEntry \|\| Boolean\(editingEntryId\)[\s\S]*syncRepeatSelectionUi\(\)/,
+      /function syncReplacementField\(\)[\s\S]*const shouldHideRecurring = isCostEntry \|\| isEditingAnyEntry\(\)[\s\S]*syncRepeatSelectionUi\(\)/,
       "employee cost entries and edit mode should hide the repeat date summary"
     );
     assert.match(
@@ -277,6 +287,46 @@ for (const [label, fileName] of pages) {
       html,
       /calendar\.addEventListener\("click", onMobileCalendarDateClick\)/,
       "employee mobile calendar should open the composer from date clicks"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("pointerdown", onCalendarChipLongPressStart\)[\s\S]*calendar\.addEventListener\("pointermove", onCalendarChipLongPressMove\)[\s\S]*calendar\.addEventListener\("pointerup", finishCalendarChipLongPress\)[\s\S]*calendar\.addEventListener\("pointercancel", cancelCalendarChipLongPress\)/,
+      "employee calendar should wire a cancellable touch hold for chip actions"
+    );
+    assert.match(
+      html,
+      /function onCalendarChipLongPressStart\(event\)[\s\S]*event\.pointerType !== "touch"[\s\S]*window\.setTimeout\([\s\S]*openChipContextMenu\(event, chip,[\s\S]*550\)/,
+      "employee touch hold should open the desktop chip context menu"
+    );
+    assert.match(
+      html,
+      /function onCalendarChipLongPressMove\(event\)[\s\S]*Math\.hypot\([\s\S]*distance > 10[\s\S]*resetCalendarChipLongPress\(\)/,
+      "employee chip touch hold should cancel when the user scrolls or drags"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("click", suppressCalendarClickAfterChipLongPress, true\)[\s\S]*function suppressCalendarClickAfterChipLongPress\(event\)[\s\S]*event\.stopImmediatePropagation\(\)/,
+      "employee chip touch hold should suppress its follow-up click"
+    );
+    assert.match(
+      html,
+      /calendar\.addEventListener\("click", onDesktopCalendarDateClick\)[\s\S]*function onDesktopCalendarDateClick\(event\)[\s\S]*if \(isMobileComposerMode\(\) \|\| isRecurringInput\.checked \|\| event\.defaultPrevented\) return;[\s\S]*event\.target\.closest\("\.chip"\)[\s\S]*entryDateInput\.value = dayCell\.dataset\.entryDate/,
+      "employee desktop calendar day clicks should update the composer date without hijacking chips or repeat selection"
+    );
+    assert.match(
+      html,
+      /function onDesktopCalendarDateClick\(event\)[\s\S]*entryDateInput\.dispatchEvent\(new Event\("input"[\s\S]*animateEntryDateUpdate\(dayCell\)[\s\S]*function animateEntryDateUpdate\(dayCell\)[\s\S]*classList\.remove\("is-calendar-date-updated"\)[\s\S]*classList\.remove\("is-composer-date-updated"\)[\s\S]*void entryDateInput\.offsetWidth[\s\S]*classList\.add\("is-calendar-date-updated"\)[\s\S]*classList\.add\("is-composer-date-updated"\)/,
+      "employee desktop date selection should restart synchronized feedback on the composer date and source day"
+    );
+    assert.match(
+      html,
+      /#entryDate\.is-calendar-date-updated\s*\{[^}]*animation:\s*calendar-date-updated 280ms cubic-bezier\(0\.22, 1, 0\.36, 1\);[\s\S]*@keyframes calendar-date-updated[\s\S]*@media \(prefers-reduced-motion: reduce\)[\s\S]*#entryDate\.is-calendar-date-updated\s*\{[^}]*animation:\s*none;/,
+      "employee composer date feedback should use brief eased motion with a reduced-motion alternative"
+    );
+    assert.match(
+      html,
+      /\.day\.is-composer-date-updated\s*\{[^}]*animation:\s*calendar-day-date-updated 280ms cubic-bezier\(0\.22, 1, 0\.36, 1\);[\s\S]*@keyframes calendar-day-date-updated[\s\S]*@media \(prefers-reduced-motion: reduce\)[\s\S]*\.day\.is-composer-date-updated\s*\{[^}]*animation:\s*none;/,
+      "employee source calendar day should share the date-change motion and reduced-motion treatment"
     );
     assert.match(
       html,
@@ -482,23 +532,28 @@ assert.match(
 );
 assert.match(
   timesheetHtml,
-  /clearMonthButton\.addEventListener\("click", handleClearMonthButtonClick\)/,
-  "employee composer clear button should route through edit-aware click handling"
+  /<button class="secondary" type="button" id="clearEntry">Clear Entry<\/button>/,
+  "employee composer should expose a non-destructive clear-entry action"
 );
 assert.match(
   timesheetHtml,
-  /function cancelEntryEdit\(\)[\s\S]*resetEntryComposer\(\);[\s\S]*render\(\);/,
-  "employee composer should cancel edits through a shared reset path"
+  /#clearEntry\s*\{[^}]*background:\s*#b42318;[^}]*color:\s*var\(--surface-strong\);[^}]*border-color:\s*#8f1d14;/,
+  "employee clear-entry action should use the established red danger styling"
 );
 assert.match(
   timesheetHtml,
-  /clearMonthButton\.textContent = isEditing \? "Cancel Edit" : "Clear Month"/,
-  "employee composer should relabel Clear Month as Cancel Edit while editing"
+  /clearEntryButton\.addEventListener\("click", clearEntryComposer\)/,
+  "employee clear-entry button should route to the composer reset"
 );
 assert.match(
   timesheetHtml,
-  /clearMonthButton\.classList\.toggle\("is-cancel-edit", isEditing\)/,
-  "employee composer should visually switch the clear button into cancel-edit mode"
+  /function clearEntryComposer\(\)[\s\S]*resetEntryComposer\(\);[\s\S]*render\(\);/,
+  "employee clear-entry action should reset the composer without deleting saved entries"
+);
+assert.doesNotMatch(
+  timesheetHtml,
+  /Clear Month|function clearCurrentMonth\(|handleClearMonthButtonClick|syncClearMonthButton|deleteEntries\(removableEntries/,
+  "employee composer should remove the month-wide deletion workflow"
 );
 assert.match(
   timesheetHtml,
@@ -522,8 +577,8 @@ assert.match(
 );
 assert.match(
   timesheetHtml,
-  /function syncEntryComposerMode\(\)[\s\S]*entryComposerPanel\?\.classList\.toggle\("is-editing-entry", isEditing\)[\s\S]*entryComposerTitle\.textContent = isEditing \? entryComposerEditTitle : entryComposerDefaultTitle[\s\S]*entryComposerCopy\.textContent = isEditing \? entryComposerEditCopy : entryComposerDefaultCopy/,
-  "employee composer should sync title, copy, and highlight from edit state"
+  /function syncEntryComposerMode\(\)[\s\S]*const isEditingSavedEntry = Boolean\(editingEntryId\)[\s\S]*const isEditingImportEntry = aiEditingImportIndex >= 0[\s\S]*entryComposerPanel\?\.classList\.toggle\("is-editing-entry", isEditing\)[\s\S]*entryComposerImportEditTitle[\s\S]*entryComposerEditTitle[\s\S]*entryComposerDefaultTitle[\s\S]*entryComposerImportEditCopy[\s\S]*entryComposerEditCopy[\s\S]*entryComposerDefaultCopy/,
+  "employee composer should sync title, copy, and highlight for saved and imported entry edits"
 );
 assert.match(
   timesheetHtml,
@@ -534,11 +589,6 @@ assert.match(
   timesheetHtml,
   /event\.key !== "Escape"[\s\S]*cancelEntryEdit\(\)/,
   "employee composer should cancel active entry edits from the Escape key"
-);
-assert.match(
-  timesheetHtml,
-  /#clearMonth\.is-cancel-edit/,
-  "employee composer cancel edit button should not keep the destructive clear-month styling"
 );
 assert.match(
   timesheetHtml,
@@ -801,8 +851,8 @@ assert.match(
 );
 assert.match(
   managerHtml,
-  /\.update\(\{ total_hours: totalHours, total_pay: totalPay \}\)[\s\S]*\.select\("id"\)[\s\S]*\.maybeSingle\(\)/,
-  "manager entry totals refresh should verify the payroll submission update"
+  /\.update\(\{[\s\S]*total_hours: totalHours,[\s\S]*base_pay: basePay,[\s\S]*reimbursement_pay: reimbursementPay,[\s\S]*total_pay: totalPay,[\s\S]*\}\)[\s\S]*\.select\("id"\)[\s\S]*\.maybeSingle\(\)/,
+  "manager entry totals refresh should verify the policy-aware payroll submission update"
 );
 assert.doesNotMatch(
   managerHtml,

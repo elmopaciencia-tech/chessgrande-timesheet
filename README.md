@@ -27,6 +27,7 @@ The web app keeps the familiar monthly ledger idea, but gives each role a focuse
 
 - Employees add coaching sessions, replacements, private work, events, camps, and claims.
 - The monthly pay page calculates hours and pay from the same draft ledger.
+- Trainees on the manager-assigned weekly-stipend policy receive one fixed stipend for each completed week with positive-hour work. They may submit qualifying weeks before the manager sets the stipend; any manager-only promotion target remains hidden from trainees.
 - Managers review submitted payroll snapshots and inspect employee entries.
 - Webadmins maintain user profiles, account roles, and operational details.
 
@@ -40,7 +41,7 @@ Employees work from one monthly view. The calendar shows schedule density, while
 
 ### 2. Employees Review And Submit Pay
 
-The pay view mirrors the same entries through a payroll lens: saved profile details, hourly rate, total hours, and calculated pay stay together before submission.
+The pay view mirrors the same entries through a payroll lens. Hourly employees review a monthly calculation, while weekly-stipend trainees review and submit closed Monday–Sunday weeks without seeing manager-only promotion criteria.
 
 ![Employee pay review page with demo payroll summary](assets/readme/pay-review.png)
 

@@ -303,6 +303,7 @@
         start_time_minutes: isCostEntry ? 0 : toMinutes(entry.startTime),
         hours: isCostEntry ? 0 : normalizeNumber(entry.hours),
         notes: isCostEntry ? entry.claimNotes || null : null,
+        custom_rate: isCostEntry ? null : entry.customRate != null ? normalizeNumber(entry.customRate) : null,
         repeats_weekly: false,
         repeat_until: null,
         claim_amount_cents: isCostEntry && entry.claimCost != null ? Math.round(normalizeNumber(entry.claimCost) * 100) : 0,

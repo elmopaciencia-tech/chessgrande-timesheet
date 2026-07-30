@@ -601,7 +601,6 @@
 
       const payload = {
         full_name: editFullName.value.trim(),
-        role: editRole.value,
         username: editUsername.value.trim() || null,
         phone_number: editPhone.value.trim() || null,
         bank_account_number: editBankAccountNumber.value.trim() || null,
@@ -614,16 +613,33 @@
         .update(payload)
         .eq("id", activeProfile.id);
 
-      isSaving = false;
-      saveModalButton.disabled = false;
-
       if (error) {
+        isSaving = false;
+        saveModalButton.disabled = false;
         console.error("Failed to update profile:", error);
         modalStatus.style.color = "var(--danger)";
         modalStatus.textContent = `Could not save profile: ${error.message || "unknown error"}`;
         return;
       }
 
+      if (editRole.value !== activeProfile.role) {
+        const { error: roleError } = await window.supabaseClient
+          .rpc("set_profile_app_role", {
+            target_profile_id: activeProfile.id,
+            new_role: editRole.value,
+          });
+        if (roleError) {
+          console.error("Failed to update application role:", roleError);
+          modalStatus.style.color = "var(--danger)";
+          modalStatus.textContent = `Profile details saved, but the role could not be changed: ${roleError.message || "unknown error"}`;
+          isSaving = false;
+          saveModalButton.disabled = false;
+          return;
+        }
+      }
+
+      isSaving = false;
+      saveModalButton.disabled = false;
       modalStatus.style.color = "var(--accent)";
       modalStatus.textContent = "Saved.";
       await render();

@@ -22,6 +22,7 @@
       --line-strong: oklch(76.8% 0.018 178);
       --accent: oklch(43.5% 0.076 177);
       --accent-soft: oklch(91.4% 0.028 175);
+      --success: oklch(58% 0.09 156);
       --clay: oklch(57.5% 0.108 44);
       --clay-soft: oklch(92.6% 0.03 44);
       --calendar: oklch(97.3% 0.012 96);
@@ -269,6 +270,27 @@
     .pay-line:last-child { border-bottom: 0; }
     .pay-line span:last-child, .pay-line strong { text-align: right; }
     .calendar-actions { display: grid; gap: 12px; margin-top: 18px; }
+    .payment-review { display: grid; gap: 14px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .payment-review-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .payment-review-copy { min-width: 0; }
+    .payment-review-copy strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 1rem; }
+    .payment-review-copy p, .payment-action-message { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
+    .payment-review-status { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-muted); color: var(--ink); font-size: .68rem; font-weight: 750; white-space: nowrap; }
+    .payment-review-status::before { width: 7px; height: 7px; border-radius: 50%; background: var(--clay); content: ""; }
+    .payment-review-status.is-paid::before { background: var(--success); }
+    .payment-confirm-panel { display: grid; gap: 12px; padding: 14px; border-radius: 16px; background: var(--surface-muted); }
+    .payment-confirm-panel[hidden] { display: none; }
+    .payment-review [hidden] { display: none; }
+    .payment-confirm-panel p { margin: 0; color: var(--ink); font-size: 1rem; line-height: 1.4; }
+    .payment-confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .payment-review button:disabled { cursor: not-allowed; opacity: .58; }
+    .payment-action-message { min-height: 1.3em; }
+    .payment-action-message:empty { display: none; }
+    .payment-action-message.is-error { color: var(--clay); font-weight: 650; }
+    .payment-action-message.is-success { color: var(--accent); font-weight: 650; }
+    #markPaidButton { background: var(--success); color: var(--surface-strong); box-shadow: var(--shadow-sm); }
+    #markPaidButton:hover:not(:disabled) { background: color-mix(in srgb, var(--success) 82%, var(--ink) 18%); }
+    #managerDetailsPanel .calendar-actions { margin-top: var(--space-2); }
     .payroll-rail { display: grid; gap: 14px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--line) 78%, white 22%); }
     .payroll-rail strong { display: block; color: var(--ink); font-size: 1rem; }
     .payroll-rail p { margin: 0; color: var(--muted); font-size: .94rem; line-height: 1.45; }
@@ -616,6 +638,321 @@
     }
 
     .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
+
+    /* Impeccable overdrive: The Payroll Dossier. */
+    .payroll-dossier {
+      isolation: isolate;
+      min-height: 232px;
+      grid-template-columns: minmax(0, 1fr) minmax(390px, 470px);
+      gap: clamp(24px, 3vw, 44px);
+      padding: clamp(24px, 3.5vw, 40px);
+      color: var(--ink);
+      background: color-mix(in srgb, var(--surface) 88%, white 12%);
+      border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
+      border-radius: 28px;
+      box-shadow: var(--shadow-md);
+      overflow: clip;
+    }
+
+    .payroll-dossier::before {
+      content: none;
+    }
+
+    .payroll-dossier::after {
+      content: none;
+    }
+
+    .payroll-dossier .hero-copy {
+      align-self: stretch;
+      align-content: center;
+      gap: 18px;
+    }
+
+    .dossier-kicker {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .payroll-dossier .eyebrow {
+      color: var(--clay);
+    }
+
+    .submission-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--surface-muted);
+      font-size: .68rem;
+      font-weight: 750;
+      letter-spacing: .04em;
+    }
+
+    .submission-state svg {
+      width: 14px;
+      height: 14px;
+      color: var(--ink);
+    }
+
+    .payroll-dossier h1 {
+      max-width: 10ch;
+      color: var(--ink);
+      font-family: var(--font-display, "Geist", Aptos, "Avenir Next", sans-serif);
+      font-size: clamp(3rem, 5.6vw, 5rem);
+      font-weight: 650;
+      line-height: .88;
+      letter-spacing: -.04em;
+      text-wrap: balance;
+    }
+
+    .payroll-dossier .hero-title-line,
+    .payroll-dossier .hero-title-accent {
+      color: inherit;
+    }
+
+    .payroll-dossier .hero-month {
+      position: relative;
+      align-self: stretch;
+      min-height: 196px;
+      padding: clamp(20px, 2.6vw, 30px);
+      padding-left: clamp(28px, 3.5vw, 42px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: var(--ink);
+      background: var(--surface-strong);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .payroll-dossier .hero-month::before {
+      content: none;
+    }
+
+    .payroll-dossier .month-box {
+      padding-right: 0;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .payroll-dossier .month-box-header {
+      display: grid;
+      gap: 3px;
+      align-items: start;
+    }
+
+    .payroll-dossier .month-box-header strong {
+      color: var(--muted);
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .payroll-dossier .month-box-value {
+      font-size: clamp(1.8rem, 3vw, 2.35rem);
+      font-weight: 750;
+      line-height: 1;
+      letter-spacing: -.025em;
+    }
+
+    .payroll-dossier .hero-stats {
+      grid-template-columns: minmax(0, .68fr) minmax(0, .68fr) minmax(150px, 1.64fr);
+      gap: 0;
+      padding-top: 16px;
+    }
+
+    .payroll-dossier .hero-stat,
+    .payroll-dossier .hero-stat-wide {
+      grid-column: auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      align-content: end;
+      align-items: end;
+      gap: 6px;
+      min-height: 64px;
+      padding: 0 14px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .payroll-dossier .hero-stat:first-child {
+      padding-left: 0;
+    }
+
+    .payroll-dossier .hero-stat:last-child {
+      padding-right: 0;
+      border-right: 0;
+    }
+
+    .payroll-dossier .stat-label {
+      color: var(--muted);
+      font-size: .58rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+    }
+
+    .payroll-dossier .stat-value,
+    .payroll-dossier #totalPayCount {
+      min-width: 0;
+      color: var(--ink);
+      font-size: clamp(1.28rem, 2.3vw, 1.72rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+
+    .payroll-dossier #totalPayCount {
+      font-size: clamp(1.18rem, 2vw, 1.52rem);
+      white-space: nowrap;
+    }
+
+    .payroll-dossier.cg-reveal {
+      opacity: 1;
+      animation: dossier-unfold 480ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .payroll-dossier.cg-reveal .hero-copy {
+      animation: dossier-copy-in 680ms 120ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .payroll-dossier.cg-reveal .hero-month {
+      animation: dossier-sheet-in 520ms 80ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    @keyframes dossier-unfold {
+      from {
+        opacity: .72;
+        transform: translateY(10px);
+        box-shadow: var(--shadow-sm);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        box-shadow: var(--shadow-md);
+      }
+    }
+
+    @keyframes dossier-copy-in {
+      from { opacity: .22; transform: translateX(-22px); filter: blur(5px); }
+      to { opacity: 1; transform: translateX(0); filter: blur(0); }
+    }
+
+    @keyframes dossier-sheet-in {
+      from { opacity: .45; transform: translateX(14px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 960px) {
+      .payroll-dossier {
+        grid-template-columns: 1fr;
+      }
+
+      .payroll-dossier h1 {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body.mobile-full-bleed .payroll-dossier {
+        padding:
+          32px
+          calc(var(--space-5) + max(12px, env(safe-area-inset-right)))
+          26px
+          calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
+        gap: 24px;
+      }
+
+      body.mobile-full-bleed .payroll-dossier .hero-copy {
+        margin: 0;
+      }
+
+      body.mobile-full-bleed .payroll-dossier .hero-copy header {
+        justify-items: start;
+        text-align: left;
+      }
+
+      .payroll-dossier h1 {
+        max-width: 10ch;
+        font-size: clamp(2.7rem, 13vw, 4.2rem);
+      }
+
+      body.mobile-full-bleed .payroll-dossier .hero-month {
+        margin: 0;
+      }
+
+      .payroll-dossier .hero-stats {
+        grid-template-columns: minmax(0, .68fr) minmax(0, .68fr) minmax(140px, 1.64fr);
+      }
+
+      .payroll-dossier .hero-stat,
+      .payroll-dossier .hero-stat-wide {
+        padding: 0 10px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body.mobile-full-bleed .payroll-dossier {
+        padding-top: 26px;
+        padding-right: 14px;
+        padding-bottom: 20px;
+        padding-left: 58px;
+      }
+
+      .payroll-dossier .dossier-kicker {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .payroll-dossier h1 {
+        font-size: clamp(2.5rem, 14vw, 3.5rem);
+      }
+
+      .payroll-dossier .hero-month {
+        padding: 20px 16px 18px 28px;
+      }
+
+      .payroll-dossier .month-box {
+        padding-right: 0;
+      }
+
+      .payroll-dossier .hero-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        row-gap: 14px;
+      }
+
+      .payroll-dossier .hero-stat:nth-child(2) {
+        border-right: 0;
+      }
+
+      .payroll-dossier .hero-stat:last-child {
+        grid-column: 1 / -1;
+        min-height: 48px;
+        padding: 14px 0 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .payroll-dossier.cg-reveal,
+      .payroll-dossier.cg-reveal .hero-copy,
+      .payroll-dossier.cg-reveal .hero-month {
+        opacity: 1;
+        animation: none;
+        transform: none;
+        filter: none;
+        clip-path: none;
+      }
+    }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@1.16.0/dist/umd/lucide.min.js" defer></script>
@@ -664,10 +1001,13 @@
     </div>
   </header>
   <main class="page" id="main-content">
-    <section class="hero">
+    <section class="hero payroll-dossier" aria-labelledby="heroTitle">
       <div class="hero-copy">
+        <div class="dossier-kicker">
+          <p class="eyebrow">Manager Review</p>
+          <span class="submission-state"><i data-lucide="check" aria-hidden="true"></i>Submitted snapshot</span>
+        </div>
         <header>
-          <p class="eyebrow">Manager View</p>
           <h1 id="heroTitle"><span class="hero-title-line">Payroll</span> <span class="hero-title-line hero-title-accent">Entry</span></h1>
         </header>
       </div>
@@ -676,7 +1016,7 @@
         <div class="hero-stats" aria-label="Submission summary"><div class="hero-stat"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div><div class="hero-stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Pay</span><span class="stat-value" id="totalPayCount">S$0.00</span></div></div>
       </aside>
     </section>
-    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel" id="managerCalendarPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel" id="managerActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted activity</p><h2>Entries By Activity</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel" id="managerDetailsPanel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, month, rate, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Rate</span><span id="payRate">S$0.00</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
+    <div class="workspace"><div class="layout"><div class="review-column"><section class="panel" id="managerCalendarPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel" id="managerActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted activity</p><h2>Entries By Activity</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel" id="managerDetailsPanel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, period, rate, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Period</span><span id="payMonth">-</span></div><div class="pay-line"><span id="payRateLabel">Rate</span><span id="payRate">S$0.00</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><section class="payment-review" id="paymentReviewCard" aria-labelledby="paymentReviewTitle"><div class="payment-review-header"><div class="payment-review-copy"><strong id="paymentReviewTitle">Review completion</strong><p id="paymentReviewDetail">Confirm only after the payroll has been checked and payment has been sent.</p></div><span class="payment-review-status" id="paymentReviewStatus">Awaiting payment</span></div><button class="primary" id="markPaidButton" type="button">Mark Completed &amp; Paid</button><div class="payment-confirm-panel" id="paymentConfirmPanel" hidden><p>This records the submission as paid and prevents the employee from withdrawing it. Continue?</p><div class="payment-confirm-actions"><button class="secondary" id="cancelPaidButton" type="button">Cancel</button><button class="primary" id="confirmPaidButton" type="button">Confirm Paid</button></div></div><p class="payment-action-message" id="paymentActionMessage" role="status" aria-live="polite"></p></section><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
   </main>
 
   <div class="chip-context-menu" id="chipContextMenu" role="menu" hidden>
@@ -697,7 +1037,7 @@
 <div class="lightbox" id="imageLightbox" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
     <div class="lightbox-content" id="imageLightboxContent" tabindex="-1">
       <button class="lightbox-close" id="imageLightboxClose" type="button" aria-label="Close image viewer">×</button>
-      <img class="lightbox-image" id="imageLightboxImg" src="" alt="">
+      <img class="lightbox-image" id="imageLightboxImg" src="./chess-grande-timesheet-logo.svg" alt="">
     </div>
   </div>
 
@@ -811,6 +1151,7 @@
   <script src="./calendar-colors.js"></script>
   <script src="./claim-proof-storage.js"></script>
   <script src="./profile-avatar.js"></script>
+  <script src="./employee-notice-store.js"></script>
   <script src="./auth.js"></script>
   <script src="./profile-ui.js?v=20260608-rate"></script>
   <script>
@@ -829,9 +1170,17 @@
     const payAccountType = document.getElementById("payAccountType");
     const payBank = document.getElementById("payBank");
     const payMonth = document.getElementById("payMonth");
+    const payRateLabel = document.getElementById("payRateLabel");
     const payRate = document.getElementById("payRate");
     const payHours = document.getElementById("payHours");
     const payTotal = document.getElementById("payTotal");
+    const paymentReviewStatus = document.getElementById("paymentReviewStatus");
+    const paymentReviewDetail = document.getElementById("paymentReviewDetail");
+    const markPaidButton = document.getElementById("markPaidButton");
+    const paymentConfirmPanel = document.getElementById("paymentConfirmPanel");
+    const cancelPaidButton = document.getElementById("cancelPaidButton");
+    const confirmPaidButton = document.getElementById("confirmPaidButton");
+    const paymentActionMessage = document.getElementById("paymentActionMessage");
     const logoutButton = document.getElementById("logoutButton");
     const profileButton = document.getElementById("profileButton");
     const menuProfileName = document.getElementById("menuProfileName");
@@ -882,17 +1231,21 @@
     let editingEntryId = "";
     let editingPayrollRow = null;
     let chipContextMenuTrigger = null;
+    let currentManagerId = "";
+    let activeSubmission = null;
 
     initApp();
 
     async function initApp() {
       const user = await requireManager();
       if (!user) return;
+      currentManagerId = user.id;
       const profile = await getCurrentProfile();
       managerNavItem.hidden = !(profile && (profile.role === "manager" || profile.role === "webadmin"));
       webAdminNavItem.hidden = !(profile && profile.role === "webadmin");
       setupEntryEditModal();
       setupChipContextMenu();
+      setupPaymentAction();
       setupUserMenu();
       initImageViewer();
       await render();
@@ -999,14 +1352,21 @@
 
       const submission = {
         id: submissionRow.id,
+        employeeId: submissionRow.employee_id,
         submittedAt: submissionRow.submitted_at,
+        paidAt: submissionRow.paid_at,
+        paidBy: submissionRow.paid_by,
         month: submissionRow.month,
         monthLabel: submissionRow.month_label,
         employeeName: submissionRow.employee_name,
         bankName: submissionRow.bank_name,
         accountType: submissionRow.account_type,
         bankAccount: submissionRow.bank_account,
+        payPolicy: submissionRow.pay_policy || "monthly_hourly",
         hourlyRate: submissionRow.hourly_rate,
+        weeklyStipendAmount: submissionRow.weekly_stipend_amount,
+        basePay: submissionRow.base_pay,
+        reimbursementPay: submissionRow.reimbursement_pay,
         totalHours: submissionRow.total_hours,
         totalPay: submissionRow.total_pay,
         entries: resolvedEntries,
@@ -1035,12 +1395,111 @@
       payBankName.classList.toggle("missing-profile", !submission.bankName);
       payAccountType.classList.toggle("missing-profile", !submission.accountType);
       payMonth.textContent = submission.monthLabel || formatMonthLabel(submission.month || "");
-      payRate.textContent = formatCurrency(submission.hourlyRate || 0);
+      payRateLabel.textContent = submission.payPolicy === "weekly_stipend" ? "Weekly stipend" : "Rate";
+      payRate.textContent = formatCurrency(
+        submission.payPolicy === "weekly_stipend"
+          ? submission.weeklyStipendAmount || 0
+          : submission.hourlyRate || 0
+      );
       payHours.textContent = trimHours(submission.totalHours || 0);
       payTotal.textContent = formatCurrency(submission.totalPay || 0);
+      activeSubmission = submission;
+      renderPaymentState(submission);
 
       renderCalendar(entries, submission.month || "");
       renderGroups(entries, submission);
+    }
+
+    function setupPaymentAction() {
+      markPaidButton.addEventListener("click", openPaymentConfirmation);
+      cancelPaidButton.addEventListener("click", closePaymentConfirmation);
+      confirmPaidButton.addEventListener("click", markSubmissionPaid);
+    }
+
+    function openPaymentConfirmation() {
+      if (!activeSubmission || activeSubmission.paidAt) return;
+      paymentActionMessage.textContent = "";
+      paymentActionMessage.className = "payment-action-message";
+      paymentConfirmPanel.hidden = false;
+      markPaidButton.hidden = true;
+      requestAnimationFrame(() => cancelPaidButton.focus());
+    }
+
+    function closePaymentConfirmation() {
+      if (confirmPaidButton.disabled) return;
+      paymentConfirmPanel.hidden = true;
+      markPaidButton.hidden = false;
+      markPaidButton.focus();
+    }
+
+    function renderPaymentState(submission) {
+      const isPaid = Boolean(submission.paidAt);
+      paymentReviewStatus.classList.toggle("is-paid", isPaid);
+      paymentReviewStatus.textContent = isPaid ? "Completed & paid" : "Awaiting payment";
+      paymentReviewDetail.textContent = isPaid
+        ? `Marked paid ${formatPaymentDate(submission.paidAt)}.`
+        : "Confirm only after the payroll has been checked and payment has been sent.";
+      markPaidButton.textContent = isPaid ? "Completed & Paid" : "Mark Completed & Paid";
+      markPaidButton.disabled = isPaid;
+      markPaidButton.hidden = false;
+      paymentConfirmPanel.hidden = true;
+    }
+
+    async function markSubmissionPaid() {
+      if (!activeSubmission || activeSubmission.paidAt || !currentManagerId || confirmPaidButton.disabled) return;
+
+      confirmPaidButton.disabled = true;
+      confirmPaidButton.setAttribute("aria-busy", "true");
+      cancelPaidButton.disabled = true;
+      paymentActionMessage.className = "payment-action-message";
+      paymentActionMessage.textContent = "Recording payment…";
+
+      try {
+        const paidAt = new Date().toISOString();
+        const { data, error } = await window.supabaseClient
+          .from("payroll_submissions")
+          .update({ paid_at: paidAt, paid_by: currentManagerId })
+          .eq("id", activeSubmission.id)
+          .is("paid_at", null)
+          .select("id, paid_at, paid_by")
+          .maybeSingle();
+
+        if (error) throw error;
+        if (!data) throw new Error("This submission was already updated or could not be marked paid.");
+
+        activeSubmission.paidAt = data.paid_at || paidAt;
+        activeSubmission.paidBy = data.paid_by || currentManagerId;
+        renderPaymentState(activeSubmission);
+
+        let noticeFailureMessage = "";
+        try {
+          await window.employeeNoticeStore.createPaymentNotice({
+            ...activeSubmission,
+            paidAt: activeSubmission.paidAt,
+          }, {
+            createdBy: currentManagerId,
+          });
+        } catch (noticeError) {
+          console.error("Payroll was marked paid, but the employee notice was not sent:", noticeError);
+          noticeFailureMessage = noticeError?.message || "unknown notice error";
+        }
+
+        if (noticeFailureMessage) {
+          paymentActionMessage.className = "payment-action-message is-error";
+          paymentActionMessage.textContent = `Marked paid, but the employee notice was not sent: ${noticeFailureMessage}`;
+        } else {
+          paymentActionMessage.className = "payment-action-message is-success";
+          paymentActionMessage.textContent = "Review completed, payment recorded, and the employee notified.";
+        }
+      } catch (error) {
+        console.error("Failed to mark payroll submission as paid:", error);
+        paymentActionMessage.className = "payment-action-message is-error";
+        paymentActionMessage.textContent = `Could not record payment: ${error.message || "unknown error"}`;
+      } finally {
+        confirmPaidButton.disabled = false;
+        confirmPaidButton.removeAttribute("aria-busy");
+        cancelPaidButton.disabled = false;
+      }
     }
 
     function renderHeroTitle(value) {
@@ -1737,7 +2196,7 @@
 
       const { data: submissionRow, error: submissionError } = await window.supabaseClient
         .from("payroll_submissions")
-        .select("hourly_rate")
+        .select("hourly_rate, pay_policy, weekly_stipend_amount")
         .eq("id", submissionId)
         .maybeSingle();
       if (submissionError) {
@@ -1749,10 +2208,29 @@
 
       const fallbackRate = Number(submissionRow.hourly_rate || 0);
       const totalHours = (remainingEntries || []).reduce((sum, item) => sum + Number(item.hours || 0), 0);
-      const totalPay = (remainingEntries || []).reduce((sum, item) => sum + calculateStoredEntryPay(item, fallbackRate), 0);
+      const reimbursementPay = (remainingEntries || []).reduce((sum, item) => {
+        if (item.type === "Claim" || isStoredEventCostEntry(item)) {
+          return sum + Number(parseClaimNotePayload(item.claim_notes || "").cost || 0);
+        }
+        return sum;
+      }, 0);
+      const calculatedEntryPay = (remainingEntries || []).reduce(
+        (sum, item) => sum + calculateStoredEntryPay(item, fallbackRate),
+        0
+      );
+      const isWeeklyStipend = submissionRow.pay_policy === "weekly_stipend";
+      const basePay = isWeeklyStipend
+        ? (totalHours > 0 ? Number(submissionRow.weekly_stipend_amount || 0) : 0)
+        : Math.max(0, calculatedEntryPay - reimbursementPay);
+      const totalPay = basePay + reimbursementPay;
       const { data: updatedSubmission, error: totalsError } = await window.supabaseClient
         .from("payroll_submissions")
-        .update({ total_hours: totalHours, total_pay: totalPay })
+        .update({
+          total_hours: totalHours,
+          base_pay: basePay,
+          reimbursement_pay: reimbursementPay,
+          total_pay: totalPay,
+        })
         .eq("id", submissionId)
         .select("id")
         .maybeSingle();
@@ -1844,6 +2322,18 @@
       });
     }
 
+    function formatPaymentDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "on an unknown date";
+      return new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      }).format(date);
+    }
+
     function formatTime(value) {
       if (!value) return "";
       const [hours, minutes] = value.split(":").map(Number);
@@ -1926,7 +2416,8 @@
       }
       if (entry.claimProofDataUrl) {
         const altText = entry.claimProofName ? escapeHtml(entry.claimProofName) : "Proof";
-        return `<button type="button" class="entry-image-button" data-lightbox-src="${entry.claimProofDataUrl}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${entry.claimProofDataUrl}" alt="${altText}"></button>`;
+        const imageSrc = escapeHtml(entry.claimProofDataUrl);
+        return `<button type="button" class="entry-image-button" data-lightbox-src="${imageSrc}" data-lightbox-alt="${altText}" aria-label="View proof image"><img class="entry-image" src="${imageSrc}" alt="${altText}"></button>`;
       }
       return `<div class="entry-image-placeholder"></div>`;
     }

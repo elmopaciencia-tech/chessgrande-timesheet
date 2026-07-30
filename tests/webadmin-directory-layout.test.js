@@ -7,6 +7,18 @@ const html = fs.readFileSync(
   "utf8"
 );
 
+assert.match(
+  html,
+  /\.rpc\("set_profile_app_role",\s*\{\s*target_profile_id:\s*activeProfile\.id,\s*new_role:\s*editRole\.value,?\s*\}\)/,
+  "webadmin role changes should use the restricted role RPC"
+);
+const profileUpdatePayload = html.match(/const payload = \{([\s\S]*?)\n      \};/)?.[1] ?? "";
+assert.doesNotMatch(
+  profileUpdatePayload,
+  /\brole:/,
+  "the ordinary profile update payload must not include the privileged role column"
+);
+
 [
   'class="admin-shell"',
   'class="admin-sidebar"',

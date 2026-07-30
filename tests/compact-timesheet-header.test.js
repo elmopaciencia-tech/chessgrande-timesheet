@@ -4,7 +4,7 @@ import path from "node:path";
 
 const html = fs.readFileSync(path.join(process.cwd(), "chess-timesheet.html"), "utf8");
 const theme = fs.readFileSync(path.join(process.cwd(), "theme.css"), "utf8");
-const heroMatch = html.match(/<section class="hero">[\s\S]*?<\/section>/);
+const heroMatch = html.match(/<section class="hero(?:\s+[^"]*)?"[^>]*>[\s\S]*?<\/section>/);
 
 assert.ok(heroMatch, "timesheet page should render the compact hero section");
 
@@ -17,8 +17,9 @@ assert.match(
 );
 
 [
-  "<h1>Chess Grande Timesheet</h1>",
-  'class="hero-stats"',
+  '<h1 class="v1-title"><span>Chess Grande</span> <span class="v1-accent">Timesheet</span></h1>',
+  'class="v1-tally"',
+  'class="v1-desk"',
   'id="monthPicker"',
   'id="monthPickerControl"',
   'id="monthPickerTrigger"',
@@ -72,8 +73,10 @@ const compactPageExpectations = [
     fileName: "chess-timesheet-pay.html",
     required: [
       "Monthly Payroll View",
-      "<h1>Chess Grande Pay Summary</h1>",
-      'class="hero-stats"',
+      '<section class="hero hero-v1">',
+      '<h1 class="v1-title"><span>Chess Grande</span> <span class="v1-accent">Pay Summary</span></h1>',
+      'class="v1-tally"',
+      'class="v1-desk"',
       'id="monthPicker"',
       'id="monthPickerFallback"',
       'id="rateCount"',
@@ -111,7 +114,7 @@ const compactPageExpectations = [
   {
     fileName: "manager-entry.html",
     required: [
-      "Manager View",
+      "Manager Review",
       'id="heroTitle"',
       'class="hero-stats"',
       'id="monthValue"',
@@ -144,7 +147,7 @@ const compactPageExpectations = [
 
 compactPageExpectations.forEach(({ fileName, required, removed }) => {
   const source = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
-  const pageHero = source.match(/<section class="hero">[\s\S]*?<\/section>/)?.[0] || "";
+  const pageHero = source.match(/<section class="hero(?:\s+[^"]*)?"[^>]*>[\s\S]*?<\/section>/)?.[0] || "";
   assert.ok(pageHero, `${fileName} should render a compact hero`);
   required.forEach((snippet) => {
     assert.ok(pageHero.includes(snippet), `${fileName} compact hero should include ${snippet}`);
@@ -174,23 +177,28 @@ assert.ok(
 const payPage = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"), "utf8");
 assert.match(
   payPage,
-  /class="hero-stat hero-stat-wide"><span class="stat-label">Calculated Pay<\/span><span class="stat-value" id="summaryPay"/,
-  "pay page calculated pay should use the wide hero stat card"
+  /<section class="hero hero-v1">[\s\S]*class="v1-title"[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"[\s\S]*class="v1-desk"[\s\S]*id="monthPickerControl"/,
+  "pay page should match the timesheet masthead while retaining live payroll totals and month controls"
 );
 assert.match(
   payPage,
-  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/is,
-  "pay page hero stats should place calculated pay below rate and hours"
+  /\.hero-v1\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) minmax\(300px, 380px\);[\s\S]*\.hero-v1 \.v1-title\s*\{[^}]*font-family:\s*Georgia,[^}]*font-weight:\s*400;[\s\S]*\.hero-v1 \.v1-metric-value\s*\{[^}]*font-family:\s*"Avenir Next",\s*"Segoe UI",\s*sans-serif;/is,
+  "pay page should use the same editorial masthead proportions and title treatment as the timesheet"
 );
 assert.match(
   payPage,
-  /\.hero-stat-wide\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/is,
-  "pay page calculated pay card should span the stats grid as a rectangle"
+  /\.hero-v1 \.v1-tally\s*\{[^}]*display:\s*flex;[^}]*flex-wrap:\s*wrap;[\s\S]*\.hero-v1 \.v1-metric-value\s*\{[^}]*white-space:\s*nowrap;/is,
+  "pay page payroll metrics should use the timesheet tally and keep currency values intact"
+);
+assert.doesNotMatch(
+  payPage,
+  /\.typeset-v3 #summaryPay\s*(?:,|\{)[^}]*font-family:\s*Georgia/is,
+  "pay page calculated summary should not be forced back to the serif stat font"
 );
 assert.match(
   payPage,
-  /#summaryPay\s*\{[^}]*white-space:\s*nowrap;[^}]*word-break:\s*normal;/is,
-  "pay page summaryPay should stay on one line"
+  /@media \(max-width: 760px\)[\s\S]*body\.mobile-full-bleed \.hero-v1\s*\{[^}]*width:\s*100vw;[^}]*border-radius:\s*0;/is,
+  "pay page masthead should retain the matching full-bleed mobile treatment"
 );
 assert.match(
   payPage,
@@ -263,8 +271,8 @@ assert.match(
 );
 assert.match(
   managerEntry,
-  /<span>Rate<\/span><span id="payRate">S\$0\.00<\/span>/,
-  "manager entry payroll snapshot should include the submitted hourly rate"
+  /<span id="payRateLabel">Rate<\/span><span id="payRate">S\$0\.00<\/span>/,
+  "manager entry payroll snapshot should include the submitted hourly or stipend rate"
 );
 assert.match(
   managerEntry,
@@ -273,13 +281,23 @@ assert.match(
 );
 assert.match(
   managerEntry,
-  /payRate\.textContent = formatCurrency\(submission\.hourlyRate \|\| 0\)/,
-  "manager entry script should render the submitted rate in the pay card"
+  /payRateLabel\.textContent = submission\.payPolicy === "weekly_stipend" \? "Weekly stipend" : "Rate";[\s\S]*payRate\.textContent = formatCurrency\(/,
+  "manager entry script should render the submitted rate for the active pay policy"
 );
 assert.match(
   managerEntry,
-  /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*6px;[\s\S]*overflow-wrap:\s*anywhere;/s,
-  "manager entry mobile calendar should stay squareish with compact 6px chip text"
+  /body\.mobile-full-bleed #managerCalendarPanel \.day\s*\{[^}]*min-height:\s*clamp\(104px, 24vw, 132px\);[^}]*aspect-ratio:\s*auto;[^}]*overflow:\s*visible;[\s\S]*body\.mobile-full-bleed #managerCalendarPanel \.chip\s*\{[^}]*font-size:\s*9px;[^}]*overflow:\s*visible;/s,
+  "manager entry mobile calendar should expand like the employee timesheet calendar"
+);
+assert.match(
+  managerEntry,
+  /<body class="mobile-full-bleed">[\s\S]*id="managerCalendarPanel"[\s\S]*id="managerActivityPanel"[\s\S]*id="managerDetailsPanel"/s,
+  "manager entry should opt its primary mobile surfaces into the full-bleed layout"
+);
+assert.match(
+  managerEntry,
+  /renderHeroTitle\(submission\.employeeName \|\| "Payroll Entry"\);[\s\S]*function renderHeroTitle\(value\)[\s\S]*className = "hero-title-line hero-title-accent";/s,
+  "manager entry should retain the dynamic employee name while adding the mobile title accent"
 );
 assert.match(
   managerEntry,
@@ -342,7 +360,7 @@ assert.match(
       "aspect-ratio: auto;",
       "min-height: clamp(104px, 24vw, 132px);",
       "overflow: visible;",
-      "font-size: 6px;",
+      "font-size: 9px;",
       "line-height: 1.1;",
     ].forEach((snippet) => {
       assert.ok(source.includes(snippet), `${label} mobile calendar should include ${snippet}`);
@@ -350,8 +368,8 @@ assert.match(
   } else {
     assert.match(
       source,
-      /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*6px;[\s\S]*overflow-wrap:\s*anywhere;/s,
-      `${label} mobile calendar should stay squareish with compact 6px chip text`
+      /@media \(max-width: 760px\)[\s\S]*\.day\s*\{[\s\S]*aspect-ratio:\s*1 \/ 1;[\s\S]*\.chip\s*\{[\s\S]*font-size:\s*9px;[\s\S]*overflow-wrap:\s*anywhere;/s,
+      `${label} mobile calendar should use the shared 9px entry size`
     );
   }
   assert.match(
