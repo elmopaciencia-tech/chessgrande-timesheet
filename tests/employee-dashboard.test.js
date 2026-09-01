@@ -79,13 +79,19 @@ const uiEffectsSource = fs.readFileSync(
   "getUpcomingClassEntries(entries, new Date(), 60)",
   "getUpcomingClassEntries(entries, new Date(), 7)",
   "getCurrentMonthStats(entries, monthKey)",
-  "renderCumulativeHours(entries, today)",
+  "getCumulativeStats(entries)",
+  "updateProgressSummary()",
+  "renderCumulativeHours(cachedProgressEntries, new Date())",
   "renderCumulativeHoursError()",
-  "scrollEntryActivityToCurrentMonth(days, today)",
+  "scrollEntryActivityToEnd()",
   "getCumulativeHourDays(entries, today)",
   "getCumulativeHourWeeks(days, entries, today)",
   "setActivityView(button.dataset.activityView)",
+  "updateProgressSummary()",
   "renderCumulativeHourView()",
+  "progressTitle.textContent = \"Cumulative Progress\"",
+  "progressTitle.textContent = \"Month Progress\"",
+  "All time",
   "getActivityFillLevel(week.hours, maxWeeklyHours)",
   "getActivityFillLevel(week.cumulativeHours, maxCumulativeHours)",
   "getCumulativeHourColor(day.hours)",
@@ -229,6 +235,7 @@ const dashboardHelpers = [
   "formatDateKey",
   "getUpcomingClassEntries",
   "getCurrentMonthStats",
+  "getCumulativeStats",
   "getCumulativeHourDays",
   "getCumulativeHourWeeks",
   "getActivityFillLevel",
@@ -243,6 +250,7 @@ const helperFactory = Function(`
     canSeeWebAdminDashboard,
     getUpcomingClassEntries,
     getCurrentMonthStats,
+    getCumulativeStats,
     getCumulativeHourDays,
     getCumulativeHourWeeks,
     getActivityFillLevel,
@@ -254,6 +262,7 @@ const {
   canSeeWebAdminDashboard,
   getUpcomingClassEntries,
   getCurrentMonthStats,
+  getCumulativeStats,
   getCumulativeHourDays,
   getCumulativeHourWeeks,
   getActivityFillLevel,
@@ -288,6 +297,16 @@ assert.deepEqual(
   stats,
   { schoolCount: 3, entryCount: 4, hours: 3.5 },
   "month stats should count active rows, unique non-claim schools, and time hours"
+);
+
+const cumulativeStats = getCumulativeStats([
+  ...entries,
+  { id: "6", status: "submitted", type: "School Coaching", schoolName: "Legacy School", date: "2024-01-10", hours: 8 },
+]);
+assert.deepEqual(
+  cumulativeStats,
+  { schoolCount: 5, entryCount: 6, hours: 12.5 },
+  "cumulative chip stats should count all-time entries, not only the activity history window"
 );
 
 const activityDays = getCumulativeHourDays(entries, new Date(2026, 4, 30, 12));

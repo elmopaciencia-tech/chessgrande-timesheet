@@ -183,8 +183,12 @@ const secondaryHarness = harness;
 const hero = html.match(/<section class="hero(?:\s+[^"]*)?">[\s\S]*?<\/section>/)?.[0] || "";
 assert.match(
   hero,
-  /<h1[^>]*>[\s\S]*Chess Grande[\s\S]*Timesheet[\s\S]*<\/h1>[\s\S]*href="#aiXlsxImportPanel"[\s\S]*Import from Excel/,
-  "employee hero should show Import from Excel directly below the title"
+  /<h1[^>]*>[\s\S]*Chess Grande[\s\S]*Timesheet[\s\S]*<\/h1>/,
+  "employee hero should show the timesheet title"
+);
+assert.ok(
+  !hero.includes('href="#aiXlsxImportPanel"'),
+  "employee hero should not include the Excel import shortcut"
 );
 
 const schoolLedgerIndex = html.indexOf('id="schoolLedgerPanel"');

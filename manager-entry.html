@@ -305,7 +305,7 @@
     @media (max-width: 760px) {
       .page { gap: var(--space-5); }
       .app-header-inner { min-height: 66px; padding: 0 var(--space-4); }
-      .hero, .panel { padding: var(--space-5); }
+      .hero:not(.payroll-dossier), .panel { padding: var(--space-5); }
       .hero {
         gap: 14px;
         border-radius: 24px;
@@ -315,23 +315,29 @@
         font-size: clamp(.6rem, 2.6vw, .68rem);
         letter-spacing: .14em;
       }
-      .hero-month {
+      .hero-month:not(.payroll-dossier-summary) {
         gap: 12px;
         padding: clamp(14px, 4vw, 18px);
         border-radius: 18px;
       }
       .month-box { gap: 6px; }
-      .month-box-header strong {
+      .payroll-dossier-summary .month-box-header strong {
         color: var(--muted);
         font-size: clamp(.66rem, 2.8vw, .76rem);
         font-weight: 800;
         letter-spacing: .1em;
         text-transform: uppercase;
       }
-      .month-box-value {
-        font-size: clamp(1.42rem, 6.8vw, 1.8rem);
+
+      .payroll-dossier-summary .month-box-value {
+        font-size: clamp(1.18rem, 5vw, 1.38rem);
         font-weight: 800;
         line-height: 1.02;
+      }
+
+      .payroll-dossier-summary .stat-value,
+      .payroll-dossier-summary #totalPayCount {
+        font-size: clamp(1rem, 4vw, 1.18rem);
       }
       .hero-stat {
         padding: 10px 12px;
@@ -512,7 +518,7 @@
       }
 
       body.mobile-full-bleed .app-header,
-      body.mobile-full-bleed .hero,
+      body.mobile-full-bleed .hero:not(.payroll-dossier),
       body.mobile-full-bleed #managerCalendarPanel,
       body.mobile-full-bleed #managerActivityPanel,
       body.mobile-full-bleed #managerDetailsPanel {
@@ -528,7 +534,7 @@
         padding-right: calc(var(--space-4) + max(12px, env(safe-area-inset-right)));
       }
 
-      body.mobile-full-bleed .hero {
+      body.mobile-full-bleed .hero:not(.payroll-dossier) {
         padding-left: calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
         padding-right: calc(var(--space-5) + max(12px, env(safe-area-inset-right)));
       }
@@ -536,6 +542,12 @@
       body.mobile-full-bleed .hero-copy {
         margin-left: calc(max(var(--space-5), env(safe-area-inset-left)) - var(--space-5) - max(12px, env(safe-area-inset-left)) - 1px);
         margin-right: calc(max(var(--space-5), env(safe-area-inset-right)) - var(--space-5) - max(12px, env(safe-area-inset-right)) - 1px);
+      }
+
+      body.mobile-full-bleed .payroll-dossier .hero-copy,
+      body.mobile-full-bleed .payroll-dossier-shell .hero-copy {
+        margin-left: 0;
+        margin-right: 0;
       }
 
       body.mobile-full-bleed .hero-copy header {
@@ -551,12 +563,12 @@
         color: var(--clay);
       }
 
-      body.mobile-full-bleed .hero-month {
+      body.mobile-full-bleed .hero-month:not(.payroll-dossier-summary) {
         margin-left: calc(-1 * (var(--space-5) + 1px));
         margin-right: calc(-1 * (var(--space-5) + 1px));
       }
 
-      body.mobile-full-bleed .hero-month .month-box-header strong {
+      body.mobile-full-bleed .payroll-dossier-summary .month-box-header strong {
         padding-left: 4px;
       }
 
@@ -640,11 +652,11 @@
     .entry-remove { border: 0; background: var(--clay-soft); color: var(--clay); }
 
     /* Impeccable overdrive: The Payroll Dossier. */
-    .payroll-dossier {
-      isolation: isolate;
-      min-height: 232px;
+    .payroll-dossier-shell {
+      display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(390px, 470px);
       gap: clamp(24px, 3vw, 44px);
+      align-items: stretch;
       padding: clamp(24px, 3.5vw, 40px);
       color: var(--ink);
       background: color-mix(in srgb, var(--surface) 88%, white 12%);
@@ -654,10 +666,21 @@
       overflow: clip;
     }
 
-    .payroll-dossier::before {
-      content: none;
+    .payroll-dossier {
+      isolation: isolate;
+      min-height: 0;
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: visible;
     }
 
+    .payroll-dossier::before,
     .payroll-dossier::after {
       content: none;
     }
@@ -665,14 +688,11 @@
     .payroll-dossier .hero-copy {
       align-self: stretch;
       align-content: center;
-      gap: 18px;
+      gap: 14px;
     }
 
-    .dossier-kicker {
-      display: flex;
-      align-items: center;
+    .payroll-dossier .hero-copy header {
       gap: 12px;
-      flex-wrap: wrap;
     }
 
     .payroll-dossier .eyebrow {
@@ -683,6 +703,7 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
+      width: fit-content;
       min-height: 30px;
       padding: 5px 10px;
       border: 1px solid var(--line);
@@ -716,12 +737,28 @@
       color: inherit;
     }
 
-    .payroll-dossier .hero-month {
+    .payroll-dossier-shell > .hero.payroll-dossier {
+      padding: 0;
+      gap: 0;
+      min-height: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .payroll-dossier-shell > .hero.payroll-dossier::before {
+      display: none;
+    }
+
+    .payroll-dossier .hero-month,
+    .payroll-dossier-summary {
       position: relative;
       align-self: stretch;
-      min-height: 196px;
-      padding: clamp(20px, 2.6vw, 30px);
-      padding-left: clamp(28px, 3.5vw, 42px);
+      min-height: 0;
+      padding: clamp(16px, 2vw, 22px);
+      padding-left: clamp(20px, 2.4vw, 28px);
       border: 1px solid var(--line);
       border-radius: 18px;
       color: var(--ink);
@@ -730,25 +767,29 @@
       transform: none;
     }
 
-    .payroll-dossier .hero-month::before {
+    .payroll-dossier .hero-month::before,
+    .payroll-dossier-summary::before {
       content: none;
     }
 
-    .payroll-dossier .month-box {
+    .payroll-dossier .month-box,
+    .payroll-dossier-summary .month-box {
       padding-right: 0;
-      padding-bottom: 16px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--line);
       border-radius: 0;
       background: transparent;
     }
 
-    .payroll-dossier .month-box-header {
+    .payroll-dossier .month-box-header,
+    .payroll-dossier-summary .month-box-header {
       display: grid;
-      gap: 3px;
+      gap: 2px;
       align-items: start;
     }
 
-    .payroll-dossier .month-box-header strong {
+    .payroll-dossier .month-box-header strong,
+    .payroll-dossier-summary .month-box-header strong {
       color: var(--muted);
       font-size: .62rem;
       font-weight: 800;
@@ -756,45 +797,52 @@
       text-transform: uppercase;
     }
 
-    .payroll-dossier .month-box-value {
-      font-size: clamp(1.8rem, 3vw, 2.35rem);
+    .payroll-dossier .month-box-value,
+    .payroll-dossier-summary .month-box-value {
+      font-size: clamp(1.45rem, 2.4vw, 1.9rem);
       font-weight: 750;
-      line-height: 1;
+      line-height: 1.05;
       letter-spacing: -.025em;
     }
 
-    .payroll-dossier .hero-stats {
+    .payroll-dossier .hero-stats,
+    .payroll-dossier-summary .hero-stats {
       grid-template-columns: minmax(0, .68fr) minmax(0, .68fr) minmax(150px, 1.64fr);
       gap: 0;
-      padding-top: 16px;
+      padding-top: 12px;
     }
 
     .payroll-dossier .hero-stat,
-    .payroll-dossier .hero-stat-wide {
+    .payroll-dossier .hero-stat-wide,
+    .payroll-dossier-summary .hero-stat,
+    .payroll-dossier-summary .hero-stat-wide {
       grid-column: auto;
       display: grid;
       grid-template-columns: 1fr;
       align-content: end;
       align-items: end;
-      gap: 6px;
-      min-height: 64px;
-      padding: 0 14px;
+      gap: 4px;
+      min-height: 0;
+      padding: 0 12px;
       border: 0;
       border-right: 1px solid var(--line);
       border-radius: 0;
       background: transparent;
     }
 
-    .payroll-dossier .hero-stat:first-child {
+    .payroll-dossier .hero-stat:first-child,
+    .payroll-dossier-summary .hero-stat:first-child {
       padding-left: 0;
     }
 
-    .payroll-dossier .hero-stat:last-child {
+    .payroll-dossier .hero-stat:last-child,
+    .payroll-dossier-summary .hero-stat:last-child {
       padding-right: 0;
       border-right: 0;
     }
 
-    .payroll-dossier .stat-label {
+    .payroll-dossier .stat-label,
+    .payroll-dossier-summary .stat-label {
       color: var(--muted);
       font-size: .58rem;
       font-weight: 800;
@@ -802,30 +850,38 @@
     }
 
     .payroll-dossier .stat-value,
-    .payroll-dossier #totalPayCount {
+    .payroll-dossier #totalPayCount,
+    .payroll-dossier-summary .stat-value,
+    .payroll-dossier-summary #totalPayCount {
       min-width: 0;
       color: var(--ink);
-      font-size: clamp(1.28rem, 2.3vw, 1.72rem);
+      font-size: clamp(1.12rem, 2vw, 1.48rem);
       font-weight: 800;
       line-height: 1;
       letter-spacing: -.03em;
+      font-variant-numeric: tabular-nums;
     }
 
-    .payroll-dossier #totalPayCount {
-      font-size: clamp(1.18rem, 2vw, 1.52rem);
+    .payroll-dossier #totalPayCount,
+    .payroll-dossier-summary #totalPayCount {
+      font-size: clamp(1.08rem, 1.8vw, 1.38rem);
       white-space: nowrap;
+    }
+
+    .payroll-dossier-shell:has(.payroll-dossier.cg-reveal) {
+      opacity: 1;
+      animation: dossier-unfold 480ms cubic-bezier(.16, 1, .3, 1) both;
     }
 
     .payroll-dossier.cg-reveal {
       opacity: 1;
-      animation: dossier-unfold 480ms cubic-bezier(.16, 1, .3, 1) both;
     }
 
     .payroll-dossier.cg-reveal .hero-copy {
       animation: dossier-copy-in 680ms 120ms cubic-bezier(.16, 1, .3, 1) both;
     }
 
-    .payroll-dossier.cg-reveal .hero-month {
+    .payroll-dossier.cg-reveal + .payroll-dossier-summary {
       animation: dossier-sheet-in 520ms 80ms cubic-bezier(.16, 1, .3, 1) both;
     }
 
@@ -843,33 +899,123 @@
     }
 
     @keyframes dossier-copy-in {
-      from { opacity: .22; transform: translateX(-22px); filter: blur(5px); }
+      from { opacity: .22; transform: translateX(-10px); filter: blur(3px); }
       to { opacity: 1; transform: translateX(0); filter: blur(0); }
     }
 
     @keyframes dossier-sheet-in {
-      from { opacity: .45; transform: translateX(14px); }
-      to { opacity: 1; transform: translateX(0); }
+      from { opacity: .45; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 960px) {
-      .payroll-dossier {
+      .payroll-dossier-shell {
+        --dossier-inline: clamp(18px, 4vw, 24px);
         grid-template-columns: 1fr;
+        gap: var(--space-4);
+        padding:
+          clamp(20px, 4vw, 28px)
+          var(--dossier-inline)
+          clamp(18px, 3vw, 22px);
+        overflow: clip;
+      }
+
+      .payroll-dossier-shell > .hero.payroll-dossier,
+      .payroll-dossier .hero-copy {
+        min-width: 0;
+      }
+
+      .payroll-dossier .hero-copy {
+        gap: var(--space-3);
       }
 
       .payroll-dossier h1 {
         max-width: none;
+        font-size: clamp(2rem, 5.4vw, 2.75rem);
+        line-height: 1.02;
+        letter-spacing: -.03em;
+      }
+
+      .payroll-dossier-summary {
+        grid-column: 1 / -1;
+        width: auto;
+        max-width: none;
+        margin:
+          0
+          calc(-1 * var(--dossier-inline))
+          calc(-1 * clamp(18px, 3vw, 22px));
+        padding:
+          var(--space-4)
+          var(--dossier-inline)
+          var(--space-4);
+        border: 0;
+        border-top: 1px solid var(--line);
+        border-radius: 0;
+        background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
+      }
+
+      .payroll-dossier-summary .month-box {
+        padding-bottom: var(--space-3);
+      }
+
+      .payroll-dossier-summary .month-box-value {
+        font-size: clamp(1.18rem, 3.6vw, 1.38rem);
+      }
+
+      .payroll-dossier-summary .hero-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding-top: var(--space-3);
+      }
+
+      .payroll-dossier-summary .hero-stat,
+      .payroll-dossier-summary .hero-stat-wide {
+        min-width: 0;
+        min-height: 0;
+        padding: 0 clamp(8px, 2vw, 12px);
+      }
+
+      .payroll-dossier-summary .hero-stat:first-child {
+        padding-left: 0;
+      }
+
+      .payroll-dossier-summary .hero-stat:last-child {
+        padding-right: 0;
+      }
+
+      .payroll-dossier-summary .stat-value,
+      .payroll-dossier-summary #totalPayCount {
+        overflow-wrap: anywhere;
+        font-size: clamp(1rem, 3.4vw, 1.18rem);
+      }
+
+      .payroll-dossier-summary #totalPayCount {
+        white-space: normal;
       }
     }
 
     @media (max-width: 760px) {
-      body.mobile-full-bleed .payroll-dossier {
+      body.mobile-full-bleed .payroll-dossier-shell {
+        --dossier-inline: max(var(--space-5), env(safe-area-inset-left), env(safe-area-inset-right), 16px);
+        width: 100vw;
+        max-width: 100vw;
+        margin-right: calc(50% - 50vw);
+        margin-left: calc(50% - 50vw);
         padding:
-          32px
-          calc(var(--space-5) + max(12px, env(safe-area-inset-right)))
-          26px
-          calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
-        gap: 24px;
+          28px
+          max(var(--space-5), env(safe-area-inset-right))
+          0
+          max(var(--space-5), env(safe-area-inset-left));
+        gap: var(--space-4);
+        border-right: 0;
+        border-left: 0;
+        border-radius: 0;
+        overflow: clip;
+      }
+
+      body.mobile-full-bleed .payroll-dossier-shell > .hero.payroll-dossier {
+        width: auto;
+        max-width: none;
+        margin: 0;
       }
 
       body.mobile-full-bleed .payroll-dossier .hero-copy {
@@ -882,70 +1028,69 @@
       }
 
       .payroll-dossier h1 {
-        max-width: 10ch;
-        font-size: clamp(2.7rem, 13vw, 4.2rem);
+        max-width: none;
+        font-size: clamp(1.85rem, 7.2vw, 2.35rem);
+        line-height: 1.05;
       }
 
-      body.mobile-full-bleed .payroll-dossier .hero-month {
-        margin: 0;
-      }
-
-      .payroll-dossier .hero-stats {
-        grid-template-columns: minmax(0, .68fr) minmax(0, .68fr) minmax(140px, 1.64fr);
-      }
-
-      .payroll-dossier .hero-stat,
-      .payroll-dossier .hero-stat-wide {
-        padding: 0 10px;
+      body.mobile-full-bleed .payroll-dossier-summary {
+        margin:
+          0
+          calc(-1 * max(var(--space-5), env(safe-area-inset-right)))
+          0
+          calc(-1 * max(var(--space-5), env(safe-area-inset-left)));
+        padding:
+          var(--space-4)
+          max(var(--space-5), env(safe-area-inset-right))
+          var(--space-4)
+          max(var(--space-5), env(safe-area-inset-left));
       }
     }
 
     @media (max-width: 420px) {
-      body.mobile-full-bleed .payroll-dossier {
-        padding-top: 26px;
-        padding-right: 14px;
-        padding-bottom: 20px;
-        padding-left: 58px;
-      }
-
-      .payroll-dossier .dossier-kicker {
-        align-items: flex-start;
-        flex-direction: column;
+      body.mobile-full-bleed .payroll-dossier-shell {
+        --dossier-inline: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+        padding-top: 24px;
+        padding-right: max(16px, env(safe-area-inset-right));
+        padding-bottom: 0;
+        padding-left: max(16px, env(safe-area-inset-left));
       }
 
       .payroll-dossier h1 {
-        font-size: clamp(2.5rem, 14vw, 3.5rem);
+        font-size: clamp(1.7rem, 8vw, 2.05rem);
       }
 
-      .payroll-dossier .hero-month {
-        padding: 20px 16px 18px 28px;
+      body.mobile-full-bleed .payroll-dossier-summary {
+        margin-right: calc(-1 * max(16px, env(safe-area-inset-right)));
+        margin-left: calc(-1 * max(16px, env(safe-area-inset-left)));
+        padding:
+          var(--space-3)
+          max(16px, env(safe-area-inset-right))
+          var(--space-3)
+          max(16px, env(safe-area-inset-left));
       }
 
-      .payroll-dossier .month-box {
-        padding-right: 0;
+      .payroll-dossier-summary .hero-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        row-gap: 0;
       }
 
-      .payroll-dossier .hero-stats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        row-gap: 14px;
+      .payroll-dossier-summary .hero-stat:nth-child(2) {
+        border-right: 1px solid var(--line);
       }
 
-      .payroll-dossier .hero-stat:nth-child(2) {
-        border-right: 0;
-      }
-
-      .payroll-dossier .hero-stat:last-child {
-        grid-column: 1 / -1;
-        min-height: 48px;
-        padding: 14px 0 0;
-        border-top: 1px solid var(--line);
+      .payroll-dossier-summary .hero-stat:last-child {
+        grid-column: auto;
+        min-height: 0;
+        padding-top: 0;
+        border-top: 0;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .payroll-dossier.cg-reveal,
+      .payroll-dossier-shell:has(.payroll-dossier.cg-reveal),
       .payroll-dossier.cg-reveal .hero-copy,
-      .payroll-dossier.cg-reveal .hero-month {
+      .payroll-dossier.cg-reveal + .payroll-dossier-summary {
         opacity: 1;
         animation: none;
         transform: none;
@@ -1001,21 +1146,21 @@
     </div>
   </header>
   <main class="page" id="main-content">
-    <section class="hero payroll-dossier" aria-labelledby="heroTitle">
-      <div class="hero-copy">
-        <div class="dossier-kicker">
+    <div class="payroll-dossier-shell">
+      <section class="hero payroll-dossier" aria-labelledby="heroTitle">
+        <div class="hero-copy">
           <p class="eyebrow">Manager Review</p>
-          <span class="submission-state"><i data-lucide="check" aria-hidden="true"></i>Submitted snapshot</span>
+          <header>
+            <h1 id="heroTitle"><span class="hero-title-line">Payroll</span> <span class="hero-title-line hero-title-accent">Entry</span></h1>
+            <span class="submission-state"><i data-lucide="check" aria-hidden="true"></i>Submitted</span>
+          </header>
         </div>
-        <header>
-          <h1 id="heroTitle"><span class="hero-title-line">Payroll</span> <span class="hero-title-line hero-title-accent">Entry</span></h1>
-        </header>
-      </div>
-      <aside class="hero-month">
+      </section>
+      <aside class="hero-month payroll-dossier-summary" aria-label="Submitted month summary">
         <div class="month-box"><div class="month-box-header"><strong>Submitted month</strong><span class="month-box-value" id="monthValue">-</span></div></div>
         <div class="hero-stats" aria-label="Submission summary"><div class="hero-stat"><span class="stat-label">Entries</span><span class="stat-value" id="entryCount">0</span></div><div class="hero-stat"><span class="stat-label">Hours</span><span class="stat-value" id="hoursCount">0</span></div><div class="hero-stat hero-stat-wide"><span class="stat-label">Total Pay</span><span class="stat-value" id="totalPayCount">S$0.00</span></div></div>
       </aside>
-    </section>
+    </div>
     <div class="workspace"><div class="layout"><div class="review-column"><section class="panel" id="managerCalendarPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the employee submission for the selected month so you can review it in context before touching any entry rows.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel" id="managerActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Submitted activity</p><h2>Entries By Activity</h2><p class="panel-copy">The submitted entries stay grouped alphabetically so corrections happen where the error is visible, not in a detached management tool.</p></div></div><div id="schoolGroups" class="groups"></div></section></div><aside class="action-column"><section class="panel" id="managerDetailsPanel"><div class="panel-header"><div><p class="panel-eyebrow">Employee details</p><h2>Submitted Payroll Snapshot</h2><p class="panel-copy">This rail summarizes the employee identity, bank details, period, rate, hours, and pay as submitted.</p></div></div><div class="pay-card"><div class="pay-line"><span>Name</span><span id="payName">-</span></div><div class="pay-line"><span>Bank</span><span id="payBankName">-</span></div><div class="pay-line"><span>Account Type</span><span id="payAccountType">-</span></div><div class="pay-line"><span>Bank Account</span><span id="payBank">-</span></div><div class="pay-line"><span>Period</span><span id="payMonth">-</span></div><div class="pay-line"><span id="payRateLabel">Rate</span><span id="payRate">S$0.00</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><section class="payment-review" id="paymentReviewCard" aria-labelledby="paymentReviewTitle"><div class="payment-review-header"><div class="payment-review-copy"><strong id="paymentReviewTitle">Review completion</strong><p id="paymentReviewDetail">Confirm only after the payroll has been checked and payment has been sent.</p></div><span class="payment-review-status" id="paymentReviewStatus">Awaiting payment</span></div><button class="primary" id="markPaidButton" type="button">Mark Completed &amp; Paid</button><div class="payment-confirm-panel" id="paymentConfirmPanel" hidden><p>This records the submission as paid and prevents the employee from withdrawing it. Continue?</p><div class="payment-confirm-actions"><button class="secondary" id="cancelPaidButton" type="button">Cancel</button><button class="primary" id="confirmPaidButton" type="button">Confirm Paid</button></div></div><p class="payment-action-message" id="paymentActionMessage" role="status" aria-live="polite"></p></section><div class="calendar-actions"><a class="secondary button-secondary" href="./manager-dashboard.html">Back To Dashboard</a></div></section></aside></div></div>
   </main>
 

@@ -12,32 +12,60 @@ const hero = heroMatch[0];
 
 assert.match(
   html,
-  /<section class="panel" id="monthlyReviewPanel"[\s\S]*<h2 id="calendarTitle">Month View<\/h2>[\s\S]*<p class="panel-copy">Select a month above, add all of your entries for that month, then finalize your timesheet in Submission View\.<\/p>/,
-  "calendar view should explain the month-to-submission workflow"
+  /<section class="panel" id="monthlyReviewPanel"[\s\S]*<input id="monthPicker" type="month" hidden>[\s\S]*<div class="calendar-month-nav" role="group" aria-label="Working month">[\s\S]*<button class="month-picker-nav-button" id="calendarMonthPrev"[\s\S]*<h2 id="calendarTitle" class="calendar-month-heading">[\s\S]*<select id="monthNameSelect"[\s\S]*<input id="monthYearSelect" type="number"[\s\S]*<button class="month-picker-nav-button" id="calendarMonthNext"/,
+  "calendar view should include inline month and year controls with month seeking"
+);
+assert.match(
+  html,
+  /<section class="panel" id="monthlyReviewPanel"[\s\S]*<p class="panel-copy">Click the month or year above to change them, add all of your entries for this month, then finalize your timesheet in Submission View\.<\/p>/,
+  "calendar view should explain how to change the working month and year"
 );
 
 [
   '<h1 class="v1-title"><span>Chess Grande</span> <span class="v1-accent">Timesheet</span></h1>',
   'class="v1-tally"',
-  'class="v1-desk"',
-  'id="monthPicker"',
-  'id="monthPickerControl"',
-  'id="monthPickerTrigger"',
-  'id="monthPickerLabel"',
-  'id="monthPickerPanel"',
-  'id="monthPickerFallback"',
-  'id="monthNameSelect"',
-  'id="monthYearSelect"',
-  'id="monthPickerGrid"',
   'id="schoolCount"',
   'id="entryCount"',
   'id="hoursCount"',
 ].forEach((snippet) => {
   assert.ok(hero.includes(snippet), `compact hero should include ${snippet}`);
 });
+[
+  'class="v1-desk"',
+  'href="#aiXlsxImportPanel"',
+  'Import from Excel',
+  'id="monthPickerControl"',
+  'id="monthPickerTrigger"',
+  'id="monthPickerLabel"',
+  'id="monthPickerPanel"',
+  'id="monthPickerFallback"',
+  'id="monthPickerGrid"',
+  'Working month',
+].forEach((snippet) => {
+  assert.ok(!hero.includes(snippet), `compact hero should remove ${snippet}`);
+});
+assert.ok(
+  html.includes('id="monthPicker"') && html.includes('id="monthNameSelect"') && html.includes('id="monthYearSelect"'),
+  "timesheet page should keep month state controls in the calendar panel"
+);
 assert.ok(
   !hero.includes("Streamlined Monthly Tracker"),
   "timesheet hero should avoid decorative tracker copy"
+);
+assert.match(
+  html,
+  /--space-5:\s*18px;[\s\S]*--space-6:\s*20px;[\s\S]*--space-7:\s*24px;/,
+  "timesheet should use a compact shared spacing scale"
+);
+assert.match(
+  html,
+  /\.app-header-inner\s*\{[^}]*min-height:\s*64px;[\s\S]*\.hero-v1\s*\{[^}]*gap:\s*20px;[^}]*padding:\s*24px 24px 20px;/,
+  "timesheet shell and masthead should use compact layout spacing"
+);
+assert.match(
+  html,
+  /input\[type="month"\],[\s\S]*min-height:\s*48px;[\s\S]*\.panel\s*\{[^}]*padding:\s*var\(--space-6\);[\s\S]*button\s*\{[^}]*min-height:\s*44px;/,
+  "timesheet controls should stay compact without dropping below touch-target sizes"
 );
 
 [
@@ -75,9 +103,6 @@ const compactPageExpectations = [
       '<section class="hero hero-v1">',
       '<h1 class="v1-title"><span>Chess Grande</span> <span class="v1-accent">Pay Summary</span></h1>',
       'class="v1-tally"',
-      'class="v1-desk"',
-      'id="monthPicker"',
-      'id="monthPickerFallback"',
       'id="rateCount"',
       'id="hoursCount"',
       'id="summaryPay"',
@@ -92,14 +117,19 @@ const compactPageExpectations = [
       "month-box-note",
       "summary-strip",
       "summary-card",
+      'class="v1-desk"',
+      'id="monthPickerControl"',
+      'id="monthPickerFallback"',
     ],
   },
   {
     fileName: "manager-dashboard.html",
     required: [
       "Manager View",
-      "<h1>Payroll Submissions</h1>",
-      'class="hero-stats"',
+      'class="v1-title"',
+      'class="v1-rule"',
+      'class="v1-tally"',
+      'class="v1-metric"',
       'id="submissionCount"',
       'id="totalSubmittedPay"',
       "$0.00",
@@ -147,7 +177,10 @@ const compactPageExpectations = [
 
 compactPageExpectations.forEach(({ fileName, required, removed }) => {
   const source = fs.readFileSync(path.join(process.cwd(), fileName), "utf8");
-  const pageHero = source.match(/<section class="hero(?:\s+[^"]*)?"[^>]*>[\s\S]*?<\/section>/)?.[0] || "";
+  const pageHero =
+    fileName === "manager-entry.html"
+      ? source.match(/<div class="payroll-dossier-shell"[^>]*>[\s\S]*?<\/div>\s*<div class="workspace"/)?.[0] || ""
+      : source.match(/<section class="hero(?:\s+[^"]*)?"[^>]*>[\s\S]*?<\/section>/)?.[0] || "";
   assert.ok(pageHero, `${fileName} should render a compact hero`);
   required.forEach((snippet) => {
     assert.ok(pageHero.includes(snippet), `${fileName} compact hero should include ${snippet}`);
@@ -177,12 +210,30 @@ assert.ok(
 const payPage = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"), "utf8");
 assert.match(
   payPage,
-  /<section class="hero hero-v1">[\s\S]*class="v1-title"[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"[\s\S]*class="v1-desk"[\s\S]*id="monthPickerControl"/,
-  "pay page should match the timesheet masthead while retaining live payroll totals and month controls"
+  /<section class="hero hero-v1">[\s\S]*class="v1-title"[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"/,
+  "pay page should match the timesheet masthead while retaining live payroll totals"
+);
+assert.ok(
+  !payPage.includes('class="v1-desk"') && !payPage.includes('id="monthPickerControl"'),
+  "pay page hero should not keep a separate working-month desk picker"
 );
 assert.match(
   payPage,
-  /\.hero-v1\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) minmax\(300px, 380px\);[\s\S]*\.hero-v1 \.v1-title\s*\{[^}]*font-family:\s*Georgia,[^}]*font-weight:\s*400;[\s\S]*\.hero-v1 \.v1-metric-value\s*\{[^}]*font-family:\s*"Avenir Next",\s*"Segoe UI",\s*sans-serif;/is,
+  /<section class="panel" id="payCalendarPanel"[\s\S]*<input id="monthPicker" type="month" hidden>[\s\S]*<div class="calendar-month-nav" role="group" aria-label="Working month">[\s\S]*<button class="month-picker-nav-button" id="calendarMonthPrev"[\s\S]*<h2 id="calendarTitle" class="calendar-month-heading">[\s\S]*<select id="monthNameSelect"[\s\S]*<input id="monthYearSelect" type="number"[\s\S]*<button class="month-picker-nav-button" id="calendarMonthNext"/,
+  "pay calendar view should include inline month and year controls with month seeking"
+);
+assert.match(
+  payPage,
+  /function setupMonthPickerUi\(\)[\s\S]*calendarMonthPrev\.addEventListener\("click", \(\) => shiftMonthValue\(-1\)\);[\s\S]*calendarMonthNext\.addEventListener\("click", \(\) => shiftMonthValue\(1\)\);[\s\S]*monthNameSelect\.addEventListener\("change", onFallbackMonthChange\);[\s\S]*monthYearSelect\.addEventListener\("change", onFallbackMonthChange\);[\s\S]*monthYearSelect\.addEventListener\("blur", onYearInputBlur\);/s,
+  "pay calendar month picker should wire inline month, year, and arrow navigation"
+);
+assert.ok(
+  !payPage.includes("calendarTitle.textContent"),
+  "pay calendar should keep inline month and year controls in calendarTitle"
+);
+assert.match(
+  payPage,
+  /\.hero-v1\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\);[\s\S]*\.hero-v1 \.v1-title\s*\{[^}]*font-family:\s*Georgia,[^}]*font-weight:\s*400;[\s\S]*\.hero-v1 \.v1-metric-value\s*\{[^}]*font-family:\s*"Avenir Next",\s*"Segoe UI",\s*sans-serif;/is,
   "pay page should use the same editorial masthead proportions and title treatment as the timesheet"
 );
 [
@@ -209,8 +260,22 @@ assert.match(
 );
 assert.match(
   payPage,
-  /\.pay-card\s*\{\s*padding:\s*10px 12px;[^}]*gap:\s*7px;[^}]*border-radius:\s*18px;/is,
-  "pay card should use tighter outer spacing"
+  /\.pay-form\s*\{[^}]*display:\s*grid;[^}]*gap:\s*var\(--space-5\);/is,
+  "pay form should sit directly in the panel without a nested card shell"
+);
+assert.match(
+  payPage,
+  /<form id="payForm" class="pay-form layout-v1">[\s\S]*<ul class="v1-tally" aria-label="Payroll summary">[\s\S]*class="v1-metric-label"[\s\S]*id="payMonth"[\s\S]*id="payHours"[\s\S]*id="payTotal"/,
+  "pay summary should reuse the timesheet hero tally layout"
+);
+assert.match(
+  payPage,
+  /\.pay-form \.v1-tally\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);[\s\S]*\.pay-form \.v1-metric-value\s*\{[^}]*font-size:\s*clamp\(0\.98rem,\s*5\.2cqi,\s*1\.22rem\);/is,
+  "pay summary tally should keep three columns and scale type to the panel width"
+);
+assert.ok(
+  !payPage.includes("pay-card-header") && !payPage.includes("Payroll card"),
+  "pay profile panel should not repeat payroll card chrome inside the form"
 );
 assert.match(
   payPage,
@@ -226,23 +291,23 @@ assert.match(
 const managerDashboard = fs.readFileSync(path.join(process.cwd(), "manager-dashboard.html"), "utf8");
 assert.match(
   managerDashboard,
-  /class="hero-stat hero-stat-wide"><span class="stat-label">Total Submitted Pay<\/span><span class="stat-value" id="totalSubmittedPay"/,
-  "manager dashboard total submitted pay should keep the pay stat marker"
+  /class="v1-tally"[^>]*aria-label="Dashboard summary"/,
+  "manager dashboard should expose a labeled payroll summary tally"
 );
 assert.match(
   managerDashboard,
-  /\.hero-stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/is,
-  "manager dashboard hero stats should keep submissions and pay in one row"
+  /class="v1-metric"[^>]*>[\s\S]*?id="submissionCount"[\s\S]*?class="v1-metric"[^>]*>[\s\S]*?id="totalSubmittedPay"/,
+  "manager dashboard should keep submissions and pay in the hero tally"
 );
 assert.match(
   managerDashboard,
-  /\.hero-stat-wide\s*\{[^}]*grid-column:\s*auto;[^}]*grid-template-columns:\s*1fr;/is,
-  "manager dashboard pay total card should no longer span the stats grid"
+  /\.hero-v1\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\);/is,
+  "manager dashboard hero should use the payroll masthead single-column layout"
 );
 assert.match(
   managerDashboard,
-  /#totalSubmittedPay\s*\{[^}]*white-space:\s*nowrap;[^}]*overflow-wrap:\s*normal;[^}]*word-break:\s*normal;/is,
-  "manager dashboard totalSubmittedPay should stay on one line"
+  /\.hero-v1 \.v1-tally\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/is,
+  "manager dashboard hero tally should keep its metrics in one row"
 );
 
 const managerEntry = fs.readFileSync(path.join(process.cwd(), "manager-entry.html"), "utf8");
@@ -250,6 +315,21 @@ assert.match(
   managerEntry,
   /<span class="stat-label">Total Pay<\/span><span class="stat-value" id="totalPayCount"/,
   "manager entry hero should show total pay instead of hourly rate"
+);
+assert.match(
+  managerEntry,
+  /body\.mobile-full-bleed \.hero:not\(\.payroll-dossier\)/s,
+  "manager entry mobile full-bleed should not pull the dossier title out of its shell"
+);
+assert.match(
+  managerEntry,
+  /@media \(max-width: 960px\)[\s\S]*\.payroll-dossier-summary\s*\{[\s\S]*calc\(-1 \* var\(--dossier-inline\)\)/s,
+  "manager entry tablet summary should span the shell edges without a viewport breakout"
+);
+assert.match(
+  managerEntry,
+  /@media \(max-width: 960px\)[\s\S]*\.payroll-dossier h1\s*\{[^}]*font-size:\s*clamp\(2rem, 5\.4vw, 2\.75rem\);/s,
+  "manager entry tablet title should stay readable inside the shell"
 );
 assert.doesNotMatch(
   managerEntry,
@@ -308,7 +388,7 @@ assert.match(
 );
 assert.match(
   managerEntry,
-  /@media \(max-width: 760px\)[\s\S]*\.month-box-header strong\s*\{[^}]*font-size:\s*clamp\(.66rem, 2.8vw, .76rem\);[\s\S]*\.month-box-value\s*\{[^}]*font-size:\s*clamp\(1.42rem, 6.8vw, 1.8rem\);[\s\S]*#totalPayCount\s*\{[^}]*font-size:\s*clamp\(1.08rem, 5.1vw, 1.32rem\);[\s\S]*h1\s*\{[^}]*font-size:\s*clamp\(1.62rem, 7.4vw, 2.08rem\);[\s\S]*@media \(max-width: 420px\)[\s\S]*h1\s*\{[^}]*font-size:\s*clamp\(1.42rem, 7.2vw, 1.78rem\);[\s\S]*#totalPayCount\s*\{[^}]*font-size:\s*clamp\(.96rem, 4.8vw, 1.12rem\);/s,
+  /@media \(max-width: 760px\)[\s\S]*\.payroll-dossier-summary \.month-box-header strong\s*\{[^}]*font-size:\s*clamp\(.66rem, 2.8vw, .76rem\);[\s\S]*\.payroll-dossier-summary \.month-box-value\s*\{[^}]*font-size:\s*clamp\(1\.18rem, 5vw, 1\.38rem\);[\s\S]*\.payroll-dossier-summary #totalPayCount\s*\{[^}]*font-size:\s*clamp\(1rem, 4vw, 1\.18rem\);[\s\S]*h1\s*\{[^}]*font-size:\s*clamp\(1\.62rem, 7\.4vw, 2\.08rem\);[\s\S]*@media \(max-width: 420px\)[\s\S]*h1\s*\{[^}]*font-size:\s*clamp\(1\.42rem, 7\.2vw, 1\.78rem\);[\s\S]*#totalPayCount\s*\{[^}]*font-size:\s*clamp\(.96rem, 4\.8vw, 1\.12rem\);/s,
   "manager entry mobile hero should use a quieter manager review type hierarchy"
 );
 assert.match(
@@ -333,28 +413,31 @@ assert.match(
 );
 assert.match(
   html,
-  /#monthPicker\s*\{\s*display:\s*none !important;\s*\}[\s\S]*\.month-picker-popover\s*\{[^}]*z-index:\s*1500;[\s\S]*\.month-picker-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/s,
-  "timesheet page should use the custom month picker popover from the pay page"
+  /const mobileComposerQuery = window\.matchMedia\("\(max-width: 960px\)"\)/,
+  "timesheet mobile composer mode should align with the compact layout breakpoint at 960px"
 );
 assert.match(
   html,
-  /@media \(max-width: 760px\)[\s\S]*\.month-picker-popover\s*\{[^}]*left:\s*50%;[^}]*right:\s*auto;[^}]*transform:\s*translateX\(-50%\);/s,
-  "timesheet month picker popover should center on mobile"
+  /@media \(max-width: 960px\)[\s\S]*\.entry-composer-modal\s*\{\s*display:\s*grid;\s*\}[\s\S]*\.entry-composer-modal-close\s*\{\s*display:\s*grid;\s*\}/,
+  "timesheet tablet and mobile widths should enable the entry composer modal overlay"
+);
+assert.ok(
+  !html.includes("reviewColumn.prepend(entryComposerPanel)"),
+  "timesheet compact layout should not inline the composer in the review column"
 );
 assert.match(
   html,
-  /\.hero\s*\{[^}]*z-index:\s*20;[^}]*overflow:\s*visible;[\s\S]*\.workspace\s*\{[^}]*z-index:\s*1;/s,
-  "timesheet hero should let the month picker render above the workspace"
+  /function setupMonthPickerUi\(\)[\s\S]*calendarMonthPrev\.addEventListener\("click", \(\) => shiftMonthValue\(-1\)\);[\s\S]*calendarMonthNext\.addEventListener\("click", \(\) => shiftMonthValue\(1\)\);[\s\S]*monthNameSelect\.addEventListener\("change", onFallbackMonthChange\);[\s\S]*monthYearSelect\.addEventListener\("change", onFallbackMonthChange\);[\s\S]*monthYearSelect\.addEventListener\("blur", onYearInputBlur\);/s,
+  "timesheet calendar month picker should wire inline month, year, and arrow navigation"
 );
 assert.match(
   html,
-  /function setupMonthPickerUi\(\)[\s\S]*monthPickerTrigger\.addEventListener\("click", toggleMonthPickerPanel\);[\s\S]*monthPickerPrev\.addEventListener\("click", \(\) => shiftMonthValue\(-1\)\);[\s\S]*monthPickerNext\.addEventListener\("click", \(\) => shiftMonthValue\(1\)\);/s,
-  "timesheet month picker should wire trigger and arrow navigation"
+  /function renderCalendar\(activeEntries, monthValue\)[\s\S]*const groupedByDate = groupBy\(activeEntries, \(entry\) => entry\.date\);/s,
+  "timesheet calendar render should not overwrite calendarTitle text content"
 );
-assert.match(
-  html,
-  /function renderMonthPickerGrid\(monthValue = monthPicker\.value\)[\s\S]*button\.className = "month-picker-month";[\s\S]*setMonthValue\(value\);[\s\S]*syncDateFieldToMonth\(\);[\s\S]*syncPayrollLink\(\);[\s\S]*syncQuickAddSaveButton\(\);[\s\S]*render\(\);/s,
-  "timesheet month picker grid should refresh the timesheet when a month is selected"
+assert.ok(
+  !html.includes("calendarTitle.textContent"),
+  "timesheet calendar should keep inline month and year controls in calendarTitle"
 );
 
 [
@@ -365,7 +448,7 @@ assert.match(
   if (fileName === "chess-timesheet.html") {
     [
       "aspect-ratio: auto;",
-      "min-height: clamp(104px, 24vw, 132px);",
+      "min-height: clamp(96px, 22vw, 120px);",
       "overflow: visible;",
       "font-size: 9px;",
       "line-height: 1.1;",

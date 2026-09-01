@@ -1107,6 +1107,7 @@
     const weekCount = document.getElementById("weekCount");
     const weeklySchedule = document.getElementById("weeklySchedule");
     const monthProgressLabel = document.getElementById("monthProgressLabel");
+    const progressTitle = document.getElementById("progressTitle");
     const schoolCount = document.getElementById("schoolCount");
     const entryCount = document.getElementById("entryCount");
     const hoursCount = document.getElementById("hoursCount");
@@ -1140,6 +1141,7 @@
     let cachedNotices = [];
     let currentActivityView = "cumulative";
     let cumulativeHourActivity = null;
+    let cachedProgressEntries = [];
 
     document.body.appendChild(entryActivityTooltip);
     entryActivityViewButtons.forEach((button) => {
@@ -1343,9 +1345,27 @@
     }
 
     function renderMonthProgress(entries) {
+      cachedProgressEntries = entries || [];
+      updateProgressSummary();
+      renderCumulativeHours(cachedProgressEntries, new Date());
+    }
+
+    function updateProgressSummary() {
       const today = new Date();
+      const entries = cachedProgressEntries || [];
+      if (currentActivityView === "cumulative") {
+        const stats = getCumulativeStats(entries);
+        progressTitle.textContent = "Cumulative Progress";
+        monthProgressLabel.textContent = "All time";
+        schoolCount.textContent = stats.schoolCount;
+        entryCount.textContent = stats.entryCount;
+        hoursCount.textContent = trimHours(stats.hours);
+        return;
+      }
+
       const monthKey = formatMonthKey(today);
       const stats = getCurrentMonthStats(entries, monthKey);
+      progressTitle.textContent = "Month Progress";
       monthProgressLabel.textContent = new Intl.DateTimeFormat(undefined, {
         month: "long",
         year: "numeric",
@@ -1353,7 +1373,6 @@
       schoolCount.textContent = stats.schoolCount;
       entryCount.textContent = stats.entryCount;
       hoursCount.textContent = trimHours(stats.hours);
-      renderCumulativeHours(entries, today);
     }
 
     function renderCumulativeHours(entries, today) {
@@ -1373,7 +1392,7 @@
           entryActivityMonths.appendChild(label);
         });
       renderCumulativeHourView();
-      scrollEntryActivityToCurrentMonth(days, today);
+      scrollEntryActivityToEnd();
     }
 
     function setActivityView(view) {
@@ -1383,6 +1402,7 @@
         button.setAttribute("aria-pressed", String(button.dataset.activityView === view));
       });
       hideEntryActivityTooltip();
+      updateProgressSummary();
       renderCumulativeHourView();
     }
 
@@ -1464,14 +1484,13 @@
       entryActivityCalendar.querySelectorAll(".is-hovered").forEach((node) => node.classList.remove("is-hovered"));
     }
 
-    function scrollEntryActivityToCurrentMonth(days, today) {
-      const currentMonthKey = formatMonthKey(today);
-      const currentMonthDay = days.find((day) => formatMonthKey(day.date) === currentMonthKey);
-      if (!currentMonthDay) return;
-      const weekWidth = 16;
-      const targetLeft = Math.max(0, (currentMonthDay.weekIndex * weekWidth) - (entryActivityScroll.clientWidth / 2) + (weekWidth * 2));
+    function scrollEntryActivityToEnd() {
+      const syncScroll = () => {
+        entryActivityScroll.scrollLeft = entryActivityScroll.scrollWidth;
+      };
       requestAnimationFrame(() => {
-        entryActivityScroll.scrollLeft = targetLeft;
+        syncScroll();
+        requestAnimationFrame(syncScroll);
       });
     }
 
@@ -1721,6 +1740,23 @@
       };
     }
 
+    function getCumulativeStats(entries) {
+      const relevantEntries = entries || [];
+      const schools = new Set(
+        relevantEntries
+          .map((entry) => String(entry.schoolName || "").trim())
+          .filter((school) => school && school !== "Claims")
+      );
+      return {
+        schoolCount: schools.size,
+        entryCount: relevantEntries.length,
+        hours: relevantEntries.reduce((sum, entry) => {
+          const hours = Number(entry.hours || 0);
+          return Number.isFinite(hours) && hours > 0 ? sum + hours : sum;
+        }, 0),
+      };
+    }
+
     function getCumulativeHourDays(entries, today = new Date()) {
       const endDate = startOfDay(today);
       const startDate = startOfDay(addDays(endDate, -364));
@@ -1917,5 +1953,7 @@
       }
     }
   </script>
+<!-- impeccable-live-start -->
+<!-- impeccable-live-end -->
 </body>
 </html>

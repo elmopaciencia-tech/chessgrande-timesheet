@@ -738,19 +738,20 @@
     }
     .quick-add-item {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 42px;
+      grid-template-columns: minmax(0, 1fr) 32px;
       gap: 8px;
       align-items: stretch;
     }
     .quick-add-apply {
-      min-height: 46px;
+      min-height: 32px;
       min-width: 0;
       display: grid;
-      gap: 4px;
+      gap: 2px;
       justify-items: start;
       text-align: left;
-      padding: 10px 12px;
-      border-radius: 16px;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
       background: var(--surface-strong);
       border-color: color-mix(in srgb, var(--line) 84%, white 16%);
       color: var(--ink);
@@ -771,17 +772,18 @@
     .quick-add-school {
       max-width: 100%;
       overflow-wrap: anywhere;
+      font-size: 0.7rem;
       font-weight: 800;
-      line-height: 1.15;
+      line-height: 1.1;
     }
     .quick-add-meta {
       color: var(--muted);
-      font-size: 0.78rem;
-      line-height: 1.25;
+      font-size: 0.55rem;
+      line-height: 1.2;
     }
     .quick-add-remove {
-      min-height: 42px;
-      width: 42px;
+      min-height: 32px;
+      width: 32px;
       padding: 0;
       border-radius: 16px;
       background: var(--surface-strong);

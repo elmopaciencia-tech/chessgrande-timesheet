@@ -18,6 +18,7 @@
     ".file-item",
     ".draft-card",
     ".pay-card",
+    ".pay-form",
     ".day",
     ".school-group",
     ".chat-popup"
@@ -53,6 +54,7 @@
     [".chat-send", "send"],
     [".chat-close, .icon-close, .lightbox-close", "x"],
     [".delete-button, .danger, .entry-remove, .row-remove-button, .quick-add-remove, .ghost", "trash-2"],
+    [".quick-add-preview-save", "plus"],
     [".edit-button", "pencil"],
     [".avatar-btn", "upload"]
   ];

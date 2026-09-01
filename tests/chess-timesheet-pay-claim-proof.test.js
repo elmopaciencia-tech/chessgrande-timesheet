@@ -6,8 +6,8 @@ const html = fs.readFileSync(path.join(process.cwd(), "chess-timesheet-pay.html"
 
 assert.match(
   html,
-  /<section class="hero hero-v1">[\s\S]*<h1 class="v1-title"><span>Chess Grande<\/span> <span class="v1-accent">Pay Summary<\/span><\/h1>[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"[\s\S]*class="v1-desk"[\s\S]*id="monthPickerControl"/,
-  "pay review should reuse the timesheet masthead with payroll totals and month controls"
+  /<section class="hero hero-v1">[\s\S]*<h1 class="v1-title"><span>Chess Grande<\/span> <span class="v1-accent">Pay Summary<\/span><\/h1>[\s\S]*class="v1-tally"[\s\S]*id="rateCount"[\s\S]*id="hoursCount"[\s\S]*id="summaryPay"/,
+  "pay review should reuse the timesheet masthead with payroll totals"
 );
 assert.doesNotMatch(
   html,
@@ -54,12 +54,10 @@ assert.match(
   "function getClaimProofName(storedValue)",
   "function formatHoursCell(entry)",
   "function formatDateLong(value)",
-  'id="monthPickerTrigger"',
-  'id="monthPickerPanel"',
-  'id="monthPickerGrid"',
-  'data-lucide="chevron-left"',
-  'data-lucide="chevron-right"',
-  "function renderMonthPickerGrid(monthValue = monthPicker.value)",
+  'id="calendarMonthPrev"',
+  'id="calendarMonthNext"',
+  'id="monthNameSelect"',
+  'id="monthYearSelect"',
   "function shiftMonthValue(offset)",
 ].forEach((snippet) => {
   assert.ok(html.includes(snippet), `pay export should include ${snippet}`);
@@ -67,28 +65,22 @@ assert.match(
 
 assert.match(
   html,
-  /<input id="monthPicker" type="month">[\s\S]*class="month-picker"[\s\S]*id="monthPickerTrigger"[\s\S]*aria-controls="monthPickerPanel"[\s\S]*id="monthPickerPanel"[\s\S]*id="monthPickerGrid"/,
-  "working month should use a custom popover picker while retaining the hidden month value"
+  /<section class="panel" id="payCalendarPanel"[\s\S]*<input id="monthPicker" type="month" hidden>[\s\S]*id="calendarMonthPrev"[\s\S]*id="monthNameSelect"[\s\S]*id="monthYearSelect"[\s\S]*id="calendarMonthNext"/,
+  "working month should use inline calendar seeking while retaining the hidden month value"
 );
 assert.match(
   html,
-  /function renderMonthPickerGrid\(monthValue = monthPicker\.value\)[\s\S]*button\.dataset\.monthValue = value[\s\S]*button\.classList\.toggle\("is-selected"[\s\S]*setMonthValue\(value\)[\s\S]*render\(\)/,
-  "custom month picker grid should select a month and rerender the pay view"
+  /function setupMonthPickerUi\(\)[\s\S]*calendarMonthPrev\.addEventListener\("click", \(\) => shiftMonthValue\(-1\)\);[\s\S]*calendarMonthNext\.addEventListener\("click", \(\) => shiftMonthValue\(1\)\);[\s\S]*monthYearSelect\.addEventListener\("blur", onYearInputBlur\);/s,
+  "inline month picker should seek months and accept year edits"
 );
-assert.match(
-  html,
-  /\.hero\s*\{[\s\S]*z-index:\s*20;[\s\S]*overflow:\s*visible;/,
-  "working month popover should not be clipped or covered by the hero card"
+assert.ok(
+  !html.includes("function renderMonthPickerGrid") && !html.includes('id="monthPickerControl"'),
+  "pay page should not keep the hero month popover picker"
 );
 assert.match(
   html,
   /\.workspace\s*\{[\s\S]*z-index:\s*1;/,
-  "content below the hero should stay below the open working month popover"
-);
-assert.match(
-  html,
-  /@media \(max-width: 760px\)[\s\S]*\.month-picker-popover\s*\{[^}]*left:\s*50%;[^}]*right:\s*auto;[^}]*transform:\s*translateX\(-50%\);/s,
-  "working month popover should center on mobile"
+  "content below the hero should stay in the normal stacking context"
 );
 assert.match(
   html,
@@ -132,7 +124,7 @@ assert.match(
 );
 assert.match(
   html,
-  /<form id="payForm"[\s\S]*<div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll<\/button><a class="secondary nav-link" href="\.\/chess-timesheet\.html">Back To Timesheet<\/a><\/div><div class="status-message" id="submitStatus"><\/div><\/form>/,
+  /<form id="payForm" class="pay-form layout-v1"[\s\S]*class="v1-tally"[\s\S]*id="payMonth"[\s\S]*id="payHours"[\s\S]*id="payTotal"[\s\S]*<div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll<\/button><a class="secondary nav-link" href="\.\/chess-timesheet\.html">Back To Timesheet<\/a><\/div><div class="status-message" id="submitStatus"><\/div><\/form>/,
   "payroll profile actions should only keep submit and back controls"
 );
 assert.ok(

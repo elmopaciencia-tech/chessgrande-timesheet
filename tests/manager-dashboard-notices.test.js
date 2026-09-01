@@ -28,7 +28,8 @@ const html = fs.readFileSync(
   "profileDirectorySendNoticeButton.addEventListener(\"click\", openNoticeModal);",
   "noticeModalClose.addEventListener(\"click\", closeNoticeModal);",
   "noticeCancelButton.addEventListener(\"click\", closeNoticeModal);",
-  "noticeEmployeeSearch.addEventListener(\"input\", renderNoticeRecipientList);",
+  "noticeEmployeeSearch.addEventListener(\"input\", scheduleNoticeRecipientListRender);",
+  "function scheduleNoticeRecipientListRender()",
   "selectAllNoticeEmployees.addEventListener(\"click\", selectVisibleNoticeEmployees);",
   "noticeSendButton.addEventListener(\"click\", sendEmployeeNotice);",
   ".from(\"profiles\")",
@@ -92,6 +93,21 @@ assert.match(
   html,
   /noticeSendButton\.disabled = true;[\s\S]*window\.employeeNoticeStore\.createNotice\([\s\S]*noticeSendButton\.disabled = false;/,
   "manual notice sending should prevent duplicate submissions and always re-enable the button"
+);
+assert.match(
+  html,
+  /\.notice-modal input:focus-visible, \.notice-modal textarea:focus-visible[\s\S]*outline: 2px solid color-mix\(in srgb, var\(--clay\)/,
+  "notice fields should use the dashboard focus treatment instead of the shared green focus ring"
+);
+assert.match(
+  html,
+  /\.notice-modal input, \.notice-modal textarea \{[^}]*transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;[^}]*transform: none;/,
+  "notice fields should avoid the global transform animation that can make mobile typing feel sluggish"
+);
+assert.match(
+  html,
+  /noticeRecipientRenderFrame = requestAnimationFrame\(\(\) => \{[\s\S]*renderNoticeRecipientList\(\);/,
+  "notice recipient search should batch list rendering between keystrokes"
 );
 assert.match(
   html,

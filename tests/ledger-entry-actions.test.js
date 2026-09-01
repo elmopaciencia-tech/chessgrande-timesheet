@@ -181,7 +181,7 @@ for (const [label, fileName] of pages) {
     );
     [
       "aspect-ratio: auto;",
-      "min-height: clamp(104px, 24vw, 132px);",
+      "min-height: clamp(96px, 22vw, 120px);",
       "overflow: visible;",
       ".day-items {",
       ".chip {",
@@ -442,23 +442,28 @@ for (const [label, fileName] of pages) {
     );
     assert.match(
       html,
-      /<button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add" data-cg-iconified="true">\s*<i class="cg-icon" data-lucide="save" aria-hidden="true"><\/i>\s*<\/button>/s,
-      "employee composer should use an accessible icon-only quick-add save button"
+      /<button class="secondary quick-add-toggle" type="button" id="quickAddToggle" aria-expanded="false" aria-controls="quickAddMenu" aria-label="Quick Add templates" data-cg-iconified="true">\s*<i class="cg-icon" data-lucide="save" aria-hidden="true"><\/i>\s*<\/button>/s,
+      "employee composer should use an accessible icon-only quick-add toggle button"
     );
     assert.match(
       html,
-      /\.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)\s*52px;[^}]*align-items:\s*end;/s,
-      "employee composer should keep start time, hours, and quick-add save in one desktop row"
+      /button\.quick-add-toggle\s*\{[^}]*width:\s*52px;[^}]*height:\s*52px;[^}]*border-radius:\s*999px;/s,
+      "employee composer should render quick-add toggle as a circular desktop icon button"
     );
     assert.match(
       html,
-      /button\.quick-add-save\s*\{[^}]*width:\s*52px;[^}]*height:\s*52px;[^}]*border-radius:\s*999px;/s,
-      "employee composer should render quick-add save as a circular desktop icon button"
+      /\.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\);[^}]*align-items:\s*end;/s,
+      "employee composer should keep start time and hours in one desktop row"
     );
     assert.match(
       html,
-      /@media \(max-width: 760px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)\s*46px;[\s\S]*#entryComposerPanel \.time-field input\[type="time"\],[\s\S]*#entryComposerPanel \.hours-field input\s*\{[^}]*min-inline-size:\s*0;[^}]*max-inline-size:\s*100%;[\s\S]*#entryComposerPanel \.quick-add-save\s*\{[^}]*width:\s*46px;[^}]*border-radius:\s*999px;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
-      "employee mobile composer should compact date and type, time and hours, icon quick add, and action buttons into shared rows"
+      /@media \(max-width: 960px\)[\s\S]*#entryComposerPanel \.form-grid\s*\{[^}]*grid-template-columns:\s*minmax\(118px,\s*0\.78fr\)\s*minmax\(0,\s*1\.22fr\);[\s\S]*#entryComposerPanel \.time-fields-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\);[\s\S]*#entryComposerPanel \.time-field input\[type="time"\],[\s\S]*#entryComposerPanel \.hours-field input\s*\{[^}]*min-inline-size:\s*0;[^}]*max-inline-size:\s*100%;[\s\S]*#entryComposerPanel \.quick-add-toggle\s*\{[^}]*width:\s*46px;[^}]*border-radius:\s*999px;[\s\S]*#entryComposerPanel \.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s,
+      "employee mobile and tablet composer should compact date and type, time and hours, icon quick add toggle, and action buttons into shared rows"
+    );
+    assert.match(
+      html,
+      /const mobileComposerQuery = window\.matchMedia\("\(max-width: 960px\)"\)/,
+      "employee mobile composer mode should use the 960px compact breakpoint"
     );
     assert.match(
       html,

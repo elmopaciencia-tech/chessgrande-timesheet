@@ -135,37 +135,167 @@
     input::placeholder { color: color-mix(in srgb, var(--muted) 82%, white 18%); }
     input:focus-visible, select:focus-visible { border-color: color-mix(in srgb, var(--focus) 60%, white 40%); box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%); }
     #monthPicker { display: none !important; }
-    .month-picker { position: relative; }
-    .month-picker-trigger {
-      width: 100%; min-height: 48px; border-radius: 16px; border: 1px solid var(--line); padding: 10px 12px;
-      background: color-mix(in srgb, var(--surface-strong) 90%, white 10%); color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: .97rem; cursor: pointer;
-    }
-    .month-picker-trigger:hover, .month-picker-trigger:focus-visible {
-      border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%);
-    }
-    .month-picker-trigger i, .month-picker-nav-button i { width: 18px; height: 18px; opacity: .78; }
-    .month-picker-popover {
-      position: absolute; z-index: 1500; top: calc(100% + 8px); right: 0; width: min(100vw - 32px, 356px); display: grid; gap: 12px;
-      padding: 12px; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
-      background: color-mix(in srgb, var(--surface) 96%, white 4%); box-shadow: 0 24px 62px rgba(23,26,25,.18);
-    }
-    .month-picker-popover[hidden] { display: none; }
-    .month-picker-nav { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; align-items: center; gap: 8px; }
     .month-picker-nav-button {
       min-height: 40px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer;
     }
     .month-picker-nav-button:hover, .month-picker-nav-button:focus-visible { background: var(--accent-soft); }
-    #monthPickerFallback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(92px, 112px); gap: 8px; }
-    #monthPickerFallback[hidden] { display: none; }
-    #monthPickerFallback select { min-height: 40px; border-radius: 12px; padding: 8px 10px; font-size: .9rem; }
-    .month-picker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-    .month-picker-month {
-      min-height: 42px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); font-weight: 700; cursor: pointer;
+    .month-picker-nav-button i,
+    .month-picker-nav-button svg {
+      width: 18px;
+      height: 18px;
+      opacity: .78;
     }
-    .month-picker-month:hover, .month-picker-month:focus-visible { background: var(--accent-soft); }
-    .month-picker-month.is-selected { background: var(--accent); color: var(--surface-strong); box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 18%, transparent); }
-    .month-picker-month.is-current:not(.is-selected) { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, white 70%); }
+
+    .calendar-month-nav {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .calendar-month-nav .month-picker-nav-button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+
+    .calendar-month-nav h2,
+    .calendar-month-heading {
+      margin: 0;
+      text-align: center;
+    }
+
+    .calendar-month-nav .calendar-month-heading {
+      justify-self: center;
+      width: max-content;
+      max-width: 100%;
+    }
+
+    .calendar-month-heading {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.12em;
+      flex-wrap: nowrap;
+      font-size: 1.38rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+
+    .calendar-month-heading select,
+    .calendar-month-heading input[type="number"] {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: inherit;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      border-radius: 10px;
+      min-height: auto;
+      height: auto;
+      width: auto;
+      min-width: 0;
+      padding: 2px 4px;
+      margin: 0;
+      box-sizing: border-box;
+      box-shadow: inset 0 -2px 0 transparent;
+      cursor: pointer;
+      text-align: center;
+      text-align-last: center;
+      appearance: none;
+      -webkit-appearance: none;
+      transition:
+        color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+    }
+
+    .calendar-month-heading select {
+      background-image: none;
+      width: fit-content;
+      max-width: fit-content;
+      field-sizing: content;
+    }
+
+    .calendar-month-heading input[type="number"] {
+      width: 5.25ch;
+      min-width: 5.25ch;
+      padding-left: 0.08em;
+      padding-right: 6px;
+      font-variant-numeric: tabular-nums;
+      -moz-appearance: textfield;
+    }
+
+    @media (hover: hover) {
+      .calendar-month-heading select:hover,
+      .calendar-month-heading input[type="number"]:hover {
+        color: var(--accent-deep);
+        background: color-mix(in srgb, var(--accent-soft) 78%, white 22%);
+        box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent) 72%, transparent 28%);
+        transform: translateY(-1px);
+      }
+    }
+
+    .calendar-month-heading select:focus-visible,
+    .calendar-month-heading input[type="number"]:focus-visible {
+      color: var(--accent-deep);
+      background: color-mix(in srgb, var(--accent-soft) 84%, white 16%);
+      box-shadow:
+        inset 0 -2px 0 var(--accent),
+        0 0 0 3px color-mix(in srgb, var(--focus) 16%, white 84%);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .calendar-month-heading input[type="number"]::-webkit-outer-spin-button,
+    .calendar-month-heading input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .calendar-month-heading select,
+      .calendar-month-heading input[type="number"] {
+        transition: none;
+      }
+
+      .calendar-month-heading select:hover,
+      .calendar-month-heading select:focus-visible,
+      .calendar-month-heading input[type="number"]:hover,
+      .calendar-month-heading input[type="number"]:focus-visible {
+        transform: none;
+      }
+    }
+
+    #payCalendarPanel .panel-header {
+      justify-content: center;
+      align-items: center;
+    }
+
+    #payCalendarPanel .panel-header > div {
+      width: 100%;
+      display: grid;
+      justify-items: center;
+      text-align: center;
+    }
+
+    #payCalendarPanel .panel-eyebrow {
+      text-align: center;
+    }
+
+    #payCalendarPanel .panel-copy {
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #payCalendarPanel .calendar-month-nav {
+      width: min(100%, 28rem);
+    }
     .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .hero-stat {
       min-width: 0; padding: 12px 14px; border-radius: 16px; display: grid; gap: 3px;
@@ -307,13 +437,34 @@
     .entry-edit-status { min-height: 1.3em; color: var(--muted); font-size: .9rem; }
     .footer-note, .status-message { color: var(--muted); font-size: .9rem; line-height: 1.45; }
     .pay-card { padding: 10px 12px; display: grid; gap: 7px; border-radius: 18px; }
-    .pay-card-header { display: grid; gap: 1px; }
-    .pay-card-title { margin: 0; font-size: .96rem; font-weight: 700; color: var(--ink); }
-    .pay-card-copy { margin: 0; color: var(--muted); line-height: 1.25; font-size: .82rem; }
-    .pay-card-section { display: grid; gap: 2px; }
-    .pay-card-section + .pay-card-section {
-      border-top: 1px solid var(--line);
-      padding-top: 5px;
+    .pay-form {
+      display: grid;
+      gap: var(--space-5);
+      margin: 0;
+    }
+    .pay-form .primary,
+    .pay-form .danger,
+    .pay-form .secondary,
+    .pay-form .nav-link {
+      min-height: 40px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+    .pay-form .pay-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: stretch;
+    }
+    .pay-form .pay-actions > * {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .bold-v1 .pay-form .primary {
+      min-height: 40px;
+      font-weight: 700;
     }
     .pay-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line); }
     .pay-line:last-child { border-bottom: 0; }
@@ -341,6 +492,109 @@
       padding: 9px 12px;
     }
     .pay-actions { margin-top: 0; }
+    .layout-v1 {
+      gap: var(--space-5);
+    }
+    .pay-form .v1-tally {
+      list-style: none;
+      margin: 0;
+      padding: 0 0 var(--space-4);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: start;
+      gap: 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
+    }
+    .pay-form .v1-metric {
+      display: grid;
+      gap: var(--space-1);
+      min-width: 0;
+      padding: 0 clamp(8px, 2.8cqi, 18px);
+      border-left: 1px solid color-mix(in srgb, var(--line-strong) 70%, white 30%);
+    }
+    .pay-form .v1-metric:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .pay-form .v1-metric-label {
+      font-size: clamp(0.58rem, 2.2cqi, 0.68rem);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pay-form .v1-metric-value {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: clamp(0.98rem, 5.2cqi, 1.22rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pay-form .v1-metric:first-child .v1-metric-value {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      overflow-wrap: break-word;
+    }
+    .pay-form #payTotal.v1-metric-value {
+      font-size: clamp(0.98rem, 5.2cqi, 1.22rem);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    @container (max-width: 360px) {
+      .pay-form .v1-metric {
+        padding: 0 8px;
+      }
+      .pay-form .v1-metric-value,
+      .pay-form #payTotal.v1-metric-value {
+        font-size: clamp(0.92rem, 6.4cqi, 1.1rem);
+      }
+    }
+    #payProfilePanel .pay-form {
+      container-type: inline-size;
+    }
+    .layout-v1 .pay-actions {
+      gap: 8px;
+    }
+    .bold-v1 > .panel-header { margin-bottom: 26px; }
+    .bold-v1 > .panel-header h2 {
+      max-width: none;
+      white-space: nowrap;
+      font-size: 2.4rem;
+      line-height: 1;
+      letter-spacing: -.035em;
+    }
+    .bold-v1 .primary {
+      min-height: 52px;
+      font-weight: 800;
+    }
+    .type-v3 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-kerning: normal;
+    }
+    .type-v3 > .panel-header h2 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 2.4725rem;
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: -.025em;
+    }
+    .type-v3 .panel-eyebrow {
+      font-family: Geist, Aptos, sans-serif;
+      font-size: .805rem;
+      font-weight: 750;
+      letter-spacing: .09em;
+    }
+    .type-v3 .panel-copy {
+      max-width: 52ch;
+      line-height: 1.55;
+    }
     .export-status { min-height: 1.3em; }
     #submissionExportView { display: none; }
     .submission-export {
@@ -471,14 +725,13 @@
       .page { gap: var(--space-4); }
       .app-header-inner { min-height: 62px; padding: 0 var(--space-3); }
       .hero, .panel { padding: var(--space-5); }
+      .layout-v1 .pay-actions { grid-template-columns: 1fr; }
       .hero { gap: var(--space-4); }
       .action-column { order: -1; }
       .review-column { order: 1; }
       .hero-month { padding: var(--space-3); }
       h1 { font-size: clamp(2rem, 10vw, 3rem); max-width: 12ch; }
       .panel-copy { font-size: clamp(.86rem, 3.4vw, .98rem); line-height: 1.38; }
-      #monthPickerFallback { grid-template-columns: 1fr; }
-      .month-picker-popover { left: 50%; right: auto; width: min(calc(100vw - 32px), 356px); transform: translateX(-50%); }
       .calendar-grid,
       .calendar-week { gap: 3px; }
       .day {
@@ -634,9 +887,7 @@
       .entry-edit-grid.edit-top-row { grid-template-columns: minmax(118px, 0.78fr) minmax(0, 1.22fr); }
       .entry-edit-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .entry-edit-actions button { width: 100%; }
-      .pay-card { padding: 9px 10px; gap: 6px; }
-      .pay-card-section { gap: 2px; }
-      .pay-card-section + .pay-card-section { padding-top: 5px; }
+      .pay-line-field input { min-height: 36px; padding: 6px 9px; }
       .pay-line { padding: 4px 0; }
       .pay-line-field input { max-width: 160px; min-height: 34px; padding: 5px 8px; }
 
@@ -1018,16 +1269,9 @@
 
     .typeset-v3 #payTotal {
       font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: inherit;
-    }
-
-    .typeset-v3 .pay-card-title {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: calc(0.98rem * 1.05);
       font-weight: 700;
     }
 
-    .typeset-v3 .pay-card-copy,
     .typeset-v3 .status-message {
       font-family: "Avenir Next", "Segoe UI", sans-serif;
       font-size: calc(0.84rem * 1.05);
@@ -1037,10 +1281,10 @@
     /* Match the primary timesheet masthead while retaining payroll-specific totals. */
     .hero-v1 {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
-      gap: 28px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
       align-items: end;
-      padding: 34px 34px 28px;
+      padding: 24px 24px 20px;
       background: linear-gradient(
         135deg,
         color-mix(in srgb, var(--surface-strong) 80%, white 20%) 0%,
@@ -1095,16 +1339,17 @@
     }
 
     .hero-v1 .v1-title .v1-accent {
+      display: block;
       color: var(--clay);
       font-style: italic;
     }
 
     .hero-v1 .v1-rule {
-      width: 100%;
       height: 3px;
-      border-top: 1px solid var(--line-strong);
-      border-bottom: 1px solid color-mix(in srgb, var(--line-strong) 60%, white 40%);
-      background: transparent;
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
     }
 
     .hero-v1 .v1-tally {
@@ -1149,73 +1394,6 @@
       white-space: nowrap;
     }
 
-    .hero-v1 .v1-desk {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      gap: 14px;
-      align-content: end;
-      padding: 18px;
-      background: color-mix(in srgb, var(--surface-strong) 86%, white 14%);
-      border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
-      border-radius: 20px;
-      box-shadow: var(--shadow-sm);
-      overflow: visible;
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger {
-      min-height: 52px;
-      padding: 12px 14px;
-      border-color: var(--line-strong);
-      background: var(--surface-strong);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
-      font-weight: 750;
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger:hover,
-    .hero-v1 .v1-desk .month-picker-trigger:focus-visible {
-      border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger[aria-expanded="true"] {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger svg {
-      color: var(--accent);
-    }
-
-    .hero-v1 .v1-desk .month-box-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .hero-v1 .v1-desk .month-box-header strong {
-      color: var(--ink);
-      font-size: 0.95rem;
-    }
-
-    .hero-v1 .v1-desk .month-box-header label {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    @media (max-width: 960px) {
-      .hero-v1 {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-v1 .v1-desk {
-        align-self: auto;
-      }
-    }
-
     @media (max-width: 760px) {
       .hero-v1 {
         gap: var(--space-4);
@@ -1230,10 +1408,6 @@
         padding-left: 0;
       }
 
-      .hero-v1 .v1-desk {
-        padding: var(--space-3);
-      }
-
       body.mobile-full-bleed .hero-v1 {
         width: 100vw;
         max-width: 100vw;
@@ -1242,11 +1416,6 @@
         padding-left: calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
         padding-right: calc(var(--space-5) + max(12px, env(safe-area-inset-right)));
         border-radius: 0;
-      }
-
-      body.mobile-full-bleed .hero-v1 .v1-desk {
-        margin-right: calc(-1 * (var(--space-5) + 1px));
-        margin-left: calc(-1 * (var(--space-5) + 1px));
       }
     }
  </style>
@@ -1307,43 +1476,35 @@
           <li class="v1-metric"><span class="v1-metric-label">Calculated Pay</span><span class="v1-metric-value" id="summaryPay">S$0.00</span></li>
         </ul>
       </div>
-      <aside class="v1-desk">
-        <div class="month-box">
-          <div class="month-box-header">
-            <strong>Working month</strong>
-            <label id="monthPickerLabelText" for="monthPickerTrigger">Select month</label>
-          </div>
-          <input id="monthPicker" type="month">
-          <div class="month-picker" id="monthPickerControl">
-            <button class="month-picker-trigger" id="monthPickerTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="monthPickerPanel" aria-labelledby="monthPickerLabelText monthPickerLabel">
-              <span id="monthPickerLabel">Select month</span>
-              <i data-lucide="calendar" aria-hidden="true"></i>
-            </button>
-            <div class="month-picker-popover" id="monthPickerPanel" role="dialog" aria-label="Select working month" hidden>
-              <div class="month-picker-nav">
-                <button class="month-picker-nav-button" id="monthPickerPrev" type="button" aria-label="Previous month"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-                <div id="monthPickerFallback">
-                  <select id="monthNameSelect" aria-label="Viewing month name">
-                    <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
-                  </select>
-                  <select id="monthYearSelect" aria-label="Viewing month year"></select>
-                </div>
-                <button class="month-picker-nav-button" id="monthPickerNext" type="button" aria-label="Next month"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
-              </div>
-              <div class="month-picker-grid" id="monthPickerGrid" role="grid" aria-label="Months"></div>
-            </div>
-          </div>
-        </div>
-      </aside>
     </section>
 
     <div class="workspace">
       <div class="layout">
         <div class="review-column">
-          <section class="panel" id="payCalendarPanel"><div class="panel-header"><div><p class="panel-eyebrow">Payroll review</p><h2 id="calendarTitle">Month View</h2><p class="panel-copy">This mirrors the calendar entries from the main timesheet page so you can cross-check density and pay-critical days before submission.</p></div></div><div id="calendar" class="calendar-grid"></div></section><section class="panel" id="payActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Activity summary</p><h2>Entries By Activity</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
+          <section class="panel" id="payCalendarPanel" aria-labelledby="calendarTitle">
+            <input id="monthPicker" type="month" hidden>
+            <div class="panel-header">
+              <div>
+                <p class="panel-eyebrow">Payroll review</p>
+                <div class="calendar-month-nav" role="group" aria-label="Working month">
+                  <button class="month-picker-nav-button" id="calendarMonthPrev" type="button" aria-label="Previous working month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+                  <h2 id="calendarTitle" class="calendar-month-heading">
+                    <select id="monthNameSelect" aria-label="Working month" title="Click to change month">
+                      <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                    <input id="monthYearSelect" type="number" inputmode="numeric" aria-label="Working year" title="Click to change year">
+                  </h2>
+                  <button class="month-picker-nav-button" id="calendarMonthNext" type="button" aria-label="Next working month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+                </div>
+                <p class="panel-copy">Click the month or year above to change them, then review entries and submit payroll for this month.</p>
+              </div>
+            </div>
+            <div id="calendar" class="calendar-grid"></div>
+          </section>
+          <section class="panel" id="payActivityPanel"><div class="panel-header"><div><p class="panel-eyebrow">Activity summary</p><h2>Entries By Activity</h2><p class="panel-copy">The same entries are grouped alphabetically so you can compare totals against the calculated pay view without leaving the month.</p></div></div><div id="schoolGroups" class="groups"></div><div class="actions ledger-actions"><button class="secondary" type="button" id="exportSubmissionButton">Export Submission</button><button class="danger" type="button" id="removeSubmissionButton">Undo Submission</button></div><div class="status-message export-status" id="exportStatus" aria-live="polite"></div></section>
         </div>
         <aside class="action-column">
-          <section class="panel" id="payProfilePanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy" id="payProfileCopy">Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.</p></div></div><form id="payForm" class="pay-card"><div class="pay-card-header"><p class="pay-card-title">Payroll card</p><p class="pay-card-copy">Readonly payment details come from your saved profile. Edit payment details from your profile menu.</p></div><div class="pay-card-section"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span id="payRateLabel">Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="pay-card-section"><div class="pay-line"><span id="payPeriodLabel">Month</span><span id="payMonth">-</span></div><div class="pay-line"><span>Total Hours</span><span id="payHours">0</span></div><div class="pay-line"><span>Calculated Pay</span><strong id="payTotal">S$0.00</strong></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
+          <section class="panel bold-v1 type-v3" id="payProfilePanel"><div class="panel-header"><div><p class="panel-eyebrow">Submission details</p><h2>Your Payroll Profile</h2><p class="panel-copy" id="payProfileCopy">Review your saved profile, confirm the hourly rate, and submit the active month.</p></div></div><form id="payForm" class="pay-form layout-v1"><ul class="v1-tally" aria-label="Payroll summary"><li class="v1-metric"><span class="v1-metric-label" id="payPeriodLabel">Month</span><span class="v1-metric-value" id="payMonth">-</span></li><li class="v1-metric"><span class="v1-metric-label">Hours</span><span class="v1-metric-value" id="payHours">0</span></li><li class="v1-metric"><span class="v1-metric-label">Pay</span><strong class="v1-metric-value" id="payTotal">S$0.00</strong></li></ul><div class="pay-details"><div class="pay-line"><span>Name</span><div class="pay-line-field"><input id="fullName" type="text" placeholder="From profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank Account</span><div class="pay-line-field"><input id="bankAccount" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Bank</span><div class="pay-line-field"><input id="bankName" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span>Account Type</span><div class="pay-line-field"><input id="accountType" type="text" placeholder="Please Setup in Profile" readonly aria-readonly="true"></div></div><div class="pay-line"><span id="payRateLabel">Pay Per Hour</span><span id="hourlyRate">S$0.00</span></div></div><div class="actions pay-actions"><button class="primary" type="submit" id="submitToServer">Submit Payroll</button><a class="secondary nav-link" href="./chess-timesheet.html">Back To Timesheet</a></div><div class="status-message" id="submitStatus"></div></form></section>
         </aside>
       </div>
     </div>
@@ -1539,16 +1700,10 @@
   <script>
     const payStorageKey = "chessGrandePayrollProfile";
     const monthPicker = document.getElementById("monthPicker");
-    const monthPickerControl = document.getElementById("monthPickerControl");
-    const monthPickerTrigger = document.getElementById("monthPickerTrigger");
-    const monthPickerLabel = document.getElementById("monthPickerLabel");
-    const monthPickerPanel = document.getElementById("monthPickerPanel");
-    const monthPickerFallback = document.getElementById("monthPickerFallback");
     const monthNameSelect = document.getElementById("monthNameSelect");
     const monthYearSelect = document.getElementById("monthYearSelect");
-    const monthPickerPrev = document.getElementById("monthPickerPrev");
-    const monthPickerNext = document.getElementById("monthPickerNext");
-    const monthPickerGrid = document.getElementById("monthPickerGrid");
+    const calendarMonthPrev = document.getElementById("calendarMonthPrev");
+    const calendarMonthNext = document.getElementById("calendarMonthNext");
     const payForm = document.getElementById("payForm");
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
@@ -1746,7 +1901,6 @@
 
     monthPicker.addEventListener("change", () => {
       syncFallbackFromMonthValue(monthPicker.value);
-      renderMonthPickerGrid(monthPicker.value);
       render();
     });
 
@@ -2472,7 +2626,7 @@
         hoursCount.textContent = trimHours(totalHours);
         rateCountLabel.textContent = "Hourly Rate";
         rateCount.textContent = formatCompactDollar(hourlyRate);
-        payProfileCopy.textContent = "Review your saved profile, confirm the hourly rate, and submit the active month from one payroll card.";
+        payProfileCopy.textContent = "Review your saved profile, confirm the hourly rate, and submit the active month.";
         payRateLabel.textContent = "Pay Per Hour";
         hourlyRateDisplay.textContent = formatCurrency(hourlyRate);
         payPeriodLabel.textContent = "Month";
@@ -2554,8 +2708,6 @@
       startGrid.setDate(startGrid.getDate() - firstDay.getDay());
       const endGrid = new Date(lastDay);
       endGrid.setDate(endGrid.getDate() + (6 - lastDay.getDay()));
-
-      calendarTitle.textContent = formatMonthLabel(monthValue);
 
       const groupedByDate = groupBy(activeEntries, (entry) => entry.date);
       const today = formatDateInput(new Date());
@@ -3218,74 +3370,43 @@
       document.documentElement.setAttribute("data-browser-engine", webkit ? "webkit" : "other");
 
       const currentYear = new Date().getFullYear();
-      for (let year = currentYear - 5; year <= currentYear + 5; year += 1) {
-        addMonthPickerYearOption(year);
-      }
+      monthYearSelect.min = String(currentYear - 5);
+      monthYearSelect.max = String(currentYear + 5);
 
-      monthPicker.hidden = true;
-      monthPickerFallback.hidden = false;
-      monthPickerTrigger.addEventListener("click", toggleMonthPickerPanel);
-      monthPickerPrev.addEventListener("click", () => shiftMonthValue(-1));
-      monthPickerNext.addEventListener("click", () => shiftMonthValue(1));
+      calendarMonthPrev.addEventListener("click", () => shiftMonthValue(-1));
+      calendarMonthNext.addEventListener("click", () => shiftMonthValue(1));
       monthNameSelect.addEventListener("change", onFallbackMonthChange);
       monthYearSelect.addEventListener("change", onFallbackMonthChange);
-      document.addEventListener("click", (event) => {
-        if (!monthPickerPanel.hidden && !isMonthPickerInteraction(event)) {
-          closeMonthPickerPanel();
-        }
-      });
-      document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || monthPickerPanel.hidden) return;
-        event.preventDefault();
-        closeMonthPickerPanel({ restoreFocus: true });
-      });
+      monthYearSelect.addEventListener("blur", onYearInputBlur);
     }
 
-    function addMonthPickerYearOption(year) {
-      const value = String(year);
-      if (monthYearSelect.querySelector(`option[value="${value}"]`)) return;
-      const option = document.createElement("option");
-      option.value = value;
-      option.textContent = value;
-      const nextOption = Array.from(monthYearSelect.options).find((item) => Number(item.value) > year);
-      monthYearSelect.insertBefore(option, nextOption || null);
-    }
-
-    function toggleMonthPickerPanel() {
-      if (monthPickerPanel.hidden) {
-        openMonthPickerPanel();
-      } else {
-        closeMonthPickerPanel({ restoreFocus: true });
+    function ensureYearInputBounds(year) {
+      const numericYear = Number(year);
+      if (!Number.isFinite(numericYear)) return;
+      const currentMin = Number(monthYearSelect.min);
+      const currentMax = Number(monthYearSelect.max);
+      if (Number.isFinite(currentMin) && numericYear < currentMin) {
+        monthYearSelect.min = String(numericYear);
+      }
+      if (Number.isFinite(currentMax) && numericYear > currentMax) {
+        monthYearSelect.max = String(numericYear);
       }
     }
 
-    function openMonthPickerPanel() {
-      renderMonthPickerGrid(monthPicker.value);
-      monthPickerPanel.hidden = false;
-      monthPickerTrigger.setAttribute("aria-expanded", "true");
-      monthPickerGrid.querySelector(".month-picker-month.is-selected")?.focus({ preventScroll: true });
-    }
-
-    function closeMonthPickerPanel(options = {}) {
-      if (monthPickerPanel.hidden) return;
-      monthPickerPanel.hidden = true;
-      monthPickerTrigger.setAttribute("aria-expanded", "false");
-      if (options.restoreFocus) {
-        monthPickerTrigger.focus({ preventScroll: true });
+    function onYearInputBlur() {
+      const year = String(monthYearSelect.value || "").trim();
+      if (!/^\d{4}$/.test(year)) {
+        syncFallbackFromMonthValue(monthPicker.value);
+        return;
       }
-    }
-
-    function isMonthPickerInteraction(event) {
-      if (event.target instanceof Element && event.target.closest("#monthPickerControl")) {
-        return true;
-      }
-      return event.composedPath().some((node) => node === monthPickerControl);
+      onFallbackMonthChange();
     }
 
     function onFallbackMonthChange() {
-      const year = monthYearSelect.value;
       const month = monthNameSelect.value;
-      if (!year || !month) return;
+      const year = String(monthYearSelect.value || "").trim();
+      if (!month || !/^\d{4}$/.test(year)) return;
+      ensureYearInputBounds(Number(year));
       setMonthValue(`${year}-${month}`);
       render();
     }
@@ -3294,19 +3415,17 @@
       if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
       monthPicker.value = monthValue;
       syncFallbackFromMonthValue(monthValue);
-      renderMonthPickerGrid(monthValue);
     }
 
     function syncFallbackFromMonthValue(monthValue) {
       if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
       const [year, month] = monthValue.split("-");
-      addMonthPickerYearOption(Number(year));
+      ensureYearInputBounds(Number(year));
       monthYearSelect.value = year;
       monthNameSelect.value = month;
       const label = `${monthNames[Number(month) - 1]} ${year}`;
-      monthPickerLabel.textContent = label;
       monthPicker.setAttribute("aria-label", label);
-      monthPickerTrigger.setAttribute("aria-label", `Select working month, currently ${label}`);
+      calendarTitle.setAttribute("aria-label", `Working month, ${label}`);
     }
 
     function shiftMonthValue(offset) {
@@ -3314,33 +3433,6 @@
       const nextDate = new Date(year, month - 1 + offset, 1);
       setMonthValue(formatMonthValue(nextDate));
       render();
-    }
-
-    function renderMonthPickerGrid(monthValue = monthPicker.value) {
-      if (!monthPickerGrid || !/^\d{4}-\d{2}$/.test(monthValue)) return;
-      const [selectedYear, selectedMonth] = monthValue.split("-").map(Number);
-      const currentMonthValue = formatMonthValue(new Date());
-      monthPickerGrid.innerHTML = "";
-      monthNames.forEach((monthName, index) => {
-        const month = String(index + 1).padStart(2, "0");
-        const value = `${selectedYear}-${month}`;
-        const button = document.createElement("button");
-        button.className = "month-picker-month";
-        button.type = "button";
-        button.dataset.monthValue = value;
-        button.textContent = monthName.slice(0, 3);
-        button.setAttribute("role", "gridcell");
-        button.setAttribute("aria-label", `${monthName} ${selectedYear}`);
-        button.setAttribute("aria-selected", String(index + 1 === selectedMonth));
-        button.classList.toggle("is-selected", index + 1 === selectedMonth);
-        button.classList.toggle("is-current", value === currentMonthValue);
-        button.addEventListener("click", () => {
-          setMonthValue(value);
-          closeMonthPickerPanel({ restoreFocus: true });
-          render();
-        });
-        monthPickerGrid.appendChild(button);
-      });
     }
 
     function formatDateInput(date) {
@@ -3862,5 +3954,8 @@
       }
     }
   </script>
+<!-- impeccable-live-start -->
+<script src="http://localhost:8400/live.js?token=bd321a4f-be30-48d3-b6e9-7ede78d82501"></script>
+<!-- impeccable-live-end -->
 </body>
 </html>

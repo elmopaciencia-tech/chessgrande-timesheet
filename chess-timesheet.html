@@ -39,12 +39,12 @@
       --space-2: 8px;
       --space-3: 12px;
       --space-4: 16px;
-      --space-5: 20px;
-      --space-6: 24px;
-      --space-7: 28px;
-      --space-8: 32px;
-      --space-10: 40px;
-      --space-12: 48px;
+      --space-5: 18px;
+      --space-6: 20px;
+      --space-7: 24px;
+      --space-8: 28px;
+      --space-10: 36px;
+      --space-12: 40px;
     }
 
     * {
@@ -67,7 +67,7 @@
       padding:
         env(safe-area-inset-top)
         max(18px, env(safe-area-inset-right))
-        max(32px, env(safe-area-inset-bottom))
+        max(24px, env(safe-area-inset-bottom))
         max(18px, env(safe-area-inset-left));
     }
 
@@ -144,12 +144,12 @@
     .app-header-inner {
       width: min(1320px, 100%);
       margin: 0 auto;
-      min-height: 72px;
+      min-height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: var(--space-4);
-      padding: 0 var(--space-6);
+      padding: 0 var(--space-5);
     }
 
     .app-header-title {
@@ -222,9 +222,9 @@
 
     .page {
       width: min(1320px, 100%);
-      margin: var(--space-7) auto 0;
+      margin: var(--space-6) auto 0;
       display: grid;
-      gap: var(--space-7);
+      gap: var(--space-6);
     }
 
     .hero {
@@ -232,9 +232,9 @@
       z-index: 20;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(340px, 460px);
-      gap: var(--space-5);
+      gap: var(--space-4);
       align-items: center;
-      padding: var(--space-6);
+      padding: var(--space-5);
       background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 86%, white 14%) 0%, color-mix(in srgb, var(--surface-muted) 74%, white 26%) 100%);
       border: 1px solid color-mix(in srgb, var(--line) 72%, white 28%);
       border-radius: 28px;
@@ -312,7 +312,7 @@
       display: grid;
       gap: var(--space-3);
       align-content: center;
-      padding: var(--space-4);
+      padding: var(--space-3);
       background: color-mix(in srgb, var(--surface-strong) 88%, white 12%);
       border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
       border-radius: 20px;
@@ -358,10 +358,10 @@
       min-width: 0;
       border-radius: 16px;
       border: 1px solid var(--line);
-      padding: 12px 14px;
+      padding: 10px 12px;
       background: color-mix(in srgb, var(--surface-strong) 90%, white 10%);
       color: var(--ink);
-      min-height: 52px;
+      min-height: 48px;
       line-height: 1.2;
       font-size: 1rem;
       box-sizing: border-box;
@@ -379,10 +379,10 @@
 
     .month-picker-trigger {
       width: 100%;
-      min-height: 52px;
+      min-height: 48px;
       border-radius: 16px;
       border: 1px solid var(--line);
-      padding: 12px 14px;
+      padding: 10px 12px;
       background: color-mix(in srgb, var(--surface-strong) 90%, white 10%);
       color: var(--ink);
       display: flex;
@@ -493,21 +493,6 @@
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, white 70%);
     }
 
-    #monthNameSelect,
-    #monthYearSelect {
-      -webkit-appearance: none;
-      appearance: none;
-      background-image:
-        linear-gradient(45deg, transparent 50%, var(--ink) 50%),
-        linear-gradient(135deg, var(--ink) 50%, transparent 50%);
-      background-position:
-        calc(100% - 18px) calc(50% - 2px),
-        calc(100% - 12px) calc(50% - 2px);
-      background-size: 6px 6px, 6px 6px;
-      background-repeat: no-repeat;
-      padding-right: 34px;
-    }
-
     input::placeholder {
       color: color-mix(in srgb, var(--muted) 82%, white 18%);
     }
@@ -520,9 +505,9 @@
 
     .ai-import-panel {
       display: grid;
-      gap: var(--space-5);
+      gap: var(--space-4);
       margin: 0;
-      padding: 28px;
+      padding: 24px;
       border-radius: 28px;
       border: 1px solid color-mix(in srgb, var(--line) 78%, white 22%);
       background: color-mix(in srgb, var(--surface-strong) 92%, white 8%);
@@ -574,7 +559,7 @@
     }
     .ai-upload-card {
       display: grid;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
       max-width: none;
     }
@@ -584,8 +569,8 @@
       justify-content: center;
       align-items: center;
       width: 100%;
-      min-height: 148px;
-      padding: 30px clamp(18px, 5vw, 44px);
+      min-height: 124px;
+      padding: 22px clamp(16px, 4vw, 32px);
       border: 1px dashed color-mix(in srgb, var(--line-strong) 76%, white 24%);
       border-radius: 14px;
       background: color-mix(in srgb, var(--surface) 82%, white 18%);
@@ -713,8 +698,8 @@
       grid-template-columns: auto minmax(0, 1fr);
       gap: 12px;
       align-items: center;
-      min-height: 64px;
-      padding: 12px 46px 12px 12px;
+      min-height: 56px;
+      padding: 10px 42px 10px 10px;
       border-radius: 14px;
       background: var(--surface-muted);
       border: 1px solid color-mix(in srgb, var(--line) 80%, white 20%);
@@ -723,8 +708,8 @@
       display: none;
     }
     .ai-upload-file-icon {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       display: grid;
       place-items: center;
       border-radius: 10px;
@@ -733,8 +718,8 @@
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 86%, white 14%), var(--shadow-sm);
     }
     .ai-upload-file-icon svg {
-      width: 21px;
-      height: 21px;
+      width: 20px;
+      height: 20px;
     }
     .ai-upload-file-name {
       margin: 0;
@@ -868,7 +853,7 @@
     }
     .ai-import-preview {
       display: grid;
-      gap: var(--space-3);
+      gap: var(--space-2);
       padding-top: var(--space-2);
       container-type: inline-size;
     }
@@ -916,10 +901,10 @@
     }
     .ai-import-groups {
       display: grid;
-      gap: var(--space-5);
+      gap: var(--space-4);
     }
     .ai-import-school-card {
-      padding: var(--space-5);
+      padding: var(--space-4);
       background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
     }
     .ai-import-school-card .school-head h3 {
@@ -937,7 +922,7 @@
     }
     .ai-import-table th,
     .ai-import-table td {
-      padding: 12px 14px;
+      padding: 10px 12px;
       vertical-align: middle;
     }
     .ai-import-table th {
@@ -987,7 +972,7 @@
     }
     .ai-import-empty {
       margin: 10px;
-      padding: 28px 18px;
+      padding: 20px 16px;
     }
     .ai-import-warnings {
       display: grid;
@@ -1081,20 +1066,20 @@
       position: relative;
       z-index: 1;
       display: grid;
-      gap: var(--space-7);
+      gap: var(--space-6);
     }
 
     .layout {
       display: grid;
       grid-template-columns: minmax(0, 1.26fr) minmax(320px, 0.9fr);
-      gap: var(--space-7);
+      gap: var(--space-6);
       align-items: start;
     }
 
     .review-column,
     .action-column {
       display: grid;
-      gap: var(--space-6);
+      gap: var(--space-5);
       align-content: start;
     }
 
@@ -1105,7 +1090,7 @@
 
     .panel {
       position: relative;
-      padding: var(--space-7);
+      padding: var(--space-6);
       background: color-mix(in srgb, var(--surface) 88%, white 12%);
       border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
       border-radius: 28px;
@@ -1114,7 +1099,12 @@
 
     #entryComposerPanel {
       isolation: isolate;
+      overflow: visible;
       transition: border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
+    }
+
+    #entryComposerPanel.has-quick-add-open {
+      z-index: 30;
     }
 
     .entry-composer-modal-close {
@@ -1184,7 +1174,168 @@
       align-items: flex-end;
       gap: var(--space-4);
       flex-wrap: wrap;
-      margin-bottom: var(--space-5);
+      margin-bottom: var(--space-4);
+    }
+
+    .calendar-month-nav {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .calendar-month-nav .month-picker-nav-button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+
+    .calendar-month-nav h2,
+    .calendar-month-heading {
+      margin: 0;
+      text-align: center;
+    }
+
+    .calendar-month-nav .calendar-month-heading {
+      justify-self: center;
+      width: max-content;
+      max-width: 100%;
+    }
+
+    .calendar-month-heading {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.12em;
+      flex-wrap: nowrap;
+      font-size: 1.38rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+
+    .calendar-month-heading select,
+    .calendar-month-heading input[type="number"] {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: inherit;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      border-radius: 10px;
+      min-height: auto;
+      height: auto;
+      width: auto;
+      min-width: 0;
+      padding: 2px 4px;
+      margin: 0;
+      box-sizing: border-box;
+      box-shadow: inset 0 -2px 0 transparent;
+      cursor: pointer;
+      text-align: center;
+      text-align-last: center;
+      appearance: none;
+      -webkit-appearance: none;
+      transition:
+        color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+    }
+
+    .calendar-month-heading select {
+      background-image: none;
+      width: fit-content;
+      max-width: fit-content;
+      field-sizing: content;
+    }
+
+    .calendar-month-heading input[type="number"] {
+      width: 5.25ch;
+      min-width: 5.25ch;
+      padding-left: 0.08em;
+      padding-right: 6px;
+      font-variant-numeric: tabular-nums;
+      -moz-appearance: textfield;
+    }
+
+    @media (hover: hover) {
+      .calendar-month-heading select:hover,
+      .calendar-month-heading input[type="number"]:hover {
+        color: var(--accent-deep);
+        background: color-mix(in srgb, var(--accent-soft) 78%, white 22%);
+        box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--accent) 72%, transparent 28%);
+        transform: translateY(-1px);
+      }
+    }
+
+    .calendar-month-heading select:focus-visible,
+    .calendar-month-heading input[type="number"]:focus-visible {
+      color: var(--accent-deep);
+      background: color-mix(in srgb, var(--accent-soft) 84%, white 16%);
+      box-shadow:
+        inset 0 -2px 0 var(--accent),
+        0 0 0 3px color-mix(in srgb, var(--focus) 16%, white 84%);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .calendar-month-heading input[type="number"]::-webkit-outer-spin-button,
+    .calendar-month-heading input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .calendar-month-heading select,
+      .calendar-month-heading input[type="number"] {
+        transition: none;
+      }
+
+      .calendar-month-heading select:hover,
+      .calendar-month-heading select:focus-visible,
+      .calendar-month-heading input[type="number"]:hover,
+      .calendar-month-heading input[type="number"]:focus-visible {
+        transform: none;
+      }
+    }
+
+    #monthlyReviewPanel .panel-header {
+      justify-content: center;
+      align-items: center;
+    }
+
+    #monthlyReviewPanel .panel-header > div {
+      width: 100%;
+      display: grid;
+      justify-items: center;
+      text-align: center;
+    }
+
+    #monthlyReviewPanel .panel-eyebrow {
+      text-align: center;
+    }
+
+    #monthlyReviewPanel .panel-copy {
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #monthlyReviewPanel .calendar-month-nav {
+      width: min(100%, 28rem);
+    }
+
+    #monthlyReviewPanel .calendar-actions {
+      justify-items: center;
+      text-align: center;
+    }
+
+    #monthlyReviewPanel .calendar-mobile-help {
+      text-align: center;
+      width: 100%;
     }
 
     .panel h2 {
@@ -1258,6 +1409,7 @@
       gap: var(--space-3);
       align-items: end;
       position: relative;
+      overflow: visible;
     }
 
     .school-name-field,
@@ -1272,16 +1424,35 @@
       justify-content: flex-end;
       align-items: flex-end;
       min-width: 0;
+      overflow: visible;
     }
 
-    .quick-add-toggle {
+    button.quick-add-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      min-width: 52px;
+      height: 52px;
+      min-height: 52px;
+      padding: 0;
+      border-radius: 999px;
+      align-self: end;
       white-space: nowrap;
-      min-width: 128px;
+      background: var(--success);
+      color: var(--surface-strong);
+      border-color: color-mix(in srgb, var(--success) 78%, black 22%);
+      box-shadow: var(--shadow-sm);
+    }
+
+    button.quick-add-toggle .cg-icon {
+      width: 18px;
+      height: 18px;
     }
 
     .time-fields-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 52px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: var(--space-3);
       align-items: end;
       overflow: hidden;
@@ -1479,21 +1650,158 @@
 
     .quick-add-menu {
       position: absolute;
-      top: calc(100% + 10px);
+      top: calc(100% + var(--space-2));
       right: 0;
-      z-index: 40;
+      z-index: 60;
       width: min(360px, calc(100vw - 48px));
       display: grid;
       gap: var(--space-3);
-      padding: 14px;
-      border-radius: 20px;
+      padding: var(--space-4);
+      border-radius: var(--radius-md);
       background: color-mix(in srgb, var(--surface-strong) 94%, white 6%);
       border: 1px solid color-mix(in srgb, var(--line) 82%, white 18%);
       box-shadow: var(--shadow-md);
+      transform-origin: top right;
+      will-change: transform, opacity;
     }
 
     .quick-add-menu[hidden] {
       display: none;
+    }
+
+    .quick-add-menu.is-opening {
+      animation: quick-add-menu-enter 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .quick-add-menu.is-closing {
+      animation: quick-add-menu-exit 160ms cubic-bezier(0.4, 0, 1, 1) both;
+      pointer-events: none;
+    }
+
+    @keyframes quick-add-menu-enter {
+      from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes quick-add-menu-exit {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.97);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .quick-add-menu.is-opening,
+      .quick-add-menu.is-closing {
+        animation: none;
+      }
+    }
+
+    .quick-add-preview {
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .quick-add-preview-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .quick-add-preview-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      gap: var(--space-2);
+      align-items: stretch;
+    }
+
+    .quick-add-preview-card {
+      min-height: 48px;
+      display: grid;
+      gap: var(--space-1);
+      justify-items: start;
+      text-align: left;
+      padding: var(--space-2) var(--space-3);
+      border-radius: 16px;
+      background: var(--surface-strong);
+      border: 1px solid color-mix(in srgb, var(--line) 84%, white 16%);
+      color: var(--ink);
+    }
+
+    .quick-add-preview-card.has-saved-color {
+      background: var(--quick-add-color);
+      border-color: color-mix(in srgb, var(--quick-add-color) 74%, black 26%);
+      color: var(--quick-add-text);
+      box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, white 46%, transparent),
+        var(--shadow-sm);
+    }
+
+    .quick-add-preview-card.has-saved-color .quick-add-meta {
+      color: var(--quick-add-text);
+      opacity: 0.76;
+    }
+
+    .quick-add-preview-card.is-skeleton {
+      gap: var(--space-2);
+      border: 2px dashed color-mix(in srgb, var(--line) 72%, var(--ink) 28%);
+      background: color-mix(in srgb, var(--surface-strong) 72%, transparent);
+    }
+
+    .quick-add-preview-skeleton-line {
+      display: block;
+      height: 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--line) 68%, var(--ink) 32%);
+    }
+
+    .quick-add-preview-skeleton-line.is-title {
+      width: min(58%, 148px);
+      height: 12px;
+    }
+
+    .quick-add-preview-skeleton-line.is-meta {
+      width: min(78%, 210px);
+    }
+
+    .quick-add-preview-save {
+      min-height: 44px;
+      width: 44px;
+      padding: 0;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--success) 18%, var(--surface-strong) 82%);
+      border: 1px solid color-mix(in srgb, var(--success) 42%, var(--line) 58%);
+      color: var(--success);
+    }
+
+    .quick-add-preview-save:hover:not(:disabled),
+    .quick-add-preview-save:focus-visible:not(:disabled) {
+      background: color-mix(in srgb, var(--success) 28%, var(--surface-strong) 72%);
+    }
+
+    .quick-add-preview-save:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .quick-add-header {
+      display: grid;
+      gap: var(--space-1);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--line);
     }
 
     .quick-add-title {
@@ -1504,54 +1812,37 @@
     }
 
     .quick-add-copy {
-      margin: 4px 0 0;
+      margin: 0;
       color: var(--muted);
       font-size: 0.8rem;
       line-height: 1.35;
     }
 
-    button.quick-add-save {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 52px;
-      min-width: 52px;
-      height: 52px;
-      min-height: 52px;
-      padding: 0;
-      border-radius: 999px;
-      align-self: end;
-      background: var(--success);
-      color: var(--surface-strong);
-      border-color: color-mix(in srgb, var(--success) 78%, black 22%);
-      box-shadow: var(--shadow-sm);
-    }
-
-    button.quick-add-save .cg-icon {
-      width: 18px;
-      height: 18px;
-    }
-
     .quick-add-list {
       display: grid;
-      gap: 8px;
+      gap: var(--space-2);
+      max-height: min(320px, calc(100dvh - 280px));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
 
     .quick-add-item {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 42px;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) 34px;
+      gap: var(--space-2);
       align-items: stretch;
     }
 
     .quick-add-apply {
-      min-height: 46px;
+      min-height: 34px;
       display: grid;
-      gap: 4px;
+      gap: 2px;
       justify-items: start;
       text-align: left;
-      padding: 10px 12px;
-      border-radius: 16px;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
       background: var(--surface-strong);
       border-color: color-mix(in srgb, var(--line) 84%, white 16%);
       color: var(--ink);
@@ -1575,28 +1866,29 @@
     .quick-add-school {
       max-width: 100%;
       overflow-wrap: anywhere;
+      font-size: 0.7rem;
       font-weight: 800;
-      line-height: 1.15;
+      line-height: 1.1;
     }
 
     .quick-add-meta {
       color: var(--muted);
-      font-size: 0.78rem;
-      line-height: 1.25;
+      font-size: 0.55rem;
+      line-height: 1.2;
     }
 
     .quick-add-remove {
-      min-height: 42px;
-      width: 42px;
+      min-height: 34px;
+      width: 34px;
       padding: 0;
-      border-radius: 16px;
+      border-radius: 12px;
       background: var(--surface-strong);
       border-color: color-mix(in srgb, var(--line) 84%, white 16%);
       color: var(--clay);
     }
 
     .quick-add-empty {
-      padding: 10px 12px;
+      padding: var(--space-3);
       border-radius: 16px;
       background: color-mix(in srgb, var(--surface-strong) 68%, transparent);
       border: 1px dashed color-mix(in srgb, var(--line) 78%, white 22%);
@@ -1626,9 +1918,9 @@
     button {
       border: 1px solid transparent;
       border-radius: 999px;
-      padding: 12px 18px;
+      padding: 10px 16px;
       cursor: pointer;
-      min-height: 46px;
+      min-height: 44px;
       transition: transform 180ms ease, opacity 180ms ease, background 180ms ease, border-color 180ms ease;
       font-weight: 700;
     }
@@ -1684,17 +1976,17 @@
     .summary {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--space-4);
+      gap: var(--space-3);
     }
 
     .stat {
-      padding: var(--space-5);
+      padding: var(--space-4);
       background: linear-gradient(180deg, color-mix(in srgb, var(--calendar) 84%, white 16%) 0%, color-mix(in srgb, var(--surface-muted) 72%, white 28%) 100%);
       border-radius: 22px;
       border: 1px solid var(--line);
       display: grid;
       align-content: end;
-      min-height: 132px;
+      min-height: 112px;
     }
 
     .stat-label {
@@ -1720,7 +2012,7 @@
       align-items: center;
       justify-content: space-between;
       gap: var(--space-4);
-      margin-bottom: var(--space-5);
+      margin-bottom: var(--space-4);
     }
 
     .calendar-grid {
@@ -1730,7 +2022,7 @@
     }
 
     .calendar-actions {
-      margin-top: var(--space-5);
+      margin-top: var(--space-4);
       display: grid;
       gap: var(--space-3);
     }
@@ -1828,8 +2120,8 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      min-height: 48px;
-      padding: 12px 16px;
+      min-height: 44px;
+      padding: 10px 14px;
       border-radius: 999px;
       background: var(--accent);
       color: var(--surface-strong);
@@ -1855,10 +2147,10 @@
 
     .day {
       position: relative;
-      min-height: 94px;
+      min-height: 84px;
       background: color-mix(in srgb, var(--calendar) 80%, white 20%);
       border: 1px solid var(--line);
-      padding: 10px 10px 8px;
+      padding: 8px 8px 6px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -2623,89 +2915,6 @@
       .hero-month {
         align-self: auto;
       }
-    }
-
-    @media (min-width: 1024px) {
-      body {
-        font-size: 14px;
-      }
-
-      .hero,
-      .panel {
-        padding: var(--space-7);
-      }
-
-      h1 {
-        font-size: clamp(2.15rem, 3.8vw, 3.85rem);
-      }
-    }
-
-    @media (max-width: 900px) {
-      .form-grid,
-      .form-grid.compact,
-      .summary {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-value {
-        font-size: 1.24rem;
-      }
-
-      .actions {
-        grid-template-columns: 1fr;
-      }
-
-      .school-name-row,
-      .hours-quick-add-row {
-        grid-template-columns: 1fr;
-      }
-
-      .quick-add-control {
-        display: grid;
-        justify-content: stretch;
-      }
-
-      .quick-add-menu {
-        position: static;
-        width: 100%;
-        margin-top: 10px;
-      }
-
-      .quick-add-toggle {
-        width: 100%;
-      }
-
-      .calendar-color-menu {
-        right: 0;
-      }
-    }
-
-    @media (max-width: 760px) {
-      body {
-        padding-left: max(12px, env(safe-area-inset-left));
-        padding-right: max(12px, env(safe-area-inset-right));
-      }
-
-      .page {
-        gap: var(--space-5);
-      }
-
-      .app-header {
-        border-radius: 20px;
-      }
-
-      .app-header-inner {
-        min-height: 66px;
-        padding: 0 var(--space-4);
-      }
-
-      .hero {
-        padding: var(--space-5);
-        gap: var(--space-4);
-      }
-
-      .review-column { order: 1; }
-      .action-column { order: 2; }
 
       .entry-composer-modal {
         display: grid;
@@ -2741,20 +2950,6 @@
         flex-wrap: nowrap;
       }
 
-      h1 {
-        font-size: clamp(1.72rem, 8.4vw, 2.45rem);
-        max-width: 13ch;
-      }
-
-      .hero-month {
-        padding: var(--space-3);
-      }
-
-      .panel-copy {
-        font-size: clamp(0.86rem, 3.4vw, 0.98rem);
-        line-height: 1.38;
-      }
-
       #entryComposerPanel .form-grid {
         grid-template-columns: minmax(118px, 0.78fr) minmax(0, 1.22fr);
         gap: 12px;
@@ -2774,7 +2969,7 @@
       }
 
       #entryComposerPanel .time-fields-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 46px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 8px;
         align-items: end;
         overflow: hidden;
@@ -2803,11 +2998,11 @@
         font-size: 0.94rem;
       }
 
-      #entryComposerPanel .quick-add-save {
+      #entryComposerPanel .quick-add-toggle {
         width: 46px;
         min-width: 46px;
+        height: 46px;
         min-height: 46px;
-        padding: 0;
         border-radius: 999px;
       }
 
@@ -2817,6 +3012,110 @@
 
       #entryComposerPanel .actions > * {
         width: 100%;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      body {
+        font-size: 14px;
+      }
+
+      .hero,
+      .panel {
+        padding: var(--space-7);
+      }
+
+      h1 {
+        font-size: clamp(2.15rem, 3.8vw, 3.85rem);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .form-grid,
+      .form-grid.compact,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-value {
+        font-size: 1.24rem;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .school-name-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: end;
+      }
+
+      .hours-quick-add-row {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-add-control {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+        width: auto;
+        min-width: 0;
+      }
+
+      .quick-add-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        left: auto;
+        width: min(360px, calc(100vw - 32px));
+        margin-top: 0;
+        z-index: 60;
+      }
+
+      .calendar-color-menu {
+        right: 0;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+      }
+
+      .page {
+        gap: var(--space-5);
+      }
+
+      .app-header {
+        border-radius: 20px;
+      }
+
+      .app-header-inner {
+        min-height: 66px;
+        padding: 0 var(--space-4);
+      }
+
+      .hero {
+        padding: var(--space-5);
+        gap: var(--space-4);
+      }
+
+      .review-column { order: 1; }
+      .action-column { order: 2; }
+
+      h1 {
+        font-size: clamp(1.72rem, 8.4vw, 2.45rem);
+        max-width: 13ch;
+      }
+
+      .hero-month {
+        padding: var(--space-3);
+      }
+
+      .panel-copy {
+        font-size: clamp(0.86rem, 3.4vw, 0.98rem);
+        line-height: 1.38;
       }
 
       #monthlyReviewPanel .panel-copy {
@@ -2866,14 +3165,14 @@
       }
 
       .ai-upload-dropzone {
-        min-height: 156px;
-        padding: 26px 18px;
+        min-height: 132px;
+        padding: 22px 16px;
       }
 
       .ai-upload-dropzone-inner {
         grid-template-columns: 1fr;
         justify-items: center;
-        gap: 12px;
+        gap: 10px;
         text-align: center;
       }
 
@@ -2902,7 +3201,7 @@
       }
 
       .calendar-grid {
-        gap: 4px;
+        gap: 3px;
       }
 
       #monthPickerFallback {
@@ -2917,7 +3216,7 @@
       }
 
       .day {
-        min-height: clamp(104px, 24vw, 132px);
+        min-height: clamp(96px, 22vw, 120px);
         aspect-ratio: auto;
         padding: clamp(5px, 1.8vw, 8px);
         gap: 4px;
@@ -3105,15 +3404,8 @@
       }
 
       #entryComposerPanel .time-fields-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 7px;
-      }
-
-      #entryComposerPanel .quick-add-save {
-        width: 44px;
-        min-width: 44px;
-        height: 44px;
-        min-height: 44px;
       }
 
       #monthlyReviewPanel .panel-copy {
@@ -3153,8 +3445,8 @@
       }
 
       body.mobile-full-bleed #aiXlsxImportPanel {
-        padding-left: calc(28px + max(12px, env(safe-area-inset-left)));
-        padding-right: calc(28px + max(12px, env(safe-area-inset-right)));
+        padding-left: calc(24px + max(12px, env(safe-area-inset-left)));
+        padding-right: calc(24px + max(12px, env(safe-area-inset-right)));
       }
 
       body.mobile-full-bleed .hero-copy {
@@ -3200,8 +3492,8 @@
       }
 
       body.mobile-full-bleed #aiXlsxImportPanel > .ai-import-head {
-        margin-left: calc(max(var(--space-5), env(safe-area-inset-left)) - 28px - max(12px, env(safe-area-inset-left)) - 1px);
-        margin-right: calc(max(var(--space-5), env(safe-area-inset-right)) - 28px - max(12px, env(safe-area-inset-right)) - 1px);
+        margin-left: calc(max(var(--space-5), env(safe-area-inset-left)) - 24px - max(12px, env(safe-area-inset-left)) - 1px);
+        margin-right: calc(max(var(--space-5), env(safe-area-inset-right)) - 24px - max(12px, env(safe-area-inset-right)) - 1px);
       }
 
       body.mobile-full-bleed #monthlyReviewPanel {
@@ -3241,8 +3533,8 @@
 
     @media (max-width: 760px) {
       #aiXlsxImportPanel #aiImportTableWrap {
-        margin-right: calc(-1 * (28px + 1px));
-        margin-left: calc(-1 * (28px + 1px));
+        margin-right: calc(-1 * (24px + 1px));
+        margin-left: calc(-1 * (24px + 1px));
       }
     }
 
@@ -3408,10 +3700,10 @@
     /* Accepted live direction: The Masthead Ledger. */
     .hero-v1 {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
-      gap: 28px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
       align-items: end;
-      padding: 34px 34px 28px;
+      padding: 24px 24px 20px;
       background: linear-gradient(
         135deg,
         color-mix(in srgb, var(--surface-strong) 80%, white 20%) 0%,
@@ -3428,9 +3720,10 @@
       content: "";
       position: absolute;
       inset: 0;
+      border-radius: inherit;
       background:
-        radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 42%),
-        radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--clay) 8%, transparent), transparent 40%);
+        radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 46%),
+        radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--clay) 10%, transparent), transparent 42%);
       pointer-events: none;
     }
 
@@ -3438,7 +3731,7 @@
       position: relative;
       z-index: 1;
       display: grid;
-      gap: 16px;
+      gap: var(--space-4);
       align-content: end;
     }
 
@@ -3446,9 +3739,9 @@
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
       font-weight: 400;
-      font-size: calc(clamp(2.4rem, 6.4vw, 5rem) * 1.05);
-      line-height: 0.94;
-      letter-spacing: -0.02em;
+      font-size: calc(clamp(2.6rem, 7.6vw, 6rem) * 1.05);
+      line-height: 0.92;
+      letter-spacing: -0.03em;
       text-wrap: balance;
       color: var(--ink);
     }
@@ -3456,20 +3749,21 @@
     .hero-v1 .v1-title .v1-accent {
       color: var(--clay);
       font-style: italic;
+      font-weight: 400;
     }
 
     .hero-v1 .v1-rule {
       height: 3px;
       width: 100%;
-      border-top: 1px solid var(--line-strong);
-      border-bottom: 1px solid color-mix(in srgb, var(--line-strong) 60%, white 40%);
-      background: transparent;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
     }
 
     .hero-v1 .v1-tally {
       list-style: none;
       margin: 0;
-      padding: 14px 0 0;
+      padding: var(--space-2) 0 0;
       display: flex;
       flex-wrap: wrap;
       gap: 0;
@@ -3478,8 +3772,8 @@
 
     .hero-v1 .v1-metric {
       display: grid;
-      gap: 2px;
-      padding: 0 26px;
+      gap: var(--space-1);
+      padding: 0 var(--space-6);
       border-left: 1px solid color-mix(in srgb, var(--line-strong) 70%, white 30%);
     }
 
@@ -3489,118 +3783,26 @@
     }
 
     .hero-v1 .v1-metric-label {
-      font-size: 0.64rem;
+      font-size: 0.68rem;
       font-weight: 800;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--muted);
     }
 
     .hero-v1 .v1-metric-value {
       font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: calc(1.7rem * 1.05);
+      font-size: clamp(2.1rem, 4.5vw, 2.75rem);
       font-weight: 700;
       line-height: 1;
       color: var(--ink);
       font-variant-numeric: tabular-nums;
     }
 
-    .hero-v1 .v1-desk {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      gap: 14px;
-      align-content: end;
-      padding: 18px;
-      background: color-mix(in srgb, var(--surface-strong) 86%, white 14%);
-      border: 1px solid color-mix(in srgb, var(--line) 74%, white 26%);
-      border-radius: 20px;
-      box-shadow: var(--shadow-sm);
-      overflow: visible;
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger {
-      min-height: 52px;
-      padding: 12px 14px;
-      border-color: var(--line-strong);
-      background: var(--surface-strong);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
-      font-weight: 750;
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger:hover,
-    .hero-v1 .v1-desk .month-picker-trigger:focus-visible {
-      border-color: color-mix(in srgb, var(--focus) 60%, white 40%);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger[aria-expanded="true"] {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 14%, white 86%), 0 8px 18px rgba(0, 0, 0, 0.06);
-    }
-
-    .hero-v1 .v1-desk .month-picker-trigger svg {
-      color: var(--accent);
-    }
-
-    .hero-v1 .v1-desk .month-box-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-    }
-
-    .hero-v1 .v1-desk .month-box-header strong {
-      color: var(--ink);
-      font-size: 0.95rem;
-    }
-
-    .hero-v1 .v1-desk .month-box-header label {
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .hero-v1 .v1-import {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 11px 20px;
-      border-radius: 999px;
-      background: var(--accent);
-      color: var(--surface-strong);
-      text-decoration: none;
-      font-size: 0.92rem;
-      font-weight: 800;
-      justify-self: stretch;
-      transition: transform 180ms var(--motion-ease), background 180ms var(--motion-ease);
-    }
-
-    .hero-v1 .v1-import:hover {
-      transform: translateY(-1px);
-      background: var(--accent-deep);
-    }
-
-    @media (max-width: 960px) {
-      .hero-v1 {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-v1 .v1-desk {
-        align-self: auto;
-      }
-    }
-
     @media (max-width: 760px) {
       .hero-v1 {
         padding: var(--space-5);
         gap: var(--space-4);
-      }
-
-      .hero-v1 .v1-desk {
-        padding: var(--space-3);
       }
 
       body.mobile-full-bleed .hero-v1 {
@@ -3611,11 +3813,6 @@
         border-radius: 0;
         padding-left: calc(var(--space-5) + max(12px, env(safe-area-inset-left)));
         padding-right: calc(var(--space-5) + max(12px, env(safe-area-inset-right)));
-      }
-
-      body.mobile-full-bleed .hero-v1 .v1-desk {
-        margin-left: calc(-1 * (var(--space-5) + 1px));
-        margin-right: calc(-1 * (var(--space-5) + 1px));
       }
     }
   </style>
@@ -3676,46 +3873,27 @@
           <li class="v1-metric"><span class="v1-metric-label">Hours</span><span class="v1-metric-value" id="hoursCount">38.5</span></li>
         </ul>
       </div>
-      <aside class="v1-desk">
-        <div class="month-box">
-          <div class="month-box-header">
-            <strong>Working month</strong>
-            <label id="monthPickerLabelText" for="monthPickerTrigger">Select month</label>
-          </div>
-          <input id="monthPicker" type="month">
-          <div class="month-picker" id="monthPickerControl">
-            <button class="month-picker-trigger" id="monthPickerTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="monthPickerPanel" aria-labelledby="monthPickerLabelText monthPickerLabel">
-                <span id="monthPickerLabel">July 2026</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
-            </button>
-            <div class="month-picker-popover" id="monthPickerPanel" role="dialog" aria-label="Select working month" hidden>
-              <div class="month-picker-nav">
-                <button class="month-picker-nav-button" id="monthPickerPrev" type="button" aria-label="Previous month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-                <div id="monthPickerFallback">
-                  <select id="monthNameSelect" aria-label="Viewing month name">
-                    <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
-                  </select>
-                  <select id="monthYearSelect" aria-label="Viewing month year"></select>
-                </div>
-                <button class="month-picker-nav-button" id="monthPickerNext" type="button" aria-label="Next month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-              </div>
-              <div class="month-picker-grid" id="monthPickerGrid" role="grid" aria-label="Months"></div>
-            </div>
-          </div>
-        </div>
-        <a class="v1-import" href="#aiXlsxImportPanel">Import from Excel</a>
-      </aside>
     </section>
 
     <div class="workspace">
       <div class="layout">
         <div class="review-column">
           <section class="panel" id="monthlyReviewPanel" aria-labelledby="calendarTitle">
+            <input id="monthPicker" type="month" hidden>
             <div class="panel-header">
               <div>
                 <p class="panel-eyebrow">Calendar View</p>
-                <h2 id="calendarTitle">Month View</h2>
-                <p class="panel-copy">Select a month above, add all of your entries for that month, then finalize your timesheet in Submission View.</p>
+                <div class="calendar-month-nav" role="group" aria-label="Working month">
+                  <button class="month-picker-nav-button" id="calendarMonthPrev" type="button" aria-label="Previous working month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+                  <h2 id="calendarTitle" class="calendar-month-heading">
+                    <select id="monthNameSelect" aria-label="Working month" title="Click to change month">
+                      <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                    <input id="monthYearSelect" type="number" inputmode="numeric" aria-label="Working year" title="Click to change year">
+                  </h2>
+                  <button class="month-picker-nav-button" id="calendarMonthNext" type="button" aria-label="Next working month"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+                </div>
+                <p class="panel-copy">Click the month or year above to change them, add all of your entries for this month, then finalize your timesheet in Submission View.</p>
               </div>
             </div>
             <div id="calendar" class="calendar-grid"></div>
@@ -3813,9 +3991,21 @@
                     <input id="schoolName" name="schoolName" type="text" placeholder="e.g. ACS" required>
                   </div>
                   <div class="quick-add-control">
-                    <button class="secondary quick-add-toggle" type="button" id="quickAddToggle" aria-expanded="false" aria-controls="quickAddMenu">Quick Add</button>
+                    <button class="secondary quick-add-toggle" type="button" id="quickAddToggle" aria-expanded="false" aria-controls="quickAddMenu" aria-label="Quick Add templates" data-cg-iconified="true">
+                      <i class="cg-icon" data-lucide="save" aria-hidden="true"></i>
+                    </button>
                     <div class="quick-add-menu" id="quickAddMenu" role="dialog" aria-labelledby="quickAddTitle" hidden>
-                      <div>
+                      <div class="quick-add-preview" id="quickAddPreview" aria-live="polite">
+                        <p class="quick-add-preview-label">Current entry</p>
+                        <div class="quick-add-preview-row">
+                          <div class="quick-add-preview-card is-skeleton" id="quickAddPreviewCard">
+                            <span class="quick-add-preview-skeleton-line is-title" aria-hidden="true"></span>
+                            <span class="quick-add-preview-skeleton-line is-meta" aria-hidden="true"></span>
+                          </div>
+                          <button class="quick-add-preview-save" id="quickAddPreviewSave" type="button" disabled aria-label="Add current entry as shortcut"></button>
+                        </div>
+                      </div>
+                      <div class="quick-add-header">
                         <p class="quick-add-title" id="quickAddTitle">Quick Add</p>
                         <p class="quick-add-copy">Saved shortcuts stay with this account.</p>
                       </div>
@@ -3966,9 +4156,6 @@
         <label for="hoursWorked">Hours Worked</label>
         <input id="hoursWorked" name="hoursWorked" type="number" min="0.25" step="0.25" inputmode="decimal" required>
       </div>
-      <button class="secondary quick-add-save" type="button" id="saveQuickAdd" disabled aria-label="Save To Quick Add" data-cg-iconified="true">
-        <i class="cg-icon" data-lucide="save" aria-hidden="true"></i>
-      </button>
     </div>
   </template>
 
@@ -4006,22 +4193,16 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     const monthPicker = document.getElementById("monthPicker");
-    const monthPickerControl = document.getElementById("monthPickerControl");
-    const monthPickerTrigger = document.getElementById("monthPickerTrigger");
-    const monthPickerLabel = document.getElementById("monthPickerLabel");
-    const monthPickerPanel = document.getElementById("monthPickerPanel");
-    const monthPickerFallback = document.getElementById("monthPickerFallback");
     const monthNameSelect = document.getElementById("monthNameSelect");
     const monthYearSelect = document.getElementById("monthYearSelect");
-    const monthPickerPrev = document.getElementById("monthPickerPrev");
-    const monthPickerNext = document.getElementById("monthPickerNext");
-    const monthPickerGrid = document.getElementById("monthPickerGrid");
     const form = document.getElementById("entryForm");
     const schoolNameInput = document.getElementById("schoolName");
     const schoolNameLabel = document.querySelector('label[for="schoolName"]');
     const schoolGroups = document.getElementById("schoolGroups");
     const calendar = document.getElementById("calendar");
     const calendarTitle = document.getElementById("calendarTitle");
+    const calendarMonthPrev = document.getElementById("calendarMonthPrev");
+    const calendarMonthNext = document.getElementById("calendarMonthNext");
     const entryDateInput = document.getElementById("entryDate");
     const repeatDateSummary = document.getElementById("repeatDateSummary");
     const repeatDateSummaryCount = document.getElementById("repeatDateSummaryCount");
@@ -4051,6 +4232,8 @@
     const quickAddToggle = document.getElementById("quickAddToggle");
     const quickAddMenu = document.getElementById("quickAddMenu");
     const quickAddList = document.getElementById("quickAddList");
+    const quickAddPreviewCard = document.getElementById("quickAddPreviewCard");
+    const quickAddPreviewSave = document.getElementById("quickAddPreviewSave");
     const quickAddStatus = document.getElementById("quickAddStatus");
     const calendarColorToggle = document.getElementById("calendarColorToggle");
     const calendarColorMenu = document.getElementById("calendarColorMenu");
@@ -4136,7 +4319,7 @@
     let lightboxPreviousOverflow = "";
     let isHydratingClaimProofUrls = false;
     let quickAddStatusTimer = 0;
-    let saveQuickAddButton = null;
+    let quickAddMenuCloseTimer = 0;
     let entryDatePickerOpenedAt = 0;
     let entryDateUpdateAnimationTimer = 0;
     let entryDateUpdateDayCell = null;
@@ -4177,7 +4360,7 @@
     initApp();
 
     const compactLayoutQuery = window.matchMedia("(max-width: 960px)");
-    const mobileComposerQuery = window.matchMedia("(max-width: 760px)");
+    const mobileComposerQuery = window.matchMedia("(max-width: 960px)");
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     [compactLayoutQuery, mobileComposerQuery].forEach((query) => {
       if (typeof query.addEventListener === "function") {
@@ -4221,7 +4404,6 @@
       setupUserMenu();
       render();
       openRequestedEntryForEditing();
-      syncQuickAddSaveButton();
       hydrateHeaderAvatar();
     }
 
@@ -4288,19 +4470,6 @@
         if (reviewColumn.lastElementChild !== payrollHandoffPanel) {
           reviewColumn.appendChild(payrollHandoffPanel);
         }
-      } else if (compactLayoutQuery.matches) {
-        if (reviewColumn.firstElementChild !== entryComposerPanel) {
-          reviewColumn.prepend(entryComposerPanel);
-        }
-        if (reviewColumn.children[1] !== monthlyReviewPanel) {
-          reviewColumn.insertBefore(monthlyReviewPanel, schoolLedgerPanel);
-        }
-        if (reviewColumn.lastElementChild !== aiXlsxImportPanel) {
-          reviewColumn.appendChild(aiXlsxImportPanel);
-        }
-        if (reviewColumn.lastElementChild !== payrollHandoffPanel) {
-          reviewColumn.appendChild(payrollHandoffPanel);
-        }
       } else {
         if (reviewColumn.firstElementChild !== monthlyReviewPanel) {
           reviewColumn.prepend(monthlyReviewPanel);
@@ -4343,7 +4512,6 @@
       syncDateFieldToMonth();
       refreshRepeatSelection();
       syncPayrollLink();
-      syncQuickAddSaveButton();
       render();
     });
 
@@ -4351,14 +4519,13 @@
       event.preventDefault();
       void addEntriesFromForm();
     });
-    form.addEventListener("input", syncQuickAddSaveButton);
-    form.addEventListener("change", syncQuickAddSaveButton);
+    form.addEventListener("input", renderQuickAddPreview);
+    form.addEventListener("change", renderQuickAddPreview);
     isRecurringInput.addEventListener("change", onRepeatToggleChange);
 
     bindAction(seedDemoButton, seedDemoData);
     bindAction(quickAddToggle, toggleQuickAddMenu);
     bindAction(calendarColorToggle, toggleCalendarColorMenu);
-    bindQuickAddSaveButton();
     clearEntryButton.addEventListener("click", clearEntryComposer);
       aiXlsxFile.addEventListener("change", () => {
         syncAiSelectedFile();
@@ -4398,10 +4565,13 @@
     });
     aiImportTableWrap.addEventListener("click", onAiImportTableAction);
     quickAddList.addEventListener("click", onQuickAddListClick);
+    quickAddPreviewSave?.addEventListener("click", () => {
+      void saveQuickAddFromPreview();
+    });
     calendarColorOptions.addEventListener("change", () => {
       syncCalendarColorToggle();
+      renderQuickAddPreview();
       closeCalendarColorMenu();
-      syncQuickAddSaveButton();
     });
     entryDateInput.addEventListener("pointerdown", openEntryDatePicker);
     entryDateInput.addEventListener("click", openEntryDatePicker);
@@ -4694,21 +4864,9 @@
       });
     }
 
-    function getSaveQuickAddButton() {
-      saveQuickAddButton = document.getElementById("saveQuickAdd");
-      return saveQuickAddButton;
-    }
-
-    function bindQuickAddSaveButton() {
-      const button = getSaveQuickAddButton();
-      if (!button || button.dataset.quickAddBound === "true") return;
-      button.dataset.quickAddBound = "true";
-      bindAction(button, saveQuickAddFromForm);
-    }
-
     function toggleQuickAddMenu() {
       if (!quickAddMenu) return;
-      if (quickAddMenu.hidden) {
+      if (quickAddMenu.hidden || quickAddMenu.classList.contains("is-closing")) {
         openQuickAddMenu();
       } else {
         closeQuickAddMenu();
@@ -4718,23 +4876,62 @@
     function openQuickAddMenu() {
       if (!quickAddMenu) return;
       closeCalendarColorMenu();
+      renderQuickAddPreview();
+      if (quickAddMenuCloseTimer) {
+        window.clearTimeout(quickAddMenuCloseTimer);
+        quickAddMenuCloseTimer = 0;
+      }
+      quickAddMenu.classList.remove("is-closing");
       quickAddMenu.hidden = false;
+      entryComposerPanel?.classList.add("has-quick-add-open");
       quickAddToggle?.setAttribute("aria-expanded", "true");
+      if (reducedMotionQuery.matches) {
+        quickAddMenu.classList.remove("is-opening");
+        return;
+      }
+      quickAddMenu.classList.remove("is-opening");
+      void quickAddMenu.offsetWidth;
+      quickAddMenu.classList.add("is-opening");
+    }
+
+    function finishQuickAddMenuClose() {
+      if (!quickAddMenu) return;
+      quickAddMenu.hidden = true;
+      quickAddMenu.classList.remove("is-closing", "is-opening");
+      entryComposerPanel?.classList.remove("has-quick-add-open");
+      quickAddToggle?.setAttribute("aria-expanded", "false");
+      quickAddMenuCloseTimer = 0;
     }
 
     function closeQuickAddMenu() {
-      if (!quickAddMenu) return;
-      quickAddMenu.hidden = true;
-      quickAddToggle?.setAttribute("aria-expanded", "false");
+      if (!quickAddMenu || (quickAddMenu.hidden && !quickAddMenu.classList.contains("is-closing"))) return;
+      if (quickAddMenu.classList.contains("is-closing")) return;
+      quickAddMenu.classList.remove("is-opening");
+      if (reducedMotionQuery.matches) {
+        finishQuickAddMenuClose();
+        return;
+      }
+      quickAddMenu.classList.add("is-closing");
+      const onExitEnd = (event) => {
+        if (event.target !== quickAddMenu || event.animationName !== "quick-add-menu-exit") return;
+        quickAddMenu.removeEventListener("animationend", onExitEnd);
+        finishQuickAddMenuClose();
+      };
+      quickAddMenu.addEventListener("animationend", onExitEnd);
+      if (quickAddMenuCloseTimer) window.clearTimeout(quickAddMenuCloseTimer);
+      quickAddMenuCloseTimer = window.setTimeout(() => {
+        quickAddMenu.removeEventListener("animationend", onExitEnd);
+        finishQuickAddMenuClose();
+      }, 220);
     }
 
     function isQuickAddInteraction(event) {
-      if (event.target instanceof Element && event.target.closest(".quick-add-control, #saveQuickAdd")) {
+      if (event.target instanceof Element && event.target.closest(".quick-add-control")) {
         return true;
       }
       return event.composedPath().some((node) => {
         return node instanceof Element
-          && (node.classList.contains("quick-add-control") || node.id === "saveQuickAdd");
+          && node.classList.contains("quick-add-control");
       });
     }
 
@@ -5392,7 +5589,6 @@
         ensureTimeFieldsRendered();
         unmountClaimFields();
       }
-      syncQuickAddSaveButton();
     }
 
     function renderCalendarColorPicker() {
@@ -5503,6 +5699,85 @@
       }
     }
 
+    function getQuickAddTemplateFromForm() {
+      const schoolName = schoolNameInput.value.trim();
+      const date = entryDateInput.value;
+      const startTime = document.getElementById("startTime")?.value || "";
+      const hours = Number(document.getElementById("hoursWorked")?.value || 0);
+      if (!schoolName || !date || !startTime || !Number.isFinite(hours) || hours <= 0) {
+        return null;
+      }
+      const parsedDate = new Date(`${date}T00:00:00`);
+      if (Number.isNaN(parsedDate.getTime())) return null;
+      return {
+        schoolName,
+        weekday: parsedDate.getDay(),
+        startTime,
+        hours,
+        calendarColor: getSelectedCalendarColor(),
+      };
+    }
+
+    function renderQuickAddPreview() {
+      if (!quickAddPreviewCard) return;
+      const template = getQuickAddTemplateFromForm();
+      const canSave = Boolean(template && currentUser && window.quickAddStore);
+      if (quickAddPreviewSave) {
+        quickAddPreviewSave.disabled = !canSave;
+      }
+      if (!template) {
+        quickAddPreviewCard.className = "quick-add-preview-card is-skeleton";
+        quickAddPreviewCard.removeAttribute("aria-label");
+        quickAddPreviewCard.style.removeProperty("--quick-add-color");
+        quickAddPreviewCard.style.removeProperty("--quick-add-text");
+        quickAddPreviewCard.innerHTML = `
+          <span class="quick-add-preview-skeleton-line is-title" aria-hidden="true"></span>
+          <span class="quick-add-preview-skeleton-line is-meta" aria-hidden="true"></span>
+        `;
+        return;
+      }
+
+      quickAddPreviewCard.className = "quick-add-preview-card";
+      quickAddPreviewCard.style.removeProperty("--quick-add-color");
+      quickAddPreviewCard.style.removeProperty("--quick-add-text");
+      quickAddPreviewCard.setAttribute(
+        "aria-label",
+        `Current entry preview: ${template.schoolName}, ${formatQuickAddMeta(template)}`
+      );
+      quickAddPreviewCard.innerHTML = `
+        <span class="quick-add-school"></span>
+        <span class="quick-add-meta"></span>
+      `;
+      quickAddPreviewCard.querySelector(".quick-add-school").textContent = template.schoolName;
+      quickAddPreviewCard.querySelector(".quick-add-meta").textContent = formatQuickAddMeta(template);
+      applyQuickAddTemplateColor(quickAddPreviewCard, template);
+    }
+
+    async function saveQuickAddFromPreview() {
+      const template = getQuickAddTemplateFromForm();
+      if (!template || !currentUser || !window.quickAddStore || !quickAddPreviewSave) return;
+
+      if (quickAddTemplates.some((item) => getQuickAddKey(item) === getQuickAddKey(template))) {
+        setQuickAddStatus("That shortcut is already saved.");
+        return;
+      }
+
+      quickAddPreviewSave.disabled = true;
+      setQuickAddStatus("Saving...");
+      try {
+        const createdTemplate = await window.quickAddStore.createTemplate(template, {
+          employeeId: currentUser.id,
+        });
+        quickAddTemplates = [...quickAddTemplates, createdTemplate].sort(compareQuickAdds);
+        renderQuickAdds();
+        setQuickAddStatus("Saved to Quick Add.");
+      } catch (error) {
+        setQuickAddStatus(error?.message || "Could not save Quick Add.", "error");
+      } finally {
+        renderQuickAddPreview();
+      }
+    }
+
     function renderQuickAdds() {
       quickAddList.innerHTML = "";
       if (!quickAddTemplates.length) {
@@ -5557,74 +5832,6 @@
     function formatQuickAddMeta(template) {
       const weekday = weekdayLabels[Number(template.weekday)] || "Weekday";
       return `${weekday} · ${formatTime(template.startTime)} · ${trimHours(template.hours)} hrs`;
-    }
-
-    function getQuickAddTemplateFromForm() {
-      if (entryTypeSelect.value !== "School Coaching") return null;
-      const schoolName = document.getElementById("schoolName").value.trim();
-      const entryDate = entryDateInput.value;
-      const startTimeInput = document.getElementById("startTime");
-      const hoursWorkedInput = document.getElementById("hoursWorked");
-      const startTime = startTimeInput ? startTimeInput.value : "";
-      const hours = hoursWorkedInput ? Number(hoursWorkedInput.value) : 0;
-      const parsedDate = entryDate ? new Date(`${entryDate}T00:00:00`) : null;
-
-      if (!schoolName || !startTime || !Number.isFinite(hours) || hours <= 0 || !parsedDate || Number.isNaN(parsedDate.getTime())) {
-        return null;
-      }
-
-      return {
-        schoolName,
-        weekday: parsedDate.getDay(),
-        startTime,
-        hours,
-        calendarColor: getSelectedCalendarColor(),
-      };
-    }
-
-    function syncQuickAddSaveButton() {
-      const button = getSaveQuickAddButton();
-      if (!button) return;
-      button.disabled = !currentUser || !window.quickAddStore || !getQuickAddTemplateFromForm();
-    }
-
-    async function saveQuickAddFromForm() {
-      const template = getQuickAddTemplateFromForm();
-      if (!template) {
-        openQuickAddMenu();
-        setQuickAddStatus("Complete a School Coaching entry before saving a quick add.", "error");
-        syncQuickAddSaveButton();
-        return;
-      }
-
-      if (quickAddTemplates.some((item) => getQuickAddKey(item) === getQuickAddKey(template))) {
-        openQuickAddMenu();
-        setQuickAddStatus("That quick add is already saved.");
-        return;
-      }
-
-      const button = getSaveQuickAddButton();
-      if (button) {
-        button.disabled = true;
-      }
-      try {
-        const createdTemplate = await window.quickAddStore.createTemplate(template, {
-          employeeId: currentUser.id,
-        });
-        quickAddTemplates = [...quickAddTemplates, createdTemplate].sort(compareQuickAdds);
-        renderQuickAdds();
-        openQuickAddMenu();
-        setQuickAddStatus("Saved to Quick Add.");
-      } catch (error) {
-        const message = String(error?.message || "");
-        const friendlyMessage = /duplicate|unique/i.test(message)
-          ? "That quick add is already saved."
-          : "Could not save this quick add.";
-        openQuickAddMenu();
-        setQuickAddStatus(friendlyMessage, "error");
-      } finally {
-        syncQuickAddSaveButton();
-      }
     }
 
     async function onQuickAddListClick(event) {
@@ -5685,7 +5892,6 @@
       if (monthChanged) {
         render();
       }
-      syncQuickAddSaveButton();
       setQuickAddStatus("Quick add applied. Review it, then Save Entry.");
       closeQuickAddMenu();
     }
@@ -7346,7 +7552,6 @@
       setSelectedCalendarColor(defaultCalendarColor);
       syncDateFieldToMonth();
       syncReplacementField();
-      syncQuickAddSaveButton();
     }
 
     function enterEntryEditMode(entryId) {
@@ -7525,11 +7730,6 @@
 
       const endGrid = new Date(lastDay);
       endGrid.setDate(endGrid.getDate() + (6 - lastDay.getDay()));
-
-      calendarTitle.textContent = firstDay.toLocaleDateString(undefined, {
-        month: "long",
-        year: "numeric",
-      });
 
       const groupedByDate = groupBy(activeEntries, (entry) => entry.date);
       const today = formatDateInput(new Date());
@@ -7730,8 +7930,6 @@
         if (startTimeInput) startTimeInput.value = entry.startTime || "";
         if (hoursWorkedInput) hoursWorkedInput.value = entry.hours != null ? entry.hours : "";
       }
-
-      syncQuickAddSaveButton();
     }
 
     function focusEditedEntryComposer(entry) {
@@ -7827,78 +8025,46 @@
       document.documentElement.setAttribute("data-browser-engine", webkit ? "webkit" : "other");
 
       const currentYear = new Date().getFullYear();
-      for (let year = currentYear - 5; year <= currentYear + 5; year += 1) {
-        addMonthPickerYearOption(year);
-      }
+      monthYearSelect.min = String(currentYear - 5);
+      monthYearSelect.max = String(currentYear + 5);
 
-      monthPicker.hidden = true;
-      monthPickerFallback.hidden = false;
-      monthPickerTrigger.addEventListener("click", toggleMonthPickerPanel);
-      monthPickerPrev.addEventListener("click", () => shiftMonthValue(-1));
-      monthPickerNext.addEventListener("click", () => shiftMonthValue(1));
+      calendarMonthPrev.addEventListener("click", () => shiftMonthValue(-1));
+      calendarMonthNext.addEventListener("click", () => shiftMonthValue(1));
       monthNameSelect.addEventListener("change", onFallbackMonthChange);
       monthYearSelect.addEventListener("change", onFallbackMonthChange);
-      document.addEventListener("click", (event) => {
-        if (!monthPickerPanel.hidden && !isMonthPickerInteraction(event)) {
-          closeMonthPickerPanel();
-        }
-      });
-      document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || monthPickerPanel.hidden) return;
-        event.preventDefault();
-        closeMonthPickerPanel({ restoreFocus: true });
-      });
+      monthYearSelect.addEventListener("blur", onYearInputBlur);
     }
 
-    function addMonthPickerYearOption(year) {
-      const value = String(year);
-      if (monthYearSelect.querySelector(`option[value="${value}"]`)) return;
-      const option = document.createElement("option");
-      option.value = value;
-      option.textContent = value;
-      const nextOption = Array.from(monthYearSelect.options).find((item) => Number(item.value) > year);
-      monthYearSelect.insertBefore(option, nextOption || null);
-    }
-
-    function toggleMonthPickerPanel() {
-      if (monthPickerPanel.hidden) {
-        openMonthPickerPanel();
-      } else {
-        closeMonthPickerPanel({ restoreFocus: true });
+    function ensureYearInputBounds(year) {
+      const numericYear = Number(year);
+      if (!Number.isFinite(numericYear)) return;
+      const currentMin = Number(monthYearSelect.min);
+      const currentMax = Number(monthYearSelect.max);
+      if (Number.isFinite(currentMin) && numericYear < currentMin) {
+        monthYearSelect.min = String(numericYear);
+      }
+      if (Number.isFinite(currentMax) && numericYear > currentMax) {
+        monthYearSelect.max = String(numericYear);
       }
     }
 
-    function openMonthPickerPanel() {
-      renderMonthPickerGrid(monthPicker.value);
-      monthPickerPanel.hidden = false;
-      monthPickerTrigger.setAttribute("aria-expanded", "true");
-      monthPickerGrid.querySelector(".month-picker-month.is-selected")?.focus({ preventScroll: true });
-    }
-
-    function closeMonthPickerPanel(options = {}) {
-      if (monthPickerPanel.hidden) return;
-      monthPickerPanel.hidden = true;
-      monthPickerTrigger.setAttribute("aria-expanded", "false");
-      if (options.restoreFocus) {
-        monthPickerTrigger.focus({ preventScroll: true });
+    function onYearInputBlur() {
+      const year = String(monthYearSelect.value || "").trim();
+      if (!/^\d{4}$/.test(year)) {
+        syncFallbackFromMonthValue(monthPicker.value);
+        return;
       }
-    }
-
-    function isMonthPickerInteraction(event) {
-      if (event.target instanceof Element && event.target.closest("#monthPickerControl")) {
-        return true;
-      }
-      return event.composedPath().some((node) => node === monthPickerControl);
+      onFallbackMonthChange();
     }
 
     function onFallbackMonthChange() {
-      const year = monthYearSelect.value;
       const month = monthNameSelect.value;
-      if (!year || !month) return;
+      const year = String(monthYearSelect.value || "").trim();
+      if (!month || !/^\d{4}$/.test(year)) return;
+      ensureYearInputBounds(Number(year));
       setMonthValue(`${year}-${month}`);
       syncDateFieldToMonth();
       syncPayrollLink();
-      syncQuickAddSaveButton();
       render();
     }
 
@@ -7906,19 +8072,17 @@
       if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
       monthPicker.value = monthValue;
       syncFallbackFromMonthValue(monthValue);
-      renderMonthPickerGrid(monthValue);
     }
 
     function syncFallbackFromMonthValue(monthValue) {
       if (!/^\d{4}-\d{2}$/.test(monthValue)) return;
       const [year, month] = monthValue.split("-");
-      addMonthPickerYearOption(Number(year));
+      ensureYearInputBounds(Number(year));
       monthYearSelect.value = year;
       monthNameSelect.value = month;
       const label = `${monthNames[Number(month) - 1]} ${year}`;
-      monthPickerLabel.textContent = label;
       monthPicker.setAttribute("aria-label", label);
-      monthPickerTrigger.setAttribute("aria-label", `Select working month, currently ${label}`);
+      calendarTitle.setAttribute("aria-label", `Working month, ${label}`);
     }
 
     function shiftMonthValue(offset) {
@@ -7927,38 +8091,7 @@
       setMonthValue(formatMonthValue(nextDate));
       syncDateFieldToMonth();
       syncPayrollLink();
-      syncQuickAddSaveButton();
       render();
-    }
-
-    function renderMonthPickerGrid(monthValue = monthPicker.value) {
-      if (!monthPickerGrid || !/^\d{4}-\d{2}$/.test(monthValue)) return;
-      const [selectedYear, selectedMonth] = monthValue.split("-").map(Number);
-      const currentMonthValue = formatMonthValue(new Date());
-      monthPickerGrid.innerHTML = "";
-      monthNames.forEach((monthName, index) => {
-        const month = String(index + 1).padStart(2, "0");
-        const value = `${selectedYear}-${month}`;
-        const button = document.createElement("button");
-        button.className = "month-picker-month";
-        button.type = "button";
-        button.dataset.monthValue = value;
-        button.textContent = monthName.slice(0, 3);
-        button.setAttribute("role", "gridcell");
-        button.setAttribute("aria-label", `${monthName} ${selectedYear}`);
-        button.setAttribute("aria-selected", String(index + 1 === selectedMonth));
-        button.classList.toggle("is-selected", index + 1 === selectedMonth);
-        button.classList.toggle("is-current", value === currentMonthValue);
-        button.addEventListener("click", () => {
-          setMonthValue(value);
-          closeMonthPickerPanel({ restoreFocus: true });
-          syncDateFieldToMonth();
-          syncPayrollLink();
-          syncQuickAddSaveButton();
-          render();
-        });
-        monthPickerGrid.appendChild(button);
-      });
     }
 
     function formatDateInput(date) {
@@ -8173,13 +8306,10 @@
       if (document.getElementById("timeFields")) return;
       timeFieldsMount.innerHTML = "";
       timeFieldsMount.appendChild(timeFieldsTemplate.content.cloneNode(true));
-      bindQuickAddSaveButton();
-      syncQuickAddSaveButton();
     }
 
     function unmountTimeFields() {
       timeFieldsMount.innerHTML = "";
-      saveQuickAddButton = null;
     }
 
     function initImageViewer() {
