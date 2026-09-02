@@ -619,6 +619,46 @@ assert.match(
 );
 assert.match(
   timesheetHtml,
+  /function syncReplacementField\(\)[\s\S]*const schoolNameRow = schoolNameInput\.closest\("\.school-name-row"\)[\s\S]*schoolNameRow\.hidden = isClaim[\s\S]*schoolNameRow\.style\.display = isClaim \? "none" : ""/,
+  "claim entries should hide the redundant general entry-name field"
+);
+assert.match(
+  timesheetHtml,
+  /if \(notesLabel\) notesLabel\.textContent = isEvent \? "Notes" : "Claim Name"/,
+  "claim notes should be presented as the single canonical claim name"
+);
+assert.match(
+  timesheetHtml,
+  /<div class="full" id="claimNameMount" hidden><\/div>\s*<div class="date-field">/,
+  "claim name should mount above the date and entry-type row"
+);
+assert.match(
+  timesheetHtml,
+  /schoolName: isClaim \? "Claims" : schoolName[\s\S]*claimNotes: isCostEntry \? claimNotes : ""/,
+  "claim entry names should remain persisted through the canonical claim-notes field"
+);
+assert.match(
+  timesheetHtml,
+  /function renderEntryActions\(entry\)[\s\S]*if \(window\.draftTimesheetStore\.isSubmitted\(entry\)\)[\s\S]*return `<span class="locked">Submitted<\/span>`/,
+  "submitted claim rows should remain locked outside the composer"
+);
+assert.match(
+  timesheetHtml,
+  /function editEntry\(id\)[\s\S]*if \(!entry \|\| window\.draftTimesheetStore\.isSubmitted\(entry\)\) return;[\s\S]*populateEntryComposer\(entry\)/,
+  "submitted entries should never enter the claim edit flow"
+);
+assert.match(
+  timesheetHtml,
+  /id="claimProofStatus"[\s\S]*role="status"[\s\S]*aria-live="polite"/,
+  "claim proof control should expose existing-upload status accessibly"
+);
+assert.match(
+  timesheetHtml,
+  /function syncClaimFields\([\s\S]*const hasStoredClaimProof[\s\S]*claimProofStatus\.textContent = hasStoredClaimProof[\s\S]*Image uploaded[\s\S]*Choose a new image to replace it/,
+  "editing a claim with stored proof should confirm that its image remains uploaded"
+);
+assert.match(
+  timesheetHtml,
   /function syncEntryComposerMode\(\)[\s\S]*const isEditingSavedEntry = Boolean\(editingEntryId\)[\s\S]*const isEditingImportEntry = aiEditingImportIndex >= 0[\s\S]*entryComposerPanel\?\.classList\.toggle\("is-editing-entry", isEditing\)[\s\S]*entryComposerImportEditTitle[\s\S]*entryComposerEditTitle[\s\S]*entryComposerDefaultTitle[\s\S]*entryComposerImportEditCopy[\s\S]*entryComposerEditCopy[\s\S]*entryComposerDefaultCopy/,
   "employee composer should sync title, copy, and highlight for saved and imported entry edits"
 );

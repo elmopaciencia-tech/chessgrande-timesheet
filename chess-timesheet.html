@@ -1648,6 +1648,18 @@
       line-height: 1.45;
     }
 
+    .claim-proof-status {
+      margin: 8px 0 0;
+      color: var(--success);
+      font-size: 0.84rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .claim-proof-status[hidden] {
+      display: none;
+    }
+
     .quick-add-menu {
       position: absolute;
       top: calc(100% + var(--space-2));
@@ -4014,6 +4026,7 @@
                     </div>
                   </div>
                 </div>
+                <div class="full" id="claimNameMount" hidden></div>
                 <div class="date-field">
                   <label for="entryDate">Date</label>
                   <input id="entryDate" name="entryDate" type="date" required aria-label="Entry date. Opens a calendar picker.">
@@ -4129,12 +4142,15 @@
     </div>
   </div>
 
+  <template id="claimNameFieldTemplate">
+    <div class="full" id="claimNameField">
+      <label for="claimNotes">Claim Name</label>
+      <input id="claimNotes" name="claimNotes" type="text" placeholder="e.g. Transport reimbursement">
+    </div>
+  </template>
+
   <template id="claimFieldsTemplate">
     <div class="form-grid" id="claimFields">
-      <div class="full">
-        <label for="claimNotes">Claim Notes</label>
-        <input id="claimNotes" name="claimNotes" type="text" placeholder="e.g. Transport reimbursement">
-      </div>
       <div class="full">
         <label for="claimCost">Claim Cost</label>
         <input id="claimCost" name="claimCost" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 14.50">
@@ -4142,6 +4158,7 @@
       <div class="full" id="claimProofField">
         <label for="claimProof">Proof Image</label>
         <input id="claimProof" name="claimProof" type="file" accept="image/*">
+        <p class="claim-proof-status" id="claimProofStatus" role="status" aria-live="polite" hidden></p>
       </div>
     </div>
   </template>
@@ -4264,6 +4281,8 @@
     const timeFieldsMount = document.getElementById("timeFieldsMount");
     const timeFieldsTemplate = document.getElementById("timeFieldsTemplate");
     const recurringRow = document.getElementById("recurringRow");
+    const claimNameMount = document.getElementById("claimNameMount");
+    const claimNameFieldTemplate = document.getElementById("claimNameFieldTemplate");
     const claimFieldsMount = document.getElementById("claimFieldsMount");
     const claimFieldsTemplate = document.getElementById("claimFieldsTemplate");
     const imageLightbox = document.getElementById("imageLightbox");
@@ -5554,6 +5573,7 @@
       const isClaim = entryTypeSelect.value === "Claim";
       const isEvent = entryTypeSelect.value === "Event";
       const isCostEntry = isClaim || isEvent;
+      const schoolNameRow = schoolNameInput.closest(".school-name-row");
       replacementField.hidden = !isReplacement;
       replacementNameInput.required = isReplacement;
       if (!isReplacement) {
@@ -5576,6 +5596,10 @@
       }
       syncRepeatSelectionUi();
       schoolNameInput.required = !isClaim;
+      if (schoolNameRow) {
+        schoolNameRow.hidden = isClaim;
+        schoolNameRow.style.display = isClaim ? "none" : "";
+      }
       if (schoolNameLabel) {
         schoolNameLabel.textContent = "Entry Name";
       }
@@ -8256,8 +8280,21 @@
     }
 
     function ensureClaimFieldsRendered(entryType = entryTypeSelect.value) {
+      const claimNameTarget = entryType === "Claim" ? claimNameMount : claimFieldsMount;
+      claimNameMount.hidden = entryType !== "Claim";
+      claimNameMount.style.display = entryType === "Claim" ? "" : "none";
+      let claimNameField = document.getElementById("claimNameField");
+      if (!claimNameField) {
+        claimNameField = claimNameFieldTemplate.content.cloneNode(true).firstElementChild;
+      }
+      if (claimNameField.parentElement !== claimNameTarget) {
+        if (claimNameTarget === claimFieldsMount) {
+          claimNameTarget.prepend(claimNameField);
+        } else {
+          claimNameTarget.appendChild(claimNameField);
+        }
+      }
       if (!document.getElementById("claimFields")) {
-        claimFieldsMount.innerHTML = "";
         claimFieldsMount.appendChild(claimFieldsTemplate.content.cloneNode(true));
       }
       syncClaimFields(entryType);
@@ -8268,6 +8305,7 @@
       const claimNotesInput = document.getElementById("claimNotes");
       const claimCostInput = document.getElementById("claimCost");
       const claimProofInput = document.getElementById("claimProof");
+      const claimProofStatus = document.getElementById("claimProofStatus");
       const claimProofField = document.getElementById("claimProofField");
       const notesLabel = document.querySelector('label[for="claimNotes"]');
       const costLabel = document.querySelector('label[for="claimCost"]');
@@ -8275,7 +8313,15 @@
         || (editingEntryId ? entries.find((entry) => entry.id === editingEntryId) : null);
       const hasStoredClaimProof = Boolean(existingEntry?.claimImagePath || existingEntry?.claimProofDataUrl);
 
-      if (notesLabel) notesLabel.textContent = isEvent ? "Notes" : "Claim Notes";
+      if (claimProofStatus) {
+        const proofName = String(existingEntry?.claimProofName || "").trim();
+        claimProofStatus.textContent = hasStoredClaimProof
+          ? `Image uploaded${proofName ? `: ${proofName}` : ""}. Choose a new image to replace it.`
+          : "";
+        claimProofStatus.hidden = !hasStoredClaimProof || isEvent;
+      }
+
+      if (notesLabel) notesLabel.textContent = isEvent ? "Notes" : "Claim Name";
       if (costLabel) costLabel.textContent = isEvent ? "Cost" : "Claim Cost";
       if (claimNotesInput) {
         claimNotesInput.required = true;
@@ -8299,6 +8345,9 @@
     }
 
     function unmountClaimFields() {
+      claimNameMount.hidden = true;
+      claimNameMount.style.display = "none";
+      claimNameMount.innerHTML = "";
       claimFieldsMount.innerHTML = "";
     }
 
