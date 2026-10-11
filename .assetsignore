@@ -11,6 +11,5 @@ node_modules/
 output/playwright/
 supabase/.temp/
 supabase/migrations/
-assets/readme/
 manager-dashboard-live-initial.png
 Chess Grande Time Sheet March 2026.xlsx

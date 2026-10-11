@@ -10,6 +10,40 @@ A web app for Chess Grande timesheets and payroll. It replaces the monthly Excel
 - Coaches receive monthly hourly pay. Trainees receive a fixed weekly stipend for each completed week with eligible work.
 - Claim receipts are stored privately. AI tools can import Excel timesheets and answer webadmin questions using uploaded support documents.
 
+## Screenshots
+
+These screenshots use real Singapore school names, with Elmo as the main user. Staff details, schedules, and pay amounts are examples. Contact numbers and bank accounts are hidden.
+
+### Employee timesheet
+
+View the month, add entries, and group work by activity.
+
+![Employee timesheet with a colour-coded calendar and session form](assets/readme/employee-timesheet.png)
+
+### Pay review
+
+Check hours, pay, and profile details before submitting.
+
+![Elmo's pay review with hours, calculated pay, and payroll profile](assets/readme/pay-review.png)
+
+### Manager dashboard
+
+Review employee submissions, filter payment status, and mark payroll as paid.
+
+![Manager dashboard with employee profiles and Elmo's expanded payroll submission](assets/readme/manager-dashboard.png)
+
+### Webadmin directory
+
+Search users, edit profiles, and manage roles and AI model settings.
+
+![Webadmin directory with fictional users, account roles, and model settings](assets/readme/webadmin-directory.png)
+
+### Original Excel workflow
+
+The original payment sheet before the web app.
+
+![Original Chess Grande Excel payment sheet](assets/readme/excel-before.png)
+
 ## Run locally
 
 Use Node.js 22 or newer and Python 3.
@@ -53,7 +87,7 @@ Set up Supabase using [supabase-schema.sql](supabase-schema.sql). New accounts s
 
 ## Repository Privacy
 
-Keep payroll exports, screenshots of real records, browser logs, and local service caches out of Git. Local documentation captures in `assets/readme/` are ignored; they are not part of the public README. Use fictional records for any future public screenshots.
+Keep private payroll exports, browser logs, and local service caches out of Git. The approved public README screenshots are tracked in `assets/readme/`. Review new screenshots for private information before publishing.
 
 `.assetsignore` also excludes these local artifacts from Cloudflare static asset uploads. Keep server secrets in the deployment secret store. The Supabase browser publishable key is intentionally public and relies on database access policies.
 

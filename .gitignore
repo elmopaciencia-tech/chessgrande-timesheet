@@ -13,8 +13,6 @@ node_modules
 .impeccable/
 output/playwright/
 /manager-dashboard-live-initial.png
-# Local documentation captures may contain payroll or personal data.
-/assets/readme/
 /Chess Grande Time Sheet March 2026.xlsx
 supabase/.temp/
 supabase/migrations/
