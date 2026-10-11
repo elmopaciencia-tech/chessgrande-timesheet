@@ -1,119 +1,80 @@
 # Chess Grande Payroll Portal
 
-A static web payroll portal for Chess Grande employees, managers, and webadmins, replacing a manual monthly Excel timesheet with a clearer browser-based workflow.
+A web app for Chess Grande timesheets and payroll. It replaces the monthly Excel sheet with a shared calendar, pay review, and submission workflow.
 
-> Screenshots use curated demo data for GitHub. Real payroll, bank, or user records are hidden. 
+## What it does
 
-## Before And After
+- **Employees** log coaching sessions, replacements, private lessons, camps, events, and expenses. They review their pay and submit payroll.
+- **Managers** review submissions, mark payments as paid, manage pay rates, edit employee drafts, and send notices.
+- **Webadmins** manage user profiles and account roles.
+- Coaches receive monthly hourly pay. Trainees receive a fixed weekly stipend for each completed week with eligible work.
+- Claim receipts are stored privately. AI tools can import Excel timesheets and answer webadmin questions using uploaded support documents.
 
-The original workflow was a spreadsheet-first payment sheet: staff filled repeated rows, dates, time blocks, claims, and replacements manually before payroll review. This project turns that into a role-based web app backed by Supabase, with draft entries, monthly pay review, manager oversight, and webadmin profile management.
+## Screenshots
 
-<table>
-  <tr>
-    <th>Before: manual Excel payment sheet</th>
-    <th>After: guided web timesheet</th>
-  </tr>
-  <tr>
-    <td><img src="assets/readme/excel-before.png" alt="Old Chess Grande Excel payment sheet with manual rows for school sessions and camp entries"></td>
-    <td><img src="assets/readme/employee-timesheet.png" alt="Chess Grande employee timesheet web page with a monthly calendar, activity summary, and entry composer"></td>
-  </tr>
-</table>
+These screenshots show the current app with fictional demo data. Names, contact details, bank details, and pay amounts are examples.
 
-## Why This Exists
+### Employee timesheet
 
-The Excel version worked, but it made payroll depend on careful manual entry across many repeated date columns and category sections. It was easy for staff to miss a session, duplicate a date, or separate claim proof from the payroll line it belonged to.
+View the month, add entries, and group work by activity.
 
-The web app keeps the familiar monthly ledger idea, but gives each role a focused workflow:
+![Employee timesheet with a colour-coded calendar and session form](assets/readme/employee-timesheet.png)
 
-- Employees add coaching sessions, replacements, private work, events, camps, and claims.
-- The monthly pay page calculates hours and pay from the same draft ledger.
-- Trainees on the manager-assigned weekly-stipend policy receive one fixed stipend for each completed week with positive-hour work. They may submit qualifying weeks before the manager sets the stipend; any manager-only promotion target remains hidden from trainees.
-- Managers review submitted payroll snapshots and inspect employee entries.
-- Webadmins maintain user profiles, account roles, and operational details.
+### Pay review
 
-## How The Web App Is Used
+Check hours, pay, and profile details before submitting.
 
-### 1. Employees Build The Monthly Timesheet
+![Employee pay review with demo hours, calculated pay, and payroll profile](assets/readme/pay-review.png)
 
-Employees work from one monthly view. The calendar shows schedule density, while the activity summary groups entries for review before submission.
+### Manager dashboard
 
-![Employee timesheet view with demo monthly entries](assets/readme/employee-timesheet.png)
+Review employee submissions, filter payment status, and mark payroll as paid.
 
-### 2. Employees Review And Submit Pay
+![Manager dashboard with demo employees and an expanded payroll submission](assets/readme/manager-dashboard.png)
 
-The pay view mirrors the same entries through a payroll lens. Hourly employees review a monthly calculation, while weekly-stipend trainees review and submit closed Monday–Sunday weeks without seeing manager-only promotion criteria.
+### Webadmin directory
 
-![Employee pay review page with demo payroll summary](assets/readme/pay-review.png)
+Search users, edit profiles, and manage roles and AI model settings.
 
-### 3. Managers Review Submitted Payroll
+![Webadmin directory with fictional users, account roles, and model settings](assets/readme/webadmin-directory.png)
 
-Managers get an operational queue for submitted monthly payroll. They can filter by month/year, scan totals, and open an employee submission for deeper review.
+## Run locally
 
-![Manager dashboard with demo payroll submissions](assets/readme/manager-dashboard.png)
+Use Node.js 22 or newer and Python 3.
 
-### 4. Webadmins Manage Users And Roles
+```bash
+npm ci
+python3 -m http.server 8080
+```
 
-Webadmins manage the user directory from one maintenance screen, including role context for employees, managers, and webadmins.
+Open `http://localhost:8080`. The home page redirects to `login.html`.
 
-![Webadmin user directory with demo profile records](assets/readme/webadmin-directory.png)
+The frontend uses the service URLs in [supabase-client.js](supabase-client.js) and [claim-proof-storage.js](claim-proof-storage.js). It needs a configured Supabase project for sign-in and saved data.
 
-## What It Is Built With
+To run the separate claim-proof and AI Worker locally:
 
-- Static HTML, CSS, and JavaScript
-- Supabase Auth for sign-in
-- Supabase Postgres with Row Level Security for profiles, draft entries, submissions, and payroll entries
-- Cloudflare Worker + private R2 bucket for claim proof image upload and signed viewing
-- Optional OpenRouter + LangChain RAG chatbot for webadmin support documents
-- Static hosting on Vercel or Cloudflare Pages
+```bash
+npm run worker:dev
+```
 
-## Claims Images
+See [the Worker](cloudflare-worker/claim-proof-worker.js) for required bindings and secrets, and [its configuration](cloudflare-worker/wrangler.toml) for R2 bucket settings. The frontend continues to use its configured Worker URL.
 
-Claim proof images use a private Cloudflare R2 bucket through a Cloudflare Worker. Used when an employee files a company claim (i.e. Taxi/Grab claims).
+## Checks
 
-Pages that use claim images:
+```bash
+npm test
+npm run worker:dry-run
+```
 
-- Employee upload and preview
-- Pay review preview
-- Manager submitted-entry review
+The weekly-pay test currently fails because two SQL migration files are missing from `supabase/migrations/`.
 
-## Webadmin Chatbot
+## Stack and deployment
 
-The webadmin dashboard includes an optional AI chat popup. The browser sends the logged-in Supabase token to the Worker, and the Worker verifies the user is a webadmin before calling OpenRouter through LangChain. This is just a proof of concept for now
+- Plain HTML, CSS, and JavaScript.
+- Supabase Auth and Postgres with Row Level Security.
+- A Cloudflare Worker and private R2 buckets for receipts and support documents.
+- OpenRouter and LangChain for optional AI features.
 
-Upload text, Markdown, CSV, or JSON support documents into the configured R2 prefix for RAG retrieval.
+Host the frontend on Cloudflare Pages or Vercel. No frontend build is needed. Deploy the Worker separately and configure its bindings and secrets.
 
-## Deploy
-
-This is a static app, so Cloudflare Pages can serve it without a framework build step.
-
-Routing note: `index.html` redirects to `login.html`; the rest of the app is served as plain `.html` files.
-
-## Roles And Access
-
-New signups start as employees. Promote manager or webadmin accounts from trusted SQL in Supabase:
-
-Allowed roles:
-
-- `employee`
-- `manager`
-- `webadmin`
-
-## Project Status
-
-Current app pages:
-
-- Login and signup
-- Profile setup and profile menu
-- Employee timesheet
-- Employee monthly pay review
-- Manager submitted payroll dashboard
-- Manager draft-timesheet editor
-- Manager submitted-entry review
-- Webadmin user directory
-
-Good next improvements:
-
-- Add a processed filter/state for manager payroll review
-- Add email confirmation and notification polish
-- Improve entry type color-coding across calendar and ledger views
-- Continue unifying the shared Supabase contract with the iOS app
+Set up Supabase using [supabase-schema.sql](supabase-schema.sql). New accounts start as employees; grant manager or webadmin access through trusted administration.
