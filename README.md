@@ -12,7 +12,7 @@ A web app for Chess Grande timesheets and payroll. It replaces the monthly Excel
 
 ## Screenshots
 
-These screenshots show the current app with fictional demo data. Names, contact details, bank details, and pay amounts are examples.
+These screenshots use real Singapore school names, with Elmo as the main user. Staff details, schedules, and pay amounts are examples. Contact numbers and bank accounts are hidden.
 
 ### Employee timesheet
 
@@ -24,13 +24,13 @@ View the month, add entries, and group work by activity.
 
 Check hours, pay, and profile details before submitting.
 
-![Employee pay review with demo hours, calculated pay, and payroll profile](assets/readme/pay-review.png)
+![Elmo's pay review with hours, calculated pay, and payroll profile](assets/readme/pay-review.png)
 
 ### Manager dashboard
 
 Review employee submissions, filter payment status, and mark payroll as paid.
 
-![Manager dashboard with demo employees and an expanded payroll submission](assets/readme/manager-dashboard.png)
+![Manager dashboard with employee profiles and Elmo's expanded payroll submission](assets/readme/manager-dashboard.png)
 
 ### Webadmin directory
 
