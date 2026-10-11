@@ -1,0 +1,16 @@
+# Local and private artifacts must not be uploaded as static website assets.
+.git/
+node_modules/
+.env*
+.dev.vars*
+.wrangler/
+**/.wrangler/
+.playwright-mcp/
+.playwright-cli/
+.impeccable/
+output/playwright/
+supabase/.temp/
+supabase/migrations/
+assets/readme/
+manager-dashboard-live-initial.png
+Chess Grande Time Sheet March 2026.xlsx

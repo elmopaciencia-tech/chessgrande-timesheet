@@ -2,22 +2,9 @@
 
 A static web payroll portal for Chess Grande employees, managers, and webadmins, replacing a manual monthly Excel timesheet with a clearer browser-based workflow.
 
-> Screenshots use curated demo data for GitHub. Real payroll, bank, or user records are hidden. 
-
 ## Before And After
 
 The original workflow was a spreadsheet-first payment sheet: staff filled repeated rows, dates, time blocks, claims, and replacements manually before payroll review. This project turns that into a role-based web app backed by Supabase, with draft entries, monthly pay review, manager oversight, and webadmin profile management.
-
-<table>
-  <tr>
-    <th>Before: manual Excel payment sheet</th>
-    <th>After: guided web timesheet</th>
-  </tr>
-  <tr>
-    <td><img src="assets/readme/excel-before.png" alt="Old Chess Grande Excel payment sheet with manual rows for school sessions and camp entries"></td>
-    <td><img src="assets/readme/employee-timesheet.png" alt="Chess Grande employee timesheet web page with a monthly calendar, activity summary, and entry composer"></td>
-  </tr>
-</table>
 
 ## Why This Exists
 
@@ -37,25 +24,17 @@ The web app keeps the familiar monthly ledger idea, but gives each role a focuse
 
 Employees work from one monthly view. The calendar shows schedule density, while the activity summary groups entries for review before submission.
 
-![Employee timesheet view with demo monthly entries](assets/readme/employee-timesheet.png)
-
 ### 2. Employees Review And Submit Pay
 
 The pay view mirrors the same entries through a payroll lens. Hourly employees review a monthly calculation, while weekly-stipend trainees review and submit closed Monday–Sunday weeks without seeing manager-only promotion criteria.
-
-![Employee pay review page with demo payroll summary](assets/readme/pay-review.png)
 
 ### 3. Managers Review Submitted Payroll
 
 Managers get an operational queue for submitted monthly payroll. They can filter by month/year, scan totals, and open an employee submission for deeper review.
 
-![Manager dashboard with demo payroll submissions](assets/readme/manager-dashboard.png)
-
 ### 4. Webadmins Manage Users And Roles
 
 Webadmins manage the user directory from one maintenance screen, including role context for employees, managers, and webadmins.
-
-![Webadmin user directory with demo profile records](assets/readme/webadmin-directory.png)
 
 ## What It Is Built With
 
@@ -87,6 +66,14 @@ Upload text, Markdown, CSV, or JSON support documents into the configured R2 pre
 This is a static app, so Cloudflare Pages can serve it without a framework build step.
 
 Routing note: `index.html` redirects to `login.html`; the rest of the app is served as plain `.html` files.
+
+## Repository Privacy
+
+Keep payroll exports, screenshots of real records, browser logs, and local service caches out of Git. Local documentation captures in `assets/readme/` are ignored; they are not part of the public README. Use fictional records for any future public screenshots.
+
+`.assetsignore` also excludes these local artifacts from Cloudflare static asset uploads. Keep server secrets in the deployment secret store. The Supabase browser publishable key is intentionally public and relies on database access policies.
+
+Removing a file from the current repository does not remove it from Git history or existing copies. Previously published sensitive records require a separate history cleanup; exposed active secrets must also be revoked or rotated.
 
 ## Roles And Access
 
